@@ -1,0 +1,93 @@
+Consolidate the existing discovery module into a complete, cohesive network 
+discovery + topology pipeline. ONE entry point (__main__.py) that runs the whole 
+flow with a single command and prints one JSON document. Keep the existing 
+internal structure (vendors/, clients/) — reuse the working vendor identification 
+and SNMP code, do NOT rewrite or inline it into one file. "Cohesive" means one 
+clean pipeline, not one giant file.
+
+PYSNMP: 7.x async only (from pysnmp.hlapi.v3arch.asyncio import *, awaited 
+get_cmd / next_cmd / bulk_cmd). LLDP tables require WALKING. snmp_client should 
+have both a get() and a walk() helper.
+
+PIPELINE (single run):
+Phase 1 — DISCOVER & IDENTIFY (already works, keep it):
+  Sweep the given subnet(s). For each live SNMP device, run existing 
+  identification: vendor (from sysObjectID enterprise number), model, firmware, 
+  serial, hostname (sysName). 
+  ALSO read the device's own LLDP chassis MAC from lldpLocChassisId 
+  (1.0.8802.1.1.2.1.3.2.0) and normalize it. Add "mac" to each node.
+  Result: a list of node objects, each with ip, hostname, vendor, model, 
+  firmware, serial, mac, discovery_method.
+
+Phase 2 — TOPOLOGY EDGES (new):
+  For each discovered device, walk its LLDP remote table 
+  (1.0.8802.1.1.2.1.4.1.1). The columns, confirmed against the real lab:
+    .5  = neighbor chassis ID  (Hex-STRING MAC, e.g. "00 23 AC E5 74 00")
+    .7  = neighbor port ID     (e.g. "Gi2/0/1")
+    .8  = neighbor port descr  (e.g. "GigabitEthernet2/0/1")
+    .9  = neighbor sysName     (e.g. "L3-Switch", "CYFOR-Firewall.cyfor.lab")
+    .10 = neighbor sysDescr    (full model/version string)
+  The OID index (the part after the column number, e.g. ".0.3.1") encodes the 
+  LOCAL interface the neighbor is seen on — capture it as local_port_index.
+
+Phase 3 — CORRELATE & BUILD EDGES:
+  For each neighbor row, match it to a discovered node to form an edge:
+    - PRIMARY: match by hostname (neighbor sysName == a discovered node's 
+      hostname). The lab populates sysName cleanly, so this is the main path.
+    - FALLBACK: match by MAC (neighbor chassis ID == a discovered node's mac). 
+      Use the normalize_mac helper on both sides so formats match exactly.
+    - If neither matches a discovered node: still record the edge, with the 
+      neighbor as an "external" node identified by its sysName or MAC, and 
+      mark it resolved=false. Don't lose the link.
+  Build an edge: { source (the device being walked), target (the neighbor), 
+  source_port, target_port, resolved }.
+
+Phase 4 — DEDUPLICATE EDGES:
+  The same physical link is reported from BOTH ends (e.g. L2 switch reports 
+  L3-Switch as neighbor, AND L3 switch reports L2-Switch as neighbor — same 
+  cable). Collapse these into ONE edge by normalizing each edge's endpoint pair 
+  (sort the two endpoint identifiers) and deduping on that key. Keep the port 
+  info from both ends if available.
+
+OUTPUT — one JSON document to stdout (all logs/progress to stderr):
+{
+  "scan_time": "<iso timestamp>",
+  "nodes": [
+    { "ip", "hostname", "vendor", "model", "firmware", "serial", "mac", 
+      "discovery_method" }
+  ],
+  "edges": [
+    { "source", "target", "source_port", "target_port", "resolved" }
+  ]
+}
+
+MAC NORMALIZATION:
+  One shared helper that turns any SNMP chassis/MAC value (raw bytes, 
+  Hex-STRING "00 23 AC E5 74 00", or OctetString) into canonical lowercase 
+  colon form "00:23:ac:e5:74:00". Both phases use it. This is critical for the 
+  MAC fallback match to work.
+
+INPUT (argparse):
+  --subnet (repeatable, for multiple subnets), --community, 
+  optional --timeout (default 1.0), optional --concurrency (default 32).
+
+ROBUSTNESS:
+  - Devices with no LLDP (LLDP table returns "No Such Object") still appear as 
+    nodes from Phase 1; they just contribute no edges. Don't crash.
+  - Multi-line sysDescr strings (Cisco descriptions have embedded newlines) — 
+    collapse newlines to spaces when storing.
+  - stdout must be ONLY the final JSON, so a parent process (Node.js) can parse 
+    it. Everything else to stderr.
+
+TESTING (against the real lab — do not fabricate data):
+  Known topology to validate against:
+    - FortiGate 200D (CYFOR-Firewall.cyfor.lab) <-> L3-Switch
+    - L3-Switch <-> L2-Switch
+  Seed subnets: 172.20.99.0/24 and 172.20.100.0/30, community cyfor123.
+  After a run, the output should show 3 backbone nodes and 2 deduplicated edges 
+  matching the topology above. Print a short summary to stderr 
+  (node count, edge count) so correctness is easy to eyeball.
+
+Build/verify incrementally: confirm Phase 1 still produces nodes with the new 
+mac field, then add the LLDP remote-table walk and print raw neighbor rows, 
+then correlation, then dedup, then the final combined JSON.

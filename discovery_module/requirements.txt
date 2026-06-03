@@ -1,0 +1,3 @@
+# Network device discovery module
+# pysnmp 7.x is the current LeXtudio fork and is ASYNC ONLY.
+pysnmp>=7,<8

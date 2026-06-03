@@ -1,0 +1,60 @@
+Build a Python network device discovery module for a Wazuh vulnerability mapper. 
+Requirements:
+
+ENVIRONMENT
+- Python 3.11+, use pysnmp 7.x (the current LeXtudio fork). 
+- pysnmp 7.x is ASYNC ONLY. Use `from pysnmp.hlapi.v3arch.asyncio import *` 
+  and the snake_case awaitable functions: get_cmd, next_cmd, bulk_cmd. 
+  Do NOT use the old synchronous getCmd/nextCmd API — it does not exist in v7.
+- SNMPv2c, community string passed as a config value.
+
+WHAT IT DOES
+1. Takes a subnet (e.g. 192.168.1.0/24) and a community string.
+2. Probes every host in the subnet concurrently with asyncio.gather, 
+   reading sysDescr (1.3.6.1.2.1.1.1.0) and sysObjectID (1.3.6.1.2.1.1.2.0). 
+   Whatever responds is a live SNMP device. Timeout 1s, retries 0.
+3. For each live device, identify vendor from the sysObjectID enterprise number:
+   - 1.3.6.1.4.1.9     = Cisco
+   - 1.3.6.1.4.1.12356 = Fortinet
+   - anything else      = "unknown vendor", still record it.
+
+VENDOR-SPECIFIC IDENTIFICATION
+- CISCO: sysDescr is rich. Parse model and IOS version directly from the 
+  sysDescr string with regex. Example string format: 
+  "Cisco IOS Software, C2960S Software ... Version 12.2(55)SE ...".
+  Extract model (e.g. C2960S) and version (e.g. 12.2(55)SE).
+- FORTINET: sysDescr is EMPTY on FortiGate. Do NOT rely on it. Instead:
+   * model: take the LAST arc of sysObjectID (e.g. ...12356.101.1.2005 -> 2005) 
+     and look it up in fortinet_models.json (a {number: "FortiGate 200D"} map 
+     that already exists in the project — load it, don't hardcode).
+   * firmware: SNMP GET fgSysVersion at 1.3.6.1.4.1.12356.101.4.1.1.0, 
+     value looks like "v6.0.16,build0505,221215 (GA)" -> parse out "6.0.16".
+   * serial: SNMP GET fnSysSerial at 1.3.6.1.4.1.12356.100.1.1.1.0.
+- ALL devices: also read sysName (1.3.6.1.2.1.1.5.0) for hostname.
+
+OUTPUT
+- Print a clean JSON array to stdout, one object per device:
+  {
+    "ip", "hostname", "vendor", "model", "firmware", "serial", 
+    "discovery_method": "snmp", "sys_descr", "sys_object_id"
+  }
+- Fields that don't apply (e.g. serial for Cisco) can be null.
+- Progress/status messages go to stderr, never stdout (stdout is reserved 
+  for the final JSON so a parent process can consume it).
+
+STRUCTURE
+- Put SNMP calls in a clients/snmp_client.py wrapper.
+- Put vendor identification in a vendors/ module with cisco.py and fortinet.py, 
+  each exposing an identify(sys_descr, sys_object_id, snmp_client) function, 
+  so new vendors can be added later.
+- Main entry in __main__.py with argparse for --subnet and --community.
+- Include a requirements.txt.
+
+TESTING
+- First write a standalone test that queries ONE known IP and prints the raw 
+  sysDescr + sysObjectID, so I can verify connectivity before running a full 
+  subnet sweep.
+- Don't invent fake test data; this runs against real lab hardware.
+
+Build it incrementally: SNMP client first, verify it works against one device, 
+then add vendor identification, then the subnet sweep, then JSON output.
