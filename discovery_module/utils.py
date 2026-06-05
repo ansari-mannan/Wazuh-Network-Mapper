@@ -53,6 +53,36 @@ def normalize_mac(value: Union[bytes, bytearray, str, None]) -> Optional[str]:
     return None
 
 
+def normalize_chassis_id(value: Union[bytes, bytearray, str, None]) -> Optional[str]:
+    """Canonicalize an LLDP chassis ID into a stable, comparable key.
+
+    The chassis ID is the crawl's hard identity (the visited-set and node map
+    are keyed on it, never on IP). LLDP chassis IDs are *usually* a MAC, so we
+    try :func:`normalize_mac` first and reuse its canonical colon form — that
+    keeps a device's own ``lldpLocChassisId`` and a neighbor's reported chassis
+    ID lining up exactly. When the chassis ID is not a MAC (e.g. a network
+    address or an interface/local name subtype), fall back to a lowercased,
+    separator-stripped string so it is still a stable key, just not a MAC.
+    """
+    mac = normalize_mac(value)
+    if mac is not None:
+        return mac
+
+    if isinstance(value, (bytes, bytearray)):
+        try:
+            value = value.decode("ascii", "replace")
+        except AttributeError:
+            return None
+
+    if value is None:
+        return None
+    s = str(value).strip().lower()
+    if s.startswith("0x"):
+        s = s[2:]
+    s = _WHITESPACE.sub(" ", s).strip()
+    return s or None
+
+
 def collapse_whitespace(value: Optional[str]) -> Optional[str]:
     """Collapse embedded newlines/runs of whitespace to single spaces.
 

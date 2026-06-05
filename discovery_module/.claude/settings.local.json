@@ -17,7 +17,14 @@
       "Bash(/c/usr/bin/snmpwalk -v2c -c cyfor123 -t 2 -r 1 -On 172.20.99.2 1.0.8802.1.1.2.1.4.1.1)",
       "Bash(/c/usr/bin/snmpwalk -v2c -c cyfor123 -t 2 -r 2 -On 172.20.99.4 1.0.8802.1.1.2.1.4.1.1.9)",
       "Bash(/c/usr/bin/snmpwalk -v2c -c cyfor123 -t 2 -r 2 -On 172.20.99.4 1.0.8802.1.1.2.1.4.1.1.5)",
-      "Bash(/c/usr/bin/snmpwalk -v2c -c cyfor123 -t 2 -r 2 -On 172.20.99.4 1.0.8802.1.1.2.1.4.1.1.10)"
+      "Bash(/c/usr/bin/snmpwalk -v2c -c cyfor123 -t 2 -r 2 -On 172.20.99.4 1.0.8802.1.1.2.1.4.1.1.10)",
+      "Bash(git rm *)",
+      "Bash(rm -rf clients/__pycache__ __pycache__/topology.cpython-311.pyc)",
+      "Bash(python -m discovery_module --community testcommunity --seed 192.0.2.123 --timeout 0.5 --retries 0)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(python -m discovery_module --community cyfor123 --pollable-only)",
+      "Bash(rm -f pollable.err)",
+      "PowerShell(Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue | Sort-Object RouteMetric | ForEach-Object { $a = Get-NetAdapter -InterfaceIndex $_.ifIndex -ErrorAction SilentlyContinue; Write-Output \\($_.NextHop + '|' + $a.InterfaceDescription\\) })"
     ]
   }
 }
