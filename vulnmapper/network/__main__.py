@@ -10,9 +10,7 @@ from __future__ import annotations
 import logging
 import sys
 
-from . import output
-from .cli import parse_config
-from .runner import crawl_document
+from .crawl import crawl_document, emit, parse_config, write
 
 log = logging.getLogger("discovery")
 
@@ -39,10 +37,10 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     if cfg.output_path:
-        output.write(document, cfg.output_path)
+        write(document, cfg.output_path)
         log.info("wrote topology to %s", cfg.output_path)
     else:
-        output.emit(document)
+        emit(document)
     return 0
 
 

@@ -3,7 +3,7 @@
 This is pure (no I/O, no SNMP) so the bitmap decode and the fallback ladder are
 trivially unit-testable. It is read from two places:
 
-  * :mod:`vulnmapper.network.crawler` — to decide whether an LLDP neighbor is
+  * :mod:`vulnmapper.network.crawl` — to decide whether an LLDP neighbor is
     *infrastructure* (a switch/router) versus an *end host/station*, which is the
     neighbor-port -> uplink-port split.
   * :mod:`vulnmapper.assemble.merge` — to stamp a ``role`` on every node.
