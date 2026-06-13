@@ -1,0 +1,88 @@
+Build a standalone POC web app (react (next.js) + Vite frontend, Node/Express backend) in a different folder named frontend that
+visualizes the vulnmapper scanner's graph.json. Dev tool, NOT the OpenSearch
+Dashboards plugin. Put it in a new gui/ directory alongside the vulnmapper package.
+Do not modify the Python scanner. Ignore command-injection hardening for now.
+
+=== DATA SOURCE ===
+The scanner produces graph.json. A real sample is on disk (read it for the exact
+schema — do NOT invent fields). Per node: node_id, kind, hostname, ip, vendor,
+model, firmware, mac, serial, role, status, risk_score (MAY BE null),
+discovery_method, parent_id, top_cves[] (cve, cvss, severity, package, version,
+description), port_status{} (portName -> "up"/"down"), neighbor_ports[],
+uplink_ports[]. Edges: source, target, source_name, target_name, type, local_port,
+confidence. metadata: counts, timing, unparented_endpoints.
+
+=== BACKEND (Express) ===
+- GET /api/graph -> read graph.json fresh from disk (configurable path, default to
+  the repo's graph.json) and return it. Never bundle the graph into the frontend.
+- POST /api/scan -> spawn the Python pipeline (python3 -m vulnmapper --community
+  <value>), write its stdout to graph.json, return the new graph. This only works
+  when run on a host with lab access; at home it will fail and that's expected —
+  handle the failure gracefully and surface the error to the UI. Make it async:
+  return a started response + expose GET /api/scan/status (idle/running/done/error)
+  so the button can show progress without freezing.
+- GET /api/config -> return the default community string (default "cyfor123") to
+  pre-fill the input.
+
+=== FRONTEND — two screens ===
+
+SCREEN 1 — Topology (landing):
+- Render with React Flow. IMPORTANT: React Flow does not auto-layout — use dagre
+  to compute node positions from parent_id/edges (hierarchical, root = the node
+  with parent_id null, e.g. the L3-Switch at the top, devices/hosts below). Add
+  dagre as a dependency.
+- TWO buttons in a clean top toolbar:
+    1. "Load Graph" — GET /api/graph and (re)render. This is the primary button
+       for home use with a static graph.json.
+    2. "Run New Scan" — a small text input pre-filled from GET /api/config (the
+       community string) + this button POSTs /api/scan, shows a "scanning…" state,
+       and on done refetches the graph. On error (e.g. no lab access at home),
+       show the error and leave the existing graph displayed.
+- Custom node component, Cisco-Packet-Tracer-STYLE icons (clean, simple, flat,
+  instantly recognizable network glyphs) chosen by role:
+    l3-switch / l2-switch -> switch icon, router -> router icon, firewall ->
+    firewall/shield-wall icon, host/station -> desktop/PC icon, server/scanner ->
+    server icon, unknown -> generic box.
+  Do NOT download or embed Cisco's actual proprietary Packet Tracer image assets —
+  use simple custom SVGs or an open/MIT icon set (lucide-react has router, server,
+  monitor/laptop, network, etc.) drawn in that familiar clean style.
+- Minimalist, light aesthetic. Plain near-white background, neutral greys, ample
+  whitespace, simple sans-serif. Explicitly NOT a dark/neon/"cybersecurity" theme —
+  no glow, no matrix, no hacker styling. Think a clean network diagram, not a SOC.
+- Risk shown subtly, NOT by recoloring the whole node: a small colored risk dot or
+  thin colored ring on each node:
+    >=9 red, 7–9 orange, >0 & <7 yellow, ==0 green (scored, clean),
+    null -> GREY (unknown/unscored — never green).
+  Offline nodes (status "disconnected"/"discovered") -> dimmed / dashed outline.
+- Clicking a node opens Screen 2 for that node.
+
+SCREEN 2 — Device detail:
+- All node info: identity block (hostname, ip, mac, vendor, model, firmware,
+  serial, role, discovery_method, status), risk_score, and the full top_cves list
+  (id, cvss, severity, package, version, description) — CVE list is the centerpiece
+  for endpoints.
+- For network devices, render port_status as a list/grid where each port has a
+  Facebook-style presence dot: small filled GREEN circle = "up", RED circle =
+  "down", next to the port name. Same minimal styling.
+- Also show neighbor_ports / uplink_ports for devices.
+- Back control to the topology.
+
+=== CONSTRAINTS ===
+- Self-contained in gui/; don't touch the Python package or graph.json's format.
+- Frontend talks to backend only via /api/* — no bundled graph, no direct file
+  reads from the browser.
+- README: how to run (backend + frontend), where to put graph.json, and a note
+  that this later folds into the real OpenSearch Dashboards plugin (React stays,
+  Express logic becomes the plugin server extension).
+
+=== ACCEPTANCE ===
+- npm run dev (or documented equivalent) starts both; "Load Graph" renders the
+  current graph.json as a laid-out topology (not all nodes stacked at one point).
+- Node icons differ by role; risk dots correct; a null-risk node is grey not green;
+  a disconnected node is visibly dimmed.
+- Clicking the L3-Switch shows its port_status with green/red presence dots;
+  clicking an endpoint with CVEs shows the full CVE list.
+- "Run New Scan" shows a scanning state and, at home with no lab, fails gracefully
+  without wiping the displayed graph.
+- Show me: the dagre layout function, the role->icon mapping, and the node-styling
+  (risk dot + offline dimming) logic.
