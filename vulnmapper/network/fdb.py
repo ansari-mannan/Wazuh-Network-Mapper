@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from ..common.mac import canonical_mac
+from ..schema import canonical_mac
 
 # Walk bases (no trailing dot).
 DOT1Q_FDB_PORT_BASE = "1.3.6.1.2.1.17.7.1.2.2.1.2"   # dot1qTpFdbPort

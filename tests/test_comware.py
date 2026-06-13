@@ -18,7 +18,7 @@ import unittest
 
 import re
 
-from vulnmapper.common.mac import canonical_mac
+from vulnmapper.schema import canonical_mac
 from vulnmapper.network import fdb, lldp
 from vulnmapper.network.roles import (
     decode_capabilities,

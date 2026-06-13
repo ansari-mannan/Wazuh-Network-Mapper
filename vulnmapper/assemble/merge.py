@@ -32,8 +32,8 @@ from collections import defaultdict, deque
 from datetime import datetime, timezone
 from typing import Optional
 
-from ..common.mac import canonical_mac, format_mac
-from ..common.schema import (
+from ..schema import canonical_mac, format_mac
+from ..schema import (
     DISCOVERY_SNMP_FDB,
     DISCOVERY_SNMP_LLDP,
     DISCOVERY_WAZUH,

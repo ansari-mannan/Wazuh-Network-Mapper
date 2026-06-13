@@ -20,7 +20,7 @@ import sys
 
 import requests
 
-from ..common.config import WazuhConfig
+from ..schema import WazuhConfig
 from .normalize import normalize_agent
 from .wazuh_client import WazuhClient
 

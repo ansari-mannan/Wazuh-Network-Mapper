@@ -20,7 +20,7 @@ import sys
 
 import requests
 
-from ..common.config import IndexerConfig
+from ..schema import IndexerConfig
 from .indexer_client import IndexerClient
 from .normalize import enrich_agent, parse_hit
 

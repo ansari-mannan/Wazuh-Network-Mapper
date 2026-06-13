@@ -1,6 +1,6 @@
 """Network-side string helpers (chassis-id canonicalization, whitespace).
 
-MAC canonicalization itself lives in :mod:`vulnmapper.common.mac` — the single
+MAC canonicalization itself lives in :mod:`vulnmapper.schema` — the single
 source of truth shared with the endpoint linker. ``normalize_mac`` is re-exported
 from there so this module's historic callers (lldp/sysinfo) are unchanged, and
 ``normalize_chassis_id`` is built on top of it so a device's own
@@ -12,7 +12,7 @@ from __future__ import annotations
 import re
 from typing import Optional, Union
 
-from ..common.mac import format_mac as normalize_mac  # single source of truth
+from ..schema import format_mac as normalize_mac  # single source of truth
 
 _WHITESPACE = re.compile(r"\s+")
 
