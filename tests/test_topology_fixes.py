@@ -11,7 +11,7 @@ no stale flag).
 import unittest
 
 from vulnmapper.assemble.merge import assemble
-from vulnmapper.network.lldp import (
+from vulnmapper.network.parse import (
     needs_port_resolution,
     normalize_local_port,
 )

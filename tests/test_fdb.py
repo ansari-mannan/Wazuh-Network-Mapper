@@ -2,7 +2,7 @@
 
 import unittest
 
-from vulnmapper.network import fdb
+from vulnmapper.network import parse as fdb
 
 
 def _mac_decimals(mac_hex: str) -> str:

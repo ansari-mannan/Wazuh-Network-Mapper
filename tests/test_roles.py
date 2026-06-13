@@ -3,7 +3,7 @@ neighbor-port vs uplink-port (infrastructure) split."""
 
 import unittest
 
-from vulnmapper.network.lldp import build_neighbors
+from vulnmapper.network.parse import build_neighbors
 from vulnmapper.network.roles import (
     decode_capabilities,
     derive_role,

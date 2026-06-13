@@ -24,7 +24,7 @@ import logging
 from typing import Optional
 
 from . import sysinfo
-from .fdb_collect import (
+from .parse import (
     collect_arp,
     collect_fdb,
     collect_ifindex_by_mac,
@@ -32,7 +32,7 @@ from .fdb_collect import (
     collect_own_macs,
     collect_port_status,
 )
-from .lldp import (
+from .parse import (
     LLDP_LOC_PORT_BASE,
     LLDP_REM_BASE,
     LLDP_REM_MAN_ADDR_BASE,

@@ -19,7 +19,7 @@ import unittest
 import re
 
 from vulnmapper.schema import canonical_mac
-from vulnmapper.network import fdb, lldp
+from vulnmapper.network import parse as fdb, parse as lldp
 from vulnmapper.network.roles import (
     decode_capabilities,
     derive_role,
