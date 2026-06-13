@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import requests
 
-from ..common.config import WazuhConfig
+from ..schema import WazuhConfig
 
 
 class WazuhClient:

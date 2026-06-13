@@ -2,7 +2,7 @@
 
 import unittest
 
-from vulnmapper.common.mac import canonical_mac, format_mac, normalize_mac
+from vulnmapper.schema import canonical_mac, format_mac, normalize_mac
 
 
 class TestCanonicalMac(unittest.TestCase):

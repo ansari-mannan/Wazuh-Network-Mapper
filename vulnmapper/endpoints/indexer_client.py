@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import requests
 
-from ..common.config import IndexerConfig
+from ..schema import IndexerConfig
 
 
 class IndexerClient:

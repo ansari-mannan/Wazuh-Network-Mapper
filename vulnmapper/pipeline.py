@@ -80,7 +80,7 @@ def _load_endpoints(args, timing: dict) -> list[dict]:
         with open(args.scored) as f:
             return json.load(f)
     # Live: collect from the Manager API, then score against the Indexer.
-    from .common.config import IndexerConfig, WazuhConfig
+    from .schema import IndexerConfig, WazuhConfig
     from .endpoints.collect import collect_agents
     from .endpoints.indexer_client import IndexerClient
     from .endpoints.score import score_agents

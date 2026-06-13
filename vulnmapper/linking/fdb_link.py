@@ -26,8 +26,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Optional
 
-from ..common.mac import canonical_mac
-from ..common.schema import device_node_id
+from ..schema import canonical_mac
+from ..schema import device_node_id
 
 # Confidence levels stamped on an endpoint -> switch edge (one per ladder tier).
 CONF_LLDP = "lldp"                       # Tier 1: exact LLDP adjacency

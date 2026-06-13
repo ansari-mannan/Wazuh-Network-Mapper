@@ -15,7 +15,7 @@ against switch forwarding-table MACs in the linker.
 
 from __future__ import annotations
 
-from ..common.mac import canonical_mac, format_mac
+from ..schema import canonical_mac, format_mac
 
 _JUNK_SERIALS = {"", "unknown", "0", "To be filled by O.E.M.", "Not Specified"}
 

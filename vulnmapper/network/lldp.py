@@ -20,7 +20,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from ..common.mac import canonical_mac
+from ..schema import canonical_mac
 from .utils import collapse_whitespace, normalize_chassis_id, normalize_mac
 
 log = logging.getLogger("discovery.lldp")
