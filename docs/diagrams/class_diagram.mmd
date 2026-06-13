@@ -1,0 +1,125 @@
+%% vulnmapper - class diagram (post-consolidation)
+%% Behaviour-bearing classes + the data holders they emit/compose.
+%% Render: https://mermaid.live  or  mmdc -i class_diagram.mmd -o class_diagram.svg
+classDiagram
+    direction LR
+
+    class Pipeline {
+        +run(argv) int
+        +load_endpoints(args, timing) list
+        +load_network(args, timing) dict
+        +assemble(endpoints, network_doc) dict
+        +emit(document, output_path) void
+    }
+
+    class WazuhSource {
+        -WazuhConfig _wcfg
+        -IndexerConfig _icfg
+        -str _token
+        +collect() list
+        +score(agents) list
+    }
+
+    class Crawler {
+        -SnmpClient _client
+        -int _concurrency
+        -int _max_nodes
+        +seed(ips) int
+        +run() tuple
+    }
+    class SnmpClient {
+        +resolve_credential(ip) Credential
+        +get(ip, oid) str
+        +get_many(ip, oids) dict
+        +walk(ip, base) list
+    }
+    class Config {
+        +list credentials
+        +list seeds
+        +int concurrency
+        +float timeout
+        +int max_nodes
+        +bool pollable_only
+    }
+    class Credential {
+        +str version
+        +str community
+        +str user
+    }
+    class Device {
+        +str chassis_id
+        +str ip
+        +str hostname
+        +str vendor
+        +bool pollable
+        +list fdb
+        +to_node() dict
+    }
+    class Link {
+        +str source_chassis_id
+        +str target_chassis_id
+        +str local_port
+        +str remote_port
+    }
+
+    class GraphAssembler {
+        +list endpoints
+        +dict network_doc
+        +build() dict
+    }
+    class MacTable {
+        +dict by_mac
+        +dict by_ip
+        +set infra_macs
+    }
+
+    class Node {
+        +str node_id
+        +str kind
+        +str ip
+        +str hostname
+        +str role
+        +float risk_score
+        +float max_cvss
+        +str parent_id
+        +to_dict() dict
+    }
+    class Edge {
+        +str source
+        +str target
+        +str type
+        +str local_port
+        +str confidence
+        +to_dict() dict
+    }
+    class CVE {
+        +str cve
+        +float cvss
+        +str severity
+        +str package
+        +to_dict() dict
+    }
+
+    class Vendors {
+        <<module>>
+        +cisco_identify()
+        +fortinet_identify()
+        +comware_identify()
+        +VENDOR_BY_ENTERPRISE
+    }
+
+    Pipeline --> WazuhSource : uses
+    Pipeline --> Crawler : uses
+    Pipeline --> GraphAssembler : uses
+    WazuhSource ..> Node : feeds endpoint dicts
+    Crawler --> SnmpClient : polls via
+    Crawler ..> Vendors : identify strategy
+    Crawler *-- Config
+    Config *-- Credential
+    Crawler ..> Device : produces
+    Crawler ..> Link : produces
+    GraphAssembler *-- MacTable : builds
+    GraphAssembler ..> Node : emits
+    GraphAssembler ..> Edge : emits
+    GraphAssembler ..> CVE : carries
+    GraphAssembler ..> Device : consumes
