@@ -43,3 +43,21 @@ Baseline: 89 suite tests + 1 golden = **90 green**, committed at the Phase-0 tag
 - `assemble.merge` + `linking.fdb_link` → `assemble` (test_assemble, test_golden, test_topology_fixes, test_fdb_link, tools/_freeze_golden)
 
 Kept unchanged: `network.roles`, `network.vendors.comware`.
+
+## Result summary (Phase 3)
+
+| Metric | Before | After |
+|---|---|---|
+| `vulnmapper/*.py` files | 37 | 16 |
+| classes (total) | 17 | 18 |
+| behaviour-bearing classes (diagram cast) | scattered | 9: Pipeline, WazuhSource, Crawler, SnmpClient, GraphAssembler (+ data holders Node/Edge/CVE/Device/Link/Config/Credential/MacTable) |
+
+Gate results (all green): `compileall` ✓ · `pytest` 90 passed (89 + golden) ✓ ·
+`vulnmapper --help` + `vulnmapper.network --help` flag lists unchanged ✓ ·
+`-m endpoints.collect` / `-m endpoints.score` run (no ImportError) ✓ ·
+GUI spawn `-m vulnmapper --community cyfor123 --no-endpoints --no-network` -> valid stdout-only JSON ✓ ·
+single pysnmp importer (`network/snmp.py`) ✓ · golden assemble output byte-identical ✓.
+
+Module map (final): schema.py · endpoints/{__init__(WazuhSource),collect,score} ·
+network/{snmp,parse,roles,vendors/{__init__,comware},crawl,__main__} · assemble.py ·
+pipeline.py · __main__.py.
