@@ -2,7 +2,7 @@
 
 import unittest
 
-from vulnmapper.linking.fdb_link import (
+from vulnmapper.assemble import (
     CONF_RESOLVED,
     CONF_TIEBREAK,
     build_mac_table,
