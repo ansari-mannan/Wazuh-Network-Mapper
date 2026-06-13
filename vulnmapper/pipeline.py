@@ -80,20 +80,18 @@ def _load_endpoints(args, timing: dict) -> list[dict]:
         with open(args.scored) as f:
             return json.load(f)
     # Live: collect from the Manager API, then score against the Indexer.
-    from .schema import IndexerConfig, WazuhConfig
-    from .endpoints.collect import collect_agents
-    from .endpoints.indexer_client import IndexerClient
-    from .endpoints.score import score_agents
-    from .endpoints.wazuh_client import WazuhClient
+    from .endpoints import WazuhSource
+
+    source = WazuhSource()
 
     log.info("collecting endpoints from the Wazuh Manager API ...")
     t0 = time.monotonic()
-    agents = collect_agents(WazuhClient(WazuhConfig.from_env()))
+    agents = source.collect()
     timing["endpoint_collect_s"] = time.monotonic() - t0
 
     log.info("scoring %d endpoint(s) against the Wazuh Indexer ...", len(agents))
     t0 = time.monotonic()
-    scored = score_agents(IndexerClient(IndexerConfig.from_env()), agents)
+    scored = source.score(agents)
     timing["endpoint_score_s"] = time.monotonic() - t0
     return scored
 

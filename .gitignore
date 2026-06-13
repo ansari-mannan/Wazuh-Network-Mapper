@@ -4,3 +4,5 @@ __pycache__/
 gui/node_modules/
 **/node_modules/
 .local/
+agents.json
+scored_agents.json
