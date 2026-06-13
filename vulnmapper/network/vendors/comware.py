@@ -92,7 +92,7 @@ async def identify(
 ) -> dict:
     """Return Comware-specific fields. No extra SNMP round-trips are needed —
     model and firmware come from the sysObjectID + sysDescr already fetched by
-    :mod:`vulnmapper.network.sysinfo`. ``snmp_client``/``ip`` are accepted for
+    :mod:`vulnmapper.network.crawl`. ``snmp_client``/``ip`` are accepted for
     interface symmetry with the other vendor plug-ins.
     """
     return {

@@ -106,8 +106,8 @@ def _load_network(args, timing: dict) -> dict:
         with open(args.network) as f:
             return json.load(f)
     # Live: run the seed-based LLDP crawl.
-    from .network.config import Config, load_credentials
-    from .network.runner import crawl_document
+    from .network.crawl import Config, load_credentials
+    from .network.crawl import crawl_document
 
     cfg = Config(
         credentials=load_credentials(args.community),
