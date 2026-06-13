@@ -51,7 +51,7 @@ def scenarios():
 
 
 def main() -> int:
-    from vulnmapper.assemble.merge import assemble
+    from vulnmapper.assemble import assemble
 
     os.makedirs(_GOLDEN, exist_ok=True)
     for name, endpoints, network_doc in scenarios():

@@ -2,7 +2,7 @@
 
 import unittest
 
-from vulnmapper.assemble.merge import assemble
+from vulnmapper.assemble import assemble
 
 # CYFOR-1's real NIC MAC == the chassis_id of the phantom LLDP device node.
 CYFOR1_MAC = "d4:be:d9:98:2e:d4"

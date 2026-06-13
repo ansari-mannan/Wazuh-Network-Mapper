@@ -28,7 +28,7 @@ import time
 from datetime import datetime, timezone
 from typing import Optional
 
-from .assemble.merge import assemble
+from .assemble import assemble
 
 log = logging.getLogger("vulnmapper.pipeline")
 

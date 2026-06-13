@@ -1,39 +1,33 @@
-"""Assemble the single unified ``{nodes, edges, metadata}`` graph document.
+"""Merge endpoints + network discovery into one unified graph document.
 
-Inputs:
-  * ``endpoints`` — the scored endpoint list (``scored_agents.json``).
-  * ``network_doc`` — the crawler's output document (nodes + LLDP edges + FDB).
+Consolidates the former ``assemble/merge.py`` and ``linking/fdb_link.py`` — the
+linker is only ever used by the assembler, so they belong together:
 
-Parenting ladder (per endpoint, stop at the first tier that succeeds; the tier
-becomes the edge's ``confidence``):
+  * MAC forwarding-table indexing — :class:`SwitchFdb` / :class:`HostFact` /
+    :class:`MacTable` and :func:`build_mac_table` (the FDB/ARP lookup the
+    parenting ladder and host discovery both read).
+  * The assembly procedure — produces ``{nodes, edges, metadata}`` keyed by
+    ``node_id`` and stamped with ``discovery_order`` / ``parent_id``.
 
-  Tier 1 — LLDP match. An LLDP-discovered device node whose ``chassis_id`` equals
-    an endpoint's MAC *is that endpoint* (it runs an LLDP agent). Merge them: keep
-    the endpoint node, delete the phantom device node, and parent the endpoint to
-    the switch that reported it, using the switch's local port from that LLDP
-    adjacency. Confidence ``lldp``.
-  Tier 2 — per-VLAN FDB match (online, non-LLDP hosts). See
-    :func:`vulnmapper.linking.fdb_link.resolve_access`. Confidence
-    ``resolved`` / ``tiebreak``.
-  Tier 3 — IP/subnet fallback (offline hosts / no MAC). Parent by subnet
-    ownership; confidence ``subnet_fallback``. If even that fails, the endpoint
-    stays unparented with an honest reason.
+Public surface: :func:`assemble` (the pipeline + tests call it) and the
+:class:`GraphAssembler` wrapper it delegates to.
 
-Every edge also carries ``source_name`` / ``target_name`` (hostname, else IP,
-else node_id) for readability, alongside the machine-readable node_ids.
-
-Network nodes may not be CVE-scored yet (a separate NVD stage); their
-``risk_score`` defaults to 0 and they merge anyway.
+Parenting ladder (per endpoint, first tier that succeeds wins; the tier becomes
+the edge ``confidence``):
+  Tier 1 — LLDP match (merge the phantom device node into the endpoint).
+  Tier 2 — per-VLAN FDB match (:func:`build_mac_table`).
+  Tier 3 — IP/subnet fallback (:func:`same_subnet`), else unparented with reason.
 """
 
 from __future__ import annotations
 
+import ipaddress
 from collections import defaultdict, deque
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 
-from ..schema import canonical_mac, format_mac
-from ..schema import (
+from .schema import (
     DISCOVERY_SNMP_FDB,
     DISCOVERY_SNMP_LLDP,
     DISCOVERY_WAZUH,
@@ -43,22 +37,181 @@ from ..schema import (
     KIND_ENDPOINT,
     Edge,
     Node,
+    canonical_mac,
     device_node_id,
     endpoint_node_id,
+    format_mac,
     host_node_id,
 )
-from ..linking.fdb_link import (
-    CONF_FDB,
-    CONF_LLDP,
-    CONF_SUBNET_FALLBACK,
-    REASON_ABSENT,
-    REASON_NO_MAC,
-    REASON_OFFLINE,
-    build_mac_table,
-    same_subnet,
-)
-from ..network.roles import derive_role
+from .network.roles import derive_role
 
+
+# ===========================================================================
+# FDB-based access-port resolution (was linking/fdb_link.py)
+# ===========================================================================
+
+# Confidence levels stamped on an endpoint -> switch edge (one per ladder tier).
+CONF_LLDP = "lldp"                       # Tier 1: exact LLDP adjacency
+CONF_RESOLVED = "resolved"               # Tier 2: single FDB access-port survivor
+CONF_TIEBREAK = "tiebreak"               # Tier 2: several survivors, fewest-MAC wins
+CONF_SUBNET_FALLBACK = "subnet_fallback"  # Tier 3: parented by subnet, not L2
+CONF_FDB = "fdb"                          # FDB/ARP-discovered host (no agent, no LLDP)
+
+# Reasons recorded for an endpoint that could not be placed.
+REASON_NO_MAC = "no_endpoint_mac"
+REASON_ABSENT = "mac_absent_from_all_fdb"
+REASON_OFFLINE = "host_offline_no_l2_evidence"
+
+
+@dataclass
+class SwitchFdb:
+    """Pre-indexed FDB view of one switch, ready for fast endpoint lookup."""
+
+    node_id: str
+    chassis_id: str
+    ip: Optional[str]
+    uplink_ports: set
+    mac_to_ports: dict          # canonical_mac -> list[(port, vlan)]
+    port_mac_count: dict        # port -> distinct MAC count on that port
+
+
+def index_switches(network_nodes: list[dict]) -> list[SwitchFdb]:
+    """Build a :class:`SwitchFdb` per network node that carries an FDB."""
+    switches: list[SwitchFdb] = []
+    for node in network_nodes:
+        chassis_id = node.get("chassis_id")
+        if chassis_id is None:
+            continue
+
+        mac_to_ports: dict[str, list] = {}
+        port_macs: dict[str, set] = {}
+        for entry in node.get("fdb") or []:
+            mac = canonical_mac(entry.get("mac"))
+            port = entry.get("port")
+            if mac is None or port is None:
+                continue
+            vlan = entry.get("vlan")
+            pairs = mac_to_ports.setdefault(mac, [])
+            if (port, vlan) not in pairs:
+                pairs.append((port, vlan))
+            port_macs.setdefault(port, set()).add(mac)
+
+        switches.append(SwitchFdb(
+            node_id=device_node_id(chassis_id),
+            chassis_id=chassis_id,
+            ip=node.get("ip"),
+            uplink_ports=set(node.get("uplink_ports") or []),
+            mac_to_ports=mac_to_ports,
+            port_mac_count={p: len(macs) for p, macs in port_macs.items()},
+        ))
+    return switches
+
+
+@dataclass
+class HostFact:
+    """One row of the unified MAC lookup table: where a MAC lives on the fabric."""
+
+    mac: str                    # canonical
+    ip: Optional[str]           # from ARP, or None (seen at L2, not recently routed)
+    switch_node_id: str
+    port: str                   # human port name (the access port)
+    vlan: Optional[int]
+    confidence: str             # resolved | tiebreak (placement quality)
+
+
+@dataclass
+class MacTable:
+    """``mac -> HostFact``, plus an IP index and the infra-MAC exclusion set.
+
+    Built once per assemble and read two ways: parenting (a MAC matching an
+    existing node attaches it) and discovery (a MAC matching nothing becomes a
+    new host). ``by_ip`` lets an endpoint whose Wazuh MAC is null match by IP.
+    ``infra_macs`` are the polling devices' own interface/SVI/chassis MACs, which
+    are excluded so a router's gateway MACs never become phantom hosts.
+    """
+
+    by_mac: dict
+    by_ip: dict
+    infra_macs: set
+
+
+def _infra_macs(network_nodes: list[dict]) -> set:
+    """The set of infrastructure MACs to exclude from host discovery.
+
+    Every device's own interface MACs (ifPhysAddress) plus the chassis/base MAC
+    of each *pollable* device. Endpoint/host MACs are deliberately NOT here, so
+    they still resolve through the table for parenting.
+    """
+    macs: set = set()
+    for node in network_nodes:
+        for raw in node.get("own_macs") or []:
+            mac = canonical_mac(raw)
+            if mac:
+                macs.add(mac)
+        if node.get("pollable"):
+            for raw in (node.get("chassis_id"), node.get("mac")):
+                mac = canonical_mac(raw)
+                if mac:
+                    macs.add(mac)
+    return macs
+
+
+def build_mac_table(network_nodes: list[dict]) -> MacTable:
+    """Build the single MAC lookup table from every device's FDB + ARP.
+
+    For each switch, every FDB MAC that is not the device's own and not on an
+    uplink/trunk port is a locally-attached candidate ``(switch, port, vlan)``.
+    A MAC seen on several access ports is disambiguated by fewest-MACs-on-port
+    (access vs trunk). IPs are joined in from the merged ARP tables by MAC.
+    """
+    switches = index_switches(network_nodes)
+    infra_macs = _infra_macs(network_nodes)
+
+    arp_ip: dict[str, str] = {}
+    for node in network_nodes:
+        for raw_mac, ip in (node.get("arp") or {}).items():
+            mac = canonical_mac(raw_mac)
+            if mac and ip:
+                arp_ip[mac] = ip
+
+    candidates: dict[str, list] = defaultdict(list)
+    for sw in switches:
+        for mac, pairs in sw.mac_to_ports.items():
+            if mac in infra_macs:
+                continue
+            for port, vlan in pairs:
+                if port in sw.uplink_ports:   # transit across a trunk, not a host
+                    continue
+                candidates[mac].append((sw.node_id, port, vlan, sw.port_mac_count.get(port, 0)))
+
+    by_mac: dict[str, HostFact] = {}
+    for mac, lst in candidates.items():
+        if len(lst) == 1:
+            node_id, port, vlan, _ = lst[0]
+            confidence = CONF_RESOLVED
+        else:
+            node_id, port, vlan, _ = min(lst, key=lambda c: (c[3], c[0], c[1]))
+            confidence = CONF_TIEBREAK
+        by_mac[mac] = HostFact(mac, arp_ip.get(mac), node_id, port, vlan, confidence)
+
+    by_ip = {fact.ip: mac for mac, fact in by_mac.items() if fact.ip}
+    return MacTable(by_mac=by_mac, by_ip=by_ip, infra_macs=infra_macs)
+
+
+def same_subnet(ip_a: Optional[str], ip_b: Optional[str], prefix: int = 24) -> bool:
+    """True if two IPv4 addresses share the same ``/prefix`` network."""
+    if not ip_a or not ip_b:
+        return False
+    try:
+        net = ipaddress.ip_network(f"{ip_a}/{prefix}", strict=False)
+        return ipaddress.ip_address(ip_b) in net
+    except ValueError:
+        return False
+
+
+# ===========================================================================
+# The assembly procedure (was assemble/merge.py)
+# ===========================================================================
 
 def _device_node(raw: dict) -> Node:
     """Map a crawler network node into a unified device :class:`Node`."""
@@ -181,7 +334,7 @@ def _bfs_device_order(device_ids: list[str], lldp_edges: list[Edge]):
     return order, parent
 
 
-def assemble(endpoints: list[dict], network_doc: dict) -> dict:
+def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     """Build the unified graph document from endpoints + the network document."""
     raw_nodes = [n for n in (network_doc.get("nodes") or []) if n.get("chassis_id")]
     raw_edges = network_doc.get("edges") or []
@@ -447,3 +600,30 @@ def assemble(endpoints: list[dict], network_doc: dict) -> dict:
         "edges": [edge_dict(e) for e in all_edges],
         "metadata": metadata,
     }
+
+
+# ===========================================================================
+# Public entry point + OO wrapper (for the class diagram)
+# ===========================================================================
+
+
+class GraphAssembler:
+    """OO wrapper around the assembly procedure.
+
+    Holds the two inputs and builds the unified ``{nodes, edges, metadata}``
+    document in :meth:`build`. ``assemble`` is the function the pipeline and tests
+    call; it delegates here so the runtime behaviour is unchanged while the design
+    presents a single clear assembler class on the diagram.
+    """
+
+    def __init__(self, endpoints: list[dict], network_doc: dict) -> None:
+        self.endpoints = endpoints
+        self.network_doc = network_doc
+
+    def build(self) -> dict:
+        return _build_graph(self.endpoints, self.network_doc)
+
+
+def assemble(endpoints: list[dict], network_doc: dict) -> dict:
+    """Build the unified graph document from endpoints + the network document."""
+    return GraphAssembler(endpoints, network_doc).build()

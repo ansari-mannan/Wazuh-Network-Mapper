@@ -18,7 +18,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _GOLDEN = os.path.join(_HERE, "golden")
 sys.path.insert(0, _HERE)  # import sibling test modules + the freeze helper's scenarios
 
-from vulnmapper.assemble.merge import assemble  # noqa: E402
+from vulnmapper.assemble import assemble  # noqa: E402
 
 FROZEN_SCAN_TIME = "FROZEN_SCAN_TIME"
 
