@@ -118,60 +118,85 @@ def _load_network(args, timing: dict) -> dict:
     return doc
 
 
+class Pipeline:
+    """The top-level orchestrator: collect -> score -> crawl -> assemble -> emit.
+
+    A thin object wrapper so the sequence diagram has a single clean lifeline; the
+    behaviour is exactly the former module-level ``run()`` — each stage delegates
+    to the same functions, in the same order, with the same timing and output.
+    """
+
+    def load_endpoints(self, args, timing: dict) -> list[dict]:
+        return _load_endpoints(args, timing)
+
+    def load_network(self, args, timing: dict) -> dict:
+        return _load_network(args, timing)
+
+    def assemble(self, endpoints: list[dict], network_doc: dict) -> dict:
+        return assemble(endpoints, network_doc)
+
+    def emit(self, document: dict, output_path: Optional[str]) -> None:
+        text = json.dumps(document, indent=2)
+        if output_path:
+            with open(output_path, "w", encoding="utf-8", newline="\n") as f:
+                f.write(text + "\n")
+            log.info("wrote graph to %s", output_path)
+        else:
+            sys.stdout.write(text + "\n")
+            sys.stdout.flush()
+
+    def run(self, argv: Optional[list[str]] = None) -> int:
+        _setup_logging()
+        args = build_parser().parse_args(argv)
+
+        # Real per-phase timing: monotonic clock for the durations (immune to wall-
+        # clock jumps), wall clock only for the ISO start/finish stamps. A skipped
+        # phase stays null. ``total_s`` covers the whole run end-to-end.
+        timing: dict = {
+            "endpoint_collect_s": None,
+            "endpoint_score_s": None,
+            "network_crawl_s": None,
+            "assemble_s": None,
+            "total_s": None,
+            "started_at": None,
+            "finished_at": None,
+        }
+        started_at = datetime.now(timezone.utc)
+        run_t0 = time.monotonic()
+        timing["started_at"] = started_at.isoformat()
+
+        endpoints = self.load_endpoints(args, timing)
+        network_doc = self.load_network(args, timing)
+
+        assemble_t0 = time.monotonic()
+        document = self.assemble(endpoints, network_doc)
+        timing["assemble_s"] = time.monotonic() - assemble_t0
+
+        finished_at = datetime.now(timezone.utc)
+        timing["finished_at"] = finished_at.isoformat()
+        timing["total_s"] = time.monotonic() - run_t0
+
+        # scan_time now means "finished_at" (kept for backward compat); the per-phase
+        # breakdown lives in metadata.timing.
+        document["metadata"]["timing"] = timing
+        document["metadata"]["scan_time"] = finished_at.isoformat()
+
+        counts = document["metadata"]["counts"]
+        log.info(
+            "SUMMARY: %d node(s) (%d endpoints, %d devices), %d edge(s) "
+            "(%d lldp, %d endpoint), %d unparented endpoint(s).",
+            counts["nodes"], counts["endpoints"], counts["devices"],
+            counts["lldp_edges"] + counts["endpoint_edges"],
+            counts["lldp_edges"], counts["endpoint_edges"], counts["unparented_endpoints"],
+        )
+
+        self.emit(document, args.output)
+        return 0
+
+
 def run(argv: Optional[list[str]] = None) -> int:
-    _setup_logging()
-    args = build_parser().parse_args(argv)
-
-    # Real per-phase timing: monotonic clock for the durations (immune to wall-
-    # clock jumps), wall clock only for the ISO start/finish stamps. A skipped
-    # phase stays null. ``total_s`` covers the whole run end-to-end.
-    timing: dict = {
-        "endpoint_collect_s": None,
-        "endpoint_score_s": None,
-        "network_crawl_s": None,
-        "assemble_s": None,
-        "total_s": None,
-        "started_at": None,
-        "finished_at": None,
-    }
-    started_at = datetime.now(timezone.utc)
-    run_t0 = time.monotonic()
-    timing["started_at"] = started_at.isoformat()
-
-    endpoints = _load_endpoints(args, timing)
-    network_doc = _load_network(args, timing)
-
-    assemble_t0 = time.monotonic()
-    document = assemble(endpoints, network_doc)
-    timing["assemble_s"] = time.monotonic() - assemble_t0
-
-    finished_at = datetime.now(timezone.utc)
-    timing["finished_at"] = finished_at.isoformat()
-    timing["total_s"] = time.monotonic() - run_t0
-
-    # scan_time now means "finished_at" (kept for backward compat); the per-phase
-    # breakdown lives in metadata.timing.
-    document["metadata"]["timing"] = timing
-    document["metadata"]["scan_time"] = finished_at.isoformat()
-
-    counts = document["metadata"]["counts"]
-    log.info(
-        "SUMMARY: %d node(s) (%d endpoints, %d devices), %d edge(s) "
-        "(%d lldp, %d endpoint), %d unparented endpoint(s).",
-        counts["nodes"], counts["endpoints"], counts["devices"],
-        counts["lldp_edges"] + counts["endpoint_edges"],
-        counts["lldp_edges"], counts["endpoint_edges"], counts["unparented_endpoints"],
-    )
-
-    text = json.dumps(document, indent=2)
-    if args.output:
-        with open(args.output, "w", encoding="utf-8", newline="\n") as f:
-            f.write(text + "\n")
-        log.info("wrote graph to %s", args.output)
-    else:
-        sys.stdout.write(text + "\n")
-        sys.stdout.flush()
-    return 0
+    """Entry point used by ``python -m vulnmapper`` (delegates to :class:`Pipeline`)."""
+    return Pipeline().run(argv)
 
 
 if __name__ == "__main__":
