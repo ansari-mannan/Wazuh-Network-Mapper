@@ -50,7 +50,7 @@ from .models import (
     Link,
 )
 from .roles import neighbor_is_infrastructure
-from .snmp_client import SnmpClient
+from .snmp import SnmpClient
 
 log = logging.getLogger("discovery.crawler")
 

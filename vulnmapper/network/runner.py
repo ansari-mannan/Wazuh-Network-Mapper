@@ -14,7 +14,7 @@ import logging
 from . import output, seed
 from .config import Config
 from .crawler import Crawler
-from .snmp_client import SnmpClient
+from .snmp import SnmpClient
 
 log = logging.getLogger("discovery")
 

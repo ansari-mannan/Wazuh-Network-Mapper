@@ -524,7 +524,7 @@ async def run(target: str, community: str, version: str) -> int:
     # bulk_cmd loop that steps from the last-returned OID (GETNEXT-style), so the
     # agent always hands back proper lexicographic successors and no truncation
     # occurs. We prove that by running the REAL pipeline walk at several PDU sizes.
-    from vulnmapper.network.snmp_client import SnmpClient  # noqa: E402
+    from vulnmapper.network.snmp import SnmpClient  # noqa: E402
     from vulnmapper.network.models import Credential  # noqa: E402
     proj = SnmpClient([Credential(version="v2c", index=0, community=_COMMUNITY)],
                       timeout=2.0, retries=2)
