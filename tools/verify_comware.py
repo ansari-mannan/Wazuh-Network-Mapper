@@ -56,7 +56,7 @@ from pysnmp.hlapi.v3arch.asyncio import (  # noqa: E402
 from pysnmp.proto import errind  # noqa: E402
 
 from vulnmapper.schema import canonical_mac, format_mac  # noqa: E402
-from vulnmapper.network import fdb, lldp  # noqa: E402
+from vulnmapper.network import parse as fdb, parse as lldp  # noqa: E402
 from vulnmapper.network.roles import (  # noqa: E402
     decode_capabilities,
     neighbor_is_infrastructure,

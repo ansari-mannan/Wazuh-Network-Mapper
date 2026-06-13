@@ -18,7 +18,7 @@ from .snmp_client import (
     OID_SYS_NAME,
     OID_SYS_OBJECT_ID,
 )
-from .utils import collapse_whitespace, normalize_chassis_id, normalize_mac
+from .parse import collapse_whitespace, normalize_chassis_id, normalize_mac
 from .vendors import VENDOR_BY_ENTERPRISE
 
 _ENTERPRISE_PREFIX = "1.3.6.1.4.1."
