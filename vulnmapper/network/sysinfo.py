@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .snmp_client import (
+from .snmp import (
     OID_LLDP_LOC_CHASSIS_ID,
     OID_LLDP_LOC_SYS_CAP_ENABLED,
     OID_SYS_DESCR,
