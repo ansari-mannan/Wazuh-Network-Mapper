@@ -1,0 +1,25 @@
+vulnmapper.pipeline ['Optional', 'annotations', 'argparse', 'assemble', 'build_parser', 'datetime', 'json', 'log', 'logging', 'run', 'sys', 'time', 'timezone']
+vulnmapper.assemble.merge ['CONF_FDB', 'CONF_LLDP', 'CONF_SUBNET_FALLBACK', 'DISCOVERY_SNMP_FDB', 'DISCOVERY_SNMP_LLDP', 'DISCOVERY_WAZUH', 'EDGE_ENDPOINT_LINK', 'EDGE_LLDP', 'Edge', 'KIND_DEVICE', 'KIND_ENDPOINT', 'Node', 'Optional', 'REASON_ABSENT', 'REASON_NO_MAC', 'REASON_OFFLINE', 'annotations', 'assemble', 'build_mac_table', 'canonical_mac', 'datetime', 'defaultdict', 'deque', 'derive_role', 'device_node_id', 'endpoint_node_id', 'format_mac', 'host_node_id', 'same_subnet', 'timezone']
+vulnmapper.common.mac ['MacInput', 'Optional', 'Union', 'annotations', 'canonical_mac', 'format_mac', 'normalize_mac', 're']
+vulnmapper.common.schema ['Any', 'CVE', 'DISCOVERY_SNMP_FDB', 'DISCOVERY_SNMP_LLDP', 'DISCOVERY_WAZUH', 'EDGE_ENDPOINT_LINK', 'EDGE_LLDP', 'Edge', 'KIND_DEVICE', 'KIND_ENDPOINT', 'Node', 'Optional', 'annotations', 'dataclass', 'device_node_id', 'endpoint_node_id', 'field', 'host_node_id']
+vulnmapper.network.fdb ['ARP_BASE', 'DOT1D_BASEPORT_IFINDEX_BASE', 'DOT1D_FDB_PORT_BASE', 'DOT1Q_FDB_PORT_BASE', 'DOT1Q_VLAN_STATIC_NAME_BASE', 'IFDESCR_BASE', 'IFNAME_BASE', 'IFOPERSTATUS_BASE', 'IFPHYS_BASE', 'Optional', 'VTP_VLAN_STATE_BASE', 'annotations', 'assemble_dot1d_per_vlan', 'build_fdb', 'build_port_status', 'canonical_mac', 'parse_arp', 'parse_baseport_ifindex', 'parse_dot1d_fdb', 'parse_dot1q_fdb', 'parse_ifnames', 'parse_ifphys_ifindex', 'parse_oper_status', 'parse_own_macs', 'parse_vlan_static_names', 'parse_vtp_vlans', 'resolve_port']
+vulnmapper.network.lldp ['LLDP_LOC_PORT_BASE', 'LLDP_REM_BASE', 'LLDP_REM_MAN_ADDR_BASE', 'Neighbor', 'Optional', 'annotations', 'build_neighbors', 'canonical_mac', 'collapse_whitespace', 'dataclass', 'log', 'logging', 'needs_port_resolution', 'normalize_chassis_id', 'normalize_local_port', 'normalize_mac', 'normalize_neighbor_ports', 'parse_loc_port_table', 'parse_man_addr_table', 'parse_rem_table', 're']
+vulnmapper.network.roles ['Optional', 'UNKNOWN_DEVICE', 'annotations', 'decode_capabilities', 'derive_role', 'neighbor_is_infrastructure', 'role_from_capabilities']
+vulnmapper.network.vendors ['VENDOR_BY_ENTERPRISE', 'cisco', 'comware', 'fortinet']
+vulnmapper.endpoints.normalize ['annotations', 'canonical_mac', 'enrich_agent', 'format_mac', 'is_locally_administered', 'is_physical_iface', 'normalize_agent', 'parse_hit', 'select_mac']
+vulnmapper.linking.fdb_link ['CONF_FDB', 'CONF_LLDP', 'CONF_RESOLVED', 'CONF_SUBNET_FALLBACK', 'CONF_TIEBREAK', 'HostFact', 'MacTable', 'Optional', 'REASON_ABSENT', 'REASON_NO_MAC', 'REASON_OFFLINE', 'SwitchFdb', 'annotations', 'build_mac_table', 'canonical_mac', 'dataclass', 'defaultdict', 'device_node_id', 'index_switches', 'ipaddress', 'same_subnet']
+['python3', '-m', 'vulnmapper', '--help'] usage: vulnmapper [-h] [--scored PATH] [--network PATH] [--no-endpoints]
+                  [--no-network] [--community STRING] [--seed IP] [-o PATH]
+
+Unify Wazuh endpoints + SNMP/LLDP network discovery into one {nodes, edges,
+metadata} graph document on stdout.
+
+options:
+  -h, --help            show this help message and exit
+  --scored PATH         use an existing scored endpoints JSON instead of
+['python3', '-m', 'vulnmapper.network', '--help'] usage: discovery_module [-h] [--community STRING] [--seed IP] [--v3-user USER]
+                        [--v3-auth-protocol PROTO] [--v3-auth-key KEY]
+                        [--v3-priv-protocol PROTO] [--v3-priv-key KEY]
+                        [--concurrency CONCURRENCY] [--timeout TIMEOUT]
+                        [--retries RETRIES] [--max-nodes MAX_NODES]
+                        [--port PORT] [
