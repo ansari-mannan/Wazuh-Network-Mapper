@@ -1,0 +1,53 @@
+%% vulnmapper — sequence diagram for one `python -m vulnmapper` run.
+%% Render: https://mermaid.live  or  mmdc -i sequence_diagram.mmd -o sequence_diagram.svg
+sequenceDiagram
+    autonumber
+    actor User
+    participant Main as __main__
+    participant P as Pipeline
+    participant W as WazuhSource
+    participant Mgr as Wazuh Manager API
+    participant Idx as Wazuh Indexer
+    participant C as Crawler
+    participant S as SnmpClient
+    participant V as vendor.identify
+    participant G as GraphAssembler
+
+    User->>Main: python -m vulnmapper --community cyfor123
+    Main->>P: run(argv)
+
+    rect rgb(235,245,255)
+    note over P,Idx: endpoint side (Wazuh) — two-source split
+    P->>W: collect()
+    W->>Mgr: authenticate + GET /agents, /syscollector/*
+    Mgr-->>W: agents + netiface/netaddr/hardware
+    W-->>P: normalized endpoint dicts
+    P->>W: score(agents)
+    W->>Idx: top_cves(agent.id) per agent
+    Idx-->>W: CVE hits (worst CVSS first)
+    W-->>P: scored endpoints (risk_score, max_cvss, top_cves)
+    end
+
+    rect rgb(235,255,238)
+    note over P,V: network side (SNMP/LLDP) — crawl_document(cfg)
+    P->>C: crawl_document(cfg)
+    loop BFS over LLDP neighbors (bounded worker pool)
+        C->>S: get sysDescr/sysObjectID + walk LLDP/FDB/IF-MIB
+        S-->>C: rows
+        C->>V: identify(sys_descr, sys_object_id)
+        V-->>C: {model, firmware, serial}
+    end
+    C-->>P: network_doc {nodes, edges(LLDP), fdb}
+    end
+
+    rect rgb(255,248,235)
+    note over P,G: merge (the only place the two sources meet)
+    P->>G: assemble(endpoints, network_doc)
+    G->>G: build MacTable (FDB + ARP)
+    G->>G: parenting ladder: Tier1 LLDP -> Tier2 FDB -> Tier3 subnet
+    G-->>P: {nodes, edges, metadata}
+    end
+
+    P->>P: stamp metadata.timing + scan_time
+    P->>Main: emit JSON to stdout
+    Main-->>User: {nodes, edges, metadata} (stdout only)
