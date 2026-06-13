@@ -2,7 +2,7 @@
 
 import unittest
 
-from vulnmapper.endpoints.normalize import (
+from vulnmapper.endpoints import (
     enrich_agent,
     is_locally_administered,
     is_physical_iface,
