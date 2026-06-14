@@ -1,0 +1,21 @@
+{
+  "nodes": [
+    { "id": "firewall-01", "label": "Firewall" },
+    { "id": "core-switch-01", "label": "Core Switch" },
+    { "id": "web-srv-01", "label": "Web-SRV" },
+    { "id": "db-srv-01", "label": "DB-SRV" },
+    { "id": "app-srv-01", "label": "APP-SRV" },
+    { "id": "user-pc-01", "label": "User-PCs" },
+    { "id": "user-pc-02", "label": "User-PCs" },
+    { "id": "switch-01", "label": "Switch-01" }
+  ],
+  "edges": [
+    { "source": "firewall-01", "target": "core-switch-01" },
+    { "source": "core-switch-01", "target": "web-srv-01" },
+    { "source": "core-switch-01", "target": "user-pc-01" },
+    { "source": "core-switch-01", "target": "user-pc-02" },
+    { "source": "core-switch-01", "target": "app-srv-01" },
+    { "source": "core-switch-01", "target": "switch-01" },
+    { "source": "web-srv-01", "target": "db-srv-01" }
+  ]
+}
