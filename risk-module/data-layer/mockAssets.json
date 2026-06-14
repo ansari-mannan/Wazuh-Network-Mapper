@@ -1,0 +1,66 @@
+[
+  {
+    "id": "web-srv-01",
+    "hostname": "WEB-SRV-01",
+    "os": "Ubuntu 22.04",
+    "exposure": "internet-facing",
+    "criticality": "high",
+    "segment": "dmz"
+  },
+  {
+    "id": "db-srv-01",
+    "hostname": "DB-SRV-01",
+    "os": "Ubuntu 22.04",
+    "exposure": "internal",
+    "criticality": "critical",
+    "segment": "core"
+  },
+  {
+    "id": "app-srv-01",
+    "hostname": "APP-SRV-01",
+    "os": "Ubuntu 22.04",
+    "exposure": "internal",
+    "criticality": "high",
+    "segment": "app"
+  },
+  {
+    "id": "user-pc-01",
+    "hostname": "USER-PC-01",
+    "os": "Windows 11",
+    "exposure": "internal",
+    "criticality": "medium",
+    "segment": "user"
+  },
+  {
+    "id": "user-pc-02",
+    "hostname": "USER-PC-02",
+    "os": "Windows 11",
+    "exposure": "internal",
+    "criticality": "medium",
+    "segment": "user"
+  },
+  {
+    "id": "firewall-01",
+    "hostname": "Firewall",
+    "os": "Custom",
+    "exposure": "internet-facing",
+    "criticality": "critical",
+    "segment": "edge"
+  },
+  {
+    "id": "core-switch-01",
+    "hostname": "Core Switch",
+    "os": "Custom",
+    "exposure": "internal",
+    "criticality": "high",
+    "segment": "core"
+  },
+    {
+    "id": "switch-01",
+    "hostname": "Switch-01",
+    "os": "Custom",
+    "exposure": "internal",
+    "criticality": "critical",
+    "segment": "switch"
+  }
+]

@@ -1,0 +1,133 @@
+/*
+ * POC topology / device-detail theme. Ported from gui/frontend/src/styles.css.
+ *
+ * This is a deliberately minimalist *light* theme, distinct from the rest of the
+ * Tailwind dashboard. It is scoped under `.poc-scope` so it does not bleed into
+ * the surrounding dark/light dashboard chrome — only the canvas / detail area
+ * that opts in (by wrapping content in `.poc-scope`) picks up these rules.
+ */
+
+.poc-scope {
+  --poc-bg: #fbfcfd;
+  --poc-surface: #ffffff;
+  --poc-border: #e6e9ee;
+  --poc-text: #1f2937;
+  --poc-muted: #6b7280;
+  --poc-accent: #2563eb;
+  --poc-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--poc-text);
+  font-size: 14px;
+  background: var(--poc-bg);
+}
+
+.poc-scope * { box-sizing: border-box; }
+
+/* ---- canvas / nodes --------------------------------------------------- */
+.poc-scope .canvas { width: 100%; height: 100%; }
+.poc-scope .empty {
+  display: grid; place-items: center; height: 100%;
+  color: var(--poc-muted); font-size: 15px;
+}
+
+.poc-scope .node {
+  position: relative;
+  width: 184px;
+  padding: 12px 12px 10px;
+  background: var(--poc-surface);
+  border: 1px solid var(--poc-border);
+  border-radius: 12px;
+  box-shadow: var(--poc-shadow);
+  text-align: center;
+  /* thin colored risk ring (subtle, not a full recolor) */
+  outline: 2px solid color-mix(in srgb, var(--risk) 55%, transparent);
+  outline-offset: -1px;
+  cursor: pointer;
+  transition: box-shadow 0.12s, transform 0.12s;
+}
+.poc-scope .node:hover { box-shadow: 0 4px 12px rgba(16, 24, 40, 0.1); transform: translateY(-1px); }
+.poc-scope .node--offline { opacity: 0.55; border-style: dashed; background: #fafafa; }
+
+.poc-scope .node__dot {
+  position: absolute; top: 9px; right: 9px;
+  width: 10px; height: 10px; border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff;
+}
+.poc-scope .node__icon { color: #334155; display: block; margin: 2px auto 6px; }
+.poc-scope .node__label {
+  font-weight: 600; font-size: 13px; color: var(--poc-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.poc-scope .node__role { font-size: 11px; color: var(--poc-muted); margin-top: 1px; }
+.poc-scope .handle { opacity: 0; }
+
+/* ---- detail screen ---------------------------------------------------- */
+.poc-scope .detail {
+  max-width: 880px; margin: 0 auto; padding: 24px 20px 64px;
+}
+.poc-scope .detail__head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-bottom: 18px;
+}
+.poc-scope .detail__id { display: flex; align-items: center; gap: 14px; }
+.poc-scope .detail__id.is-offline { opacity: 0.6; }
+.poc-scope .detail__icon {
+  display: grid; place-items: center;
+  width: 52px; height: 52px; border-radius: 12px;
+  background: #fff; border: 1px solid var(--poc-border); color: #334155;
+  outline: 2px solid color-mix(in srgb, var(--risk) 55%, transparent);
+  outline-offset: -1px;
+}
+.poc-scope .detail__head h2 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+.poc-scope .detail__sub { color: var(--poc-muted); font-size: 13px; margin-top: 2px; }
+.poc-scope .tag { margin-left: 8px; font-size: 11px; padding: 1px 7px; border-radius: 999px; }
+.poc-scope .tag--offline { background: #f3f4f6; color: var(--poc-muted); }
+
+.poc-scope .riskbadge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px; border: 1.5px solid; border-radius: 999px;
+  font-weight: 600; font-size: 13px; white-space: nowrap;
+}
+
+.poc-scope .card {
+  background: var(--poc-surface); border: 1px solid var(--poc-border);
+  border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
+  box-shadow: var(--poc-shadow);
+}
+.poc-scope .card h3 {
+  margin: 0 0 14px; font-size: 13px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em; color: var(--poc-muted);
+}
+.poc-scope .count {
+  display: inline-block; margin-left: 4px; padding: 0 7px;
+  background: #eef2ff; color: var(--poc-accent); border-radius: 999px; font-size: 12px;
+}
+
+.poc-scope .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 28px; }
+.poc-scope .field { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid #f1f3f5; }
+.poc-scope .field__k { color: var(--poc-muted); }
+.poc-scope .field__v { font-weight: 500; text-align: right; word-break: break-word; }
+.poc-scope .field__v--empty { color: #cbd5e1; font-weight: 400; }
+.poc-scope .muted { color: var(--poc-muted); }
+
+/* CVE list */
+.poc-scope .cves { display: flex; flex-direction: column; gap: 12px; }
+.poc-scope .cve { border: 1px solid var(--poc-border); border-radius: 10px; padding: 12px 14px; }
+.poc-scope .cve__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.poc-scope .cve__id { font-weight: 600; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.poc-scope .cve__sev { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: #f3f4f6; color: var(--poc-muted); }
+.poc-scope .cve__sev[data-sev="critical"] { background: #fef2f2; color: #b91c1c; }
+.poc-scope .cve__sev[data-sev="high"] { background: #fff7ed; color: #c2410c; }
+.poc-scope .cve__sev[data-sev="medium"] { background: #fefce8; color: #a16207; }
+.poc-scope .cve__sev[data-sev="low"] { background: #f0fdf4; color: #15803d; }
+.poc-scope .cve__ver { font-weight: 400; opacity: 0.75; }
+.poc-scope .cve__pkg { font-size: 12px; color: #475569; margin-top: 6px; }
+.poc-scope .cve__desc { font-size: 13px; color: #475569; margin: 8px 0 0; line-height: 1.5; }
+
+/* port presence dots */
+.poc-scope .ports { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px 18px; }
+.poc-scope .port { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 13px; }
+.poc-scope .port__name { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; }
+.poc-scope .presence { width: 9px; height: 9px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px #fff; }
+.poc-scope .presence--up { background: #22c55e; }
+.poc-scope .presence--down { background: #ef4444; }

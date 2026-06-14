@@ -1,0 +1,58 @@
+[
+  {
+    "id": "cve-2024-001",
+    "assetId": "web-srv-01",
+    "cveId": "CVE-2024-XXXX-1",
+    "cvss": 9.8,
+    "title": "Critical RCE in Web Framework"
+  },
+  {
+    "id": "cve-2024-002",
+    "assetId": "web-srv-01",
+    "cveId": "CVE-2024-XXXX-2",
+    "cvss": 9.5,
+    "title": "Authentication Bypass"
+  },
+  {
+    "id": "cve-2024-003",
+    "assetId": "web-srv-01",
+    "cveId": "CVE-2024-XXXX-3",
+    "cvss": 9.2,
+    "title": "SQL Injection"
+  },
+  {
+    "id": "cve-2024-004",
+    "assetId": "db-srv-01",
+    "cveId": "CVE-2024-XXXX-4",
+    "cvss": 9.0,
+    "title": "Database Privilege Escalation"
+  },
+  {
+    "id": "cve-2024-005",
+    "assetId": "db-srv-01",
+    "cveId": "CVE-2024-XXXX-5",
+    "cvss": 8.5,
+    "title": "Remote Code Execution"
+  },
+  {
+    "id": "cve-2024-006",
+    "assetId": "app-srv-01",
+    "cveId": "CVE-2024-XXXX-6",
+    "cvss": 8.2,
+    "title": "Path Traversal"
+  },
+  {
+    "id": "cve-2024-007",
+    "assetId": "user-pc-01",
+    "cveId": "CVE-2024-XXXX-7",
+    "cvss": 7.8,
+    "title": "Local Privilege Escalation"
+  },
+  {
+    "id": "cve-2024-008",
+    "assetId": "user-pc-02",
+    "cveId": "CVE-2024-XXXX-8",
+    "cvss": 7.5,
+    "title": "Browser Memory Corruption"
+  }
+]
