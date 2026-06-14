@@ -74,17 +74,6 @@ export function TopologyLegend() {
             </table>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Implementation Note</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-slate-400">
-            <p>
-              In the final product, this legend should be driven from live topology metadata (VLAN/subnet mapping per node, link classification, discovered networks) instead of hardcoded segment mapping.
-            </p>
-          </CardContent>
-        </Card>
       </main>
     </div>
   );

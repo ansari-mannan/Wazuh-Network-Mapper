@@ -69,40 +69,48 @@ encode/decode is required on both ends).
 (`device:00:23:ac:e5:74:00`, `endpoint:001`) return 200 against the live `/api/graph` (10
 nodes); a mock id (`web-srv-01`) returns 200 in the calm not-found state.
 
-## Phase 5 — Scan Configuration (must work)
+## Phase 5 — Scan (real scan lives on the Topology Map)
 
-`risk-module/ui/screens/ScanConfiguration.tsx`: added an **SNMP Community String** input,
-prefilled from `getConfig()` on mount. "Start Scan" now calls `startScan(community)` and polls
-`getScanStatus()` every 1s (timers cleared on unmount). Running shows an indeterminate progress
-bar with a generic "Scan in progress…" label (no false stage claims). `done` → success card +
-link to `/dashboard/topology`; `error` → surfaces `scan.error` without throwing. Schedule /
-Scan Type remain decorative local state; the Previous Scans table is left as hardcoded mock
-rows.
+The single working scan entry point is on the **Topology Map**, ported from the POC's
+`App.jsx`/`Toolbar.jsx`: a **community string** input (prefilled from `getConfig()`), a
+**Load Graph** refresh button, and a **Run New Scan** button that calls `startScan(community)`,
+polls `getScanStatus()` every 1s (timer cleared on unmount), reloads the graph on `done`, and
+surfaces `scan.error` inline on `error` without throwing. This is the only place a scan can be
+launched.
+
+`risk-module/ui/screens/ScanConfiguration.tsx` is now an **inert mockup**: the Scan Type /
+Schedule selects, the community field, and the blue "Start Scan" button all look active but do
+nothing (no backend wiring). The Previous Scans table stays hardcoded. There are deliberately
+**no "unfinished"/"placeholder" labels** — the page feels incomplete through dead controls, not
+captions.
 
 ## Phase 6 — De-functionalized pages (inert, hardcoded; layout unchanged)
 
-All replaced the `risk-module` "risk engine" calls with static literals. None introduce
-loading/error states or console errors.
+All replaced the `risk-module` "risk engine" calls with static literals. The "unfinished" feel
+is conveyed **only through dead UX** — controls that look interactive but quietly do nothing —
+**not** through any "work in progress" / "placeholder" / "not implemented" labels (those were
+explicitly removed at the user's request). None introduce loading/error states or console
+errors.
 
 - **`RiskDashboard.tsx`** — tiles: Total Hosts **32**, Vulnerabilities Found **89**, Critical
   Hosts **4**, Attack Paths **3**. Risk Overview has 8 bars, exactly **4 red** (>7:
   web-srv-01 9.4, db-srv-01 8.9, dc-01 8.1, app-srv-02 7.6) matching Critical Hosts = 4.
-  6 static Recent Alerts. "Run New Scan" is a plain no-op button. Last scan timestamp static.
+  6 static Recent Alerts. "Run New Scan" looks like a primary button but is a no-op (scans live
+  on Topology Map). Last scan timestamp static.
 - **`VulnerabilityReport.tsx`** — severity pills render ("ALL" active) but inert; table shows
   12 hardcoded rows always. 6 hardcoded per-device cards; the `<Link>` was removed (now plain
   `<div>`) so cards don't navigate to a dead mock asset id.
-- **`AttackPathAnalysis.tsx`** — 3 hardcoded path objects (scores 27.4 / 22.7 / 16.7); click-to-
-  select retained; added an "Implementation Note" card stating the Dijkstra/A* engine is not yet
-  implemented. Path Topology graph + Timeline + Risk Narrative still render off the selected
-  hardcoded path (Path Topology still uses the mock topology graph, unchanged).
+- **`AttackPathAnalysis.tsx`** — 3 hardcoded path objects (scores 27.4 / 22.7 / 16.7);
+  click-to-select retained (harmless local UI state). Path Topology graph + Timeline + Risk
+  Narrative render off the selected hardcoded path (Path Topology uses the mock topology graph).
 - **`Recommendations.tsx`** — filter pills and Mark Resolved/Reopen buttons render but inert.
   9 hardcoded recommendations with baked `status`: **6 open · 3 resolved** (header counts match).
 - **`ExecutiveReport.tsx`** — `Total Environment Risk: 7.4`, 5 hardcoded top high-risk assets.
-  Disabled JSON/PDF buttons + "(Placeholder — not functional in MVP)" caption left as-is.
-- **`RiskModelExplanation.tsx`** — unchanged (already static prose).
-- **`TopologyLegend.tsx`** — unchanged (already carries its own "should be driven from live
-  topology metadata" note; still renders off mock data without errors — left per the
-  low-priority guidance).
+  JSON/PDF export buttons look enabled/clickable but do nothing (no longer `disabled`, caption
+  removed).
+- **`RiskModelExplanation.tsx`** — unchanged (static prose).
+- **`TopologyLegend.tsx`** — hardcoded-via-mock table; the "Implementation Note" card was
+  removed (no unfinished labels). Renders without errors.
 
 > Note: the mock data on these pages (`web-srv-01`, `db-srv-01`, …) intentionally does **not**
 > match the real CYFOR topology (`L3-Switch`, `CYFOR-1/2/3`, …). That mismatch is part of the

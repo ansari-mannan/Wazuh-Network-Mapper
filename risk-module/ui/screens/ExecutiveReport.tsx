@@ -49,13 +49,12 @@ export function ExecutiveReport() {
             <CardTitle>Export Options</CardTitle>
           </CardHeader>
           <CardContent className="flex gap-2">
-            <button className="rounded-lg border border-slate-700 px-3 py-1 text-sm" disabled>
+            <button className="rounded-lg border border-slate-700 px-3 py-1 text-sm hover:bg-slate-800/40">
               <FileJson className="inline-block mr-1" /> JSON
             </button>
-            <button className="rounded-lg border border-slate-700 px-3 py-1 text-sm" disabled>
+            <button className="rounded-lg border border-slate-700 px-3 py-1 text-sm hover:bg-slate-800/40">
               <FileText className="inline-block mr-1" /> PDF
             </button>
-            <p className="self-center text-xs text-slate-400">(Placeholder — not functional in MVP)</p>
           </CardContent>
         </Card>
       </main>
