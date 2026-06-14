@@ -2,10 +2,9 @@
 
 import { RiskTile } from "../components/RiskTile";
 
-// Phase 6: de-functionalized. The live risk-engine calls are replaced with
-// static literals chosen to be internally consistent (Critical Hosts = 4 lines
-// up with the 4 red bars in Risk Overview; Attack Paths = 3 matches the 3 cards
-// on the Attack Paths page; Total Hosts / Vulns match the Scan Config table).
+// Static dashboard. Values are hardcoded literals; nothing here is wired to the
+// scanner. The "Run New Scan" button looks active but does nothing — scans run
+// from the Topology Map page.
 const TILES = {
   totalHosts: 32,
   vulnerabilitiesFound: 89,

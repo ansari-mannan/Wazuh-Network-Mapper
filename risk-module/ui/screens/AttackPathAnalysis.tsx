@@ -63,15 +63,6 @@ export function AttackPathAnalysis() {
               <p className="theme-text-muted text-xs">{path.path.length} steps</p>
             </div>
           ))}
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Implementation Note</CardTitle>
-            </CardHeader>
-            <CardContent className="text-xs text-slate-400">
-              Attack path scoring shown here is illustrative. The CVSS-weighted Dijkstra/A* path-ranking engine described in the project plan has not been implemented yet.
-            </CardContent>
-          </Card>
         </div>
 
         {/* Right Main Content Area */}
