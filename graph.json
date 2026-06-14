@@ -1,0 +1,502 @@
+{
+  "nodes": [
+    {
+      "node_id": "device:00:23:ac:e5:74:00",
+      "kind": "device",
+      "ip": "172.20.40.254",
+      "hostname": "L3-Switch",
+      "vendor": "Cisco",
+      "model": "C3750",
+      "firmware": "12.2(55)SE12",
+      "serial": null,
+      "mac": "00:23:ac:e5:74:00",
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "risk_score": 0,
+      "discovery_order": 0,
+      "parent_id": null,
+      "chassis_id": "00:23:ac:e5:74:00",
+      "pollable": true,
+      "uplink_ports": [
+        "Fa1/0/1",
+        "Fa1/0/2",
+        "Fa1/0/6"
+      ],
+      "role": "l3-switch",
+      "port_status": {
+        "Vl1": "down",
+        "Vl10": "down",
+        "Vl20": "down",
+        "Vl30": "down",
+        "Vl40": "up",
+        "Vl50": "down",
+        "Vl70": "down",
+        "Vl99": "down",
+        "Vl100": "up",
+        "StackPort1": "down",
+        "StackSub-St1-1": "down",
+        "StackSub-St1-2": "down",
+        "Fa1/0/1": "up",
+        "Fa1/0/2": "down",
+        "Fa1/0/3": "up",
+        "Fa1/0/4": "down",
+        "Fa1/0/5": "down",
+        "Fa1/0/6": "up",
+        "Fa1/0/7": "down",
+        "Fa1/0/8": "down",
+        "Fa1/0/9": "down",
+        "Fa1/0/10": "down",
+        "Fa1/0/11": "down",
+        "Fa1/0/12": "down",
+        "Fa1/0/13": "down",
+        "Fa1/0/14": "down",
+        "Fa1/0/15": "down",
+        "Fa1/0/16": "down",
+        "Fa1/0/17": "down",
+        "Fa1/0/18": "down",
+        "Fa1/0/19": "down",
+        "Fa1/0/20": "down",
+        "Fa1/0/21": "down",
+        "Fa1/0/22": "down",
+        "Fa1/0/23": "down",
+        "Fa1/0/24": "down",
+        "Gi1/0/1": "down",
+        "Gi1/0/2": "down",
+        "Nu0": "up"
+      },
+      "neighbor_ports": [
+        "Fa1/0/1",
+        "Fa1/0/6"
+      ]
+    },
+    {
+      "node_id": "host:d4:be:d9:97:f4:ca",
+      "kind": "endpoint",
+      "ip": "172.20.40.1",
+      "hostname": null,
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": "d4:be:d9:97:f4:ca",
+      "discovery_method": "snmp_fdb",
+      "status": "discovered",
+      "risk_score": null,
+      "discovery_order": 1,
+      "parent_id": "device:00:23:ac:e5:74:00",
+      "agent_id": null,
+      "top_cves": [],
+      "role": "host"
+    },
+    {
+      "node_id": "device:90:6c:ac:d7:43:7f",
+      "kind": "device",
+      "ip": "172.20.100.1",
+      "hostname": "CYFOR-Firewall.cyfor.lab",
+      "vendor": "Fortinet",
+      "model": "FortiGate 200D",
+      "firmware": "6.0.16",
+      "serial": "FG200D4Q16819145",
+      "mac": null,
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "risk_score": 0,
+      "discovery_order": 2,
+      "parent_id": "device:00:23:ac:e5:74:00",
+      "chassis_id": "90:6c:ac:d7:43:7f",
+      "pollable": true,
+      "uplink_ports": [],
+      "role": "router",
+      "port_status": {
+        "mgmt": "down",
+        "wan1": "up",
+        "wan2": "down",
+        "dmz1": "down",
+        "dmz2": "down",
+        "modem": "down",
+        "ssl.root": "up",
+        "lan": "up",
+        "port1": "up"
+      },
+      "neighbor_ports": []
+    },
+    {
+      "node_id": "device:58:97:1e:9c:9e:00",
+      "kind": "device",
+      "ip": "172.20.10.100",
+      "hostname": "L2-Switch",
+      "vendor": "Cisco",
+      "model": "C2960S",
+      "firmware": "12.2(55)SE5",
+      "serial": null,
+      "mac": "58:97:1e:9c:9e:00",
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "risk_score": 0,
+      "discovery_order": 3,
+      "parent_id": "device:00:23:ac:e5:74:00",
+      "chassis_id": "58:97:1e:9c:9e:00",
+      "pollable": true,
+      "uplink_ports": [
+        "Gi2/0/1"
+      ],
+      "role": "l2-switch",
+      "neighbor_ports": [
+        "Gi2/0/1",
+        "Gi2/0/3",
+        "Gi2/0/13",
+        "Gi2/0/29"
+      ],
+      "port_status": {},
+      "port_status_note": "unavailable: device offline during the field-enriched scan"
+    },
+    {
+      "node_id": "endpoint:001",
+      "kind": "endpoint",
+      "ip": "172.20.10.21",
+      "hostname": "CYFOR-3",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.18363.449",
+      "serial": "/B7JHC2S/CN736041CO01C2/",
+      "mac": "d4:be:d9:98:2f:0e",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "risk_score": 9.8,
+      "discovery_order": 4,
+      "parent_id": "device:58:97:1e:9c:9e:00",
+      "agent_id": "001",
+      "top_cves": [
+        {
+          "cve": "CVE-2026-8401",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Sandbox escape in the Profile Backup component. This vulnerability was fixed in Firefox 150.0.3, Firefox ESR 115.36, Firefox ESR 140.11, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8956",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Integer overflow in the Networking: JAR component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8953",
+          "cvss": 9.6,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Sandbox escape due to use-after-free in the Disability Access APIs component. This vulnerability was fixed in Firefox 151, Firefox ESR 115.36, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        }
+      ],
+      "role": "host"
+    },
+    {
+      "node_id": "endpoint:004",
+      "kind": "endpoint",
+      "ip": "172.20.20.21",
+      "hostname": "CYFOR-1",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.18363.449",
+      "serial": "/HHJHC2S/CN736041CO01J9/",
+      "mac": "d4:be:d9:98:2e:d4",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "risk_score": 9.8,
+      "discovery_order": 5,
+      "parent_id": "device:58:97:1e:9c:9e:00",
+      "agent_id": "004",
+      "top_cves": [
+        {
+          "cve": "CVE-2026-8401",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Sandbox escape in the Profile Backup component. This vulnerability was fixed in Firefox 150.0.3, Firefox ESR 115.36, Firefox ESR 140.11, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8956",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Integer overflow in the Networking: JAR component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8953",
+          "cvss": 9.6,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Sandbox escape due to use-after-free in the Disability Access APIs component. This vulnerability was fixed in Firefox 151, Firefox ESR 115.36, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        }
+      ],
+      "role": "host"
+    },
+    {
+      "node_id": "endpoint:003",
+      "kind": "endpoint",
+      "ip": "172.20.30.21",
+      "hostname": "CYFOR-2",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.18363.449",
+      "serial": "/DGJHC2S/CN736041CK03GU/",
+      "mac": "d4:be:d9:97:f6:65",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "risk_score": 9.8,
+      "discovery_order": 6,
+      "parent_id": "device:58:97:1e:9c:9e:00",
+      "agent_id": "003",
+      "top_cves": [
+        {
+          "cve": "CVE-2026-8956",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.2",
+          "description": "Integer overflow in the Networking: JAR component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8401",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.2",
+          "description": "Sandbox escape in the Profile Backup component. This vulnerability was fixed in Firefox 150.0.3, Firefox ESR 115.36, Firefox ESR 140.11, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8953",
+          "cvss": 9.6,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.2",
+          "description": "Sandbox escape due to use-after-free in the Disability Access APIs component. This vulnerability was fixed in Firefox 151, Firefox ESR 115.36, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        }
+      ],
+      "role": "host"
+    },
+    {
+      "node_id": "endpoint:002",
+      "kind": "endpoint",
+      "ip": "172.20.99.90",
+      "hostname": "Mannan-PC",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.19045.6466",
+      "serial": "L1HF68R04V5",
+      "mac": "c8:5b:76:54:ff:0d",
+      "discovery_method": "wazuh",
+      "status": "disconnected",
+      "risk_score": 9.8,
+      "discovery_order": 7,
+      "parent_id": null,
+      "agent_id": "002",
+      "top_cves": [
+        {
+          "cve": "CVE-2026-33824",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
+          "version": "10.0.19045.6466",
+          "description": "Double free in Windows IKE Extension allows an unauthorized attacker to execute code over a network."
+        },
+        {
+          "cve": "CVE-2025-60724",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
+          "version": "10.0.19045.6466",
+          "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network."
+        },
+        {
+          "cve": "CVE-2007-4559",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Python 3.11.0 (64-bit)",
+          "version": "3.11.150.0",
+          "description": "Directory traversal vulnerability in the (1) extract and (2) extractall functions in the tarfile module in Python allows user-assisted remote attackers to overwrite arbitrary files via a .. (dot dot) sequence in filenames in a TAR archive, a related issue to CVE-2001-1267."
+        }
+      ],
+      "role": "host"
+    },
+    {
+      "node_id": "endpoint:007",
+      "kind": "endpoint",
+      "ip": "172.20.99.21",
+      "hostname": "ANS-Laptop",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.19045.7291",
+      "serial": "/96WDMC2/CN1296368E09B0/",
+      "mac": null,
+      "discovery_method": "wazuh",
+      "status": "disconnected",
+      "risk_score": 0,
+      "discovery_order": 8,
+      "parent_id": null,
+      "agent_id": "007",
+      "top_cves": [],
+      "role": "host"
+    },
+    {
+      "node_id": "endpoint:008",
+      "kind": "endpoint",
+      "ip": "172.20.30.21",
+      "hostname": "Laptop-1",
+      "vendor": "windows",
+      "model": "Microsoft Windows 11 Home Single Language",
+      "firmware": "10.0.26200.8457",
+      "serial": "PKXMBE41WFW4X0",
+      "mac": "c8:5a:cf:6d:3d:61",
+      "discovery_method": "wazuh",
+      "status": "disconnected",
+      "role": "host",
+      "risk_score": 0,
+      "discovery_order": 9,
+      "parent_id": null,
+      "agent_id": "008",
+      "top_cves": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "device:00:23:ac:e5:74:00",
+      "source_name": "L3-Switch",
+      "target": "device:90:6c:ac:d7:43:7f",
+      "target_name": "CYFOR-Firewall.cyfor.lab",
+      "type": "lldp",
+      "local_port": "Fa1/0/1",
+      "remote_port": "Layer-3_UPLINK"
+    },
+    {
+      "source": "device:00:23:ac:e5:74:00",
+      "source_name": "L3-Switch",
+      "target": "device:58:97:1e:9c:9e:00",
+      "target_name": "L2-Switch",
+      "type": "lldp",
+      "local_port": "Fa1/0/6",
+      "remote_port": "Gi2/0/1"
+    },
+    {
+      "source": "endpoint:001",
+      "source_name": "CYFOR-3",
+      "target": "device:58:97:1e:9c:9e:00",
+      "target_name": "L2-Switch",
+      "type": "endpoint_link",
+      "local_port": "Gi2/0/3",
+      "confidence": "lldp"
+    },
+    {
+      "source": "endpoint:004",
+      "source_name": "CYFOR-1",
+      "target": "device:58:97:1e:9c:9e:00",
+      "target_name": "L2-Switch",
+      "type": "endpoint_link",
+      "local_port": "Gi2/0/13",
+      "confidence": "lldp"
+    },
+    {
+      "source": "endpoint:003",
+      "source_name": "CYFOR-2",
+      "target": "device:58:97:1e:9c:9e:00",
+      "target_name": "L2-Switch",
+      "type": "endpoint_link",
+      "local_port": "Gi2/0/29",
+      "confidence": "lldp"
+    },
+    {
+      "source": "host:d4:be:d9:97:f4:ca",
+      "source_name": "172.20.40.1",
+      "target": "device:00:23:ac:e5:74:00",
+      "target_name": "L3-Switch",
+      "type": "endpoint_link",
+      "local_port": "Fa1/0/3",
+      "confidence": "fdb"
+    }
+  ],
+  "metadata": {
+    "scan_time": "2026-06-09T12:20:05.491565+00:00",
+    "network_scan_time": "2026-06-06T11:28:05.579730+00:00",
+    "merge_note": "Composite of the 2026-06-06 live-topology scan (structure/parenting) enriched with the 2026-06-09 scan's role/port_status/timing fields. Not a single point-in-time capture.",
+    "seed": null,
+    "counts": {
+      "nodes": 10,
+      "endpoints": 6,
+      "devices": 3,
+      "fdb_discovered_hosts": 1,
+      "lldp_edges": 2,
+      "endpoint_edges": 4,
+      "unparented_endpoints": 3
+    },
+    "confidence": {
+      "lldp": 3,
+      "fdb": 1
+    },
+    "merged_lldp_endpoints": 3,
+    "fdb_discovered_hosts": 1,
+    "fdb_enriched_nodes": 0,
+    "unparented_endpoints": [
+      {
+        "node_id": "endpoint:002",
+        "hostname": "Mannan-PC",
+        "reason": "host_offline_no_l2_evidence"
+      },
+      {
+        "node_id": "endpoint:007",
+        "hostname": "ANS-Laptop",
+        "reason": "host_offline_no_l2_evidence"
+      },
+      {
+        "node_id": "endpoint:008",
+        "hostname": "Laptop-1",
+        "reason": "host_offline_no_l2_evidence"
+      }
+    ],
+    "unreachable_boundaries": [],
+    "data_quality_flags": [
+      {
+        "issue": "duplicate_ip",
+        "ip": "172.20.30.21",
+        "nodes": [
+          "endpoint:003 (CYFOR-2)",
+          "endpoint:008 (Laptop-1)"
+        ],
+        "note": "Two agents claim the same IP; likely a stale Wazuh agent record. CYFOR-2 kept authoritative (has live L2 evidence); Laptop-1 left unparented."
+      },
+      {
+        "issue": "ambiguous_ip",
+        "node": "endpoint:002 (Mannan-PC)",
+        "ip_used": "172.20.99.90",
+        "note": "06-09 scan reported 172.20.50.1 (a gateway-style .1 address in VLAN 50). Kept the 06-06 value 172.20.99.90 as the more plausible host address."
+      }
+    ],
+    "timing": {
+      "endpoint_collect_s": 1.1456945309996627,
+      "endpoint_score_s": 0.11616764799964585,
+      "network_crawl_s": 1.069886322000002,
+      "assemble_s": 0.0007021669998721336,
+      "total_s": 2.5098515199997564,
+      "started_at": "2026-06-09T11:47:33.406966+00:00",
+      "finished_at": "2026-06-09T11:47:35.916817+00:00"
+    }
+  }
+}
