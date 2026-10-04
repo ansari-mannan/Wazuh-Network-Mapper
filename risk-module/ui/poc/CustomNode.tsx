@@ -1,28 +1,36 @@
 import { Handle, Position, type NodeProps, type Node } from "@xyflow/react";
 import type { GraphNode } from "@/lib/vulnmapperApi";
 import { iconForRole } from "./icons";
-import { isOffline, riskColor, riskLabel } from "./nodeStyle";
+import { isOffline, riskBorder, riskLabel, statusDot } from "./nodeStyle";
 
 // A React Flow node whose `data` payload is a real graph node.
 export type PocFlowNode = Node<GraphNode, "device">;
 
-// One graph node. Risk is a small dot + a thin ring (CSS var --risk), never a
-// full-node recolor. Offline nodes get the node--offline modifier (dim + dashed).
+// One graph node. Two INDEPENDENT visual channels:
+//   * the corner dot  -> LIVENESS (statusDot): green up / grey unconfirmed / red down
+//   * the node border -> RISK     (riskBorder): thicker + redder = more critical
+// A stale endpoint (duplicate IP of a live host) is dimmed. Offline nodes keep
+// the dashed/dim treatment too.
 // Ported from gui/frontend/src/components/CustomNode.jsx (reactflow -> @xyflow/react).
 export default function CustomNode({ data }: NodeProps<PocFlowNode>) {
   const Icon = iconForRole(data.role);
-  const color = riskColor(data.risk_score);
-  const offline = isOffline(data.status);
+  const dot = statusDot(data.status);
+  const border = riskBorder(data.risk_score);
+  const dimmed = data.stale || isOffline(data.status);
   const label = data.hostname || data.ip || data.node_id;
 
   return (
     <div
-      className={`node ${offline ? "node--offline" : ""}`}
-      style={{ ["--risk" as string]: color }}
-      title={`${label} · risk ${riskLabel(data.risk_score)}`}
+      className={`node ${dimmed ? "node--offline" : ""}`}
+      style={{
+        borderColor: border.color,
+        borderWidth: border.width,
+        opacity: data.stale ? 0.55 : undefined,
+      }}
+      title={`${label} · ${data.status || "?"} · risk ${riskLabel(data.risk_score)}`}
     >
       <Handle type="target" position={Position.Top} className="handle" />
-      <span className="node__dot" style={{ background: color }} />
+      <span className="node__dot" style={{ background: dot }} />
       <Icon className="node__icon" size={26} strokeWidth={1.5} />
       <div className="node__label">{label}</div>
       {data.role && <div className="node__role">{data.role}</div>}

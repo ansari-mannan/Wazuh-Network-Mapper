@@ -34,6 +34,8 @@ type GraphNodeBase = {
   discovery_order: number;
   parent_id: string | null;
   role: string;
+  stale?: boolean;
+  max_cvss?: number | null;
 };
 
 export type DeviceNode = GraphNodeBase & {
@@ -63,12 +65,22 @@ export type GraphEdge = {
   source_name?: string;
   target_name?: string;
   confidence?: string;
+  inferred?: boolean;
+};
+
+export type GraphWarning = {
+  type: string;
+  ip?: string;
+  nodes?: { node_id: string; hostname: string | null; status: string; stale: boolean }[];
+  [key: string]: unknown;
 };
 
 export type Metadata = {
   scan_time?: string;
   network_scan_time?: string;
   seed?: string | null;
+  warnings?: GraphWarning[];
+  attack_path_sources?: string[];
   counts?: {
     nodes: number;
     endpoints: number;

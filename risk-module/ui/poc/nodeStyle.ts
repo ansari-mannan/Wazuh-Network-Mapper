@@ -21,6 +21,39 @@ export function riskLabel(score: number | null | undefined): string {
 }
 
 /**
+ * LIVENESS -> corner dot color. This is the dot's ONLY meaning — it must never
+ * encode risk (a healthy-but-vulnerable host should still read as "up"):
+ *   active/online  -> green  (confirmed up)
+ *   discovered     -> grey   (FDB-only, liveness unconfirmed)
+ *   disconnected/down -> red (known but down)
+ */
+const STATUS_DOT: Record<string, string> = {
+  active: "#22c55e",
+  online: "#22c55e",
+  discovered: "#9ca3af",
+  disconnected: "#ef4444",
+  down: "#ef4444",
+};
+
+export function statusDot(status: string | null | undefined): string {
+  return STATUS_DOT[(status || "").toLowerCase()] || "#9ca3af";
+}
+
+export type RiskBorder = { color: string; width: number };
+
+/**
+ * RISK -> node border (outline), independent of liveness. Returns { color, width }.
+ * null/undefined risk is a neutral thin grey border (unscored), not green.
+ */
+export function riskBorder(r: number | null | undefined): RiskBorder {
+  if (r === null || r === undefined) return { color: "#d1d5db", width: 1 };
+  if (r >= 9.0) return { color: "#dc2626", width: 3 }; // critical
+  if (r >= 7.0) return { color: "#f97316", width: 2 }; // high
+  if (r >= 4.0) return { color: "#eab308", width: 2 }; // medium
+  return { color: "#22c55e", width: 1 }; // low / clean
+}
+
+/**
  * Offline = a host/device that isn't currently present. Endpoints report
  * "disconnected", FDB-discovered hosts "discovered"; online states are "online"
  * (devices) and "active" (endpoints). Offline nodes are dimmed + dashed.

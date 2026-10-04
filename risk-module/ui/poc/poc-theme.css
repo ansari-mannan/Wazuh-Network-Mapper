@@ -35,13 +35,12 @@
   width: 184px;
   padding: 12px 12px 10px;
   background: var(--poc-surface);
+  /* border color+width are set inline = RISK (see CustomNode/riskBorder); the dot
+     (.node__dot) is LIVENESS. The two channels are deliberately independent. */
   border: 1px solid var(--poc-border);
   border-radius: 12px;
   box-shadow: var(--poc-shadow);
   text-align: center;
-  /* thin colored risk ring (subtle, not a full recolor) */
-  outline: 2px solid color-mix(in srgb, var(--risk) 55%, transparent);
-  outline-offset: -1px;
   cursor: pointer;
   transition: box-shadow 0.12s, transform 0.12s;
 }
