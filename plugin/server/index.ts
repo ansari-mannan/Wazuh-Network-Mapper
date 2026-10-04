@@ -1,8 +1,10 @@
-import { PluginInitializerContext } from '../../../src/core/server';
+import { PluginConfigDescriptor, PluginInitializerContext } from '../../../src/core/server';
+import { configSchema, VulnmapperConfig } from './config';
 import { VulnmapperPlugin } from './plugin';
 
-// This exports static code and TypeScript types,
-// as well as, OpenSearch Dashboards Platform `plugin()` initializer.
+export const config: PluginConfigDescriptor<VulnmapperConfig> = {
+  schema: configSchema,
+};
 
 export function plugin(initializerContext: PluginInitializerContext) {
   return new VulnmapperPlugin(initializerContext);

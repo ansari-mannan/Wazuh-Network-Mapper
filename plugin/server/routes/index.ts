@@ -1,29 +1,40 @@
 import { promises as fs } from 'fs';
-import { IRouter } from '../../../../src/core/server';
+import { schema } from '@osd/config-schema';
+import { IRouter, Logger } from '../../../../src/core/server';
+import { VulnmapperConfig } from '../config';
+import { getScan, startScan } from '../scan';
 
-// PHASE 1 SPIKE ONLY: temporary hardcoded dev path. Replaced by the
-// vulnmapper.graphPath config key in Phase 2.
-const GRAPH_PATH = '/home/ans/dev/Wazuh-Network-Mapper/data/graph.json';
+export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
+  const notConfigured = (key: string) => ({
+    statusCode: 500,
+    body: { message: `vulnmapper.${key} is not set in opensearch_dashboards.yml` },
+  });
 
-export function defineRoutes(router: IRouter) {
   // The graph is read fresh from disk on every request so the file the scanner
   // writes stays the single source of truth (same as frontend/app/api/graph).
+  // The file's mtime is returned in a header for the "where the graph came from" view.
   router.get(
-    {
-      path: '/api/vulnmapper/graph',
-      validate: false,
-    },
+    { path: '/api/vulnmapper/graph', validate: false },
     async (context, request, response) => {
+      const graphPath = config.graphPath;
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
       let data: string;
+      let mtime: Date;
       try {
-        data = await fs.readFile(GRAPH_PATH, 'utf-8');
+        [data, { mtime }] = await Promise.all([
+          fs.readFile(graphPath, 'utf-8'),
+          fs.stat(graphPath),
+        ]);
       } catch (err) {
         return response.notFound({
-          body: { message: `Could not read graph at ${GRAPH_PATH}: ${(err as Error).message}` },
+          body: { message: `Could not read graph at ${graphPath}: ${(err as Error).message}` },
         });
       }
       try {
-        return response.ok({ body: JSON.parse(data) });
+        return response.ok({
+          body: JSON.parse(data),
+          headers: { 'x-vulnmapper-graph-mtime': mtime.toISOString() },
+        });
       } catch (err) {
         return response.customError({
           statusCode: 500,
@@ -31,5 +42,40 @@ export function defineRoutes(router: IRouter) {
         });
       }
     }
+  );
+
+  router.post(
+    {
+      path: '/api/vulnmapper/scan',
+      validate: {
+        body: schema.nullable(
+          schema.object({ community: schema.maybe(schema.string({ maxLength: 256 })) })
+        ),
+      },
+    },
+    async (context, request, response) => {
+      const { backendDir, graphPath, pythonBin } = config;
+      if (!backendDir) return response.customError(notConfigured('backendDir'));
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      const started = startScan({
+        pythonBin,
+        backendDir,
+        graphPath,
+        community: request.body?.community || undefined,
+        logger,
+      });
+      if (!started) {
+        return response.customError({
+          statusCode: 409,
+          body: { message: 'a scan is already running' },
+        });
+      }
+      return response.accepted({ body: getScan() });
+    }
+  );
+
+  router.get(
+    { path: '/api/vulnmapper/scan/status', validate: false },
+    async (context, request, response) => response.ok({ body: getScan() })
   );
 }

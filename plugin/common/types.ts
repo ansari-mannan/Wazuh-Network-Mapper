@@ -93,10 +93,13 @@ export type GraphResponse = {
   metadata: Metadata;
 };
 
-export type ScanStatusResponse = {
-  status: string;
-  error: string | null;
+// Scan state reported by GET /api/vulnmapper/scan/status. After a successful
+// scan the status returns to idle with a completion message.
+export type ScanStatus = 'idle' | 'running' | 'failed';
+
+export type ScanState = {
+  status: ScanStatus;
+  message: string | null;
   startedAt: string | null;
   finishedAt: string | null;
 };
-
