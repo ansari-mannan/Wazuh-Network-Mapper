@@ -5,6 +5,7 @@ import { Route, Router, Switch } from 'react-router-dom';
 import { PLUGIN_NAME } from '../../common';
 import { PageDef, PAGES } from '../pages';
 import { GraphProvider } from '../lib/graph';
+import { ScanProvider } from '../lib/scan';
 import { Services, ServicesProvider, useServices } from '../lib/services';
 import { Overview } from './overview/Overview';
 import { InnerPage } from './layout/InnerPage';
@@ -50,18 +51,20 @@ export const VulnmapperApp = ({ services }: { services: Services }) => (
   <I18nProvider>
     <ServicesProvider value={services}>
       <GraphProvider>
-        <Router history={services.history}>
-          <Switch>
-            {PAGES.map((page) => (
-              <Route key={page.id} path={`/${page.id}`} exact>
-                <PageRoute page={page} />
+        <ScanProvider>
+          <Router history={services.history}>
+            <Switch>
+              {PAGES.map((page) => (
+                <Route key={page.id} path={`/${page.id}`} exact>
+                  <PageRoute page={page} />
+                </Route>
+              ))}
+              <Route>
+                <OverviewRoute />
               </Route>
-            ))}
-            <Route>
-              <OverviewRoute />
-            </Route>
-          </Switch>
-        </Router>
+            </Switch>
+          </Router>
+        </ScanProvider>
       </GraphProvider>
     </ServicesProvider>
   </I18nProvider>
