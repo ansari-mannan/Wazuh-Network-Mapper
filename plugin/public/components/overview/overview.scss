@@ -1,0 +1,26 @@
+.vmDonut {
+  display: block;
+  flex: none;
+
+  &__track { stroke: $euiColorLightShade; }
+  &__total { fill: $euiTextColor; font-size: 22px; font-weight: 600; }
+  &__caption { fill: $euiTextSubduedColor; font-size: 11px; }
+}
+
+.vmSummaryPanel {
+  height: 100%;
+}
+
+.vmRiskCount {
+  border-left: 4px solid;
+  padding-left: $euiSizeS;
+}
+
+.vmLegendRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $euiSizeM;
+  max-width: 220px;
+  padding: 2px 0;
+}

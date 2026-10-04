@@ -1,0 +1,5 @@
+// Inner pages fill the viewport below the dashboard header so the topology
+// canvas can take all remaining height.
+.vmInnerPage {
+  min-height: 0;
+}

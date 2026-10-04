@@ -3,6 +3,7 @@ import ReactFlow, { Background, Controls, Edge, MarkerType } from 'react-flow-re
 import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
 import { CustomNode, TopologyFlowNode } from './CustomNode';
+import { graphColors, themeVars } from '../../lib/theme';
 
 // Ported from frontend/risk-module/ui/topology/TopologyView.tsx (@xyflow/react
 // v12 -> react-flow-renderer v10). Renders the dagre-positioned graph with
@@ -14,18 +15,18 @@ type EdgeStyle = CSSProperties & { stroke: string };
 // Edge visual style by relationship type + placement confidence (Issue 6).
 export function edgeStyle(e: Pick<LayoutEdge, 'inferred' | 'type' | 'confidence'>): EdgeStyle {
   if (e.inferred) {
-    return { stroke: '#f59e0b', strokeWidth: 1.5, strokeDasharray: '6 3', opacity: 0.9 };
+    return { stroke: graphColors.edgeInferred, strokeWidth: 1.5, strokeDasharray: '6 3', opacity: 0.9 };
   }
   if (e.type === 'endpoint_link') {
     // FDB-confidence links are visually distinct (lighter, finer dash) from the
     // higher-confidence LLDP-confidence ones.
     if (e.confidence === 'fdb') {
-      return { stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '3 3', opacity: 0.9 };
+      return { stroke: graphColors.edgeFdb, strokeWidth: 1.5, strokeDasharray: '3 3', opacity: 0.9 };
     }
-    return { stroke: '#64748b', strokeWidth: 1.5, strokeDasharray: '6 3', opacity: 0.9 };
+    return { stroke: graphColors.edgeEndpoint, strokeWidth: 1.5, strokeDasharray: '6 3', opacity: 0.9 };
   }
   // lldp (and anything else) -> solid, clearly visible, with a direction arrow.
-  return { stroke: '#475569', strokeWidth: 2 };
+  return { stroke: graphColors.edgeLldp, strokeWidth: 2 };
 }
 
 interface TopologyViewProps {
@@ -61,8 +62,11 @@ export function TopologyView({ graph, onSelect }: TopologyViewProps) {
         target: e.target,
         label: e.inferred ? 'inferred' : e.label,
         style,
-        labelStyle: { fontSize: 10, fill: e.inferred ? '#b45309' : '#475569' },
-        labelBgStyle: { fill: '#f8fafc', fillOpacity: 0.85 },
+        labelStyle: {
+          fontSize: 10,
+          fill: e.inferred ? graphColors.labelInferred : themeVars.euiTextSubduedColor,
+        },
+        labelBgStyle: { fill: themeVars.euiColorEmptyShade, fillOpacity: 0.85 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color: style.stroke,
@@ -94,7 +98,7 @@ export function TopologyView({ graph, onSelect }: TopologyViewProps) {
         nodesDraggable={false}
         nodesConnectable={false}
       >
-        <Background color="#e2e8f0" gap={22} size={1} />
+        <Background color={themeVars.euiColorLightShade} gap={22} size={1} />
         <Controls showInteractive={false} />
       </ReactFlow>
     </div>

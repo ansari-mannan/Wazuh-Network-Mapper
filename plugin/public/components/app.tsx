@@ -1,67 +1,68 @@
-import React, { useEffect, useState } from 'react';
+import React, { ComponentType, useEffect } from 'react';
 import { I18nProvider } from '@osd/i18n/react';
-import { BrowserRouter as Router } from 'react-router-dom';
-import {
-  EuiCallOut,
-  EuiLoadingSpinner,
-  EuiPage,
-  EuiPageBody,
-  EuiPageHeader,
-  EuiPanel,
-  EuiText,
-  EuiTitle,
-} from '@elastic/eui';
+import { Route, Router, Switch } from 'react-router-dom';
 
-import { CoreStart } from '../../../../src/core/public';
-import { GraphResponse, PLUGIN_NAME } from '../../common';
-import { TopologyView } from './topology/TopologyView';
+import { PLUGIN_NAME } from '../../common';
+import { PageDef, PAGES } from '../pages';
+import { GraphProvider } from '../lib/graph';
+import { Services, ServicesProvider, useServices } from '../lib/services';
+import { Overview } from './overview/Overview';
+import { InnerPage } from './layout/InnerPage';
+import { ComingSoon } from './layout/ComingSoon';
+import { TopologyPage } from './topology/TopologyPage';
+import { ScanSettingsPage } from './scan/ScanSettingsPage';
 
-interface VulnmapperAppDeps {
-  basename: string;
-  http: CoreStart['http'];
+// Page bodies by page id. A page without an entry here (or not `available` in
+// PAGES) renders the "coming soon" empty state.
+const PAGE_COMPONENTS: Record<string, ComponentType> = {
+  topology: TopologyPage,
+  scan: ScanSettingsPage,
+};
+
+function useBreadcrumbs(page?: PageDef) {
+  const { chrome, history } = useServices();
+  useEffect(() => {
+    const root = {
+      text: PLUGIN_NAME,
+      href: history.createHref({ pathname: '/' }),
+      onClick: (e: React.MouseEvent) => {
+        e.preventDefault();
+        history.push('/');
+      },
+    };
+    chrome.setBreadcrumbs(page ? [root, { text: page.title }] : [{ text: PLUGIN_NAME }]);
+    chrome.docTitle.change(page ? [page.title, PLUGIN_NAME] : PLUGIN_NAME);
+  }, [chrome, history, page]);
 }
 
-// PHASE 1 SPIKE: a single page that loads the graph and draws it.
-export const VulnmapperApp = ({ basename, http }: VulnmapperAppDeps) => {
-  const [graph, setGraph] = useState<GraphResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+function OverviewRoute() {
+  useBreadcrumbs();
+  return <Overview />;
+}
 
-  useEffect(() => {
-    http
-      .get<GraphResponse>('/api/vulnmapper/graph')
-      .then(setGraph)
-      .catch((e) => setError(e.body?.message || e.message));
-  }, [http]);
+function PageRoute({ page }: { page: PageDef }) {
+  useBreadcrumbs(page);
+  const Body = page.available ? PAGE_COMPONENTS[page.id] : undefined;
+  return <InnerPage page={page}>{Body ? <Body /> : <ComingSoon page={page} />}</InnerPage>;
+}
 
-  return (
-    <Router basename={basename}>
-      <I18nProvider>
-        <EuiPage>
-          <EuiPageBody component="main">
-            <EuiPageHeader>
-              <EuiTitle size="l">
-                <h1>{PLUGIN_NAME}</h1>
-              </EuiTitle>
-            </EuiPageHeader>
-            {error && <EuiCallOut color="danger" title={error} iconType="alert" />}
-            {!graph && !error && <EuiLoadingSpinner size="xl" />}
-            {graph && (
-              <>
-                <EuiText size="s" data-test-subj="vmCounts">
-                  <p>
-                    {graph.nodes.length} nodes · {graph.edges.length} links
-                    {selected ? ` · selected ${selected}` : ''}
-                  </p>
-                </EuiText>
-                <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '70vh' }}>
-                  <TopologyView graph={graph} onSelect={setSelected} />
-                </EuiPanel>
-              </>
-            )}
-          </EuiPageBody>
-        </EuiPage>
-      </I18nProvider>
-    </Router>
-  );
-};
+export const VulnmapperApp = ({ services }: { services: Services }) => (
+  <I18nProvider>
+    <ServicesProvider value={services}>
+      <GraphProvider>
+        <Router history={services.history}>
+          <Switch>
+            {PAGES.map((page) => (
+              <Route key={page.id} path={`/${page.id}`} exact>
+                <PageRoute page={page} />
+              </Route>
+            ))}
+            <Route>
+              <OverviewRoute />
+            </Route>
+          </Switch>
+        </Router>
+      </GraphProvider>
+    </ServicesProvider>
+  </I18nProvider>
+);
