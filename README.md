@@ -13,6 +13,9 @@ real scan data. Attack path analysis, recommendations and the summary screens
 currently show sample data and are in development. The project runs as a
 standalone web app; packaging it as a Wazuh dashboard plugin is planned.
 
+The OpenSearch Dashboards plugin in `plugin/` (OpenSearch Dashboards 2.19.3,
+Wazuh 4.14) shows the overview, topology map and scan settings on real scan data.
+
 ## Project structure
 
 ```
@@ -20,6 +23,7 @@ backend/     Python scanner (vulnmapper), its tests and maintenance scripts
 frontend/    Next.js web app that displays the graph and starts scans
 data/        graph.json, the scan output the web app reads
 docs/        diagrams and archived project documents
+plugin/      OpenSearch Dashboards plugin (Wazuh dashboard), see plugin/README.md
 ```
 
 ## Getting started
