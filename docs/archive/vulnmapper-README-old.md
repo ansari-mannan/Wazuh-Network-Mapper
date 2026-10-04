@@ -35,13 +35,13 @@ Every node carries one stable id that edges reference — never hostname/IP:
 ```bash
 # Full live run (creds from env): collect -> score -> crawl -> assemble.
 WAZUH_PASS=... INDEXER_PASS=... \
-  python -m vulnmapper --community REDACTED_COMMUNITY > graph.json
+  python -m vulnmapper --community <community> > graph.json
 
 # Rebuild the graph from cached stage outputs (no lab access):
 python -m vulnmapper --scored scored_agents.json --network output.json > graph.json
 
 # One-sided graphs:
-python -m vulnmapper --no-endpoints --community REDACTED_COMMUNITY > graph.json
+python -m vulnmapper --no-endpoints --community <community> > graph.json
 python -m vulnmapper --no-network --scored scored_agents.json > graph.json
 ```
 
@@ -52,7 +52,7 @@ Individual stages are still runnable on their own (filenames preserved):
 ```bash
 python -m vulnmapper.endpoints.collect    # -> agents.json
 python -m vulnmapper.endpoints.score      # -> scored_agents.json
-python -m vulnmapper.network --community REDACTED_COMMUNITY > output.json
+python -m vulnmapper.network --community <community> > output.json
 ```
 
 ## Environment

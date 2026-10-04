@@ -18,14 +18,14 @@ for each de-functionalized page, environment limitations, and build status.
 
 | File | Notes |
 |---|---|
-| `app/api/config/route.ts` | `GET → { community }` from `DEFAULT_COMMUNITY` env, fallback `"REDACTED_COMMUNITY"`. |
+| `app/api/config/route.ts` | `GET → { community }` from `DEFAULT_COMMUNITY` env, fallback `"<community>"`. |
 | `app/api/graph/route.ts` | `GET` reads `graph.json` fresh from disk every request (`force-dynamic`). 404 on read error, 500 on parse error — exact POC messages. |
 | `app/api/scan/route.ts` | `POST` spawns `python -m vulnmapper --community <c>` (no shell, args array), writes validated stdout to `graph.json`, responds `202 {status:"running"}`. 409 if already running. |
 | `app/api/scan/status/route.ts` | `GET` returns shared scan state. |
 | `lib/scanState.ts` | Module-level shared `let` state, imported by both scan routes so status persists across requests in one server process. |
 
 **Verified (Phase 1 gate):**
-- `GET /api/config` → `{"community":"REDACTED_COMMUNITY"}` ✅
+- `GET /api/config` → `{"community":"<community>"}` ✅
 - `GET /api/graph` → `metadata.counts.nodes === 10` ✅
 - `POST /api/scan {"community":"test"}` → `202 {"status":"running"}`, then `/api/scan/status`
   transitions to `error` with the Python stderr (does **not** hang, does **not** crash, does

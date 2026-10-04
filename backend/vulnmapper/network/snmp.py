@@ -270,7 +270,7 @@ class SnmpClient:
 
         Cisco gear exposes the 802.1Q per-VLAN forwarding tables over SNMPv2c
         only when the community is suffixed ``community@<vlan-id>`` (e.g.
-        ``REDACTED_COMMUNITY@10``). This builds that contextual community for ``ip``'s
+        ``<community>@10``). This builds that contextual community for ``ip``'s
         resolved v2c credential and walks once for the given VLAN. Returns an
         empty list for a v3 credential (which uses contextName instead — not the
         community-context trick) or when nothing answers.

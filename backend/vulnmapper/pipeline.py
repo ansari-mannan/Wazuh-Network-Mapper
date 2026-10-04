@@ -1,6 +1,6 @@
 """Top-level run: collect -> score -> link -> assemble -> one graph on stdout.
 
-    python -m vulnmapper --community REDACTED_COMMUNITY > graph.json
+    python -m vulnmapper --community <community> > graph.json
 
 stdout is the unified ``{nodes, edges, metadata}`` JSON document and nothing
 else; every log line goes to stderr (the Node layer reads stdout to get the

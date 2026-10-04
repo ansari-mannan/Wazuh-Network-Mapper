@@ -12,7 +12,7 @@ Usage::
 
     python3 scripts/verify_comware.py [target] [community] [version]
 
-defaults: 172.20.99.4  REDACTED_COMMUNITY  v2c
+defaults: 172.20.99.4  $SNMP_COMMUNITY  v2c
 
 It writes ``scripts/comware_verification_report.txt`` with every check + PASS/FAIL
 and the resolved mapping tables, and exits non-zero if anything failed.
@@ -89,7 +89,7 @@ _VERSION_RE = re.compile(r"Version (\d+\.\d+\.\d+), Release (\d+)")
 _ABSENT = {"NoSuchObject", "NoSuchInstance", "EndOfMibView", "Null"}
 
 # Set from CLI in run(); used by the 0.6 project-walk cross-check.
-_COMMUNITY = "REDACTED_COMMUNITY"
+_COMMUNITY = None
 # Set from CLI (--capture PATH); when set, a flat fixture is written at the end.
 _CAPTURE_PATH = None
 
@@ -672,7 +672,10 @@ def main() -> int:
         _CAPTURE_PATH = args[i + 1]
         del args[i:i + 2]
     target = args[0] if len(args) > 0 else "172.20.99.4"
-    community = args[1] if len(args) > 1 else "REDACTED_COMMUNITY"
+    community = args[1] if len(args) > 1 else os.environ.get("SNMP_COMMUNITY")
+    if not community:
+        raise SystemExit("verify_comware: no community; pass it as the second "
+                         "argument or set SNMP_COMMUNITY.")
     version = args[2] if len(args) > 2 else "v2c"
     try:
         return asyncio.run(run(target, community, version))

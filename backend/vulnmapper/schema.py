@@ -112,16 +112,6 @@ DEFAULT_INDEXER_HOST = "192.168.100.2"
 DEFAULT_INDEXER_PORT = "9200"
 DEFAULT_INDEXER_USER = "admin"
 
-# ---------------------------------------------------------------------------
-# LAB CREDENTIALS (baked in by request for convenience — NOT for production).
-#
-# These let you run the pipeline with no env vars. They are real lab secrets in
-# source control: rotate them before this repo leaves the lab, and prefer the
-# env vars (WAZUH_PASS / INDEXER_PASS) which still override these defaults.
-# ---------------------------------------------------------------------------
-DEFAULT_WAZUH_PASS = "REDACTED_WAZUH_PASS"
-DEFAULT_INDEXER_PASS = "REDACTED_INDEXER_PASS"
-
 
 def _truthy(value: Optional[str]) -> bool:
     return (value or "").strip().lower() in ("1", "true", "yes", "on")
@@ -152,12 +142,12 @@ class WazuhConfig:
 
     @classmethod
     def from_env(cls) -> "WazuhConfig":
-        # Env wins; falls back to the baked-in lab password for convenience.
+        # The password comes only from WAZUH_PASS (checked when collect runs).
         return cls(
             host=os.environ.get("WAZUH_HOST", DEFAULT_WAZUH_HOST),
             port=os.environ.get("WAZUH_PORT", DEFAULT_WAZUH_PORT),
             user=os.environ.get("WAZUH_USER", DEFAULT_WAZUH_USER),
-            password=os.environ.get("WAZUH_PASS", DEFAULT_WAZUH_PASS),
+            password=os.environ.get("WAZUH_PASS", ""),
             verify=tls_verify("WAZUH_CA_BUNDLE"),
         )
 
@@ -174,12 +164,12 @@ class IndexerConfig:
 
     @classmethod
     def from_env(cls) -> "IndexerConfig":
-        # Env wins; falls back to the baked-in lab password for convenience.
+        # The password comes only from INDEXER_PASS (checked when score runs).
         return cls(
             host=os.environ.get("INDEXER_HOST", DEFAULT_INDEXER_HOST),
             port=os.environ.get("INDEXER_PORT", DEFAULT_INDEXER_PORT),
             user=os.environ.get("INDEXER_USER", DEFAULT_INDEXER_USER),
-            password=os.environ.get("INDEXER_PASS", DEFAULT_INDEXER_PASS),
+            password=os.environ.get("INDEXER_PASS", ""),
             verify=tls_verify("INDEXER_CA_BUNDLE"),
         )
 

@@ -11,7 +11,7 @@ export function ScanConfiguration() {
   const defaults = getScanConfigDefaults();
   const [schedule, setSchedule] = useState(defaults.schedule);
   const [scanType, setScanType] = useState(defaults.scanType);
-  const [community, setCommunity] = useState("REDACTED_COMMUNITY");
+  const [community, setCommunity] = useState("");
 
   return (
     <div className="min-h-screen bg-background">

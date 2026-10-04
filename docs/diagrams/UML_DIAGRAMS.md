@@ -371,7 +371,7 @@ classDiagram
     class cred["cred : Credential"]
     cred : version = "v2c"
     cred : index = 1
-    cred : community = "REDACTED_COMMUNITY"
+    cred : community = "<community>"
 
     class snmp["client : SNMPClient"]
     snmp : _resolved = {"172.20.40.254": cred}
@@ -423,7 +423,7 @@ sequenceDiagram
     runner->>crawler: run()
     activate crawler
     crawler->>snmp: resolve_credential("172.20.40.254")
-    snmp-->>crawler: cred(v2c, "REDACTED_COMMUNITY")
+    snmp-->>crawler: cred(v2c, "<community>")
     crawler->>si: fetch(client, ip)
     si->>snmp: get_many(identity OIDs)
     si-->>crawler: {hostname:"L3-Switch", chassis_id, vendor:"Cisco"}

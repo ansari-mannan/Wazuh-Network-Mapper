@@ -676,7 +676,7 @@ classDiagram
     class cred["cred_v2c : Credential"]
     cred : version = "v2c"
     cred : index = 1
-    cred : community = "REDACTED_COMMUNITY"
+    cred : community = "<community>"
 
     class dev1["dev_l3 : Device"]
     dev1 : chassis_id = "00:23:ac:e5:74:00"

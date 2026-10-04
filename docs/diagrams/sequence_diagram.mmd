@@ -13,7 +13,7 @@ sequenceDiagram
     participant V as vendor.identify
     participant G as GraphAssembler
 
-    User->>Main: python -m vulnmapper --community REDACTED_COMMUNITY
+    User->>Main: python -m vulnmapper --community <community>
     Main->>P: run(argv)
 
     rect rgb(235,245,255)

@@ -230,11 +230,6 @@ ENV_V3_AUTH_KEY = "SNMP_V3_AUTH_KEY"
 ENV_V3_PRIV_PROTO = "SNMP_V3_PRIV_PROTO"
 ENV_V3_PRIV_KEY = "SNMP_V3_PRIV_KEY"
 
-# Baked-in lab community (by request) so the crawl runs with no --community / env.
-# CLI flags and env vars are still tried first; this is only the fallback when
-# nothing else is supplied. Not for production.
-DEFAULT_COMMUNITY = "REDACTED_COMMUNITY"
-
 
 @dataclass
 class Config:
@@ -308,11 +303,6 @@ def load_credentials(cli_communities: Optional[list[str]]) -> list[Credential]:
                 priv_key=os.environ.get(ENV_V3_PRIV_KEY),
             )
         )
-
-    # Nothing supplied anywhere: fall back to the baked-in lab community so a
-    # bare run still crawls (by request — see DEFAULT_COMMUNITY).
-    if not creds:
-        _add_community(DEFAULT_COMMUNITY)
 
     return creds
 
@@ -972,6 +962,9 @@ async def run(cfg: Config) -> dict:
 
 def crawl_document(cfg: Config) -> dict:
     """Synchronous wrapper: run the crawl and always return a valid document."""
+    if not cfg.credentials:
+        raise SystemExit("vulnmapper: no SNMP credentials; pass --community or set "
+                         "SNMP_COMMUNITIES (or the SNMP_V3_* variables).")
     try:
         return asyncio.run(run(cfg))
     except Exception:

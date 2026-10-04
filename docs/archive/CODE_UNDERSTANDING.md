@@ -87,7 +87,7 @@ the node's kind.
 The package is `vulnmapper/`. You run it like this:
 
 ```
-python -m vulnmapper --community REDACTED_COMMUNITY > graph.json
+python -m vulnmapper --community <community> > graph.json
 ```
 
 It prints the finished graph document to **stdout** (and only that), while all
@@ -252,7 +252,7 @@ behind a small surface:
 - **`walk()`** — read a whole table from a device (using GETBULK).
 - **`walk_vlan_context()`** — a special trick for Cisco gear: to read a specific
   VLAN's forwarding table over SNMPv2c you must suffix the community string with
-  `@<vlan-id>` (e.g. `REDACTED_COMMUNITY@10`). This method builds that contextual community.
+  `@<vlan-id>` (e.g. `<community>@10`). This method builds that contextual community.
 
 One detail worth knowing: a **single shared SNMP engine** is reused for the
 whole crawl (it's heavy to build), which is safe because the crawl is a small
@@ -382,7 +382,7 @@ port Y". Match a computer's MAC against that table and you know its port.
 
 - **`config.py`** holds every tunable (concurrency, timeout, retries, max_nodes,
   port) in one place and loads SNMP credentials from CLI flags + environment
-  variables. There's a baked-in lab community (`REDACTED_COMMUNITY`) used only as a last
+  variables. There's a baked-in lab community (`<community>`) used only as a last
   resort.
 - **`cli.py`** defines the standalone command line for the crawler. The headline
   difference from older tools: there is **no `--subnet`** — the crawl seeds and
@@ -548,7 +548,7 @@ graph or the scanner; the browser never reads files directly.
   — returns the current scan state (`idle`/`running`/`done`/`error`).
 
 - **`GET /api/config`** ([app/api/config/route.ts](app/api/config/route.ts)) —
-  returns the default community string (`REDACTED_COMMUNITY`) to pre-fill the input.
+  returns the default community string (`<community>`) to pre-fill the input.
 
 - **`lib/scanState.ts`** — a tiny module holding the shared scan state in a
   module-level variable, so the `/api/scan` writer and the `/api/scan/status`
@@ -661,7 +661,7 @@ Putting it all together, here is the life of one scan:
 
 1. **User clicks "Run New Scan"** in the Topology Map screen.
 2. The browser POSTs to **`/api/scan`**, which spawns
-   `python -m vulnmapper --community REDACTED_COMMUNITY` and replies `202 running`.
+   `python -m vulnmapper --community <community>` and replies `202 running`.
 3. **`pipeline.run()`** orchestrates four stages:
    - **collect** — `WazuhClient` + `collect_agents()` pull every monitored
      computer; `normalize_agent()` cleans each one and picks its real MAC.

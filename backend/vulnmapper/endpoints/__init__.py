@@ -223,6 +223,9 @@ class WazuhSource:
         Returns the list of normalized node dicts. One agent's missing
         syscollector data must not abort the run.
         """
+        if not self._wcfg.password:
+            raise SystemExit("vulnmapper: WAZUH_PASS is not set; export it to collect "
+                             "endpoints (or run with --no-endpoints or --scored PATH).")
         self._authenticate()
 
         nodes: list[dict] = []
@@ -277,6 +280,9 @@ class WazuhSource:
 
     def score(self, agents: list[dict]) -> list[dict]:
         """Enrich each agent with its top CVEs + risk score. Returns the new list."""
+        if not self._icfg.password:
+            raise SystemExit("vulnmapper: INDEXER_PASS is not set; export it to score "
+                             "endpoints (or run with --no-endpoints or --scored PATH).")
         out: list[dict] = []
         for agent in agents:
             agent_id = agent.get("agent_id")  # hard join key carried from collect

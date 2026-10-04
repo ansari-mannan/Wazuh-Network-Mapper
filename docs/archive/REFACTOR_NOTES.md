@@ -55,7 +55,7 @@ Kept unchanged: `network.roles`, `network.vendors.comware`.
 Gate results (all green): `compileall` ✓ · `pytest` 90 passed (89 + golden) ✓ ·
 `vulnmapper --help` + `vulnmapper.network --help` flag lists unchanged ✓ ·
 `-m endpoints.collect` / `-m endpoints.score` run (no ImportError) ✓ ·
-GUI spawn `-m vulnmapper --community REDACTED_COMMUNITY --no-endpoints --no-network` -> valid stdout-only JSON ✓ ·
+GUI spawn `-m vulnmapper --community <community> --no-endpoints --no-network` -> valid stdout-only JSON ✓ ·
 single pysnmp importer (`network/snmp.py`) ✓ · golden assemble output byte-identical ✓.
 
 Module map (final): schema.py · endpoints/{__init__(WazuhSource),collect,score} ·

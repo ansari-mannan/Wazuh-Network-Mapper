@@ -11,7 +11,7 @@ const GRAPH_PATH =
   process.env.GRAPH_PATH || path.resolve(process.cwd(), "..", "data", "graph.json");
 // The scanner runs from the backend folder so `python -m vulnmapper` resolves.
 const BACKEND_DIR = process.env.BACKEND_DIR || path.resolve(process.cwd(), "..", "backend");
-const DEFAULT_COMMUNITY = process.env.DEFAULT_COMMUNITY || "REDACTED_COMMUNITY";
+const DEFAULT_COMMUNITY = process.env.DEFAULT_COMMUNITY || "";
 // `python3` is the documented binary, but Windows ships it as `python`; pick a
 // sensible per-platform default and let PYTHON_BIN override it.
 const PYTHON_BIN =
@@ -47,7 +47,10 @@ export async function POST(req: NextRequest) {
 
   // No shell: args are passed as an array, so the community string can't break
   // out into a second command (basic safety even though hardening is out of scope).
-  const args = ["-m", "vulnmapper", "--community", community];
+  // With no community at all, omit --community and let the scanner fall back to
+  // its SNMP_* environment variables (it exits with a clear message if unset).
+  const args = ["-m", "vulnmapper"];
+  if (community) args.push("--community", community);
   let child;
   try {
     child = spawn(PYTHON_BIN, args, { cwd: BACKEND_DIR });
