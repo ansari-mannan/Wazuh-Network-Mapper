@@ -1,0 +1,7 @@
+{
+  "prefix": "vulnmapper",
+  "paths": {
+    "vulnmapper": "."
+  },
+  "translations": ["translations/ja-JP.json"]
+}

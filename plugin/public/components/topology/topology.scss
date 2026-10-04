@@ -1,0 +1,58 @@
+/*
+ * Topology canvas / node theme. Ported from
+ * frontend/risk-module/ui/topology/topology-theme.css (canvas + node rules).
+ * Scoped under `.vmTopology` so it does not bleed into the dashboard chrome.
+ */
+
+.vmTopology {
+  --poc-bg: #fbfcfd;
+  --poc-surface: #ffffff;
+  --poc-border: #e6e9ee;
+  --poc-text: #1f2937;
+  --poc-muted: #6b7280;
+  --poc-accent: #2563eb;
+  --poc-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--poc-text);
+  font-size: 14px;
+  background: var(--poc-bg);
+
+  * { box-sizing: border-box; }
+
+  /* ---- canvas / nodes --------------------------------------------------- */
+  .canvas { width: 100%; height: 100%; }
+  .empty {
+    display: grid; place-items: center; height: 100%;
+    color: var(--poc-muted); font-size: 15px;
+  }
+
+  .node {
+    position: relative;
+    width: 184px;
+    padding: 12px 12px 10px;
+    background: var(--poc-surface);
+    /* border color+width are set inline = RISK (see CustomNode/riskBorder); the dot
+       (.node__dot) is LIVENESS. The two channels are deliberately independent. */
+    border: 1px solid var(--poc-border);
+    border-radius: 12px;
+    box-shadow: var(--poc-shadow);
+    text-align: center;
+    cursor: pointer;
+    transition: box-shadow 0.12s, transform 0.12s;
+  }
+  .node:hover { box-shadow: 0 4px 12px rgba(16, 24, 40, 0.1); transform: translateY(-1px); }
+  .node--offline { opacity: 0.55; border-style: dashed; background: #fafafa; }
+
+  .node__dot {
+    position: absolute; top: 9px; right: 9px;
+    width: 10px; height: 10px; border-radius: 50%;
+    box-shadow: 0 0 0 2px #fff;
+  }
+  .node__icon { color: #334155; display: block; margin: 2px auto 6px; }
+  .node__label {
+    font-weight: 600; font-size: 13px; color: var(--poc-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .node__role { font-size: 11px; color: var(--poc-muted); margin-top: 1px; }
+  .handle { opacity: 0; }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "vulnmapper",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "yarn plugin-helpers build",
+    "plugin-helpers": "../../scripts/use_node ../../scripts/plugin_helpers",
+    "osd": "../../scripts/use_node ../../scripts/osd"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "2.0.4",
+    "lucide-react": "0.303.0",
+    "react-flow-renderer": "10.3.17"
+  },
+  "resolutions": {
+    "@types/d3-dispatch": "3.0.1",
+    "@types/d3-selection": "3.0.3"
+  }
+}
