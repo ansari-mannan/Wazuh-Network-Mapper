@@ -2,7 +2,7 @@
 
 The fixture ``fixtures/comware_hp1920_cyfor.snmp`` is a real SNMP capture of the
 lab HP 1920-48G (CYFOR-HP-Switch, 172.20.99.4), produced by
-``tools/verify_comware.py --capture``. Capability/MAC octets are stored as
+``scripts/verify_comware.py --capture``. Capability/MAC octets are stored as
 ``0x<hex>`` (never the SNMP printable-octet rendering, e.g. 0x28 -> "("), so the
 pure parsers and roles.decode_capabilities consume them as on a real run.
 

@@ -1,7 +1,7 @@
 """Golden regression test — the spine of the consolidation refactor.
 
 Re-runs ``assemble()`` on the SAME fixed inputs the golden was frozen from
-(``tools/_freeze_golden.py``) and asserts the output is identical to the frozen
+(``scripts/_freeze_golden.py``) and asserts the output is identical to the frozen
 ``tests/golden/*.expected.json`` — both as parsed objects and as serialized text.
 The only normalised field is ``metadata.scan_time`` (``datetime.now``).
 
@@ -41,7 +41,7 @@ class TestGolden(unittest.TestCase):
             with self.subTest(scenario=name):
                 path = os.path.join(_GOLDEN, f"{name}.expected.json")
                 self.assertTrue(os.path.exists(path),
-                                f"missing golden {path}; run tools/_freeze_golden.py")
+                                f"missing golden {path}; run scripts/_freeze_golden.py")
                 expected_text = open(path, encoding="utf-8").read()
                 expected = json.loads(expected_text)
 

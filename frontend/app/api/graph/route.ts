@@ -5,8 +5,9 @@ import path from "path";
 // Ported from server.js `GET /api/graph`. The graph is NEVER bundled — it is
 // read fresh from disk on every request so the same static file the scanner
 // writes is the single source of truth. process.cwd() is the Next.js project
-// (repo) root, which holds graph.json.
-const GRAPH_PATH = process.env.GRAPH_PATH || path.join(process.cwd(), "graph.json");
+// (frontend/); the graph lives in <repo>/data/graph.json.
+const GRAPH_PATH =
+  process.env.GRAPH_PATH || path.resolve(process.cwd(), "..", "data", "graph.json");
 
 export const dynamic = "force-dynamic";
 

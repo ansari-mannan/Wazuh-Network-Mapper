@@ -10,11 +10,11 @@ on it would be wrong too — so on any FAIL this exits non-zero and you HALT.
 
 Usage::
 
-    python3 tools/verify_comware.py [target] [community] [version]
+    python3 scripts/verify_comware.py [target] [community] [version]
 
 defaults: 172.20.99.4  REDACTED_COMMUNITY  v2c
 
-It writes ``tools/comware_verification_report.txt`` with every check + PASS/FAIL
+It writes ``scripts/comware_verification_report.txt`` with every check + PASS/FAIL
 and the resolved mapping tables, and exits non-zero if anything failed.
 
 Design notes

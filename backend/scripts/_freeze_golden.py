@@ -11,7 +11,7 @@ The ONLY non-deterministic field assemble() emits is ``metadata.scan_time``
 stable. Everything else must stay byte-for-byte identical across the refactor —
 that is what ``tests/test_golden.py`` enforces after every step.
 
-Run from the repo root:  python3 tools/_freeze_golden.py
+Run from backend/:  python3 scripts/_freeze_golden.py
 """
 
 from __future__ import annotations
@@ -23,6 +23,7 @@ import sys
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _GOLDEN = os.path.join(_REPO, "tests", "golden")
+_GRAPH = os.path.join(os.path.dirname(_REPO), "data", "graph.json")
 sys.path.insert(0, _REPO)
 sys.path.insert(0, os.path.join(_REPO, "tests"))
 
@@ -62,11 +63,11 @@ def main() -> int:
             fh.write("\n")
         print(f"froze {name} -> {out} ({len(doc['nodes'])} nodes, {len(doc['edges'])} edges)")
 
-    # A second reference: a frozen copy of the committed graph.json.
-    src = os.path.join(_REPO, "graph.json")
+    # A second reference: a frozen copy of the committed data/graph.json.
+    src = _GRAPH
     if os.path.exists(src):
         shutil.copyfile(src, os.path.join(_GOLDEN, "graph.committed.json"))
-        print("froze graph.json -> tests/golden/graph.committed.json")
+        print("froze data/graph.json -> tests/golden/graph.committed.json")
     return 0
 
 

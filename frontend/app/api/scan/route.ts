@@ -7,7 +7,10 @@ import { getScan, setScan } from "@/lib/scanState";
 // Ported from server.js `POST /api/scan`. Spawns the Python pipeline and writes
 // its stdout to graph.json. The actual work runs async; we respond 202 and the
 // frontend polls /api/scan/status.
-const GRAPH_PATH = process.env.GRAPH_PATH || path.join(process.cwd(), "graph.json");
+const GRAPH_PATH =
+  process.env.GRAPH_PATH || path.resolve(process.cwd(), "..", "data", "graph.json");
+// The scanner runs from the backend folder so `python -m vulnmapper` resolves.
+const BACKEND_DIR = process.env.BACKEND_DIR || path.resolve(process.cwd(), "..", "backend");
 const DEFAULT_COMMUNITY = process.env.DEFAULT_COMMUNITY || "REDACTED_COMMUNITY";
 // `python3` is the documented binary, but Windows ships it as `python`; pick a
 // sensible per-platform default and let PYTHON_BIN override it.
@@ -47,7 +50,7 @@ export async function POST(req: NextRequest) {
   const args = ["-m", "vulnmapper", "--community", community];
   let child;
   try {
-    child = spawn(PYTHON_BIN, args, { cwd: process.cwd() });
+    child = spawn(PYTHON_BIN, args, { cwd: BACKEND_DIR });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     setScan({
