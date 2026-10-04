@@ -14,7 +14,6 @@
       "status": "online",
       "role": "l3-switch",
       "risk_score": 0,
-      "max_cvss": null,
       "discovery_order": 0,
       "parent_id": null,
       "chassis_id": "00:23:ac:e5:74:00",
@@ -74,7 +73,7 @@
     {
       "node_id": "host:d4:be:d9:98:2f:0e",
       "kind": "endpoint",
-      "ip": "172.20.40.1",
+      "ip": "172.20.40.13",
       "hostname": null,
       "vendor": null,
       "model": null,
@@ -85,11 +84,9 @@
       "status": "discovered",
       "role": "host",
       "risk_score": null,
-      "max_cvss": null,
       "discovery_order": 1,
       "parent_id": "device:00:23:ac:e5:74:00",
       "agent_id": null,
-      "stale": false,
       "top_cves": []
     },
     {
@@ -106,7 +103,6 @@
       "status": "online",
       "role": "router",
       "risk_score": 0,
-      "max_cvss": null,
       "discovery_order": 2,
       "parent_id": "device:00:23:ac:e5:74:00",
       "chassis_id": "90:6c:ac:d7:43:7f",
@@ -139,15 +135,16 @@
       "status": "online",
       "role": "l3-switch",
       "risk_score": 0,
-      "max_cvss": null,
       "discovery_order": 3,
       "parent_id": "device:00:23:ac:e5:74:00",
       "chassis_id": "5c:8a:38:8b:a1:0b",
       "pollable": true,
       "neighbor_ports": [
-        "GigabitEthernet1/0/1",
-        "GigabitEthernet1/0/25",
-        "GigabitEthernet1/0/5"
+        "0x5c8a388ba111",
+        "0x5c8a388ba11b",
+        "0x5c8a388ba125",
+        "35",
+        "GigabitEthernet1/0/1"
       ],
       "uplink_ports": [
         "GigabitEthernet1/0/1"
@@ -167,7 +164,7 @@
         "GigabitEthernet1/0/12": "down",
         "GigabitEthernet1/0/13": "down",
         "GigabitEthernet1/0/14": "down",
-        "GigabitEthernet1/0/15": "down",
+        "GigabitEthernet1/0/15": "up",
         "GigabitEthernet1/0/16": "down",
         "GigabitEthernet1/0/17": "down",
         "GigabitEthernet1/0/18": "down",
@@ -223,30 +220,19 @@
       "discovery_method": "wazuh",
       "status": "active",
       "role": "host",
-      "risk_score": 9.8,
-      "max_cvss": 9.8,
+      "risk_score": 9.6,
       "discovery_order": 4,
       "parent_id": "device:5c:8a:38:8b:a1:0b",
       "agent_id": "004",
-      "stale": false,
       "top_cves": [
         {
-          "cve": "CVE-2026-7210",
-          "cvss": 9.8,
+          "cve": "CVE-2026-9874",
+          "cvss": 9.6,
           "cvss_version": "3.1",
           "severity": "Critical",
-          "package": "Python 3.12.10 (64-bit)",
-          "version": "3.12.10150.0",
-          "description": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
-        },
-        {
-          "cve": "CVE-2025-13462",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Python 3.12.10 (64-bit)",
-          "version": "3.12.10150.0",
-          "description": "The \"tarfile\" module would still apply normalization of AREGTYPE (\\x00) blocks to DIRTYPE, even while processing a multi-block member such as GNUTYPE_LONGNAME or GNUTYPE_LONGLINK. This could result in a crafted tar archive being misinterpreted by the tarfile module compared to other implementations."
+          "package": "Google Chrome",
+          "version": "148.0.7778.179",
+          "description": "Use after free in Dawn in Google Chrome prior to 148.0.7778.216 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Critical)"
         },
         {
           "cve": "CVE-2026-9918",
@@ -256,6 +242,62 @@
           "package": "Google Chrome",
           "version": "148.0.7778.179",
           "description": "Inappropriate implementation in Tint in Google Chrome prior to 148.0.7778.216 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)"
+        },
+        {
+          "cve": "CVE-2026-9967",
+          "cvss": 9.6,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Google Chrome",
+          "version": "148.0.7778.179",
+          "description": "Out of bounds write in GPU in Google Chrome prior to 148.0.7778.216 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)"
+        }
+      ]
+    },
+    {
+      "node_id": "endpoint:003",
+      "kind": "endpoint",
+      "ip": "172.20.20.21",
+      "hostname": "CYFOR-2",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.18363.449",
+      "serial": "/DGJHC2S/CN736041CK03GU/",
+      "mac": "d4:be:d9:97:f6:65",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
+      "risk_score": 9.8,
+      "discovery_order": 5,
+      "parent_id": "device:5c:8a:38:8b:a1:0b",
+      "agent_id": "003",
+      "top_cves": [
+        {
+          "cve": "CVE-2026-8956",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.2",
+          "description": "Integer overflow in the Networking: JAR component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8401",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.2",
+          "description": "Sandbox escape in the Profile Backup component. This vulnerability was fixed in Firefox 150.0.3, Firefox ESR 115.36, Firefox ESR 140.11, and Thunderbird 140.11."
+        },
+        {
+          "cve": "CVE-2026-8953",
+          "cvss": 9.6,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.2",
+          "description": "Sandbox escape due to use-after-free in the Disability Access APIs component. This vulnerability was fixed in Firefox 151, Firefox ESR 115.36, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
         }
       ]
     },
@@ -273,11 +315,9 @@
       "status": "active",
       "role": "host",
       "risk_score": 9.8,
-      "max_cvss": 9.8,
-      "discovery_order": 5,
+      "discovery_order": 6,
       "parent_id": "device:5c:8a:38:8b:a1:0b",
       "agent_id": "001",
-      "stale": false,
       "top_cves": [
         {
           "cve": "CVE-2026-8401",
@@ -298,13 +338,13 @@
           "description": "Integer overflow in the Networking: JAR component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
         },
         {
-          "cve": "CVE-2026-7210",
-          "cvss": 9.8,
+          "cve": "CVE-2026-8959",
+          "cvss": 9.6,
           "cvss_version": "3.1",
           "severity": "Critical",
-          "package": "Python 3.12.10 (64-bit)",
-          "version": "3.12.10150.0",
-          "description": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
+          "package": "Mozilla Firefox (x64 en-US)",
+          "version": "150.0.1",
+          "description": "Sandbox escape due to incorrect boundary conditions in the Widget: Win32 component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
         }
       ]
     },
@@ -322,13 +362,13 @@
       "status": "online",
       "role": "l2-switch",
       "risk_score": 0,
-      "max_cvss": null,
-      "discovery_order": 6,
+      "discovery_order": 7,
       "parent_id": "device:00:23:ac:e5:74:00",
       "chassis_id": "58:97:1e:66:eb:00",
       "pollable": true,
       "neighbor_ports": [
         "Gi1/0/1",
+        "Gi1/0/25",
         "Gi1/0/37"
       ],
       "uplink_ports": [
@@ -368,7 +408,7 @@
         "Gi1/0/22": "down",
         "Gi1/0/23": "down",
         "Gi1/0/24": "down",
-        "Gi1/0/25": "down",
+        "Gi1/0/25": "up",
         "Gi1/0/26": "down",
         "Gi1/0/27": "down",
         "Gi1/0/28": "down",
@@ -401,6 +441,53 @@
       }
     },
     {
+      "node_id": "endpoint:002",
+      "kind": "endpoint",
+      "ip": "172.20.30.22",
+      "hostname": "Mannan-PC",
+      "vendor": "windows",
+      "model": "Microsoft Windows 10 Pro",
+      "firmware": "10.0.19045.6466",
+      "serial": "L1HF68R04V5",
+      "mac": "c8:5b:76:54:ff:0d",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
+      "risk_score": 9.8,
+      "discovery_order": 8,
+      "parent_id": "device:58:97:1e:66:eb:00",
+      "agent_id": "002",
+      "top_cves": [
+        {
+          "cve": "CVE-2026-33824",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
+          "version": "10.0.19045.6466",
+          "description": "Double free in Windows IKE Extension allows an unauthorized attacker to execute code over a network."
+        },
+        {
+          "cve": "CVE-2025-60724",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
+          "version": "10.0.19045.6466",
+          "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network."
+        },
+        {
+          "cve": "CVE-2026-7210",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Python 3.11.0 (64-bit)",
+          "version": "3.11.150.0",
+          "description": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
+        }
+      ]
+    },
+    {
       "node_id": "endpoint:007",
       "kind": "endpoint",
       "ip": "172.20.40.11",
@@ -414,11 +501,9 @@
       "status": "active",
       "role": "host",
       "risk_score": 9.1,
-      "max_cvss": 9.1,
-      "discovery_order": 7,
+      "discovery_order": 9,
       "parent_id": "device:58:97:1e:66:eb:00",
       "agent_id": "007",
-      "stale": false,
       "top_cves": [
         {
           "cve": "CVE-2025-55130",
@@ -450,104 +535,6 @@
       ]
     },
     {
-      "node_id": "endpoint:002",
-      "kind": "endpoint",
-      "ip": "172.20.30.22",
-      "hostname": "Mannan-PC",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.19045.6466",
-      "serial": "L1HF68R04V5",
-      "mac": "c8:5b:76:54:ff:0d",
-      "discovery_method": "wazuh",
-      "status": "disconnected",
-      "role": "host",
-      "risk_score": 9.8,
-      "max_cvss": 9.8,
-      "discovery_order": 8,
-      "parent_id": null,
-      "agent_id": "002",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2026-7210",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Python 3.11.0 (64-bit)",
-          "version": "3.11.150.0",
-          "description": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
-        },
-        {
-          "cve": "CVE-2025-13462",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Python 3.11.0 (64-bit)",
-          "version": "3.11.150.0",
-          "description": "The \"tarfile\" module would still apply normalization of AREGTYPE (\\x00) blocks to DIRTYPE, even while processing a multi-block member such as GNUTYPE_LONGNAME or GNUTYPE_LONGLINK. This could result in a crafted tar archive being misinterpreted by the tarfile module compared to other implementations."
-        },
-        {
-          "cve": "CVE-2007-4559",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Python 3.11.0 (64-bit)",
-          "version": "3.11.150.0",
-          "description": "Directory traversal vulnerability in the (1) extract and (2) extractall functions in the tarfile module in Python allows user-assisted remote attackers to overwrite arbitrary files via a .. (dot dot) sequence in filenames in a TAR archive, a related issue to CVE-2001-1267."
-        }
-      ]
-    },
-    {
-      "node_id": "endpoint:003",
-      "kind": "endpoint",
-      "ip": "172.20.20.21",
-      "hostname": "CYFOR-2",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.18363.449",
-      "serial": "/DGJHC2S/CN736041CK03GU/",
-      "mac": "d4:be:d9:97:f6:65",
-      "discovery_method": "wazuh",
-      "status": "disconnected",
-      "role": "host",
-      "risk_score": 9.8,
-      "max_cvss": 9.8,
-      "discovery_order": 9,
-      "parent_id": null,
-      "agent_id": "003",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2026-8401",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "150.0.2",
-          "description": "Sandbox escape in the Profile Backup component. This vulnerability was fixed in Firefox 150.0.3, Firefox ESR 115.36, Firefox ESR 140.11, and Thunderbird 140.11."
-        },
-        {
-          "cve": "CVE-2026-8956",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "150.0.2",
-          "description": "Integer overflow in the Networking: JAR component. This vulnerability was fixed in Firefox 151, Firefox ESR 140.11, Thunderbird 151, and Thunderbird 140.11."
-        },
-        {
-          "cve": "CVE-2026-7210",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Python 3.12.10 (64-bit)",
-          "version": "3.12.10150.0",
-          "description": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
-        }
-      ]
-    },
-    {
       "node_id": "endpoint:008",
       "kind": "endpoint",
       "ip": "172.20.30.21",
@@ -561,11 +548,9 @@
       "status": "disconnected",
       "role": "host",
       "risk_score": 10.0,
-      "max_cvss": 10.0,
       "discovery_order": 10,
       "parent_id": null,
       "agent_id": "008",
-      "stale": true,
       "top_cves": [
         {
           "cve": "CVE-2026-21636",
@@ -586,13 +571,13 @@
           "description": "`xml.parsers.expat` and `xml.etree.ElementTree` use insufficient entropy for Expat hash-flooding protection, which allows a crafted XML document to trigger hash flooding.\\r\\n\\r\\nFully mitigating this vulnerability requires both updating libexpat to 2.8.0 or later and applying this patch."
         },
         {
-          "cve": "CVE-2025-13462",
-          "cvss": 9.8,
+          "cve": "CVE-2025-55130",
+          "cvss": 9.1,
           "cvss_version": "3.1",
           "severity": "Critical",
-          "package": "Python 3.13.2 (64-bit)",
-          "version": "3.13.2150.0",
-          "description": "The \"tarfile\" module would still apply normalization of AREGTYPE (\\x00) blocks to DIRTYPE, even while processing a multi-block member such as GNUTYPE_LONGNAME or GNUTYPE_LONGLINK. This could result in a crafted tar archive being misinterpreted by the tarfile module compared to other implementations."
+          "package": "Node.js",
+          "version": "25.2.1",
+          "description": "A flaw in Node.js\u2019s Permissions model allows attackers to bypass `--allow-fs-read` and `--allow-fs-write` restrictions using crafted relative symlink paths. By chaining directories and symlinks, a script granted access only to the current directory can escape the allowed path and read sensitive files. This breaks the expected isolation guarantees and enables arbitrary file read/write, leading to potential system compromise.\nThis vulnerability affects users of the permission model on Node.js v20,  v22,  v24, and v25."
         }
       ]
     }
@@ -626,6 +611,15 @@
       "remote_port": "Gi1/0/1"
     },
     {
+      "source": "endpoint:002",
+      "source_name": "Mannan-PC",
+      "target": "device:58:97:1e:66:eb:00",
+      "target_name": "CYFOR-L2-Switch",
+      "type": "endpoint_link",
+      "local_port": "Gi1/0/25",
+      "confidence": "lldp"
+    },
+    {
       "source": "endpoint:007",
       "source_name": "ANS-Laptop",
       "target": "device:58:97:1e:66:eb:00",
@@ -640,7 +634,16 @@
       "target": "device:5c:8a:38:8b:a1:0b",
       "target_name": "CYFOR-HP-Switch",
       "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/25",
+      "local_port": "0x5c8a388ba125",
+      "confidence": "lldp"
+    },
+    {
+      "source": "endpoint:003",
+      "source_name": "CYFOR-2",
+      "target": "device:5c:8a:38:8b:a1:0b",
+      "target_name": "CYFOR-HP-Switch",
+      "type": "endpoint_link",
+      "local_port": "0x5c8a388ba11b",
       "confidence": "lldp"
     },
     {
@@ -649,12 +652,12 @@
       "target": "device:5c:8a:38:8b:a1:0b",
       "target_name": "CYFOR-HP-Switch",
       "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/5",
+      "local_port": "0x5c8a388ba111",
       "confidence": "lldp"
     },
     {
       "source": "host:d4:be:d9:98:2f:0e",
-      "source_name": "172.20.40.1",
+      "source_name": "172.20.40.13",
       "target": "device:00:23:ac:e5:74:00",
       "target_name": "L3-Switch",
       "type": "endpoint_link",
@@ -663,61 +666,26 @@
     }
   ],
   "metadata": {
-    "scan_time": "2026-06-13T12:44:54.826947+00:00",
-    "network_scan_time": "2026-06-13T12:44:54.823527+00:00",
+    "scan_time": "2026-06-13T07:22:12.556857+00:00",
+    "network_scan_time": "2026-06-13T07:22:12.553597+00:00",
     "seed": null,
-    "warnings": [
-      {
-        "type": "duplicate_ip",
-        "ip": "172.20.30.21",
-        "nodes": [
-          {
-            "node_id": "endpoint:004",
-            "hostname": "CYFOR-1",
-            "status": "active",
-            "stale": false
-          },
-          {
-            "node_id": "endpoint:008",
-            "hostname": "Laptop-1",
-            "status": "disconnected",
-            "stale": true
-          }
-        ]
-      }
-    ],
-    "attack_path_sources": [
-      "endpoint:001",
-      "endpoint:004",
-      "endpoint:007"
-    ],
     "counts": {
       "nodes": 11,
       "endpoints": 6,
       "devices": 4,
       "fdb_discovered_hosts": 1,
       "lldp_edges": 3,
-      "endpoint_edges": 4,
-      "unparented_endpoints": 3
+      "endpoint_edges": 6,
+      "unparented_endpoints": 1
     },
     "confidence": {
-      "lldp": 3,
+      "lldp": 5,
       "fdb": 1
     },
-    "merged_lldp_endpoints": 3,
+    "merged_lldp_endpoints": 5,
     "fdb_discovered_hosts": 1,
     "fdb_enriched_nodes": 0,
     "unparented_endpoints": [
-      {
-        "node_id": "endpoint:002",
-        "hostname": "Mannan-PC",
-        "reason": "host_offline_no_l2_evidence"
-      },
-      {
-        "node_id": "endpoint:003",
-        "hostname": "CYFOR-2",
-        "reason": "host_offline_no_l2_evidence"
-      },
       {
         "node_id": "endpoint:008",
         "hostname": "Laptop-1",
@@ -726,13 +694,13 @@
     ],
     "unreachable_boundaries": [],
     "timing": {
-      "endpoint_collect_s": 8.129730423999717,
-      "endpoint_score_s": 0.1281770929999766,
-      "network_crawl_s": 15.695341449001717,
-      "assemble_s": 0.0019255370025348384,
-      "total_s": 24.071759727998142,
-      "started_at": "2026-06-13T12:44:30.755187+00:00",
-      "finished_at": "2026-06-13T12:44:54.826947+00:00"
+      "endpoint_collect_s": 2.2523816020002414,
+      "endpoint_score_s": 0.12905691699961608,
+      "network_crawl_s": 15.440039348000028,
+      "assemble_s": 0.00167074299952219,
+      "total_s": 23.858533555000577,
+      "started_at": "2026-06-13T07:21:48.698321+00:00",
+      "finished_at": "2026-06-13T07:22:12.556857+00:00"
     }
   }
 }

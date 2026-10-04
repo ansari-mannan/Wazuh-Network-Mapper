@@ -3,7 +3,7 @@ neighbor-port vs uplink-port (infrastructure) split."""
 
 import unittest
 
-from vulnmapper.network.lldp import build_neighbors
+from vulnmapper.network.parse import build_neighbors
 from vulnmapper.network.roles import (
     decode_capabilities,
     derive_role,
@@ -31,6 +31,15 @@ class TestDecodeCapabilities(unittest.TestCase):
         self.assertEqual(decode_capabilities(None), set())
         self.assertEqual(decode_capabilities(""), set())
         self.assertEqual(decode_capabilities("not-hex"), set())
+
+    def test_printable_octet_rendering(self):
+        # A 1-octet capability map whose byte is printable comes through SNMP as
+        # the literal character: 0x28 -> "(" (HP Comware, some Cisco). It must
+        # still decode to Bridge+Router, not be mistaken for text.
+        self.assertEqual(decode_capabilities("("), {"bridge", "router"})
+        self.assertEqual(decode_capabilities("\x00"), set())  # 1-octet no-caps
+        # Longer non-hex input is still genuine garbage, never a false positive.
+        self.assertEqual(decode_capabilities("router"), set())
 
 
 class TestRoleFromCapabilities(unittest.TestCase):

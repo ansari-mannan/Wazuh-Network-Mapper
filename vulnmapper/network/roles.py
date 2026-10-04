@@ -3,7 +3,7 @@
 This is pure (no I/O, no SNMP) so the bitmap decode and the fallback ladder are
 trivially unit-testable. It is read from two places:
 
-  * :mod:`vulnmapper.network.crawler` — to decide whether an LLDP neighbor is
+  * :mod:`vulnmapper.network.crawl` — to decide whether an LLDP neighbor is
     *infrastructure* (a switch/router) versus an *end host/station*, which is the
     neighbor-port -> uplink-port split.
   * :mod:`vulnmapper.assemble.merge` — to stamp a ``role`` on every node.
@@ -51,6 +51,13 @@ def _to_bytes(raw) -> bytes:
     Handles the common renderings: a ``0x2800`` hex string, bare/space/colon
     separated hex, or an actual ``bytes`` value. Anything that isn't clean even-
     length hex yields no bytes (caps simply unknown — never a false positive).
+
+    THE PRINTABLE-OCTET TRAP: a 1-octet capability map whose byte is a printable
+    ASCII character is rendered by SNMP as that literal character — e.g. an L3
+    switch's ``0x28`` (Bridge+Router) comes through as ``"("``. HP Comware (and
+    some Cisco) advertise a single-octet map, so the hex path above silently
+    misses it and the device would be mis-roled as unknown. A short (<=2 char)
+    non-hex string is therefore interpreted as its raw octet value(s).
     """
     if raw is None:
         return b""
@@ -59,12 +66,17 @@ def _to_bytes(raw) -> bytes:
     s = str(raw).strip()
     if s[:2].lower() == "0x":
         s = s[2:]
-    s = s.replace(" ", "").replace(":", "")
-    if s and len(s) % 2 == 0 and all(c in "0123456789abcdefABCDEF" for c in s):
+    cleaned = s.replace(" ", "").replace(":", "")
+    if cleaned and len(cleaned) % 2 == 0 and all(c in "0123456789abcdefABCDEF" for c in cleaned):
         try:
-            return bytes.fromhex(s)
+            return bytes.fromhex(cleaned)
         except ValueError:
             return b""
+    # Not hex: a capability map is at most 2 octets, so a short literal string is
+    # the printable-octet rendering. Longer non-hex input is genuine garbage.
+    literal = str(raw).strip()
+    if 1 <= len(literal) <= 2:
+        return literal.encode("latin-1", "ignore")
     return b""
 
 

@@ -1,0 +1,219 @@
+{
+  "nodes": [
+    {
+      "node_id": "device:core",
+      "kind": "device",
+      "ip": "172.20.99.2",
+      "hostname": "L3-Switch",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": null,
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "role": "l3-switch",
+      "risk_score": 0,
+      "max_cvss": null,
+      "discovery_order": 0,
+      "parent_id": null,
+      "chassis_id": "core",
+      "pollable": true,
+      "neighbor_ports": [
+        "Fa1/0/2"
+      ],
+      "uplink_ports": [
+        "Fa1/0/2",
+        "Fa1/0/24"
+      ],
+      "port_status": {
+        "Fa1/0/2": "up",
+        "Fa1/0/24": "down"
+      }
+    },
+    {
+      "node_id": "device:access",
+      "kind": "device",
+      "ip": "172.20.20.2",
+      "hostname": "L2-Switch",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": null,
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "role": "l2-switch",
+      "risk_score": 0,
+      "max_cvss": null,
+      "discovery_order": 1,
+      "parent_id": "device:core",
+      "chassis_id": "access",
+      "pollable": true,
+      "neighbor_ports": [
+        "Gi2/0/1",
+        "Gi2/0/13"
+      ],
+      "uplink_ports": [
+        "Gi2/0/1"
+      ],
+      "port_status": {}
+    },
+    {
+      "node_id": "endpoint:004",
+      "kind": "endpoint",
+      "ip": "172.20.20.21",
+      "hostname": "CYFOR-1",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": "d4:be:d9:98:2e:d4",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "station",
+      "risk_score": 9.8,
+      "max_cvss": null,
+      "discovery_order": 2,
+      "parent_id": "device:access",
+      "agent_id": "004",
+      "stale": false,
+      "top_cves": []
+    },
+    {
+      "node_id": "endpoint:010",
+      "kind": "endpoint",
+      "ip": "172.20.20.50",
+      "hostname": "PRN-1",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": "aa:bb:cc:00:00:09",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
+      "risk_score": 0,
+      "max_cvss": null,
+      "discovery_order": 3,
+      "parent_id": "device:access",
+      "agent_id": "010",
+      "stale": false,
+      "top_cves": []
+    },
+    {
+      "node_id": "endpoint:003",
+      "kind": "endpoint",
+      "ip": "172.20.20.99",
+      "hostname": "CYFOR-3",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": null,
+      "discovery_method": "wazuh",
+      "status": "disconnected",
+      "role": "host",
+      "risk_score": 0,
+      "max_cvss": null,
+      "discovery_order": 4,
+      "parent_id": "device:access",
+      "agent_id": "003",
+      "stale": false,
+      "top_cves": []
+    },
+    {
+      "node_id": "endpoint:007",
+      "kind": "endpoint",
+      "ip": "10.9.9.9",
+      "hostname": "ANS",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": null,
+      "discovery_method": "wazuh",
+      "status": "disconnected",
+      "role": "host",
+      "risk_score": 0,
+      "max_cvss": null,
+      "discovery_order": 5,
+      "parent_id": null,
+      "agent_id": "007",
+      "stale": false,
+      "top_cves": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "device:core",
+      "source_name": "L3-Switch",
+      "target": "device:access",
+      "target_name": "L2-Switch",
+      "type": "lldp",
+      "local_port": "Fa1/0/2",
+      "remote_port": "Gi2/0/1"
+    },
+    {
+      "source": "endpoint:004",
+      "source_name": "CYFOR-1",
+      "target": "device:access",
+      "target_name": "L2-Switch",
+      "type": "endpoint_link",
+      "local_port": "Gi2/0/13",
+      "confidence": "lldp"
+    },
+    {
+      "source": "endpoint:010",
+      "source_name": "PRN-1",
+      "target": "device:access",
+      "target_name": "L2-Switch",
+      "type": "endpoint_link",
+      "local_port": "Gi2/0/7",
+      "confidence": "resolved"
+    },
+    {
+      "source": "endpoint:003",
+      "source_name": "CYFOR-3",
+      "target": "device:access",
+      "target_name": "L2-Switch",
+      "type": "endpoint_link",
+      "confidence": "subnet_fallback"
+    }
+  ],
+  "metadata": {
+    "scan_time": "FROZEN_SCAN_TIME",
+    "network_scan_time": "2026-06-04T12:00:00+00:00",
+    "seed": "172.20.99.2",
+    "warnings": [],
+    "attack_path_sources": [
+      "endpoint:004",
+      "endpoint:010"
+    ],
+    "counts": {
+      "nodes": 6,
+      "endpoints": 4,
+      "devices": 2,
+      "fdb_discovered_hosts": 0,
+      "lldp_edges": 1,
+      "endpoint_edges": 3,
+      "unparented_endpoints": 1
+    },
+    "confidence": {
+      "lldp": 1,
+      "resolved": 1,
+      "subnet_fallback": 1
+    },
+    "merged_lldp_endpoints": 1,
+    "fdb_discovered_hosts": 0,
+    "fdb_enriched_nodes": 0,
+    "unparented_endpoints": [
+      {
+        "node_id": "endpoint:007",
+        "hostname": "ANS",
+        "reason": "host_offline_no_l2_evidence"
+      }
+    ],
+    "unreachable_boundaries": []
+  }
+}
