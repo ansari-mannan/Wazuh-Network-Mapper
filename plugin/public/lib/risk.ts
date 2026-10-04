@@ -23,3 +23,23 @@ export const RISK_META: Record<RiskLevel, { label: string; color: string }> = {
   low: { label: 'Low', color: '#22c55e' },
   unscored: { label: 'Unscored', color: themeVars.euiColorMediumShade },
 };
+
+/**
+ * The risk score to show for a graph node. Endpoints use their risk_score.
+ * A network device has no CVE data yet: the scanner still writes risk_score 0
+ * for it, which would read as "Low", so a device counts as unscored unless it
+ * actually carries CVE data (a non-null max_cvss or a non-empty CVE list).
+ */
+export function nodeRiskScore(node: {
+  kind: string;
+  risk_score: number | null;
+  max_cvss?: number | null;
+  top_cves?: unknown[];
+}): number | null {
+  if (node.kind !== 'device') return node.risk_score;
+  const hasCveData =
+    (node.max_cvss !== null && node.max_cvss !== undefined) ||
+    (Array.isArray(node.top_cves) && node.top_cves.length > 0);
+  if (!hasCveData) return null;
+  return node.risk_score ?? node.max_cvss ?? null;
+}

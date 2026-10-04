@@ -58,12 +58,40 @@
     svg { fill: $euiTextColor; }
     &:hover { background: $euiColorLightestShade; }
   }
-  .react-flow__attribution { background: transparent; }
-  .react-flow__attribution a { color: $euiTextSubduedColor; }
+  .react-flow__attribution { display: none; }
+
+  // the node whose detail flyout is open
+  .react-flow__node.selected .node {
+    box-shadow: 0 0 0 3px rgba($euiColorPrimary, 0.45), var(--vm-shadow);
+  }
 }
 
-// On the topology page the canvas takes a fixed share of the viewport for now.
-.vmTopology--page {
-  height: calc(100vh - 330px);
-  min-height: 420px;
+// ---- device detail flyout -------------------------------------------------
+.vmDetailIcon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border: 2px solid $euiBorderColor;
+  background: $euiColorEmptyShade;
+  color: $euiColorDarkShade;
+}
+
+.vmMono { font-family: $euiCodeFontFamily; }
+
+.vmCveDesc p {
+  white-space: pre-line;
+  margin-top: $euiSizeXS;
+}
+
+.vmFields .euiDescriptionList__description {
+  overflow-wrap: anywhere;
+}
+
+// port presence grid (as in the original .ports rule)
+.vmPorts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: $euiSizeXS $euiSizeM;
 }

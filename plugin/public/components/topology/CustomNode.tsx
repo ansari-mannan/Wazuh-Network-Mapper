@@ -3,6 +3,7 @@ import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';
 import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
 import { isOffline, riskBorder, riskLabel, statusDot } from './nodeStyle';
+import { nodeRiskScore } from '../../lib/risk';
 
 // A React Flow node whose `data` payload is a real graph node.
 export type TopologyFlowNode = Node<GraphNode>;
@@ -17,7 +18,8 @@ export type TopologyFlowNode = Node<GraphNode>;
 export function CustomNode({ data }: NodeProps<GraphNode>) {
   const Icon = iconForRole(data.role);
   const dot = statusDot(data.status);
-  const border = riskBorder(data.risk_score);
+  const risk = nodeRiskScore(data);
+  const border = riskBorder(risk);
   const dimmed = data.stale || isOffline(data.status);
   const label = data.hostname || data.ip || data.node_id;
 
@@ -29,7 +31,7 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
         borderWidth: border.width,
         opacity: data.stale ? 0.55 : undefined,
       }}
-      title={`${label} · ${data.status || '?'} · risk ${riskLabel(data.risk_score)}`}
+      title={`${label} · ${data.status || '?'} · risk ${riskLabel(risk)}`}
     >
       <Handle type="target" position={Position.Top} className="handle" />
       <span className="node__dot" style={{ background: dot }} />
