@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { X } from "lucide-react";
 import { getGraph, type GraphResponse, type GraphNode } from "@/lib/vulnmapperApi";
 import DeviceDetail from "../topology/DeviceDetail";
 import "../topology/topology-theme.css";
@@ -71,6 +73,16 @@ export function AssetDetail({ assetId }: AssetDetailProps) {
   return (
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-4xl px-4 py-8">
+        <div className="mb-2 flex justify-end">
+          <Link
+            href="/dashboard/topology"
+            aria-label="Close"
+            title="Close"
+            className="rounded-md p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          >
+            <X className="h-5 w-5" />
+          </Link>
+        </div>
         <div className="poc-scope" style={{ borderRadius: 12, padding: 4 }}>
           <DeviceDetail node={node} />
         </div>
