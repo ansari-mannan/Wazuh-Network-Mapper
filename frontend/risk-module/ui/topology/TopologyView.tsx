@@ -11,7 +11,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import type { GraphResponse } from "@/lib/vulnmapperApi";
 import { layoutGraph, type LayoutEdge } from "./layout";
-import CustomNode, { type PocFlowNode } from "./CustomNode";
+import CustomNode, { type TopologyFlowNode } from "./CustomNode";
 
 // Ported from gui/frontend/src/components/TopologyView.jsx (reactflow ->
 // @xyflow/react). Renders the dagre-positioned graph with distinct edge styles
@@ -37,20 +37,20 @@ export function edgeStyle(e: Pick<LayoutEdge, "inferred" | "type" | "confidence"
   return { stroke: "#475569", strokeWidth: 2 };
 }
 
-interface PocTopologyViewProps {
+interface TopologyViewProps {
   graph: GraphResponse | null;
   onSelect: (nodeId: string) => void;
 }
 
-export default function PocTopologyView({ graph, onSelect }: PocTopologyViewProps) {
+export default function TopologyView({ graph, onSelect }: TopologyViewProps) {
   const { nodes, edges } = useMemo(() => {
-    if (!graph) return { nodes: [] as PocFlowNode[], edges: [] as Edge[] };
+    if (!graph) return { nodes: [] as TopologyFlowNode[], edges: [] as Edge[] };
 
     // layoutGraph is the pure layout-prep module: it computes positions/ranks
     // from the real edges and returns the edges to draw (incl. dashed "inferred"
     // links). We only translate its output into React Flow styling here.
     const { nodes: laidOut, edges: laidEdges } = layoutGraph(graph);
-    const rfNodes: PocFlowNode[] = laidOut.map((p) => ({
+    const rfNodes: TopologyFlowNode[] = laidOut.map((p) => ({
       id: p.id,
       type: p.type,
       position: p.position,

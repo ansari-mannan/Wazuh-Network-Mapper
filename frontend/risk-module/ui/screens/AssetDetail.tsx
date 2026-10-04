@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { getGraph, type GraphResponse, type GraphNode } from "@/lib/vulnmapperApi";
-import PocDeviceDetail from "../poc/PocDeviceDetail";
-import "../poc/poc-theme.css";
+import DeviceDetail from "../topology/DeviceDetail";
+import "../topology/topology-theme.css";
 
 interface AssetDetailProps {
   assetId: string;
@@ -72,7 +72,7 @@ export function AssetDetail({ assetId }: AssetDetailProps) {
     <div className="min-h-screen bg-background">
       <main className="mx-auto max-w-4xl px-4 py-8">
         <div className="poc-scope" style={{ borderRadius: 12, padding: 4 }}>
-          <PocDeviceDetail node={node} />
+          <DeviceDetail node={node} />
         </div>
       </main>
     </div>

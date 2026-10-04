@@ -16,7 +16,7 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export default function PocDeviceDetail({ node }: { node: GraphNode }) {
+export default function DeviceDetail({ node }: { node: GraphNode }) {
   const isDevice = node.kind === "device";
   const Icon = iconForRole(node.role);
   const color = riskColor(node.risk_score);

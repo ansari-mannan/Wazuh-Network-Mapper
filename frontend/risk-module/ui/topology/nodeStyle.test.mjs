@@ -1,7 +1,7 @@
 // Frontend unit test for the two independent visual channels (Issue 5):
 // dot = liveness (statusDot), border = risk (riskBorder). Runs with no test
 // framework (Node >= 23.6 strips the .ts types natively):
-//   node --test risk-module/ui/poc/nodeStyle.test.mjs
+//   node --test risk-module/ui/topology/nodeStyle.test.mjs
 // Ported from gui/frontend/src/nodeStyle.test.js.
 import { test } from "node:test";
 import assert from "node:assert/strict";

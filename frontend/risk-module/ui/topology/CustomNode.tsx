@@ -4,7 +4,7 @@ import { iconForRole } from "./icons";
 import { isOffline, riskBorder, riskLabel, statusDot } from "./nodeStyle";
 
 // A React Flow node whose `data` payload is a real graph node.
-export type PocFlowNode = Node<GraphNode, "device">;
+export type TopologyFlowNode = Node<GraphNode, "device">;
 
 // One graph node. Two INDEPENDENT visual channels:
 //   * the corner dot  -> LIVENESS (statusDot): green up / grey unconfirmed / red down
@@ -12,7 +12,7 @@ export type PocFlowNode = Node<GraphNode, "device">;
 // A stale endpoint (duplicate IP of a live host) is dimmed. Offline nodes keep
 // the dashed/dim treatment too.
 // Ported from gui/frontend/src/components/CustomNode.jsx (reactflow -> @xyflow/react).
-export default function CustomNode({ data }: NodeProps<PocFlowNode>) {
+export default function CustomNode({ data }: NodeProps<TopologyFlowNode>) {
   const Icon = iconForRole(data.role);
   const dot = statusDot(data.status);
   const border = riskBorder(data.risk_score);

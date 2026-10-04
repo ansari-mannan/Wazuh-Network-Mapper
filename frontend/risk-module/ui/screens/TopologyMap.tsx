@@ -10,8 +10,8 @@ import {
   getScanStatus,
   type GraphResponse,
 } from "@/lib/vulnmapperApi";
-import PocTopologyView from "../poc/PocTopologyView";
-import "../poc/poc-theme.css";
+import TopologyView from "../topology/TopologyView";
+import "../topology/topology-theme.css";
 
 // Topology Map: the POC topology view wired to the real backend graph. This is
 // also where the REAL scan lives (ported from the POC's App.jsx/Toolbar): a
@@ -160,7 +160,7 @@ export function TopologyMap() {
 
         <div className="theme-card rounded-xl border p-2 h-[720px] relative overflow-hidden">
           <div className="poc-scope" style={{ width: "100%", height: "100%", borderRadius: 10 }}>
-            <PocTopologyView graph={graph} onSelect={handleSelect} />
+            <TopologyView graph={graph} onSelect={handleSelect} />
           </div>
         </div>
       </main>
