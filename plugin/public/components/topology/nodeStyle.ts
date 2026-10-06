@@ -3,6 +3,7 @@
 // Ported from frontend/risk-module/ui/topology/nodeStyle.ts; the risk bands now
 // come from the shared riskLevel() so the map agrees with the overview.
 import { RISK_META, RiskLevel, riskLevel } from '../../lib/risk';
+import { NodeLiveness } from '../../common';
 
 export function riskLabel(score: number | null | undefined): string {
   if (score === null || score === undefined) return 'unknown';
@@ -25,7 +26,9 @@ export const STATUS_COLORS: Record<string, string> = {
   unreachable: '#ef4444',
 };
 
-export function statusDot(status: string | null | undefined): string {
+export function statusDot(status: string | null | undefined, liveness?: NodeLiveness): string {
+  if (liveness && liveness.state === 'active') return STATUS_COLORS.active;
+  if (liveness && liveness.state === 'inactive') return STATUS_COLORS.disconnected;
   return STATUS_COLORS[(status || '').toLowerCase()] || '#9ca3af';
 }
 
@@ -53,7 +56,9 @@ export function riskBorder(r: number | null | undefined): RiskBorder {
  * "disconnected", FDB-discovered hosts "discovered"; online states are "online"
  * (devices) and "active" (endpoints). Offline nodes are dimmed + dashed.
  */
-export function isOffline(status: string | null | undefined): boolean {
+export function isOffline(status: string | null | undefined, liveness?: NodeLiveness): boolean {
+  if (liveness && liveness.state === 'active') return false;
+  if (liveness && liveness.state === 'inactive') return true;
   const s = (status || '').toLowerCase();
   return s === 'disconnected' || s === 'discovered';
 }

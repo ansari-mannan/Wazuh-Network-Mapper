@@ -4,6 +4,7 @@ import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
 import { isOffline, riskBorder, riskLabel, statusDot } from './nodeStyle';
 import { nodeRiskScore } from '../../lib/risk';
+import { useLiveness } from '../../lib/liveness';
 
 // A React Flow node whose `data` payload is a real graph node.
 export type TopologyFlowNode = Node<GraphNode>;
@@ -16,11 +17,13 @@ export type TopologyFlowNode = Node<GraphNode>;
 // Ported from frontend/risk-module/ui/topology/CustomNode.tsx
 // (@xyflow/react v12 -> react-flow-renderer v10).
 export function CustomNode({ data }: NodeProps<GraphNode>) {
+  const { liveness: livenessContext } = useLiveness();
+  const liveness = livenessContext?.nodes?.[data.node_id];
   const Icon = iconForRole(data.role);
-  const dot = statusDot(data.status);
+  const dot = statusDot(data.status, liveness);
   const risk = nodeRiskScore(data);
   const border = riskBorder(risk);
-  const dimmed = data.stale || isOffline(data.status);
+  const dimmed = data.stale || isOffline(data.status, liveness);
   const label = data.hostname || data.ip || data.node_id;
 
   return (

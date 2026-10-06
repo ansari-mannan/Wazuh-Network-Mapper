@@ -103,3 +103,21 @@ export type ScanState = {
   startedAt: string | null;
   finishedAt: string | null;
 };
+
+export type LivenessState = 'active' | 'inactive' | 'unknown';
+
+export type NodeLiveness = {
+  state: LivenessState;
+  method: string | null;
+  last_seen?: string;
+  last_checked?: string;
+  misses?: number;
+  proven_methods?: string[];
+};
+
+export type LivenessResponse = {
+  enabled: boolean;
+  intervalSeconds: number;
+  checkedAt: string | null;
+  nodes: Record<string, NodeLiveness>;
+};
