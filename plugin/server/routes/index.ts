@@ -1,4 +1,5 @@
 import { promises as fs } from 'fs';
+import path from 'path';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';
 import { VulnmapperConfig } from '../config';
@@ -10,9 +11,6 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
     body: { message: `vulnmapper.${key} is not set in opensearch_dashboards.yml` },
   });
 
-  // The graph is read fresh from disk on every request so the file the scanner
-  // writes stays the single source of truth (same as frontend/app/api/graph).
-  // The file's mtime is returned in a header for the "where the graph came from" view.
   router.get(
     { path: '/api/vulnmapper/graph', validate: false },
     async (context, request, response) => {
@@ -77,5 +75,22 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
   router.get(
     { path: '/api/vulnmapper/scan/status', validate: false },
     async (context, request, response) => response.ok({ body: getScan() })
+  );
+
+  router.get(
+    { path: '/api/vulnmapper/liveness', validate: false },
+    async (context, request, response) => {
+      const livenessPath = config.liveness?.path || (config.graphPath ? path.join(path.dirname(config.graphPath), 'liveness.json') : null);
+      if (!livenessPath) {
+        return response.ok({ body: { enabled: config.liveness?.enabled, intervalSeconds: config.liveness?.intervalSeconds, checkedAt: null, nodes: {} } });
+      }
+      try {
+        const data = await fs.readFile(livenessPath, 'utf-8');
+        const json = JSON.parse(data);
+        return response.ok({ body: { enabled: config.liveness?.enabled, intervalSeconds: config.liveness?.intervalSeconds, ...json } });
+      } catch {
+        return response.ok({ body: { enabled: config.liveness?.enabled, intervalSeconds: config.liveness?.intervalSeconds, checkedAt: null, nodes: {} } });
+      }
+    }
   );
 }

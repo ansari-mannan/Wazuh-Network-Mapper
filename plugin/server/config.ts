@@ -4,12 +4,16 @@ import { schema, TypeOf } from '@osd/config-schema';
 //   vulnmapper.backendDir  folder containing the Python `vulnmapper` package
 //   vulnmapper.graphPath   graph.json written by a scan and served to the UI
 //   vulnmapper.pythonBin   Python interpreter used to run the scanner
-// backendDir and graphPath have no sensible default, so they are optional here
-// and the routes answer with a clear error until they are set.
 export const configSchema = schema.object({
   backendDir: schema.maybe(schema.string()),
   graphPath: schema.maybe(schema.string()),
   pythonBin: schema.string({ defaultValue: 'python3' }),
+  liveness: schema.object({
+    enabled: schema.boolean({ defaultValue: false }),
+    intervalSeconds: schema.number({ defaultValue: 20 }),
+    missThreshold: schema.number({ defaultValue: 3 }),
+    path: schema.maybe(schema.string()),
+  }, { defaultValue: {} }),
 });
 
 export type VulnmapperConfig = TypeOf<typeof configSchema>;

@@ -10,9 +10,11 @@ import {
 import { VulnmapperConfig } from './config';
 import { VulnmapperPluginSetup, VulnmapperPluginStart } from './types';
 import { defineRoutes } from './routes';
+import { startLiveness, stopLiveness } from './liveness';
 
 export class VulnmapperPlugin implements Plugin<VulnmapperPluginSetup, VulnmapperPluginStart> {
   private readonly logger: Logger;
+  private config: VulnmapperConfig | null = null;
 
   constructor(private readonly initializerContext: PluginInitializerContext) {
     this.logger = initializerContext.logger.get();
@@ -20,19 +22,22 @@ export class VulnmapperPlugin implements Plugin<VulnmapperPluginSetup, Vulnmappe
 
   public async setup(core: CoreSetup) {
     this.logger.debug('vulnmapper: Setup');
-    const config = await this.initializerContext.config
+    this.config = await this.initializerContext.config
       .create<VulnmapperConfig>()
       .pipe(first())
       .toPromise();
     const router = core.http.createRouter();
-    defineRoutes(router, config, this.logger);
+    defineRoutes(router, this.config, this.logger);
     return {};
   }
 
   public start(core: CoreStart) {
     this.logger.debug('vulnmapper: Started');
+    if (this.config) startLiveness(this.config, this.logger);
     return {};
   }
 
-  public stop() {}
+  public stop() {
+    stopLiveness();
+  }
 }
