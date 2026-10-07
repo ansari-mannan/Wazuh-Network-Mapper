@@ -217,6 +217,11 @@ def same_subnet(ip_a: Optional[str], ip_b: Optional[str], prefix: int = 24) -> b
 # The assembly procedure (was assemble/merge.py)
 # ===========================================================================
 
+def _is_network_equipment(capabilities) -> bool:
+    """True when an LLDP capability map advertises bridge or router."""
+    return bool(decode_capabilities(capabilities) & {"bridge", "router"})
+
+
 def _is_end_host(raw: dict) -> bool:
     """A non-pollable LLDP neighbour advertising no bridge/router capability.
 
@@ -227,7 +232,7 @@ def _is_end_host(raw: dict) -> bool:
     """
     if raw.get("pollable") or raw.get("status") == "unreachable":
         return False
-    return not decode_capabilities(raw.get("lldp_cap_enabled")) & {"bridge", "router"}
+    return not _is_network_equipment(raw.get("lldp_cap_enabled"))
 
 
 def _device_node(raw: dict) -> Node:
@@ -360,6 +365,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     raw_edges = network_doc.get("edges") or []
 
     device_by_chassis = {n["chassis_id"]: _device_node(n) for n in raw_nodes}
+    caps_by_chassis = {n["chassis_id"]: n.get("lldp_cap_enabled") for n in raw_nodes}
 
     # Capabilities a switch reported for an LLDP-speaking neighbor are keyed by the
     # neighbor's chassis id (== its MAC). An endpoint that speaks LLDP is merged
@@ -420,14 +426,30 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     unparented_reason: dict[str, str] = {}
     enriched_ids: list[str] = []   # endpoints whose mac/port we filled from the table
 
+    # A device whose MAC is an agent's is the same machine. An ordinary machine
+    # (e.g. a server that answers SNMP) is merged into its endpoint; network
+    # equipment running an agent (bridge/router capability) is kept, since
+    # removing it would break the topology around it, and the pair is reported.
+    agent_on_device_warnings: list[dict] = []
+
+    def agent_on_network_device(chassis: str, ep: Node) -> None:
+        device = device_by_chassis[chassis]
+        agent_on_device_warnings.append({
+            "type": "agent_on_network_device",
+            "mac": format_mac(chassis),
+            "nodes": [{"node_id": n.node_id, "hostname": n.hostname, "kind": n.kind}
+                      for n in (device, ep)],
+        })
+
     # --- TIER 1: merge LLDP phantom device nodes into their endpoints ---
     phantom_chassis: set[str] = set()
     for chassis in list(device_by_chassis):
-        if device_by_chassis[chassis].pollable:
-            continue  # a pollable device is real equipment, never a phantom
         cmac = canonical_mac(chassis)
         ep = endpoints_by_mac.get(cmac) if cmac else None
         if ep is None:
+            continue
+        if _is_network_equipment(caps_by_chassis.get(chassis)):
+            agent_on_network_device(chassis, ep)
             continue
         switch_chassis, switch_port = _lldp_switch_and_port(chassis, raw_edges)
         if switch_chassis is None or switch_chassis not in device_by_chassis:
@@ -491,8 +513,8 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     # so a phantom for such an endpoint survived it. An endpoint still without a
     # MAC may take one from ARP alone, but only when an LLDP phantom announcing
     # that MAC corroborates it (a bare ARP entry may be stale).
-    phantom_by_mac = {canonical_mac(c): c for c, dev in device_by_chassis.items()
-                      if not dev.pollable and canonical_mac(c)}
+    phantom_by_mac = {canonical_mac(c): c for c in device_by_chassis if canonical_mac(c)}
+    warned = {w["mac"] for w in agent_on_device_warnings}
     late_phantoms: set[str] = set()
     for ep in endpoint_nodes:
         mac = canonical_mac(ep.mac)
@@ -500,6 +522,11 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
             mac = mac_table.arp_by_ip.get(ep.ip)
         chassis = phantom_by_mac.get(mac) if mac else None
         if chassis is None or chassis in late_phantoms:
+            continue
+        if _is_network_equipment(caps_by_chassis.get(chassis)):
+            if ep.mac and format_mac(chassis) not in warned:
+                agent_on_network_device(chassis, ep)
+                warned.add(format_mac(chassis))
             continue
         switch_chassis, switch_port = _lldp_switch_and_port(chassis, raw_edges)
         if switch_chassis is None or switch_chassis not in device_by_chassis \
@@ -667,7 +694,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         "scan_time": datetime.now(timezone.utc).isoformat(),
         "network_scan_time": network_doc.get("scan_time"),
         "seed": network_doc.get("seed"),
-        "warnings": duplicate_ip_warnings,
+        "warnings": duplicate_ip_warnings + agent_on_device_warnings,
         "attack_path_sources": attack_path_sources,
         "counts": {
             "nodes": len(nodes_by_id),

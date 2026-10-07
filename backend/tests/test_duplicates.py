@@ -138,30 +138,62 @@ class TestMacKnownUpFront(unittest.TestCase):
         self.assertEqual(g.doc["metadata"]["merged_lldp_endpoints"], 1)
 
 
-class TestPollableNeverMerged(unittest.TestCase):
-    """A Wazuh agent on a pollable box (e.g. a Linux router) must not swallow it."""
+def box(chassis, caps, pollable=True, hostname="box", ip="172.20.99.9"):
+    """A device the HP switch sees over LLDP that may also run a Wazuh agent."""
+    return {"chassis_id": chassis, "ip": ip, "hostname": hostname,
+            "discovery_method": "snmp_lldp", "status": "online" if pollable else "discovered",
+            "pollable": pollable, "lldp_cap_enabled": caps, "uplink_ports": [], "fdb": []}
 
+
+class TestMergeByWhatTheDeviceIs(unittest.TestCase):
+    """Merge an agent's device twin unless it advertises bridge/router capability."""
+
+    SERVER = "aa:bb:cc:00:20:01"
     ROUTER = "aa:bb:cc:00:10:01"
 
-    def network(self, arp=None):
-        router = {"chassis_id": self.ROUTER, "ip": "172.20.99.9", "hostname": "edge-router",
-                  "discovery_method": "snmp_lldp", "status": "online", "pollable": True,
-                  "lldp_cap_enabled": "0x08", "uplink_ports": [], "fdb": []}
-        return {"nodes": [hp_switch(arp=arp), router],
-                "edges": [lldp(self.ROUTER, "GigabitEthernet1/0/48")]}
+    def graph(self, device, mac):
+        net = {"nodes": [hp_switch(), device],
+               "edges": [lldp(device["chassis_id"], "GigabitEthernet1/0/48")]}
+        return Graph([agent("009", device["hostname"], device["ip"], mac=mac)], net)
 
-    def test_mac_known_up_front(self):
-        g = Graph([agent("009", "edge-router", "172.20.99.9", mac=self.ROUTER)], self.network())
+    def test_snmp_answering_server_with_agent_is_one_node(self):
+        g = self.graph(box(self.SERVER, None, hostname="file-server"), self.SERVER)
+        self.assertEqual(g.ids_for_mac(self.SERVER), ["endpoint:009"])
+        self.assertEqual(g.nodes["endpoint:009"]["parent_id"], HP_ID)
+        self.assertEqual(g.links["endpoint:009"]["local_port"], "GigabitEthernet1/0/48")
+        self.assertEqual(g.doc["metadata"]["merged_lldp_endpoints"], 1)
+        self.assertEqual(g.doc["metadata"]["counts"]["devices"], 1)
+
+    def test_router_capable_device_with_agent_keeps_both_and_warns(self):
+        for pollable in (True, False):
+            with self.subTest(pollable=pollable):
+                g = self.graph(box(self.ROUTER, "0x08", pollable, "edge-router"), self.ROUTER)
+                self.assertIn(f"device:{self.ROUTER}", g.nodes)
+                self.assertIn("endpoint:009", g.nodes)
+                self.assertEqual(g.nodes[f"device:{self.ROUTER}"]["role"], "router")
+                self.assertEqual(g.doc["metadata"]["merged_lldp_endpoints"], 0)
+                # the topology around the router is intact
+                self.assertTrue(any(e["type"] == "lldp" and e["target"] == f"device:{self.ROUTER}"
+                                    for e in g.doc["edges"]))
+                warnings = [w for w in g.doc["metadata"]["warnings"]
+                            if w["type"] == "agent_on_network_device"]
+                self.assertEqual(len(warnings), 1)
+                self.assertEqual(warnings[0]["mac"], self.ROUTER)
+                self.assertEqual([n["node_id"] for n in warnings[0]["nodes"]],
+                                 [f"device:{self.ROUTER}", "endpoint:009"])
+
+    def test_bridge_capable_neighbour_with_agent_not_merged(self):
+        g = self.graph(box(self.ROUTER, "0x20", False, "access-sw"), self.ROUTER)
         self.assertIn(f"device:{self.ROUTER}", g.nodes)
-        self.assertIn("endpoint:009", g.nodes)
         self.assertEqual(g.doc["metadata"]["merged_lldp_endpoints"], 0)
 
-    def test_mac_learned_from_arp(self):
-        g = Graph([agent("009", "edge-router", "172.20.99.9")],
-                  self.network(arp={bare(self.ROUTER): "172.20.99.9"}))
-        self.assertIn(f"device:{self.ROUTER}", g.nodes)
-        self.assertEqual(g.nodes[f"device:{self.ROUTER}"]["role"], "router")
-        self.assertEqual(g.doc["metadata"]["merged_lldp_endpoints"], 0)
+    def test_switch_without_agent_untouched(self):
+        net = {"nodes": [hp_switch(), box(self.ROUTER, "0x28", hostname="core")],
+               "edges": [lldp(self.ROUTER, "GigabitEthernet1/0/48")]}
+        g = Graph([], net)
+        self.assertEqual(g.nodes[f"device:{self.ROUTER}"]["role"], "l3-switch")
+        self.assertEqual(g.doc["metadata"]["counts"]["devices"], 2)
+        self.assertEqual(g.doc["metadata"]["warnings"], [])
 
 
 class TestLateMergeLeavesNoDanglingParent(unittest.TestCase):
