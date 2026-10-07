@@ -112,7 +112,7 @@ class TestCveNormalize(unittest.TestCase):
         # risk_score is now the base score (vulnmapper.scoring); the raw worst
         # CVSS that risk_score used to be lives on in max_cvss.
         self.assertEqual(enriched["max_cvss"], 9.8)
-        self.assertEqual(enriched["risk_score"], 8.0)
+        self.assertEqual(enriched["risk_score"], 7.7)
         self.assertEqual(len(enriched["top_cves"]), 2)
 
     def test_enrich_no_cves_is_zero(self):

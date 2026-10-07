@@ -125,7 +125,7 @@ class TestVulnsFileRules(unittest.TestCase):
         self.assertEqual(web["cve_summary"]["total"], 14)
         self.assertEqual(len(web["top_cves"]), 10)
         self.assertEqual(web["max_cvss"], 9.8)
-        self.assertEqual(web["risk_score"], 8.6)
+        self.assertEqual(web["risk_score"], 8.2)
         self.assertNotIn("findings", web)
         self.assertEqual(by_id["endpoint:103"]["risk_score"], 0.0)
         types = [w["type"] for w in graph["metadata"]["warnings"]]

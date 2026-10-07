@@ -10,7 +10,7 @@
       "firmware": "22.04",
       "status": "active",
       "discovery_method": "wazuh",
-      "risk_score": 8.6,
+      "risk_score": 8.2,
       "max_cvss": 9.8,
       "top_cves": [
         {
@@ -246,7 +246,7 @@
       "firmware": "22.04",
       "status": "active",
       "discovery_method": "wazuh",
-      "risk_score": 8.1,
+      "risk_score": 7.8,
       "max_cvss": 9.8,
       "top_cves": [
         {

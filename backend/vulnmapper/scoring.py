@@ -24,8 +24,10 @@ WEIGHT_HIGH = 5
 WEIGHT_MEDIUM = 2
 WEIGHT_LOW = 1
 
-# Weighted count at which the volume term saturates (1000 = 100 criticals).
-VOLUME_SATURATION = 1000
+# Weighted count at which the volume term saturates (10000 = 1000 criticals).
+# Real Windows hosts carry hundreds to thousands of CVEs; at 1000 they all
+# saturated near the top of the scale.
+VOLUME_SATURATION = 10000
 
 # Share of the final score taken by the worst CVE vs. the CVE volume.
 SEVERITY_SHARE = 0.7
@@ -60,7 +62,7 @@ def base_score(cves: Optional[list]) -> Optional[float]:
     module)::
 
         weighted = 10*critical + 5*high + 2*medium + 1*low   (distinct CVEs)
-        volume   = min(1, log10(1 + weighted) / log10(1 + 1000))
+        volume   = min(1, log10(1 + weighted) / log10(1 + 10000))
         score    = 0.7 * max_cvss + 0.3 * 10 * volume
     """
     if cves is None:
