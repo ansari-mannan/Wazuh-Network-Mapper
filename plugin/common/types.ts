@@ -64,6 +64,8 @@ export type EndpointNode = GraphNodeBase & {
   top_cves: CVE[];
   // null when the endpoint could not be scored; absent in older graph files.
   cve_summary?: CveSummary | null;
+  // Present (true) only on the Wazuh server's own node (agent 000).
+  is_wazuh_server?: boolean;
 };
 
 export type GraphNode = DeviceNode | EndpointNode;
