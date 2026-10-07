@@ -86,10 +86,31 @@ Type-check from the dashboard folder with
 | `GET /api/vulnmapper/graph` | the current graph; file time in the `x-vulnmapper-graph-mtime` header |
 | `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string }`; 409 if one is running |
 | `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message |
+| `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes }`; `checkedAt` null and `nodes` empty when disabled or before the first pass |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so
 a failed scan keeps the previous graph.
+
+## Liveness (optional)
+
+A background check of whether the nodes already on the map still answer. Off
+by default; turn it on in `opensearch_dashboards.yml` (or the dev config):
+
+```yaml
+vulnmapper.liveness.enabled: true        # default false
+vulnmapper.liveness.intervalSeconds: 20  # default 20, at least 10
+vulnmapper.liveness.missThreshold: 3     # default 3, at least 1
+# vulnmapper.liveness.path: /path/to/liveness.json   # default: beside graphPath
+```
+
+Every interval the server runs `<pythonBin> -m vulnmapper.liveness` (skipped
+while a scan runs) and saves the result to `liveness.json`; it never writes the
+graph. The SNMP community of the last scan is passed through the environment
+only. On the map, inactive nodes are dimmed; inactive discovered hosts leave
+the canvas for an "Inactive (n)" panel (switch "Hide inactive discovered
+hosts"), and the detail flyout shows a Liveness row. With liveness disabled the
+UI is unchanged.
 
 ## Building the zip
 

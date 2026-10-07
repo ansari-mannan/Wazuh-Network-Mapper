@@ -116,6 +116,20 @@ the host was not scored or came from an old `--scored` file.
 (what `python -m vulnmapper.endpoints.score` writes) or the older plain list of
 endpoints, which keeps its stored `risk_score` and has no full findings.
 
+## Liveness
+
+```
+python -m vulnmapper.liveness --graph ../data/graph.json [--state liveness.json] [--threshold 3]
+```
+
+Re-checks the nodes already in the graph (never writes it) and prints a state
+document on stdout: per node `state` (`active` / `inactive` / `unknown`),
+`method`, `misses`, `last_seen`, `last_checked`, `proven_methods`. Pollable
+devices are probed by SNMP when `SNMP_COMMUNITIES` (or the other `SNMP_*`
+variables) is set, everything else by `ping -c 1 -W 1`. A node only goes
+inactive after `--threshold` misses on a method it has answered before, or at
+once when its switch port is reported down. The plugin runs it on a timer.
+
 ## Tests
 
 From `backend/`:
