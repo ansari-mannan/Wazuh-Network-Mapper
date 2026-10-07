@@ -178,5 +178,37 @@ class TestLateMergeLeavesNoDanglingParent(unittest.TestCase):
         self.assertTrue(all(e["target"] in g.nodes for e in g.doc["edges"]))
 
 
+class TestCaseC_HostnameChassisNeighbour(unittest.TestCase):
+    def neighbour(self, caps=None, status="discovered", ip=None):
+        node = {"chassis_id": "desktop-87u7d8b", "ip": ip, "hostname": None,
+                "discovery_method": "snmp_lldp", "status": status, "pollable": False,
+                "lldp_cap_enabled": caps, "fdb": []}
+        net = {"nodes": [hp_switch(), node], "edges": [lldp("desktop-87u7d8b", "GigabitEthernet1/0/12")]}
+        return Graph([], net)
+
+    def test_no_capabilities_is_a_host_one_node(self):
+        g = self.neighbour()
+        matches = [i for i in g.nodes if "desktop-87u7d8b" in i]
+        self.assertEqual(matches, ["device:desktop-87u7d8b"])
+        self.assertEqual(g.nodes["device:desktop-87u7d8b"]["role"], "host")
+        self.assertEqual(g.nodes["device:desktop-87u7d8b"]["parent_id"], HP_ID)
+
+    def test_station_capability_kept(self):
+        self.assertEqual(self.neighbour(caps="0x01").nodes["device:desktop-87u7d8b"]["role"],
+                         "station")
+
+    def test_bridge_capability_stays_network_equipment(self):
+        self.assertEqual(self.neighbour(caps="0x20").nodes["device:desktop-87u7d8b"]["role"],
+                         "l2-switch")
+
+    def test_unreachable_poll_target_not_relabelled(self):
+        g = self.neighbour(status="unreachable", ip="172.20.99.30")
+        self.assertEqual(g.nodes["device:desktop-87u7d8b"]["role"], "Unknown Network Device")
+
+    def test_pollable_without_capabilities_unchanged(self):
+        net = {"nodes": [dict(hp_switch(), lldp_cap_enabled=None)], "edges": []}
+        self.assertEqual(Graph([], net).nodes[HP_ID]["role"], "Unknown Network Device")
+
+
 if __name__ == "__main__":
     unittest.main()

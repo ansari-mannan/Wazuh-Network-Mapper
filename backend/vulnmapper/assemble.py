@@ -43,7 +43,7 @@ from .schema import (
     format_mac,
     host_node_id,
 )
-from .network.roles import derive_role
+from .network.roles import decode_capabilities, derive_role
 
 
 # ===========================================================================
@@ -217,6 +217,19 @@ def same_subnet(ip_a: Optional[str], ip_b: Optional[str], prefix: int = 24) -> b
 # The assembly procedure (was assemble/merge.py)
 # ===========================================================================
 
+def _is_end_host(raw: dict) -> bool:
+    """A non-pollable LLDP neighbour advertising no bridge/router capability.
+
+    That is a host announcing itself (e.g. a PC whose chassis id is its
+    hostname), not network equipment. A device we tried and failed to poll
+    (status "unreachable") is left alone: it may be a switch we lack
+    credentials for.
+    """
+    if raw.get("pollable") or raw.get("status") == "unreachable":
+        return False
+    return not decode_capabilities(raw.get("lldp_cap_enabled")) & {"bridge", "router"}
+
+
 def _device_node(raw: dict) -> Node:
     """Map a crawler network node into a unified device :class:`Node`."""
     chassis_id = raw.get("chassis_id")
@@ -237,7 +250,8 @@ def _device_node(raw: dict) -> Node:
             vendor=raw.get("vendor"),
             model=raw.get("model"),
             mac=raw.get("mac") or chassis_id,
-            kind=KIND_DEVICE,
+            # an end host's fallback role is "host", not "Unknown Network Device"
+            kind=KIND_ENDPOINT if _is_end_host(raw) else KIND_DEVICE,
         ),
         chassis_id=chassis_id,
         pollable=raw.get("pollable"),
