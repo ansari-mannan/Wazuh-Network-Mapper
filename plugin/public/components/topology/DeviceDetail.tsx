@@ -14,7 +14,7 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { GraphNode } from '../../../common';
+import { CveSummary, GraphNode } from '../../../common';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
@@ -63,6 +63,48 @@ function severityLevel(severity: string | null, cvss: number | null): RiskLevel 
   return riskLevel(cvss);
 }
 
+// Distinct-CVE counts per band, worst first; "unknown" = CVEs with no score.
+const SUMMARY_BANDS: Array<{
+  key: 'critical' | 'high' | 'medium' | 'low' | 'unknown';
+  level: RiskLevel;
+  label: string;
+}> = [
+  { key: 'critical', level: 'critical', label: 'Critical' },
+  { key: 'high', level: 'high', label: 'High' },
+  { key: 'medium', level: 'medium', label: 'Medium' },
+  { key: 'low', level: 'low', label: 'Low' },
+  { key: 'unknown', level: 'unscored', label: 'Unknown' },
+];
+
+function RiskSummary({ score, summary }: { score: number | null; summary: CveSummary }) {
+  return (
+    <Section title="Risk">
+      <EuiDescriptionList
+        type="column"
+        compressed
+        className="vmFields"
+        listItems={fields([
+          ['Risk (base score)', riskLabel(score)],
+          ['Worst CVE (CVSS)', summary.max_cvss],
+        ])}
+      />
+      <EuiSpacer size="s" />
+      <EuiFlexGroup gutterSize="xs" wrap responsive={false} data-test-subj="vmCveCounts">
+        {SUMMARY_BANDS.map((b) => {
+          const n = summary[b.key];
+          return (
+            <EuiFlexItem grow={false} key={b.key}>
+              <EuiBadge color={n > 0 ? RISK_META[b.level].color : 'hollow'}>
+                {b.label} {n}
+              </EuiBadge>
+            </EuiFlexItem>
+          );
+        })}
+      </EuiFlexGroup>
+    </Section>
+  );
+}
+
 export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () => void }) {
   const isDevice = node.kind === 'device';
   const Icon = iconForRole(node.role);
@@ -70,6 +112,9 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   const level = riskLevel(score);
   const offline = isOffline(node.status);
   const cves = node.kind === 'endpoint' ? node.top_cves || [] : [];
+  // Absent in older graph files (and null when unscored): keep the old display.
+  const summary = node.kind === 'endpoint' ? node.cve_summary || null : null;
+  const cveTotal = summary ? summary.total : cves.length;
   const ports = node.kind === 'device' && node.port_status ? Object.entries(node.port_status) : [];
 
   return (
@@ -130,8 +175,25 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
         </Section>
         <EuiSpacer size="m" />
 
+        {summary && (
+          <>
+            <RiskSummary score={score} summary={summary} />
+            <EuiSpacer size="m" />
+          </>
+        )}
+
         {!isDevice && (
-          <Section title="Vulnerabilities" count={cves.length}>
+          <Section title="Vulnerabilities" count={cveTotal}>
+            {cveTotal > cves.length && (
+              <>
+                <EuiText size="xs" color="subdued" data-test-subj="vmCveShowing">
+                  <p>
+                    Showing the {cves.length} worst of {cveTotal}.
+                  </p>
+                </EuiText>
+                <EuiSpacer size="s" />
+              </>
+            )}
             {cves.length === 0 ? (
               <EuiText size="s" color="subdued">
                 <p>No CVEs reported{score === null ? ' (host is unscored)' : ''}.</p>
@@ -140,7 +202,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               cves.map((c, i) => {
                 const sev = severityLevel(c.severity, c.cvss);
                 return (
-                  <React.Fragment key={c.cve || i}>
+                  <React.Fragment key={`${c.cve}:${i}`}>
                     {i > 0 && <EuiSpacer size="s" />}
                     <EuiPanel paddingSize="s" hasShadow={false} hasBorder>
                       <EuiFlexGroup justifyContent="spaceBetween" alignItems="center" responsive={false} gutterSize="s">

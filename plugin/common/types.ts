@@ -9,6 +9,21 @@ export type CVE = {
   package: string | null;
   version: string | null;
   description: string | null;
+  // Optional: absent from older graph files and from some CVE documents.
+  reference?: string | null;
+  published_at?: string | null;
+  detected_at?: string | null;
+};
+
+// Distinct-CVE counts for an endpoint, by CVSS v3 band (unknown = no score).
+export type CveSummary = {
+  total: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+  unknown: number;
+  max_cvss: number | null;
 };
 
 // Common fields shared by both kinds of node.
@@ -45,7 +60,10 @@ export type DeviceNode = GraphNodeBase & {
 export type EndpointNode = GraphNodeBase & {
   kind: "endpoint";
   agent_id: string | null;
+  // The worst distinct CVEs (up to 10); the full list is in vulnerabilities.json.
   top_cves: CVE[];
+  // null when the endpoint could not be scored; absent in older graph files.
+  cve_summary?: CveSummary | null;
 };
 
 export type GraphNode = DeviceNode | EndpointNode;
