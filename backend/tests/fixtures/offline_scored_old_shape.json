@@ -1,0 +1,100 @@
+[
+  {
+    "agent_id": "101",
+    "hostname": "web-01",
+    "ip": "10.10.0.11",
+    "mac": "d4:be:d9:00:00:11",
+    "vendor": "ubuntu",
+    "model": "Ubuntu",
+    "firmware": "22.04",
+    "status": "active",
+    "discovery_method": "wazuh",
+    "risk_score": 9.8,
+    "max_cvss": 9.8,
+    "top_cves": [
+      {
+        "cve": "CVE-2026-90000",
+        "cvss": 9.8,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "package": "lib0",
+        "version": "1.0",
+        "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory."
+      },
+      {
+        "cve": "CVE-2026-90001",
+        "cvss": 9.8,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "package": "lib1",
+        "version": "1.0",
+        "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory."
+      },
+      {
+        "cve": "CVE-2026-90002",
+        "cvss": 9.1,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "package": "lib2",
+        "version": "1.0",
+        "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory."
+      }
+    ]
+  },
+  {
+    "agent_id": "102",
+    "hostname": "db-01",
+    "ip": "10.10.0.12",
+    "mac": "d4:be:d9:00:00:12",
+    "vendor": "ubuntu",
+    "model": "Ubuntu",
+    "firmware": "22.04",
+    "status": "active",
+    "discovery_method": "wazuh",
+    "risk_score": 9.8,
+    "max_cvss": 9.8,
+    "top_cves": [
+      {
+        "cve": "CVE-2026-90000",
+        "cvss": 9.8,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "package": "openssl",
+        "version": "3.0.2",
+        "description": "Synthetic fixture vulnerability CVE-2026-90000 in openssl: crafted input can lead to memory corruption.\\r\\nNot a real advisory."
+      },
+      {
+        "cve": "CVE-2026-90020",
+        "cvss": 6.1,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "package": "postgresql",
+        "version": "14.2",
+        "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory."
+      },
+      {
+        "cve": "CVE-2026-90021",
+        "cvss": 5.5,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "package": "postgresql",
+        "version": "14.2",
+        "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory."
+      }
+    ]
+  },
+  {
+    "agent_id": "103",
+    "hostname": "kiosk-01",
+    "ip": "10.10.0.13",
+    "mac": "d4:be:d9:00:00:13",
+    "vendor": "windows",
+    "model": "Windows 11",
+    "firmware": "10.0.22631",
+    "status": "active",
+    "discovery_method": "wazuh",
+    "risk_score": 0,
+    "max_cvss": null,
+    "top_cves": []
+  }
+]

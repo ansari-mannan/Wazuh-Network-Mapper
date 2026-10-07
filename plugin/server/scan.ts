@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
+import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { ScanState } from '../common';
 
@@ -37,7 +38,9 @@ function finish(status: ScanState['status'], message: string) {
  * Start `<pythonBin> -m vulnmapper` in backendDir. Returns false if a scan is
  * already running. The graph JSON arrives on stdout; it is validated and then
  * written to a temp file and renamed over graphPath, so a failed or partial scan
- * always leaves the previous graph in place.
+ * always leaves the previous graph in place. The full CVE list goes to
+ * vulnerabilities.json beside graphPath; the scanner writes that file itself
+ * (temp file + rename) and only when the scan succeeds.
  */
 export function startScan({ pythonBin, backendDir, graphPath, community, logger }: ScanOptions) {
   if (scan.status === 'running') return false;
@@ -49,8 +52,10 @@ export function startScan({ pythonBin, backendDir, graphPath, community, logger 
   const env = { ...process.env };
   if (community) env.SNMP_COMMUNITIES = community;
 
-  logger.info(`scan started: ${pythonBin} -m vulnmapper (cwd ${backendDir})`);
-  const child = spawn(pythonBin, ['-m', 'vulnmapper'], { cwd: backendDir, env });
+  const vulnsPath = path.join(path.dirname(path.resolve(graphPath)), 'vulnerabilities.json');
+  const args = ['-m', 'vulnmapper', '--vulns-out', vulnsPath];
+  logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
+  const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
   let stderr = '';
   child.stdout.on('data', (d: Buffer) => chunks.push(d));

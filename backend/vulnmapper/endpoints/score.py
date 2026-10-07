@@ -6,6 +6,10 @@
 Thin shim over :class:`vulnmapper.endpoints.WazuhSource`; the output filename and
 env var names (``INDEXER_*``, ``AGENTS_IN``, ``SCORED_OUT``) are preserved.
 Progress goes to stderr.
+
+The output is ``{"endpoints": [...], "cves": {...}, "warnings": [...]}``, which
+``python -m vulnmapper --scored PATH`` reads back (it also still accepts the old
+plain list of endpoints).
 """
 
 from __future__ import annotations
@@ -24,10 +28,12 @@ def main() -> int:
     with open(agents_in) as f:
         agents = json.load(f)
 
-    out = WazuhSource().score(agents)
+    source = WazuhSource()
+    out = source.score(agents)
 
     with open(out_path, "w") as f:
-        json.dump(out, f, indent=2)
+        json.dump({"endpoints": out, "cves": source.cves, "warnings": source.warnings},
+                  f, indent=2)
 
     print(f"Wrote {len(out)} scored agents to {out_path}", file=sys.stderr)
     return 0

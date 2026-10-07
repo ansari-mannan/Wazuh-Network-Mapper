@@ -1,0 +1,61 @@
+{
+  "scan_time": "2026-10-07T08:00:00+00:00",
+  "seed": "10.10.0.1",
+  "edges": [],
+  "nodes": [
+    {
+      "chassis_id": "0c:00:00:00:10:01",
+      "ip": "10.10.0.1",
+      "hostname": "core-sw",
+      "vendor": "Cisco",
+      "model": "C9300",
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "pollable": true,
+      "lldp_cap_enabled": "0x28",
+      "uplink_ports": [],
+      "neighbor_ports": [],
+      "port_status": {
+        "Gi1/0/1": "up",
+        "Gi1/0/2": "up",
+        "Gi1/0/3": "up",
+        "Gi1/0/4": "up",
+        "Gi1/0/5": "up",
+        "Gi1/0/6": "up"
+      },
+      "own_macs": [
+        "0c:00:00:00:10:01"
+      ],
+      "fdb": [
+        {
+          "mac": "d4bed9000011",
+          "port": "Gi1/0/1",
+          "vlan": 10
+        },
+        {
+          "mac": "d4bed9000012",
+          "port": "Gi1/0/2",
+          "vlan": 10
+        },
+        {
+          "mac": "d4bed9000013",
+          "port": "Gi1/0/3",
+          "vlan": 10
+        },
+        {
+          "mac": "d4bed9000014",
+          "port": "Gi1/0/4",
+          "vlan": 10
+        },
+        {
+          "mac": "0c00000099aa",
+          "port": "Gi1/0/6",
+          "vlan": 10
+        }
+      ],
+      "arp": {
+        "0c00000099aa": "10.10.0.50"
+      }
+    }
+  ]
+}

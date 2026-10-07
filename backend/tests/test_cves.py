@@ -3,12 +3,16 @@ fields, indexer failures, and the shared catalogue at scale. HTTP is mocked."""
 
 import contextlib
 import io
+import os
+import sys
+import tempfile
 import unittest
 from unittest import mock
 
 import requests
 
 from vulnmapper import endpoints as ep_mod
+from vulnmapper import vulnfile
 from vulnmapper.endpoints import WazuhSource, enrich_agent, parse_hit
 from vulnmapper.schema import IndexerConfig, WazuhConfig
 
@@ -248,6 +252,37 @@ class TestIndexerFailure(unittest.TestCase):
         src, (agent,) = score([{"agent_id": "001"}], flaky)
         self.assertIsNone(agent["risk_score"])
         self.assertEqual(src.cves, {})
+
+
+class TestScale(unittest.TestCase):
+    HOSTS, CVES = 200, 300
+
+    def test_each_description_stored_once(self):
+        descriptions = [f"Synthetic description number {i:05d} for the scale test."
+                        for i in range(self.CVES)]
+        shared = [doc(f"CVE-2026-{i:05d}", round(1 + (i % 90) / 10, 1),
+                      package=f"pkg{i % 40}", description=descriptions[i])
+                  for i in range(self.CVES)]
+        agents = [{"agent_id": f"{n:03d}", "hostname": f"host-{n:03d}"}
+                  for n in range(1, self.HOSTS + 1)]
+        fake = FakeIndexer({a["agent_id"]: shared for a in agents})
+        src, scored = score(agents, fake)
+
+        document = vulnfile.build_document(scored, src.cves, "2026-10-07T00:00:00+00:00")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, vulnfile.FILENAME)
+            vulnfile.write_atomic(path, document)
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+            self.size = os.path.getsize(path)
+
+        self.assertEqual(document["metadata"]["counts"],
+                         {"hosts": self.HOSTS, "cves": self.CVES,
+                          "findings": self.HOSTS * self.CVES})
+        for description in descriptions:
+            self.assertEqual(text.count(description), 1, description)
+        print(f"\n  scale test: {self.HOSTS} hosts x {self.CVES} CVEs -> "
+              f"vulnerabilities.json {self.size:,} bytes", file=sys.stderr)
 
 
 if __name__ == "__main__":

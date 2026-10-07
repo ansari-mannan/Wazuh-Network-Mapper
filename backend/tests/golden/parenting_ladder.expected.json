@@ -78,7 +78,8 @@
       "parent_id": "device:access",
       "agent_id": "004",
       "stale": false,
-      "top_cves": []
+      "top_cves": [],
+      "cve_summary": null
     },
     {
       "node_id": "endpoint:010",
@@ -99,7 +100,8 @@
       "parent_id": "device:access",
       "agent_id": "010",
       "stale": false,
-      "top_cves": []
+      "top_cves": [],
+      "cve_summary": null
     },
     {
       "node_id": "endpoint:003",
@@ -120,7 +122,8 @@
       "parent_id": "device:access",
       "agent_id": "003",
       "stale": false,
-      "top_cves": []
+      "top_cves": [],
+      "cve_summary": null
     },
     {
       "node_id": "endpoint:007",
@@ -141,7 +144,8 @@
       "parent_id": null,
       "agent_id": "007",
       "stale": false,
-      "top_cves": []
+      "top_cves": [],
+      "cve_summary": null
     }
   ],
   "edges": [

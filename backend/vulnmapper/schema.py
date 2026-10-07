@@ -224,6 +224,10 @@ class CVE:
     package: Optional[str] = None
     version: Optional[str] = None
     description: Optional[str] = None
+    # Optional; absent from older scans and from some vulnerability documents.
+    reference: Optional[str] = None
+    published_at: Optional[str] = None
+    detected_at: Optional[str] = None
 
     def to_dict(self) -> dict:
         return {
@@ -234,6 +238,9 @@ class CVE:
             "package": self.package,
             "version": self.version,
             "description": self.description,
+            "reference": self.reference,
+            "published_at": self.published_at,
+            "detected_at": self.detected_at,
         }
 
 
@@ -298,12 +305,15 @@ class Node:
     role: Optional[str] = None
     # ---- endpoint extras ----
     agent_id: Optional[str] = None
-    risk_score: float = 0
+    # Endpoints: the base score (vulnmapper.scoring); None = could not be scored.
+    risk_score: Optional[float] = 0
     # Highest CVSS across ``top_cves`` (null when unscored / no CVEs). Distinct
     # from ``risk_score``, which remains the field of record for ranking and edge
     # weights; ``max_cvss`` is exposed for consumers that key on raw CVSS.
     max_cvss: Optional[float] = None
     top_cves: list = field(default_factory=list)
+    # Distinct-CVE counts per CVSS band + max_cvss; None when not scored.
+    cve_summary: Optional[dict] = None
     # True when this endpoint's IP collides with a currently-active endpoint and
     # its own status is disconnected (a stale Wazuh agent — IP reassigned).
     stale: bool = False
@@ -341,6 +351,7 @@ class Node:
             out["agent_id"] = self.agent_id
             out["stale"] = self.stale
             out["top_cves"] = self.top_cves
+            out["cve_summary"] = self.cve_summary
         else:
             out["chassis_id"] = self.chassis_id
             out["pollable"] = self.pollable

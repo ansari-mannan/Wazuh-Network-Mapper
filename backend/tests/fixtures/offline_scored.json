@@ -1,0 +1,528 @@
+{
+  "endpoints": [
+    {
+      "agent_id": "101",
+      "hostname": "web-01",
+      "ip": "10.10.0.11",
+      "mac": "d4:be:d9:00:00:11",
+      "vendor": "ubuntu",
+      "model": "Ubuntu",
+      "firmware": "22.04",
+      "status": "active",
+      "discovery_method": "wazuh",
+      "risk_score": 8.6,
+      "max_cvss": 9.8,
+      "top_cves": [
+        {
+          "cve": "CVE-2026-90000",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "lib0",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90000",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90001",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "lib1",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90001",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90002",
+          "cvss": 9.1,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "lib2",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90002",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90003",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib3",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90003",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90004",
+          "cvss": 8.1,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib4",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90004",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90005",
+          "cvss": 7.5,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib0",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90005",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90006",
+          "cvss": 7.5,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib1",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90006",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90007",
+          "cvss": 6.5,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "lib2",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90007",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90008",
+          "cvss": 5.9,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "lib3",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90008",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90009",
+          "cvss": 5.3,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "lib4",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90009",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        }
+      ],
+      "cve_summary": {
+        "total": 14,
+        "critical": 3,
+        "high": 4,
+        "medium": 4,
+        "low": 2,
+        "unknown": 1,
+        "max_cvss": 9.8
+      },
+      "findings": [
+        {
+          "cve": "CVE-2026-90000",
+          "package": "lib0",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90000",
+          "package": "openssl-legacy",
+          "version": "1.1.1",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90001",
+          "package": "lib1",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90002",
+          "package": "lib2",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90003",
+          "package": "lib3",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90004",
+          "package": "lib4",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90005",
+          "package": "lib0",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90006",
+          "package": "lib1",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90007",
+          "package": "lib2",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90008",
+          "package": "lib3",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90009",
+          "package": "lib4",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90010",
+          "package": "lib0",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90011",
+          "package": "lib1",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90012",
+          "package": "lib2",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90013",
+          "package": "lib3",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "agent_id": "102",
+      "hostname": "db-01",
+      "ip": "10.10.0.12",
+      "mac": "d4:be:d9:00:00:12",
+      "vendor": "ubuntu",
+      "model": "Ubuntu",
+      "firmware": "22.04",
+      "status": "active",
+      "discovery_method": "wazuh",
+      "risk_score": 8.1,
+      "max_cvss": 9.8,
+      "top_cves": [
+        {
+          "cve": "CVE-2026-90000",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "openssl",
+          "version": "3.0.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90000 in openssl: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90000",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90020",
+          "cvss": 6.1,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "postgresql",
+          "version": "14.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90020",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90021",
+          "cvss": 5.5,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "postgresql",
+          "version": "14.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90021",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90022",
+          "cvss": 4.0,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "postgresql",
+          "version": "14.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90022",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z"
+        }
+      ],
+      "cve_summary": {
+        "total": 4,
+        "critical": 1,
+        "high": 0,
+        "medium": 3,
+        "low": 0,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "findings": [
+        {
+          "cve": "CVE-2026-90020",
+          "package": "postgresql",
+          "version": "14.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90021",
+          "package": "postgresql",
+          "version": "14.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90022",
+          "package": "postgresql",
+          "version": "14.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90000",
+          "package": "openssl",
+          "version": "3.0.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        }
+      ]
+    },
+    {
+      "agent_id": "103",
+      "hostname": "kiosk-01",
+      "ip": "10.10.0.13",
+      "mac": "d4:be:d9:00:00:13",
+      "vendor": "windows",
+      "model": "Windows 11",
+      "firmware": "10.0.22631",
+      "status": "active",
+      "discovery_method": "wazuh",
+      "risk_score": 0.0,
+      "max_cvss": null,
+      "top_cves": [],
+      "cve_summary": {
+        "total": 0,
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "unknown": 0,
+        "max_cvss": null
+      },
+      "findings": []
+    },
+    {
+      "agent_id": "104",
+      "hostname": "laptop-07",
+      "ip": "10.10.0.14",
+      "mac": "d4:be:d9:00:00:14",
+      "vendor": "windows",
+      "model": "Windows 10",
+      "firmware": "10.0.19045",
+      "status": "active",
+      "discovery_method": "wazuh",
+      "risk_score": null,
+      "max_cvss": null,
+      "top_cves": [],
+      "cve_summary": null,
+      "findings": null
+    }
+  ],
+  "cves": {
+    "CVE-2026-90000": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90000",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90001": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90001",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90002": {
+      "cvss": 9.1,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90002",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90003": {
+      "cvss": 8.8,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90003",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90004": {
+      "cvss": 8.1,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90004",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90005": {
+      "cvss": 7.5,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90005",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90006": {
+      "cvss": 7.5,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90006",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90007": {
+      "cvss": 6.5,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90007",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90008": {
+      "cvss": 5.9,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90008",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90009": {
+      "cvss": 5.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90009",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90010": {
+      "cvss": 4.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90010 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90010",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90011": {
+      "cvss": 3.7,
+      "cvss_version": "3.1",
+      "severity": "Low",
+      "description": "Synthetic fixture vulnerability CVE-2026-90011 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90011",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90012": {
+      "cvss": 2.1,
+      "cvss_version": "3.1",
+      "severity": "Low",
+      "description": "Synthetic fixture vulnerability CVE-2026-90012 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90012",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90013": {
+      "cvss": null,
+      "cvss_version": null,
+      "severity": "-",
+      "description": "Synthetic fixture vulnerability CVE-2026-90013 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90013",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90020": {
+      "cvss": 6.1,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90020",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90021": {
+      "cvss": 5.5,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90021",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90022": {
+      "cvss": 4.0,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90022",
+      "published_at": "2026-03-01T00:00:00Z"
+    }
+  },
+  "warnings": [
+    {
+      "type": "indexer_unreachable",
+      "error": "503 Server Error: Service Unavailable",
+      "agents": [
+        "104"
+      ],
+      "node_ids": [
+        "endpoint:104"
+      ]
+    }
+  ]
+}
