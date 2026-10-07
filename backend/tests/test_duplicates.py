@@ -243,6 +243,12 @@ class TestLateMergeLeavesNoDanglingParent(unittest.TestCase):
 
 
 class TestCaseC_HostnameChassisNeighbour(unittest.TestCase):
+    """A non-pollable LLDP neighbour with no bridge/router capability is an
+    endpoint-kind discovered host, like the hosts found in forwarding tables."""
+
+    HOST_ID = "host:desktop-87u7d8b"
+    DEVICE_ID = "device:desktop-87u7d8b"
+
     def neighbour(self, caps=None, status="discovered", ip=None):
         node = {"chassis_id": "desktop-87u7d8b", "ip": ip, "hostname": None,
                 "discovery_method": "snmp_lldp", "status": status, "pollable": False,
@@ -250,28 +256,67 @@ class TestCaseC_HostnameChassisNeighbour(unittest.TestCase):
         net = {"nodes": [hp_switch(), node], "edges": [lldp("desktop-87u7d8b", "GigabitEthernet1/0/12")]}
         return Graph([], net)
 
-    def test_no_capabilities_is_a_host_one_node(self):
+    def test_no_capabilities_is_a_discovered_host_one_node(self):
         g = self.neighbour()
-        matches = [i for i in g.nodes if "desktop-87u7d8b" in i]
-        self.assertEqual(matches, ["device:desktop-87u7d8b"])
-        self.assertEqual(g.nodes["device:desktop-87u7d8b"]["role"], "host")
-        self.assertEqual(g.nodes["device:desktop-87u7d8b"]["parent_id"], HP_ID)
+        self.assertEqual([i for i in g.nodes if "desktop-87u7d8b" in i], [self.HOST_ID])
+        node = g.nodes[self.HOST_ID]
+        self.assertEqual((node["kind"], node["discovery_method"], node["status"], node["role"]),
+                         ("endpoint", "lldp", "discovered", "host"))
+        self.assertIsNone(node["risk_score"])
+        self.assertIsNone(node["agent_id"])
+
+    def test_parented_on_reporting_switch_and_port(self):
+        g = self.neighbour()
+        self.assertEqual(g.nodes[self.HOST_ID]["parent_id"], HP_ID)
+        link = g.links[self.HOST_ID]
+        self.assertEqual((link["target"], link["local_port"], link["confidence"]),
+                         (HP_ID, "GigabitEthernet1/0/12", "lldp"))
+        self.assertEqual([e for e in g.doc["edges"] if e["type"] == "lldp"], [])
+
+    def test_not_counted_as_a_device(self):
+        counts = self.neighbour().doc["metadata"]["counts"]
+        self.assertEqual(counts["devices"], 1)
+        self.assertEqual(counts["endpoints"], 0)       # agents only
+        self.assertEqual(counts["nodes"], 2)
+        self.assertEqual(counts["unparented_endpoints"], 0)
 
     def test_station_capability_kept(self):
-        self.assertEqual(self.neighbour(caps="0x01").nodes["device:desktop-87u7d8b"]["role"],
-                         "station")
+        self.assertEqual(self.neighbour(caps="0x01").nodes[self.HOST_ID]["role"], "station")
 
     def test_bridge_capability_stays_network_equipment(self):
-        self.assertEqual(self.neighbour(caps="0x20").nodes["device:desktop-87u7d8b"]["role"],
-                         "l2-switch")
+        g = self.neighbour(caps="0x20")
+        self.assertEqual(g.nodes[self.DEVICE_ID]["role"], "l2-switch")
+        self.assertNotIn(self.HOST_ID, g.nodes)
 
-    def test_unreachable_poll_target_not_relabelled(self):
+    def test_unreachable_poll_target_stays_a_device(self):
         g = self.neighbour(status="unreachable", ip="172.20.99.30")
-        self.assertEqual(g.nodes["device:desktop-87u7d8b"]["role"], "Unknown Network Device")
+        self.assertEqual(g.nodes[self.DEVICE_ID]["role"], "Unknown Network Device")
 
     def test_pollable_without_capabilities_unchanged(self):
         net = {"nodes": [dict(hp_switch(), lldp_cap_enabled=None)], "edges": []}
         self.assertEqual(Graph([], net).nodes[HP_ID]["role"], "Unknown Network Device")
+
+
+class TestLldpHostWithoutAgent(unittest.TestCase):
+    """A MAC-chassis LLDP host with no agent: one host node, even when the
+    forwarding table also learned its MAC."""
+
+    MAC = "3c:52:82:00:00:07"
+
+    def test_one_host_node(self):
+        net = {"nodes": [
+            hp_switch(fdb=[{"mac": bare(self.MAC), "port": "GigabitEthernet1/0/7", "vlan": 20}],
+                      arp={bare(self.MAC): "172.20.20.77"}),
+            phantom(self.MAC),
+        ], "edges": [lldp(self.MAC, "GigabitEthernet1/0/7")]}
+        g = Graph([], net)
+        self.assertEqual(g.ids_for_mac(self.MAC), [f"host:{self.MAC}"])
+        node = g.nodes[f"host:{self.MAC}"]
+        self.assertEqual((node["discovery_method"], node["mac"], node["role"]),
+                         ("lldp", self.MAC, "station"))
+        self.assertEqual(g.links[f"host:{self.MAC}"]["confidence"], "lldp")
+        self.assertEqual(g.doc["metadata"]["fdb_discovered_hosts"], 0)
+        self.assertEqual(g.doc["metadata"]["counts"]["devices"], 1)
 
 
 class TestCaseD_AgentAndDiscoveredHostShareIp(unittest.TestCase):
