@@ -439,6 +439,29 @@ class WazuhSource:
             })
         return nodes
 
+    # ---- Manager API: agent check-in (read-only, for the liveness pass) ----
+
+    # Agents per /agents request; the list is paged until a short page.
+    AGENT_STATUS_PAGE = 500
+    AGENT_STATUS_MAX_PAGES = 100
+
+    def agent_status(self) -> list[dict]:
+        """``id``, ``status`` and ``lastKeepAlive`` of every agent. Read-only.
+
+        Logs in with the same code as :meth:`collect` and pages through
+        ``/agents``. Raises on any failure; nothing is logged or written.
+        """
+        self._authenticate()
+        rows: list = []
+        for _ in range(self.AGENT_STATUS_MAX_PAGES):
+            page = self._get("/agents", params={"select": "id,status,lastKeepAlive",
+                                                "limit": self.AGENT_STATUS_PAGE,
+                                                "offset": len(rows)})
+            rows.extend(page)
+            if len(page) < self.AGENT_STATUS_PAGE:
+                break
+        return rows
+
     # ---- Indexer (score stage) --------------------------------------------
 
     # Every field a CVE row is built from; the last three are optional.

@@ -49,8 +49,11 @@ async function runPass(config: VulnmapperConfig, logger: Logger) {
   const community = getLastCommunity();
   if (community) env.SNMP_COMMUNITIES = community;
 
+  // The Wazuh password for the agent method comes from the server's own
+  // environment (WAZUH_PASS), like a scan's; it is never placed in argv.
   const args = ['-m', 'vulnmapper.liveness', '--graph', graphPath, '--state', outPath,
-    '--threshold', String(liveness.missThreshold)];
+    '--threshold', String(liveness.missThreshold),
+    '--agent-max-age', String(Math.round(liveness.agentMaxAgeSeconds))];
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
   let stderr = '';

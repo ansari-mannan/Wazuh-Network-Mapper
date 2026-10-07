@@ -1,6 +1,7 @@
 """Liveness heartbeat: re-check whether the nodes already in graph.json answer.
 
     python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 3]
+                                  [--agent-max-age 60]
 
 Reads the graph (never writes it) and the previous state, runs one pass and
 prints the new state document on stdout; logs go to stderr only, the same
@@ -10,6 +11,13 @@ itself cannot be read.
 Only IPs already in the graph are probed: no sweeps, no discovery.
 
 Probe method per node
+  * endpoint with an ``agent_id``, Wazuh credentials available -> ``agent``:
+    one Manager API request per pass lists every agent's status and
+    lastKeepAlive. Active with a check-in no older than ``--agent-max-age``
+    seconds is a reply (agent 000, the manager, always is); active with an
+    older check-in is a miss; disconnected / pending / never_connected makes
+    the node inactive at once. If the login or request fails or takes longer
+    than 5 s, these nodes are left as they were for the pass.
   * pollable device with an IP, SNMP credentials available -> ``snmp``
     (a credential that resolves is a reply; a failure is "snmp, no reply")
   * any other node with an IP (endpoints, devices without credentials or not
@@ -20,7 +28,8 @@ Probe method per node
 State rules per node: a reply makes it ``active`` (misses 0, ``last_seen`` now,
 method proven). Silence on a proven method adds a miss and, at ``threshold``
 misses, makes it ``inactive``; below that the state is unchanged. Silence on a
-never-proven method proves nothing (Windows blocks ping), so nothing changes.
+never-proven method proves nothing (Windows blocks ping), so nothing changes;
+``agent`` counts as proven from the start (a stale check-in is real evidence).
 
 Port layer: each pollable device that answered SNMP in this pass has its port
 status read with the crawler's ``collect_port_status``. An endpoint whose link
@@ -37,6 +46,7 @@ import ipaddress
 import json
 import logging
 import sys
+import threading
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Optional
@@ -46,6 +56,14 @@ log = logging.getLogger("vulnmapper.liveness")
 DEFAULT_THRESHOLD = 3
 MAX_IN_FLIGHT = 32
 EDGE_ENDPOINT_LINK = "endpoint_link"
+
+# Wazuh agent check-in (method "agent")
+AGENT_MAX_AGE_S = 60            # a check-in older than this is a miss
+AGENT_TIMEOUT_S = 5.0           # login + agent list, or the method is skipped
+AGENT_DOWN = {"disconnected", "pending", "never_connected"}
+MANAGER_AGENT_ID = "000"        # reports a far-future lastKeepAlive
+# Methods whose silence counts as a miss before any reply was ever seen.
+PROVEN_FROM_START = {"agent"}
 
 
 def _setup_logging() -> None:
@@ -67,12 +85,19 @@ class SystemProber:
     and is never logged or placed in argv.
     """
 
-    def __init__(self, credentials: list) -> None:
+    def __init__(self, credentials: list, agent_source=None) -> None:
         self.has_snmp = bool(credentials)
         self._snmp = None
         if credentials:
             from .network.snmp import SnmpClient
             self._snmp = SnmpClient(credentials, timeout=1.0, retries=1)
+        # The agent method needs the Wazuh password (WAZUH_PASS, environment only).
+        self._agent_source = agent_source
+        if agent_source is None:
+            from .schema import WazuhConfig
+            self.has_agents = bool(WazuhConfig.from_env().password)
+        else:
+            self.has_agents = True
 
     async def icmp(self, ip: str) -> bool:
         ipaddress.ip_address(ip)          # validated again right before argv
@@ -90,6 +115,36 @@ class SystemProber:
         from .network.parse import collect_port_status
         return await collect_port_status(self._snmp, ip)
 
+    async def agents(self) -> list:
+        """Every agent's id, status and lastKeepAlive from the Manager API.
+
+        The blocking requests run in a daemon thread, so a pass that gives up
+        on them (the time box) neither waits for them nor is kept alive by them.
+        """
+        loop = asyncio.get_running_loop()
+        future = loop.create_future()
+        source = self._agent_source
+        if source is None:
+            from .endpoints import WazuhSource
+            source = WazuhSource()
+
+        def settle(result, error):
+            if not future.done():
+                future.set_exception(error) if error else future.set_result(result)
+
+        def work():
+            try:
+                result, error = source.agent_status(), None
+            except Exception as e:
+                result, error = None, e
+            try:
+                loop.call_soon_threadsafe(settle, result, error)
+            except RuntimeError:
+                pass                # the pass already finished and closed its loop
+
+        threading.Thread(target=work, name="liveness-agents", daemon=True).start()
+        return await future
+
 
 # ---------------------------------------------------------------------------
 # One pass (pure apart from the injected prober)
@@ -101,6 +156,41 @@ def _valid_ip(ip) -> bool:
     except (ValueError, TypeError):
         return False
     return True
+
+
+def _parse_time(text) -> Optional[datetime]:
+    if not isinstance(text, str):
+        return None
+    try:
+        t = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def _agent_verdict(row: dict, now: datetime, max_age: float) -> tuple:
+    """``(replied, down)`` for one Manager API agent row."""
+    status = str(row.get("status") or "").lower()
+    if status in AGENT_DOWN:
+        return False, True
+    if status != "active":
+        return False, False
+    if str(row.get("id")) == MANAGER_AGENT_ID:
+        return True, False
+    seen = _parse_time(row.get("lastKeepAlive"))
+    return seen is not None and (now - seen).total_seconds() <= max_age, False
+
+
+async def _fetch_agents(prober, timeout: float) -> tuple:
+    """``({agent_id: row}, None)``, or ``(None, reason)`` when the check failed."""
+    try:
+        rows = await asyncio.wait_for(prober.agents(), timeout)
+    except asyncio.TimeoutError:
+        return None, f"agent check timed out after {timeout:g} s"
+    except Exception as e:
+        return None, f"agent check failed: {type(e).__name__}: {e}"[:300]
+    return {str(r["id"]): r for r in rows or []
+            if isinstance(r, dict) and r.get("id") is not None}, None
 
 
 def _method_for(node: dict, has_snmp: bool) -> str:
@@ -121,16 +211,22 @@ def _carry(old: dict, now: str) -> dict:
     }
     if isinstance(old.get("port_down"), dict):
         rec["port_down"] = dict(old["port_down"])
+    if isinstance(old.get("agent"), dict):
+        rec["agent"] = dict(old["agent"])       # the last known check-in
     return rec
 
 
-def _apply_probe(rec: dict, method: str, replied: bool, threshold: int, now: str) -> None:
+def _apply_probe(rec: dict, method: str, replied: bool, threshold: int, now: str,
+                 down: bool = False) -> None:
     rec["method"] = method
     if replied:
         rec.update(state="active", misses=0, last_seen=now)
         if method not in rec["proven_methods"]:
             rec["proven_methods"].append(method)
-    elif method in rec["proven_methods"]:
+    elif down:                  # the source says outright that it is gone
+        rec["misses"] += 1
+        rec["state"] = "inactive"
+    elif method in rec["proven_methods"] or method in PROVEN_FROM_START:
         rec["misses"] += 1
         if rec["misses"] >= threshold:
             rec["state"] = "inactive"
@@ -138,14 +234,20 @@ def _apply_probe(rec: dict, method: str, replied: bool, threshold: int, now: str
 
 
 async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
-                        now: Optional[str] = None) -> dict:
+                        now: Optional[str] = None, agent_max_age: float = AGENT_MAX_AGE_S,
+                        agent_timeout: float = AGENT_TIMEOUT_S) -> dict:
     """Run one pass and return the new state document.
 
     ``graph`` is the parsed graph.json, ``previous`` the last state document
     ({} when there is none), ``prober`` has ``has_snmp`` and async ``icmp(ip)``,
-    ``snmp(ip)`` and ``port_status(ip)``. The inputs are not modified.
+    ``snmp(ip)`` and ``port_status(ip)``, and optionally ``has_agents`` and
+    async ``agents()``. The inputs are not modified.
     """
     now = now or datetime.now(timezone.utc).isoformat()
+    use_agents = bool(getattr(prober, "has_agents", False))
+    # One Manager API request for the whole pass, alongside the probes.
+    agent_task = asyncio.ensure_future(_fetch_agents(prober, agent_timeout)) \
+        if use_agents else None
     old_nodes = previous.get("nodes") if isinstance(previous, dict) else None
     old_nodes = old_nodes if isinstance(old_nodes, dict) else {}
     nodes = [n for n in graph.get("nodes") or [] if isinstance(n, dict) and n.get("node_id")]
@@ -165,6 +267,7 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
     records: dict = {}
     had_state: set = set()       # nodes that had a state before this pass
     to_probe: list = []
+    by_agent: list = []          # endpoints checked by agent check-in
     for node in nodes:
         nid = node["node_id"]
         old = old_nodes.get(nid)
@@ -173,6 +276,9 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
         records[nid] = rec
         if old.get("state"):
             had_state.add(nid)
+        if use_agents and node.get("kind") == "endpoint" and node.get("agent_id"):
+            by_agent.append(node)        # identified by agent id, not by address
+            continue
         # A node made inactive by a down port stays so until the port layer
         # below restores it, even when it cannot be probed.
         unprobed = {} if "port_down" in rec else {"state": "unknown", "method": None}
@@ -186,6 +292,7 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
         else:
             to_probe.append((node, _method_for(node, prober.has_snmp)))
     probed_by = {node["node_id"]: method for node, method in to_probe}
+    probed_by.update((node["node_id"], "agent") for node in by_agent)
 
     semaphore = asyncio.Semaphore(MAX_IN_FLIGHT)
 
@@ -199,22 +306,42 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
 
     replied_now: set = set()
     snmp_up: list = []
-    for node, method, replied, error in await asyncio.gather(
-            *(probe(n, m) for n, m in to_probe)):
+
+    def settle(node, method, replied, down=False):
         rec = records[node["node_id"]]
-        if error is not None:
-            log.warning("%s: %s probe failed: %s", node["node_id"], method, error)
-            rec.update(method=method, reason="probe_error")
-            continue
         if replied:
             rec.pop("port_down", None)
         elif "port_down" in rec:
-            continue        # the down port explains the silence
-        _apply_probe(rec, method, bool(replied), threshold, now)
+            return          # the down port explains the silence
+        _apply_probe(rec, method, bool(replied), threshold, now, down)
         if replied:
             replied_now.add(node["node_id"])
             if method == "snmp":
                 snmp_up.append(node)
+
+    for node, method, replied, error in await asyncio.gather(
+            *(probe(n, m) for n, m in to_probe)):
+        if error is not None:
+            log.warning("%s: %s probe failed: %s", node["node_id"], method, error)
+            records[node["node_id"]].update(method=method, reason="probe_error")
+            continue
+        settle(node, method, replied)
+
+    # Agent check-in. If the Manager API could not be read, these nodes keep
+    # the state they had (no fallback to ping: Windows hosts would not answer).
+    agent_rows, agent_error = (await agent_task) if agent_task else ({}, None)
+    if agent_error:
+        log.warning("%s; agent endpoints left unchanged this pass", agent_error)
+    now_dt = _parse_time(now) or datetime.now(timezone.utc)
+    for node in by_agent:
+        rec = records[node["node_id"]]
+        row = agent_rows.get(str(node["agent_id"])) if agent_rows is not None else None
+        if row is None:
+            rec["reason"] = "agent_unavailable" if agent_rows is None else "agent_not_listed"
+            continue
+        rec["agent"] = {"status": row.get("status"), "last_keepalive": row.get("lastKeepAlive")}
+        replied, down = _agent_verdict(row, now_dt, agent_max_age)
+        settle(node, "agent", replied, down)
 
     # Port layer: a link on a port that is now down means the host is gone.
     links = defaultdict(list)    # device node_id -> [(endpoint node_id, port)]
@@ -262,7 +389,10 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
                                     or rec["state"] != "unknown" else None}
             rec.update(state="inactive", method="port")
 
-    return {"checked_at": now, "threshold": threshold, "nodes": records}
+    doc = {"checked_at": now, "threshold": threshold, "nodes": records}
+    if agent_error:
+        doc["agent_error"] = agent_error
+    return doc
 
 
 # ---------------------------------------------------------------------------
@@ -290,6 +420,9 @@ def _threshold(text: str) -> int:
     return value
 
 
+_agent_max_age = _threshold     # whole seconds, at least 1
+
+
 def main(argv: Optional[list] = None) -> int:
     _setup_logging()
     parser = argparse.ArgumentParser(
@@ -301,6 +434,9 @@ def main(argv: Optional[list] = None) -> int:
                         help="previous liveness.json (missing or invalid = empty)")
     parser.add_argument("--threshold", type=_threshold, default=DEFAULT_THRESHOLD,
                         help="misses on a proven method before a node is inactive")
+    parser.add_argument("--agent-max-age", type=_agent_max_age, default=AGENT_MAX_AGE_S,
+                        metavar="SECONDS",
+                        help="oldest Wazuh agent check-in that still counts as a reply")
     args = parser.parse_args(argv)
 
     try:
@@ -314,7 +450,8 @@ def main(argv: Optional[list] = None) -> int:
 
     from .network.crawl import load_credentials
     prober = SystemProber(load_credentials(None))
-    doc = asyncio.run(liveness_pass(graph, load_state(args.state), prober, args.threshold))
+    doc = asyncio.run(liveness_pass(graph, load_state(args.state), prober, args.threshold,
+                                    agent_max_age=args.agent_max_age))
     sys.stdout.write(json.dumps(doc, indent=2) + "\n")
     sys.stdout.flush()
     counts = defaultdict(int)

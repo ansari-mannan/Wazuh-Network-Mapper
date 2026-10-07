@@ -10,9 +10,13 @@ import io
 import json
 import os
 import tempfile
+import time
 import unittest
+from unittest import mock
 
-from vulnmapper.liveness import liveness_pass, load_state, main
+from vulnmapper.endpoints import WazuhSource
+from vulnmapper.liveness import SystemProber, liveness_pass, load_state, main
+from vulnmapper.schema import WazuhConfig
 
 T0 = "2026-10-07T09:00:00+00:00"
 T1 = "2026-10-07T09:00:20+00:00"
@@ -21,12 +25,18 @@ T1 = "2026-10-07T09:00:20+00:00"
 class FakeProber:
     """Answers from tables; records every probe. ``boom`` IPs raise."""
 
-    def __init__(self, icmp=None, snmp=None, ports=None, has_snmp=True, boom=()):
+    def __init__(self, icmp=None, snmp=None, ports=None, has_snmp=True, boom=(),
+                 agents=None, agent_error=None, agent_delay=0.0):
         self.icmp_replies = icmp or {}
         self.snmp_replies = snmp or {}
         self.ports = ports or {}
         self.has_snmp = has_snmp
         self.boom = set(boom)
+        # Manager API agent list: None = no Wazuh credentials (no agent method)
+        self.has_agents = agents is not None or agent_error is not None
+        self.agent_list = agents or []
+        self.agent_error = agent_error
+        self.agent_delay = agent_delay
         self.calls = []
         self.in_flight = 0
         self.max_in_flight = 0
@@ -53,6 +63,13 @@ class FakeProber:
         self.calls.append(("ports", ip))
         return self.ports.get(ip, {})
 
+    async def agents(self):
+        self.calls.append(("agents",))
+        await asyncio.sleep(self.agent_delay)
+        if self.agent_error is not None:
+            raise self.agent_error
+        return self.agent_list
+
 
 def host(node_id, ip, kind="endpoint", **extra):
     return {"node_id": node_id, "kind": kind, "ip": ip,
@@ -71,8 +88,9 @@ def link(source, target, port):
     return {"source": source, "target": target, "type": "endpoint_link", "local_port": port}
 
 
-def run(g, previous=None, prober=None, threshold=3, now=T1):
-    return asyncio.run(liveness_pass(g, previous or {}, prober or FakeProber(), threshold, now=now))
+def run(g, previous=None, prober=None, threshold=3, now=T1, **kw):
+    return asyncio.run(liveness_pass(g, previous or {}, prober or FakeProber(), threshold,
+                                     now=now, **kw))
 
 
 def prev(**nodes):
@@ -384,6 +402,195 @@ class TestPortRecovery(unittest.TestCase):
         self.assertEqual(node["state"], "unknown")
 
 
+def agent(agent_id, status="active", keepalive="2026-10-07T09:00:12+00:00"):
+    row = {"id": agent_id, "status": status}
+    if keepalive is not None:
+        row["lastKeepAlive"] = keepalive
+    return row
+
+
+def pc(agent_id="004", ip="10.0.0.60", **extra):
+    return host(f"endpoint:{agent_id}", ip, discovery_method="wazuh", agent_id=agent_id, **extra)
+
+
+FRESH = "2026-10-07T09:00:12+00:00"      # 8 s before T1
+STALE = "2026-10-07T08:58:00+00:00"      # 140 s before T1
+
+
+class TestAgentMethod(unittest.TestCase):
+    """Item 4: endpoints with an agent_id are checked by Wazuh agent check-in."""
+
+    def test_active_and_fresh_replied(self):
+        prober = FakeProber(agents=[agent("004", keepalive=FRESH)])
+        node = run(graph(pc()), prober=prober)["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"], node["misses"], node["last_seen"]),
+                         ("active", "agent", 0, T1))
+        self.assertEqual(node["proven_methods"], ["agent"])
+        self.assertEqual(node["agent"], {"status": "active", "last_keepalive": FRESH})
+
+    def test_agent_endpoint_is_not_pinged(self):
+        prober = FakeProber(agents=[agent("004")], icmp={"10.0.0.60": True})
+        run(graph(pc(), H), prober=prober)
+        self.assertNotIn(("icmp", "10.0.0.60"), prober.calls)
+        self.assertIn(("icmp", "10.0.0.10"), prober.calls)        # the plain host still is
+        self.assertEqual(prober.calls.count(("agents",)), 1)      # one request per pass
+
+    def test_max_age_is_configurable(self):
+        prober = FakeProber(agents=[agent("004", keepalive=STALE)])
+        node = run(graph(pc()), prober=prober, agent_max_age=300)["nodes"]["endpoint:004"]
+        self.assertEqual(node["state"], "active")
+
+    def test_active_but_stale_is_a_miss_under_the_threshold(self):
+        prober = FakeProber(agents=[agent("004", keepalive=STALE)])
+        node = run(graph(pc()), prev(**{"endpoint:004": was("active", proven=(), method="agent")}),
+                   prober)["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"], node["misses"]), ("active", "agent", 1))
+        self.assertEqual(node["last_seen"], T0)
+
+    def test_active_but_stale_over_the_threshold_is_inactive(self):
+        # "agent" counts as proven from the start: no earlier reply is needed
+        prober = FakeProber(agents=[agent("004", keepalive=STALE)])
+        state = {}
+        for expected in ((1, "unknown"), (2, "unknown"), (3, "inactive")):
+            state = run(graph(pc()), state, prober)
+            node = state["nodes"]["endpoint:004"]
+            self.assertEqual((node["misses"], node["state"]), expected)
+
+    def test_disconnected_pending_never_connected_inactive_at_once(self):
+        for status in ("disconnected", "pending", "never_connected"):
+            with self.subTest(status=status):
+                prober = FakeProber(agents=[agent("004", status=status,
+                                                  keepalive=None if status == "never_connected"
+                                                  else STALE)])
+                node = run(graph(pc()), prev(**{"endpoint:004": was("active", proven=("agent",),
+                                                                    method="agent")}),
+                           prober)["nodes"]["endpoint:004"]
+                self.assertEqual((node["state"], node["method"]), ("inactive", "agent"))
+                self.assertEqual(node["agent"]["status"], status)
+
+    def test_agent_000_far_future_keepalive_replied(self):
+        prober = FakeProber(agents=[agent("000", keepalive="9999-12-31T23:59:59+00:00")])
+        node = run(graph(pc("000", "10.0.0.1")), prober=prober)["nodes"]["endpoint:000"]
+        self.assertEqual((node["state"], node["method"]), ("active", "agent"))
+
+    def test_api_failure_leaves_agent_nodes_unchanged(self):
+        before = prev(**{"endpoint:004": was("active", misses=1, proven=("agent",), method="agent"),
+                         "host:a": was("active")})
+        prober = FakeProber(agent_error=OSError("connection refused"), icmp={"10.0.0.10": True})
+        doc = run(graph(pc(), H), before, prober)
+        node = doc["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"], node["misses"], node["last_seen"]),
+                         ("active", "agent", 1, T0))
+        self.assertEqual(node["reason"], "agent_unavailable")
+        self.assertIn("connection refused", doc["agent_error"])
+        self.assertNotIn(("icmp", "10.0.0.60"), prober.calls)     # no fallback to ping
+        self.assertEqual(doc["nodes"]["host:a"]["state"], "active")
+
+    def test_slow_login_is_time_boxed(self):
+        before = prev(**{"endpoint:004": was("inactive", misses=3, proven=("agent",),
+                                             method="agent")})
+        prober = FakeProber(agents=[agent("004")], agent_delay=2.0)
+        started = time.monotonic()
+        doc = run(graph(pc()), before, prober, agent_timeout=0.2)
+        self.assertLess(time.monotonic() - started, 1.5)
+        node = doc["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["misses"], node["reason"]),
+                         ("inactive", 3, "agent_unavailable"))
+        self.assertIn("timed out", doc["agent_error"])
+
+    def test_no_credentials_falls_back_to_ping(self):
+        prober = FakeProber(icmp={"10.0.0.60": True})          # has_agents False
+        doc = run(graph(pc()), prober=prober)
+        node = doc["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"]), ("active", "icmp"))
+        self.assertNotIn(("agents",), prober.calls)
+        self.assertNotIn("agent_error", doc)
+
+    def test_agent_not_listed_by_the_manager_unchanged(self):
+        before = prev(**{"endpoint:004": was("active", proven=("agent",), method="agent")})
+        doc = run(graph(pc()), before, FakeProber(agents=[agent("009")]))
+        node = doc["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["misses"], node["reason"]),
+                         ("active", 0, "agent_not_listed"))
+
+    def test_agent_checked_even_without_a_usable_ip(self):
+        # the agent is identified by its id, not its address
+        g = graph(pc("004", None), pc("005", "10.0.0.70"), pc("006", "10.0.0.70"))
+        prober = FakeProber(agents=[agent("004"), agent("005"), agent("006")])
+        doc = run(g, prober=prober)
+        for nid in ("endpoint:004", "endpoint:005", "endpoint:006"):
+            self.assertEqual((doc["nodes"][nid]["state"], doc["nodes"][nid]["method"]),
+                             ("active", "agent"))
+
+    def test_port_layer_still_applies(self):
+        g = graph(switch(), pc(), edges=[link("endpoint:004", "device:sw", "Gi1/0/5")])
+        prober = FakeProber(snmp={"10.0.0.2": True}, ports={"10.0.0.2": {"Gi1/0/5": "down"}},
+                            agents=[agent("004", keepalive=STALE)])
+        node = run(g, prev(**{"endpoint:004": was("active", proven=("agent",), method="agent")}),
+                   prober)["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+        # a fresh check-in in the same pass beats the down port
+        prober = FakeProber(snmp={"10.0.0.2": True}, ports={"10.0.0.2": {"Gi1/0/5": "down"}},
+                            agents=[agent("004", keepalive=FRESH)])
+        node = run(g, prober=prober)["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"]), ("active", "agent"))
+
+
+class SlowSource:
+    """A WazuhSource stand-in whose login hangs."""
+
+    def __init__(self, delay):
+        self.delay = delay
+
+    def agent_status(self):
+        time.sleep(self.delay)
+        return []
+
+
+class TestSystemProberAgents(unittest.TestCase):
+    def test_no_wazuh_password_means_no_agent_method(self):
+        with mock.patch.dict(os.environ, {"WAZUH_PASS": ""}):
+            self.assertFalse(SystemProber([]).has_agents)
+
+    def test_wazuh_password_enables_agent_method(self):
+        with mock.patch.dict(os.environ, {"WAZUH_PASS": "x"}):
+            self.assertTrue(SystemProber([]).has_agents)
+
+    def test_hung_login_does_not_hold_up_the_pass(self):
+        prober = SystemProber([], agent_source=SlowSource(3.0))
+        started = time.monotonic()
+        doc = run(graph(pc()), prober=prober, agent_timeout=0.2)
+        self.assertLess(time.monotonic() - started, 1.5)
+        self.assertEqual(doc["nodes"]["endpoint:004"]["reason"], "agent_unavailable")
+
+
+class TestAgentStatusHelper(unittest.TestCase):
+    """The read-only Manager API helper: one login, paged /agents requests."""
+
+    def source(self):
+        return WazuhSource(WazuhConfig(host="wazuh", port="55000", user="u", password="p"),
+                           indexer=mock.Mock())
+
+    def test_logs_in_once_and_pages_through_agents(self):
+        src = self.source()
+        pages = [[agent(f"{i:03d}") for i in range(500)], [agent("500")]]
+        with mock.patch.object(WazuhSource, "_authenticate") as auth, \
+                mock.patch.object(WazuhSource, "_get", side_effect=pages) as get:
+            rows = src.agent_status()
+        self.assertEqual(auth.call_count, 1)
+        self.assertEqual(len(rows), 501)
+        self.assertEqual(get.call_args_list[0], mock.call(
+            "/agents", params={"select": "id,status,lastKeepAlive", "limit": 500, "offset": 0}))
+        self.assertEqual(get.call_args_list[1].kwargs["params"]["offset"], 500)
+
+    def test_single_short_page_is_one_request(self):
+        src = self.source()
+        with mock.patch.object(WazuhSource, "_authenticate"), \
+                mock.patch.object(WazuhSource, "_get", return_value=[agent("000")]) as get:
+            self.assertEqual(src.agent_status(), [agent("000")])
+        self.assertEqual(get.call_count, 1)
+
+
 class TestRobustness(unittest.TestCase):
     def test_one_probe_failure_does_not_abort_the_pass(self):
         prober = FakeProber(icmp={"10.0.0.11": True}, boom={"10.0.0.10"})
@@ -409,6 +616,10 @@ class TestRobustness(unittest.TestCase):
 class TestStateFileAndCli(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp()
+        # no Wazuh credentials: the CLI must not try the Manager API in tests
+        env = mock.patch.dict(os.environ, {"WAZUH_PASS": ""})
+        env.start()
+        self.addCleanup(env.stop)
 
     def tearDown(self):
         for name in os.listdir(self.tmp):

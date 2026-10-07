@@ -125,8 +125,8 @@ export type ScanState = {
 };
 
 // Liveness (GET /api/vulnmapper/liveness): per node_id, whether the node still
-// answers. method is how it was last checked: "icmp", "snmp", "port" (its
-// switch port went down) or null (no probe possible).
+// answers. method is how it was last checked: "agent" (Wazuh agent check-in),
+// "icmp", "snmp", "port" (its switch port went down) or null (no probe possible).
 export type LivenessState = 'active' | 'inactive' | 'unknown';
 
 export type NodeLiveness = {
@@ -136,7 +136,9 @@ export type NodeLiveness = {
   last_checked?: string;
   misses?: number;
   proven_methods?: string[];
-  reason?: string; // e.g. "shared_ip"
+  reason?: string; // e.g. "shared_ip", "agent_unavailable", "agent_not_listed"
+  // the agent's last known status and check-in time, from the Manager API
+  agent?: { status: string | null; last_keepalive: string | null };
   // set while method is "port": the down port and the state to restore once
   // it is up again (or the node is placed elsewhere by a new scan)
   port_down?: { device: string; port: string; previous_state: LivenessState | null };
