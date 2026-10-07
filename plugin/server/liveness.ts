@@ -3,64 +3,108 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { VulnmapperConfig } from './config';
-import { getScan, getLastCommunity } from './scan';
+import { getLastCommunity, getScan } from './scan';
+
+// The background liveness check: every intervalSeconds, run
+// `python -m vulnmapper.liveness` over the current graph and save its state
+// document to liveness.json. It only reads graph.json (a scan is its sole
+// writer) and only re-checks what the scan found. Off unless
+// vulnmapper.liveness.enabled is true.
 
 let timer: NodeJS.Timeout | null = null;
 let running = false;
 
-export function startLiveness(config: VulnmapperConfig, logger: Logger) {
-  if (timer) return;
-  const { backendDir, graphPath, liveness } = config;
-  if (!liveness?.enabled || !backendDir || !graphPath) return;
-
-  const interval = Math.max(10, liveness.intervalSeconds) * 1000;
-
-  timer = setInterval(async () => {
-    if (running || getScan().status === 'running') return;
-    try {
-      if (!(await fs.stat(graphPath))) return;
-    } catch { return; }
-
-    running = true;
-    const livenessPath = liveness.path || path.join(path.dirname(graphPath), 'liveness.json');
-    const env = { ...process.env };
-    const community = getLastCommunity();
-    if (community) env.SNMP_COMMUNITIES = community;
-
-    const child = spawn(config.pythonBin, [
-      '-m', 'vulnmapper.liveness',
-      '--graph', graphPath,
-      '--state', livenessPath,
-      '--threshold', liveness.missThreshold.toString()
-    ], { cwd: backendDir, env });
-
-    let out = '';
-    child.stdout.on('data', (d) => out += d.toString());
-
-    // Timeout
-    const timeout = setTimeout(() => child.kill(), Math.max(10, liveness.intervalSeconds) * 1000);
-
-    child.on('close', async (code) => {
-      clearTimeout(timeout);
-      running = false;
-      if (code !== 0) {
-        logger.warn('liveness pass failed');
-        return;
-      }
-      try {
-        JSON.parse(out);
-        const tmp = `${livenessPath}.tmp-${process.pid}`;
-        await fs.writeFile(tmp, out);
-        await fs.rename(tmp, livenessPath);
-        logger.debug('liveness pass completed');
-      } catch (e) {
-        logger.warn(`liveness failed: ${(e as Error).message}`);
-      }
-    });
-
-  }, interval);
+/** liveness.json: the configured path, else beside graphPath. */
+export function livenessPath(config: VulnmapperConfig): string | null {
+  if (config.liveness.path) return config.liveness.path;
+  if (!config.graphPath) return null;
+  return path.join(path.dirname(path.resolve(config.graphPath)), 'liveness.json');
 }
 
+// The pass logs to stderr; its last non-empty line is the useful one on failure.
+// The community is redacted in case it ever appears.
+function lastLine(stderr: string, community?: string): string {
+  const lines = stderr.split('\n').map((l) => l.trim()).filter(Boolean);
+  let msg = lines.length ? lines[lines.length - 1] : '';
+  if (community) msg = msg.split(community).join('***');
+  return msg;
+}
+
+async function runPass(config: VulnmapperConfig, logger: Logger) {
+  const { backendDir, graphPath, pythonBin, liveness } = config;
+  const outPath = livenessPath(config);
+  // Skip the tick if a pass or a scan is running, or there is no graph yet.
+  if (running || !backendDir || !graphPath || !outPath) return;
+  if (getScan().status === 'running') return;
+  try {
+    await fs.access(graphPath);
+  } catch {
+    return;
+  }
+
+  running = true;
+  // As in scan.ts: the community goes through the environment, never argv, and
+  // is never logged. Without one, the SNMP_* variables already set are used.
+  const env = { ...process.env };
+  const community = getLastCommunity();
+  if (community) env.SNMP_COMMUNITIES = community;
+
+  const args = ['-m', 'vulnmapper.liveness', '--graph', graphPath, '--state', outPath,
+    '--threshold', String(liveness.missThreshold)];
+  const child = spawn(pythonBin, args, { cwd: backendDir, env });
+  const chunks: Buffer[] = [];
+  let stderr = '';
+  child.stdout.on('data', (d: Buffer) => chunks.push(d));
+  child.stderr.on('data', (d: Buffer) => {
+    stderr = (stderr + d.toString()).slice(-4096); // keep the tail only
+  });
+
+  // A pass must not outlive its interval.
+  const killer = setTimeout(() => child.kill(), liveness.intervalSeconds * 1000);
+  const done = (message?: string) => {
+    clearTimeout(killer);
+    running = false;
+    if (message) logger.warn(`liveness pass failed: ${message}`);
+  };
+
+  child.on('error', (e: Error) => done(`could not start ${pythonBin}: ${e.message}`));
+  child.on('close', async (code: number | null, signal: string | null) => {
+    if (!running) return; // 'error' already reported
+    if (code !== 0) {
+      done(signal ? `killed (${signal}) after ${liveness.intervalSeconds}s`
+        : lastLine(stderr, community) || `exited with code ${code}`);
+      return;
+    }
+    const out = Buffer.concat(chunks);
+    try {
+      JSON.parse(out.toString()); // validate before replacing the good file
+      const tmp = `${outPath}.tmp-${process.pid}`;
+      await fs.writeFile(tmp, out);
+      await fs.rename(tmp, outPath);
+      done();
+      logger.debug(`liveness pass saved to ${outPath}`);
+    } catch (e) {
+      done(`could not save liveness state: ${(e as Error).message}`);
+    }
+  });
+}
+
+/** Start the timer (from the plugin's start()); a no-op unless enabled. */
+export function startLiveness(config: VulnmapperConfig, logger: Logger) {
+  if (timer || !config.liveness.enabled) return;
+  if (!config.backendDir || !config.graphPath) {
+    logger.warn('liveness is enabled but backendDir/graphPath are not set; not starting');
+    return;
+  }
+  logger.info(`liveness check every ${config.liveness.intervalSeconds}s`);
+  const tick = () => {
+    runPass(config, logger).catch((e) => logger.warn(`liveness pass failed: ${e.message}`));
+  };
+  timer = setInterval(tick, config.liveness.intervalSeconds * 1000);
+  tick(); // first pass now rather than one interval after start-up
+}
+
+/** Stop the timer (from the plugin's stop()). */
 export function stopLiveness() {
   if (timer) clearInterval(timer);
   timer = null;

@@ -124,15 +124,19 @@ export type ScanState = {
   finishedAt: string | null;
 };
 
+// Liveness (GET /api/vulnmapper/liveness): per node_id, whether the node still
+// answers. method is how it was last checked: "icmp", "snmp", "port" (its
+// switch port went down) or null (no probe possible).
 export type LivenessState = 'active' | 'inactive' | 'unknown';
 
 export type NodeLiveness = {
   state: LivenessState;
   method: string | null;
-  last_seen?: string;
+  last_seen?: string | null;
   last_checked?: string;
   misses?: number;
   proven_methods?: string[];
+  reason?: string; // e.g. "shared_ip"
 };
 
 export type LivenessResponse = {

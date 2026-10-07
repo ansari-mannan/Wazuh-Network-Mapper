@@ -7,6 +7,8 @@ import { ScanState } from '../common';
 // Ported from frontend/app/api/scan/route.ts and frontend/lib/scanState.ts.
 // One module-level state object: the server process runs one scan at a time.
 let scan: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
+// The last community a scan was started with, for the liveness pass's SNMP
+// probes. Memory only: never logged, written to disk or placed in argv.
 let lastCommunity: string | undefined;
 
 export function getScan(): ScanState {
@@ -51,7 +53,9 @@ function finish(status: ScanState['status'], message: string) {
 export function startScan({ pythonBin, backendDir, graphPath, community, logger }: ScanOptions) {
   if (scan.status === 'running') return false;
   scan = { status: 'running', message: null, startedAt: new Date().toISOString(), finishedAt: null };
-  lastCommunity = community;
+  // A scan started without one falls back to the environment; keep the last
+  // community that was given rather than forgetting it.
+  if (community) lastCommunity = community;
 
   // The community goes to the scanner through the environment, never argv (argv
   // is visible to every user via ps). It is never logged. With no community the

@@ -1,8 +1,9 @@
 import { promises as fs } from 'fs';
-import path from 'path';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';
+import { LivenessResponse } from '../../common';
 import { VulnmapperConfig } from '../config';
+import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
 
 export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
@@ -80,20 +81,26 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
     async (context, request, response) => response.ok({ body: getScan() })
   );
 
+  // Liveness state for the UI: { enabled, intervalSeconds, checkedAt, nodes }.
+  // Disabled, or no pass saved yet: checkedAt null and no nodes. Read fresh
+  // from disk, like the graph; an unreadable file reads as "no pass yet".
   router.get(
     { path: '/api/vulnmapper/liveness', validate: false },
     async (context, request, response) => {
-      const livenessPath = config.liveness?.path || (config.graphPath ? path.join(path.dirname(config.graphPath), 'liveness.json') : null);
-      if (!livenessPath) {
-        return response.ok({ body: { enabled: config.liveness?.enabled, intervalSeconds: config.liveness?.intervalSeconds, checkedAt: null, nodes: {} } });
-      }
+      const { enabled, intervalSeconds } = config.liveness;
+      const body: LivenessResponse = { enabled, intervalSeconds, checkedAt: null, nodes: {} };
+      const file = livenessPath(config);
+      if (!enabled || !file) return response.ok({ body });
       try {
-        const data = await fs.readFile(livenessPath, 'utf-8');
-        const json = JSON.parse(data);
-        return response.ok({ body: { enabled: config.liveness?.enabled, intervalSeconds: config.liveness?.intervalSeconds, ...json } });
+        const doc = JSON.parse(await fs.readFile(file, 'utf8'));
+        if (doc && typeof doc.nodes === 'object' && !Array.isArray(doc.nodes)) {
+          body.checkedAt = typeof doc.checked_at === 'string' ? doc.checked_at : null;
+          body.nodes = doc.nodes;
+        }
       } catch {
-        return response.ok({ body: { enabled: config.liveness?.enabled, intervalSeconds: config.liveness?.intervalSeconds, checkedAt: null, nodes: {} } });
+        // no pass yet
       }
+      return response.ok({ body });
     }
   );
 }
