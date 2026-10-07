@@ -48,10 +48,27 @@ app write to that file.
 ### CVEs and the base score
 
 The score stage reads every vulnerability document for each agent (paged, at
-most 20000 per agent; an agent over the cap gets a `cve_cap_reached` warning in
-`metadata.warnings`). If the indexer cannot be reached, the scan still finishes:
-the affected endpoints are left unscored and an `indexer_unreachable` warning
-lists them.
+most 20000 per agent). Problems are reported in `metadata.warnings` rather than
+failing the scan:
+
+- `cve_cap_reached`: an agent had more than 20000 documents; the rest were not read.
+- `indexer_unreachable`: the indexer failed; the listed endpoints are unscored.
+- `not_yet_inventoried`: no vulnerability documents and no package inventory
+  either, so Wazuh has not examined the agent yet; it is unscored, not 0.0.
+- `inventory_unavailable`: syscollector data could not be read (after one retry
+  3 seconds later for a 5xx or a timeout); the agent's place on the map may be
+  incomplete.
+- `wazuh_server_skipped`: see below.
+
+The score stage needs `WAZUH_PASS` as well as `INDEXER_PASS`, for the package
+check.
+
+The Wazuh server itself (agent 000) is included, marked `is_wazuh_server: true`.
+The Manager API reports it as 127.0.0.1, so its real IPv4 is taken from its
+inventory (the interface with the default gateway, else the first address that
+is not loopback, link-local or a container bridge); that address lets it merge
+with the host found in the switch tables. If no such address exists, it is left
+out of that scan with a `wazuh_server_skipped` note.
 
 Each endpoint node in the graph carries:
 
@@ -69,11 +86,12 @@ The base score (`vulnmapper/scoring.py`, a placeholder to be replaced) is:
 
 ```
 weighted = 10*critical + 5*high + 2*medium + 1*low      (distinct CVEs)
-volume   = min(1, log10(1 + weighted) / log10(1 + 1000))
+volume   = min(1, log10(1 + weighted) / log10(1 + 10000))
 score    = 0.7 * max_cvss + 0.3 * 10 * volume
 ```
 
-A single 9.8 scores 7.9; a hundred criticals with a 9.8 worst score 9.9.
+A single 9.8 scores 7.6; a hundred criticals with a 9.8 worst score 9.1; the
+volume term saturates at a thousand criticals (9.9).
 
 The complete list goes to a second file, `vulnerabilities.json`. It is written
 to `--vulns-out PATH`, else next to the `-o` file; when the graph goes to stdout
