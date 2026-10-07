@@ -11,6 +11,9 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
     body: { message: `vulnmapper.${key} is not set in opensearch_dashboards.yml` },
   });
 
+  // The graph is read fresh from disk on every request so the file the scanner
+  // writes stays the single source of truth (same as frontend/app/api/graph).
+  // The file's mtime is returned in a header for the "where the graph came from" view.
   router.get(
     { path: '/api/vulnmapper/graph', validate: false },
     async (context, request, response) => {
