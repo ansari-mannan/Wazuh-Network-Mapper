@@ -149,4 +149,6 @@ export type LivenessResponse = {
   intervalSeconds: number;
   checkedAt: string | null;
   nodes: Record<string, NodeLiveness>;
+  /** the graph file's modified time (ISO), null if there is none */
+  graphMtime: string | null;
 };

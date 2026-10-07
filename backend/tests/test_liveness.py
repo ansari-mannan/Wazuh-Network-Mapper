@@ -171,8 +171,10 @@ class TestStateRules(unittest.TestCase):
 
     def test_output_document_shape(self):
         doc = run(graph(H), threshold=4)
-        self.assertEqual(set(doc), {"checked_at", "threshold", "nodes"})
+        self.assertEqual(set(doc), {"checked_at", "threshold", "nodes", "ports",
+                                    "graph_scan_time", "rescan_suggested", "rescan_reasons"})
         self.assertEqual((doc["checked_at"], doc["threshold"]), (T1, 4))
+        self.assertEqual((doc["rescan_suggested"], doc["rescan_reasons"]), (False, []))
 
 
 class TestNoProbe(unittest.TestCase):
@@ -534,6 +536,118 @@ class TestAgentMethod(unittest.TestCase):
                             agents=[agent("004", keepalive=FRESH)])
         node = run(g, prober=prober)["nodes"]["endpoint:004"]
         self.assertEqual((node["state"], node["method"]), ("active", "agent"))
+
+
+class TestRescanSuggestion(unittest.TestCase):
+    """Item 6: a pass suggests a rescan when something new appears."""
+
+    SW = dict(switch(), hostname="L3-Switch")
+    UP = {"10.0.0.2": True}
+
+    def g(self, *extra_nodes, edges=(), scan_time="S1"):
+        doc = graph(self.SW, *extra_nodes, edges=list(edges))
+        doc["metadata"] = {"scan_time": scan_time}
+        return doc
+
+    def two_passes(self, before, after, g=None, **prober):
+        g = g or self.g()
+        state = run(g, prober=FakeProber(snmp=self.UP, ports={"10.0.0.2": before}, **prober))
+        return run(g, state, FakeProber(snmp=self.UP, ports={"10.0.0.2": after}, **prober))
+
+    def test_ports_remembered_for_every_polled_device(self):
+        doc = run(self.g(), prober=FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "down"}}))
+        self.assertEqual(doc["ports"], {"device:sw": {"Gi1/0/9": "down"}})
+
+    def test_unlinked_port_down_to_up_suggests_a_rescan(self):
+        doc = self.two_passes({"Gi1/0/9": "down"}, {"Gi1/0/9": "up"})
+        self.assertTrue(doc["rescan_suggested"])
+        self.assertEqual(doc["rescan_reasons"],
+                         ["port Gi1/0/9 on L3-Switch came up with nothing linked to it"])
+
+    def test_recovery_of_a_linked_node_is_not_a_reason(self):
+        g = self.g(host("host:phone", "10.0.0.51"),
+                   edges=[link("host:phone", "device:sw", "Gi1/0/9")])
+        doc = self.two_passes({"Gi1/0/9": "down"}, {"Gi1/0/9": "up"}, g)
+        self.assertEqual((doc["rescan_suggested"], doc["rescan_reasons"]), (False, []))
+
+    def test_a_port_used_by_a_device_link_is_linked_at_either_end(self):
+        for edge in ({"source": "device:sw", "target": "device:x", "type": "lldp",
+                      "local_port": "Gi1/0/9", "remote_port": "Gi0/1"},
+                     {"source": "device:x", "target": "device:sw", "type": "lldp",
+                      "local_port": "Gi0/1", "remote_port": "Gi1/0/9"}):
+            with self.subTest(edge=edge):
+                doc = self.two_passes({"Gi1/0/9": "down"}, {"Gi1/0/9": "up"},
+                                      self.g(switch("device:x", "10.0.0.3"), edges=[edge]))
+                self.assertFalse(doc["rescan_suggested"])
+
+    def test_no_transition_no_suggestion(self):
+        for before, after in (({"Gi1/0/9": "up"}, {"Gi1/0/9": "up"}),
+                              ({"Gi1/0/9": "down"}, {"Gi1/0/9": "down"}),
+                              ({"Gi1/0/9": "up"}, {"Gi1/0/9": "down"}),
+                              ({}, {"Gi1/0/9": "up"})):           # never seen before
+            with self.subTest(before=before, after=after):
+                self.assertFalse(self.two_passes(before, after)["rescan_suggested"])
+
+    def test_first_pass_has_nothing_to_compare(self):
+        doc = run(self.g(), prober=FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "up"}}))
+        self.assertFalse(doc["rescan_suggested"])
+
+    def test_device_not_answering_keeps_its_remembered_ports(self):
+        state = run(self.g(), prober=FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "down"}}))
+        state = run(self.g(), state, FakeProber(snmp={"10.0.0.2": False}))
+        self.assertEqual(state["ports"], {"device:sw": {"Gi1/0/9": "down"}})
+        doc = run(self.g(), state, FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "up"}}))
+        self.assertTrue(doc["rescan_suggested"])
+
+    def test_port_status_failure_keeps_remembered_ports(self):
+        class Broken(FakeProber):
+            async def port_status(self, ip):
+                raise OSError("walk failed")
+        state = run(self.g(), prober=FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "up"}}))
+        doc = run(self.g(), state, Broken(snmp=self.UP))
+        self.assertEqual(doc["ports"], {"device:sw": {"Gi1/0/9": "up"}})
+
+    def test_removed_device_is_forgotten(self):
+        state = run(self.g(), prober=FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "up"}}))
+        doc = run(graph(H), state)
+        self.assertEqual(doc["ports"], {})
+
+    def test_new_active_agent_suggests_a_rescan(self):
+        g = self.g(pc("004"))
+        doc = run(g, prober=FakeProber(agents=[agent("004"), agent("007")]))
+        self.assertTrue(doc["rescan_suggested"])
+        self.assertEqual(doc["rescan_reasons"], ["active Wazuh agent 007 is not in the graph"])
+
+    def test_agents_that_do_not_count(self):
+        g = self.g(pc("004"))
+        rows = [agent("004"), agent("008", status="disconnected"),
+                agent("009", status="never_connected", keepalive=None),
+                agent("000", keepalive="9999-12-31T23:59:59+00:00")]   # manager left out
+        doc = run(g, prober=FakeProber(agents=rows))
+        self.assertEqual((doc["rescan_suggested"], doc["rescan_reasons"]), (False, []))
+
+    def test_suggestion_stands_until_a_new_scan(self):
+        doc = self.two_passes({"Gi1/0/9": "down"}, {"Gi1/0/9": "up"})
+        again = run(self.g(), doc, FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "up"}}))
+        self.assertTrue(again["rescan_suggested"])
+        self.assertEqual(len(again["rescan_reasons"]), 1)          # not repeated
+        rescanned = run(self.g(scan_time="S2"), again,
+                        FakeProber(snmp=self.UP, ports={"10.0.0.2": {"Gi1/0/9": "up"}}))
+        self.assertEqual((rescanned["rescan_suggested"], rescanned["rescan_reasons"]), (False, []))
+        self.assertEqual(rescanned["graph_scan_time"], "S2")
+
+    def test_graph_without_metadata(self):
+        for meta in (None, [], "x"):
+            with self.subTest(meta=meta):
+                g = dict(self.g(), metadata=meta)
+                self.assertIsNone(run(g)["graph_scan_time"])
+
+    def test_reasons_are_a_short_list(self):
+        before = {f"Gi1/0/{i}": "down" for i in range(1, 30)}
+        after = {p: "up" for p in before}
+        doc = self.two_passes(before, after)
+        self.assertTrue(doc["rescan_suggested"])
+        self.assertLessEqual(len(doc["rescan_reasons"]), 10)
 
 
 class SlowSource:

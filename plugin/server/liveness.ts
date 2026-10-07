@@ -3,13 +3,16 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { VulnmapperConfig } from './config';
-import { getLastCommunity, getScan } from './scan';
+import { createAutoRescan } from './autoRescan';
+import { getLastCommunity, getScan, startScan } from './scan';
 
 // The background liveness check: every intervalSeconds, run
 // `python -m vulnmapper.liveness` over the current graph and save its state
 // document to liveness.json. It only reads graph.json (a scan is its sole
-// writer) and only re-checks what the scan found. Off unless
-// vulnmapper.liveness.enabled is true.
+// writer) and only re-checks what the scan found. When a pass suggests a
+// rescan (something new appeared), a scan is started the way a manual one is,
+// within the limits in autoRescan.ts. Off unless vulnmapper.liveness.enabled
+// is true.
 
 let timer: NodeJS.Timeout | null = null;
 let running = false;
@@ -30,7 +33,7 @@ function lastLine(stderr: string, community?: string): string {
   return msg;
 }
 
-async function runPass(config: VulnmapperConfig, logger: Logger) {
+async function runPass(config: VulnmapperConfig, logger: Logger, onPass: (doc: unknown) => void) {
   const { backendDir, graphPath, pythonBin, liveness } = config;
   const outPath = livenessPath(config);
   // Skip the tick if a pass or a scan is running, or there is no graph yet.
@@ -79,8 +82,9 @@ async function runPass(config: VulnmapperConfig, logger: Logger) {
       return;
     }
     const out = Buffer.concat(chunks);
+    let doc: unknown;
     try {
-      JSON.parse(out.toString()); // validate before replacing the good file
+      doc = JSON.parse(out.toString()); // validate before replacing the good file
       const tmp = `${outPath}.tmp-${process.pid}`;
       await fs.writeFile(tmp, out);
       await fs.rename(tmp, outPath);
@@ -88,7 +92,9 @@ async function runPass(config: VulnmapperConfig, logger: Logger) {
       logger.debug(`liveness pass saved to ${outPath}`);
     } catch (e) {
       done(`could not save liveness state: ${(e as Error).message}`);
+      return;
     }
+    onPass(doc);
   });
 }
 
@@ -99,9 +105,22 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
     logger.warn('liveness is enabled but backendDir/graphPath are not set; not starting');
     return;
   }
-  logger.info(`liveness check every ${config.liveness.intervalSeconds}s`);
+  const { backendDir, graphPath, pythonBin, liveness } = config;
+  logger.info(
+    `liveness check every ${liveness.intervalSeconds}s` +
+      (liveness.autoRescan ? `; automatic rescan at most every ${liveness.minRescanIntervalSeconds}s` : '')
+  );
+  const onPass = createAutoRescan({
+    enabled: liveness.autoRescan,
+    minIntervalSeconds: liveness.minRescanIntervalSeconds,
+    getScan,
+    // The manual-scan path, with the last community given to a scan (if any).
+    startScan: () =>
+      startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(), logger }),
+    logger,
+  });
   const tick = () => {
-    runPass(config, logger).catch((e) => logger.warn(`liveness pass failed: ${e.message}`));
+    runPass(config, logger, onPass).catch((e) => logger.warn(`liveness pass failed: ${e.message}`));
   };
   timer = setInterval(tick, config.liveness.intervalSeconds * 1000);
   tick(); // first pass now rather than one interval after start-up

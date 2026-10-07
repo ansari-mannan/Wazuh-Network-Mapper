@@ -36,6 +36,13 @@ status read with the crawler's ``collect_port_status``. An endpoint whose link
 to that device uses a port that is now ``down`` becomes ``inactive`` at once
 with method ``port`` (unless it answered in this same pass). An ``up`` port
 changes nothing.
+
+Rescan suggestion: the port states are remembered between passes (``ports``).
+A pass sets ``rescan_suggested`` (with short ``rescan_reasons``) when a port
+went from down to up and no graph edge uses that port, or when the Manager
+API lists an active agent (other than 000) that is not in the graph. A port
+coming back up for a node already linked there is recovery, not a reason. The
+suggestion stands until a new scan replaces the graph (``graph_scan_time``).
 """
 
 from __future__ import annotations
@@ -64,6 +71,7 @@ AGENT_DOWN = {"disconnected", "pending", "never_connected"}
 MANAGER_AGENT_ID = "000"        # reports a far-future lastKeepAlive
 # Methods whose silence counts as a miss before any reply was ever seen.
 PROVEN_FROM_START = {"agent"}
+MAX_RESCAN_REASONS = 10
 
 
 def _setup_logging() -> None:
@@ -193,6 +201,25 @@ async def _fetch_agents(prober, timeout: float) -> tuple:
             if isinstance(r, dict) and r.get("id") is not None}, None
 
 
+def _scan_time(graph: dict):
+    meta = graph.get("metadata")
+    return meta.get("scan_time") if isinstance(meta, dict) else None
+
+
+def _linked_ports(graph: dict) -> dict:
+    """device node_id -> the set of its ports that some graph edge uses."""
+    linked = defaultdict(set)
+    for edge in graph.get("edges") or []:
+        if not isinstance(edge, dict):
+            continue
+        if edge.get("type") == EDGE_ENDPOINT_LINK:
+            linked[edge.get("target")].add(edge.get("local_port"))
+        else:
+            linked[edge.get("source")].add(edge.get("local_port"))
+            linked[edge.get("target")].add(edge.get("remote_port"))
+    return linked
+
+
 def _method_for(node: dict, has_snmp: bool) -> str:
     if node.get("kind") == "device" and node.get("pollable") and has_snmp:
         return "snmp"
@@ -244,11 +271,12 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
     async ``agents()``. The inputs are not modified.
     """
     now = now or datetime.now(timezone.utc).isoformat()
+    previous = previous if isinstance(previous, dict) else {}
     use_agents = bool(getattr(prober, "has_agents", False))
     # One Manager API request for the whole pass, alongside the probes.
     agent_task = asyncio.ensure_future(_fetch_agents(prober, agent_timeout)) \
         if use_agents else None
-    old_nodes = previous.get("nodes") if isinstance(previous, dict) else None
+    old_nodes = previous.get("nodes")
     old_nodes = old_nodes if isinstance(old_nodes, dict) else {}
     nodes = [n for n in graph.get("nodes") or [] if isinstance(n, dict) and n.get("node_id")]
 
@@ -357,10 +385,11 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
             return device["node_id"], await prober.port_status(device["ip"])
         except Exception as e:
             log.warning("%s: port status failed: %s", device["node_id"], e)
-            return device["node_id"], {}
+            return device["node_id"], None
 
-    statuses = dict(await asyncio.gather(
-        *(ports(d) for d in snmp_up if links.get(d["node_id"]))))
+    # Every polled device, linked or not: a new host can turn up on any port.
+    statuses = {dev: status for dev, status in await asyncio.gather(
+        *(ports(d) for d in snmp_up)) if isinstance(status, dict)}
 
     # Recovery: the port that went down is up again, or a new scan placed the
     # node elsewhere. Its earlier state comes back (an up port never makes a
@@ -389,10 +418,48 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
                                     or rec["state"] != "unknown" else None}
             rec.update(state="inactive", method="port")
 
-    doc = {"checked_at": now, "threshold": threshold, "nodes": records}
+    ports_now, reasons = _port_memory_and_rescan(graph, nodes, previous, statuses, agent_rows)
+    doc = {"checked_at": now, "threshold": threshold, "nodes": records, "ports": ports_now,
+           "graph_scan_time": _scan_time(graph),
+           "rescan_suggested": bool(reasons), "rescan_reasons": reasons}
     if agent_error:
         doc["agent_error"] = agent_error
     return doc
+
+
+def _port_memory_and_rescan(graph: dict, nodes: list, previous: dict, statuses: dict,
+                            agent_rows: Optional[dict]) -> tuple:
+    """``(ports to remember, rescan reasons)`` for the end of a pass."""
+    names = {n["node_id"]: n.get("hostname") or n["node_id"]
+             for n in nodes if n.get("kind") == "device"}
+    old_ports = previous.get("ports") if isinstance(previous.get("ports"), dict) else {}
+    remembered: dict = {}
+    for dev in names:       # a device that did not answer keeps what it had
+        if dev in statuses:
+            remembered[dev] = dict(statuses[dev])
+        elif isinstance(old_ports.get(dev), dict):
+            remembered[dev] = dict(old_ports[dev])
+
+    reasons: list = []
+    linked = _linked_ports(graph)
+    for dev, now_ports in statuses.items():
+        before = old_ports.get(dev) if isinstance(old_ports.get(dev), dict) else {}
+        for port, state in now_ports.items():
+            if state == "up" and before.get(port) == "down" and port not in linked[dev]:
+                reasons.append(f"port {port} on {names.get(dev, dev)} came up with "
+                               "nothing linked to it")
+    if agent_rows:
+        in_graph = {str(n["agent_id"]) for n in nodes if n.get("agent_id")}
+        for agent_id, row in agent_rows.items():
+            if agent_id != MANAGER_AGENT_ID and agent_id not in in_graph \
+                    and str(row.get("status") or "").lower() == "active":
+                reasons.append(f"active Wazuh agent {agent_id} is not in the graph")
+
+    # A suggestion stands until a new scan replaces the graph.
+    if previous.get("graph_scan_time") == _scan_time(graph) \
+            and isinstance(previous.get("rescan_reasons"), list):
+        reasons = [r for r in previous["rescan_reasons"] if isinstance(r, str)] + reasons
+    return remembered, list(dict.fromkeys(reasons))[:MAX_RESCAN_REASONS]
 
 
 # ---------------------------------------------------------------------------
@@ -459,6 +526,8 @@ def main(argv: Optional[list] = None) -> int:
         counts[rec["state"]] += 1
     log.info("liveness pass: %d node(s): %s", len(doc["nodes"]),
              ", ".join(f"{k} {v}" for k, v in sorted(counts.items())) or "none")
+    if doc["rescan_suggested"]:
+        log.info("rescan suggested: %s", "; ".join(doc["rescan_reasons"]))
     return 0
 
 

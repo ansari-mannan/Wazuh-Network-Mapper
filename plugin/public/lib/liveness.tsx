@@ -1,11 +1,14 @@
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { LivenessResponse } from '../../common';
+import { useGraph } from './graph';
+import { shouldReloadGraph } from './graphReload';
 import { useServices } from './services';
 
 // Liveness state from GET /api/vulnmapper/liveness. Fetched once on mount (that
 // is how the UI learns whether liveness is enabled at all); after that it is
 // polled every intervalSeconds, but only while enabled and the tab is visible.
-// It never reloads the graph and never triggers a re-layout on its own.
+// Liveness changes alone never reload the graph or re-lay it out; the graph is
+// reloaded only when the graph file itself changed (an automatic scan).
 
 interface LivenessContextValue {
   /** null until the first fetch answers; enabled false when the feature is off */
@@ -27,7 +30,8 @@ export function LivenessProvider({ children }: { children: ReactNode }) {
         prev &&
         prev.enabled === next.enabled &&
         prev.intervalSeconds === next.intervalSeconds &&
-        prev.checkedAt === next.checkedAt
+        prev.checkedAt === next.checkedAt &&
+        prev.graphMtime === next.graphMtime
           ? prev
           : next
       );
@@ -56,6 +60,16 @@ export function LivenessProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', poll);
     };
   }, [enabled, seconds, fetchLiveness]);
+
+  // An automatic scan rewrote the graph file: show the new graph.
+  const { fileTime, loading, reload } = useGraph();
+  const lastTried = useRef<string | null>(null);
+  const graphMtime = enabled ? liveness?.graphMtime : null;
+  useEffect(() => {
+    if (loading || !shouldReloadGraph(graphMtime, fileTime, lastTried.current)) return;
+    lastTried.current = graphMtime || null;
+    reload();
+  }, [graphMtime, fileTime, loading, reload]);
 
   const value = useMemo(() => ({ liveness }), [liveness]);
   return <LivenessContext.Provider value={value}>{children}</LivenessContext.Provider>;

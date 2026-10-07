@@ -8,7 +8,7 @@ function node(node_id: string, kind: 'device' | 'endpoint', discovery_method: st
 function liveness(states: Record<string, NodeLiveness['state']>): LivenessResponse {
   const nodes: Record<string, NodeLiveness> = {};
   for (const [id, state] of Object.entries(states)) nodes[id] = { state, method: 'icmp' };
-  return { enabled: true, intervalSeconds: 10, checkedAt: 'T', nodes };
+  return { enabled: true, intervalSeconds: 10, checkedAt: 'T', nodes, graphMtime: null };
 }
 
 const graph = {

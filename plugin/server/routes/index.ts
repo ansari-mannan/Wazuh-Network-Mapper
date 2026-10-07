@@ -81,14 +81,23 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
     async (context, request, response) => response.ok({ body: getScan() })
   );
 
-  // Liveness state for the UI: { enabled, intervalSeconds, checkedAt, nodes }.
-  // Disabled, or no pass saved yet: checkedAt null and no nodes. Read fresh
-  // from disk, like the graph; an unreadable file reads as "no pass yet".
+  // Liveness state for the UI: { enabled, intervalSeconds, checkedAt, nodes,
+  // graphMtime }. Disabled, or no pass saved yet: checkedAt null and no nodes.
+  // Read fresh from disk, like the graph; an unreadable file reads as "no pass
+  // yet". graphMtime is the graph file's modified time (null if there is no
+  // file), so the UI can reload the graph after an automatic scan.
   router.get(
     { path: '/api/vulnmapper/liveness', validate: false },
     async (context, request, response) => {
       const { enabled, intervalSeconds } = config.liveness;
-      const body: LivenessResponse = { enabled, intervalSeconds, checkedAt: null, nodes: {} };
+      const body: LivenessResponse = { enabled, intervalSeconds, checkedAt: null, nodes: {}, graphMtime: null };
+      if (config.graphPath) {
+        try {
+          body.graphMtime = (await fs.stat(config.graphPath)).mtime.toISOString();
+        } catch {
+          // no graph yet
+        }
+      }
       const file = livenessPath(config);
       if (!enabled || !file) return response.ok({ body });
       try {
