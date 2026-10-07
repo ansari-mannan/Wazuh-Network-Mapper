@@ -662,6 +662,11 @@ class TestStateFileAndCli(unittest.TestCase):
         self.assertEqual(doc["threshold"], 2)
         self.assertEqual(doc["nodes"]["device:hamza"]["state"], "unknown")
 
+    def test_cli_default_threshold_is_2(self):
+        g = self.path("g.json", json.dumps(graph(host("device:hamza", None, kind="device"))))
+        code, out, _ = self.run_main(["--graph", g])
+        self.assertEqual((code, json.loads(out)["threshold"]), (0, 2))
+
     def test_cli_unreadable_graph_exits_nonzero(self):
         code, out, err = self.run_main(["--graph", self.path("missing-graph.json")])
         self.assertNotEqual(code, 0)

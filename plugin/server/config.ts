@@ -16,8 +16,8 @@ export const configSchema = schema.object({
   pythonBin: schema.string({ defaultValue: 'python3' }),
   liveness: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
-    intervalSeconds: schema.number({ defaultValue: 20, min: 10 }),
-    missThreshold: schema.number({ defaultValue: 3, min: 1 }),
+    intervalSeconds: schema.number({ defaultValue: 10, min: 10 }),
+    missThreshold: schema.number({ defaultValue: 2, min: 1 }),
     agentMaxAgeSeconds: schema.number({ defaultValue: 60, min: 10 }),
     path: schema.maybe(schema.string()),
   }),

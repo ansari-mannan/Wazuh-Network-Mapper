@@ -1,6 +1,6 @@
 """Liveness heartbeat: re-check whether the nodes already in graph.json answer.
 
-    python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 3]
+    python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 2]
                                   [--agent-max-age 60]
 
 Reads the graph (never writes it) and the previous state, runs one pass and
@@ -53,7 +53,7 @@ from typing import Optional
 
 log = logging.getLogger("vulnmapper.liveness")
 
-DEFAULT_THRESHOLD = 3
+DEFAULT_THRESHOLD = 2
 MAX_IN_FLIGHT = 32
 EDGE_ENDPOINT_LINK = "endpoint_link"
 

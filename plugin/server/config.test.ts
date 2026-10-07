@@ -1,0 +1,17 @@
+import { configSchema } from './config';
+
+describe('liveness config', () => {
+  it('defaults to a 10 s interval and 2 misses', () => {
+    const { liveness } = configSchema.validate({});
+    expect(liveness.enabled).toBe(false);
+    expect(liveness.intervalSeconds).toBe(10);
+    expect(liveness.missThreshold).toBe(2);
+    expect(liveness.agentMaxAgeSeconds).toBe(60);
+  });
+
+  it('keeps the minimums', () => {
+    expect(() => configSchema.validate({ liveness: { intervalSeconds: 9 } })).toThrow();
+    expect(() => configSchema.validate({ liveness: { missThreshold: 0 } })).toThrow();
+    expect(() => configSchema.validate({ liveness: { intervalSeconds: 10, missThreshold: 1 } })).not.toThrow();
+  });
+});
