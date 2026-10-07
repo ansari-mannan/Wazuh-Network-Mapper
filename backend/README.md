@@ -128,7 +128,10 @@ document on stdout: per node `state` (`active` / `inactive` / `unknown`),
 devices are probed by SNMP when `SNMP_COMMUNITIES` (or the other `SNMP_*`
 variables) is set, everything else by `ping -c 1 -W 1`. A node only goes
 inactive after `--threshold` misses on a method it has answered before, or at
-once when its switch port is reported down. The plugin runs it on a timer.
+once when its switch port is reported down (`method: "port"`). Such a node gets
+its earlier state back, with misses reset, once that port is up again or a new
+scan places it on another port; an up port never makes a node active by itself.
+The plugin runs it on a timer.
 
 ## Tests
 

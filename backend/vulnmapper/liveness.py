@@ -111,7 +111,7 @@ def _method_for(node: dict, has_snmp: bool) -> str:
 
 def _carry(old: dict, now: str) -> dict:
     """A fresh record carrying the fields that survive across passes."""
-    return {
+    rec = {
         "state": old.get("state") or "unknown",
         "method": old.get("method"),
         "misses": old.get("misses") if isinstance(old.get("misses"), int) else 0,
@@ -119,6 +119,9 @@ def _carry(old: dict, now: str) -> dict:
         "last_checked": now,
         "proven_methods": list(old.get("proven_methods") or []),   # a copy, never shared
     }
+    if isinstance(old.get("port_down"), dict):
+        rec["port_down"] = dict(old["port_down"])
+    return rec
 
 
 def _apply_probe(rec: dict, method: str, replied: bool, threshold: int, now: str) -> None:
@@ -160,21 +163,29 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
         shared.update(n["node_id"] for n in group if n.get("stale") or len(live) > 1)
 
     records: dict = {}
+    had_state: set = set()       # nodes that had a state before this pass
     to_probe: list = []
     for node in nodes:
         nid = node["node_id"]
         old = old_nodes.get(nid)
-        rec = _carry(old if isinstance(old, dict) else {}, now)
+        old = old if isinstance(old, dict) else {}
+        rec = _carry(old, now)
         records[nid] = rec
+        if old.get("state"):
+            had_state.add(nid)
+        # A node made inactive by a down port stays so until the port layer
+        # below restores it, even when it cannot be probed.
+        unprobed = {} if "port_down" in rec else {"state": "unknown", "method": None}
         if nid in shared:
-            rec.update(state="unknown", method=None, reason="shared_ip")
+            rec.update(unprobed, reason="shared_ip")
         elif not node.get("ip"):
-            rec.update(state="unknown", method=None)
+            rec.update(unprobed)
         elif not _valid_ip(node["ip"]):
             log.warning("%s: invalid IP in graph; not probed", nid)
-            rec.update(state="unknown", method=None, reason="invalid_ip")
+            rec.update(unprobed, reason="invalid_ip")
         else:
             to_probe.append((node, _method_for(node, prober.has_snmp)))
+    probed_by = {node["node_id"]: method for node, method in to_probe}
 
     semaphore = asyncio.Semaphore(MAX_IN_FLIGHT)
 
@@ -195,6 +206,10 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
             log.warning("%s: %s probe failed: %s", node["node_id"], method, error)
             rec.update(method=method, reason="probe_error")
             continue
+        if replied:
+            rec.pop("port_down", None)
+        elif "port_down" in rec:
+            continue        # the down port explains the silence
         _apply_probe(rec, method, bool(replied), threshold, now)
         if replied:
             replied_now.add(node["node_id"])
@@ -202,25 +217,49 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
                 snmp_up.append(node)
 
     # Port layer: a link on a port that is now down means the host is gone.
-    links = defaultdict(list)
+    links = defaultdict(list)    # device node_id -> [(endpoint node_id, port)]
+    link_of: dict = {}           # endpoint node_id -> (device node_id, port)
     for edge in graph.get("edges") or []:
         if isinstance(edge, dict) and edge.get("type") == EDGE_ENDPOINT_LINK \
                 and edge.get("local_port"):
             links[edge.get("target")].append((edge.get("source"), edge["local_port"]))
+            link_of.setdefault(edge.get("source"), (edge.get("target"), edge["local_port"]))
 
     async def ports(device):
         try:
-            return device, await prober.port_status(device["ip"])
+            return device["node_id"], await prober.port_status(device["ip"])
         except Exception as e:
             log.warning("%s: port status failed: %s", device["node_id"], e)
-            return device, {}
+            return device["node_id"], {}
 
-    for device, status in await asyncio.gather(
-            *(ports(d) for d in snmp_up if links.get(d["node_id"]))):
-        for source, port in links[device["node_id"]]:
+    statuses = dict(await asyncio.gather(
+        *(ports(d) for d in snmp_up if links.get(d["node_id"]))))
+
+    # Recovery: the port that went down is up again, or a new scan placed the
+    # node elsewhere. Its earlier state comes back (an up port never makes a
+    # node active by itself); misses restart from 0.
+    for nid, rec in records.items():
+        down = rec.get("port_down")
+        if not down:
+            continue
+        where = (down.get("device"), down.get("port"))
+        port_up = statuses.get(where[0], {}).get(where[1]) == "up"
+        if port_up or link_of.get(nid) != where:
+            del rec["port_down"]
+            rec.update(state=down.get("previous_state") or "unknown", misses=0,
+                       method=probed_by.get(nid))
+
+    # A port that is down now: inactive at once, remembering the state before.
+    for device_id, status in statuses.items():
+        for source, port in links[device_id]:
             rec = records.get(source)
             if rec is None or source in replied_now or status.get(port) != "down":
                 continue
+            if rec.get("port_down", {}).get("port") != port or \
+                    rec["port_down"].get("device") != device_id:
+                rec["port_down"] = {"device": device_id, "port": port,
+                                    "previous_state": rec["state"] if source in had_state
+                                    or rec["state"] != "unknown" else None}
             rec.update(state="inactive", method="port")
 
     return {"checked_at": now, "threshold": threshold, "nodes": records}

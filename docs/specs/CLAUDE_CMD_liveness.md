@@ -51,7 +51,7 @@ Shared IPs: if two or more nodes have the same IP, skip nodes with `stale: true`
 
 ### State rules (per node)
 
-Stored fields: `state`, `method`, `last_seen`, `last_checked`, `misses`, `proven_methods`, optional `reason`.
+Stored fields: `state`, `method`, `last_seen`, `last_checked`, `misses`, `proven_methods`, optional `reason`, optional `port_down` (`{device, port, previous_state}`, see Phase 4).
 
 - Reply via method M: `state = "active"`, `misses = 0`, `last_seen = now`, add M to `proven_methods`.
 - No reply via method M, and M is in `proven_methods`: `misses += 1`. When `misses >= threshold`, `state = "inactive"`. Below the threshold the state does not change.
@@ -124,9 +124,11 @@ Inject fake probers so nothing touches the network. Cover at least:
 6. When liveness is disabled, the switch and side panel are not rendered and the UI is identical to today.
 7. Use EUI components and the existing theme tokens so dark and light modes both work.
 
-## Phase 4 (optional, only after Phases 1 to 3 are verified): port-down layer
+## Phase 4 (required): port-down layer
 
-For each pollable device that answered SNMP in the pass, call the existing `collect_port_status` unchanged. If an endpoint's `endpoint_link` edge points at that device with a `local_port` that is now `down`, mark the endpoint `inactive` immediately with `method: "port"`. A port that is `up` proves nothing and changes nothing. Add tests. Skip this phase if `collect_port_status` cannot be reused without edits, and tell me why.
+For each pollable device that answered SNMP in the pass, call the existing `collect_port_status` unchanged. If an endpoint's `endpoint_link` edge points at that device with a `local_port` that is now `down`, mark the endpoint `inactive` immediately with `method: "port"` (unless it answered a probe in the same pass), and store `port_down: {device, port, previous_state}`, where `previous_state` is the state it had before the port went down (null if it had none). While `port_down` stands, a probe with no reply changes nothing (the down port explains the silence).
+
+Port recovery: on a later pass, restore `previous_state` (or `"unknown"` if null), reset `misses` to 0, keep `proven_methods` and drop `port_down`, when either the same port is reported `up` again, or the node's `endpoint_link` in the graph no longer points at that device and port (a new scan placed it elsewhere). If the new place is also down, the node is marked again. If the device does not answer SNMP in a pass, its ports are unknown and nothing changes. A reply to any probe still makes the node `active` and drops `port_down`. A port that is `up` never makes a node `active` by itself. Add tests. Skip this phase if `collect_port_status` cannot be reused without edits, and tell me why.
 
 ## Verification
 

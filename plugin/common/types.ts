@@ -137,6 +137,9 @@ export type NodeLiveness = {
   misses?: number;
   proven_methods?: string[];
   reason?: string; // e.g. "shared_ip"
+  // set while method is "port": the down port and the state to restore once
+  // it is up again (or the node is placed elsewhere by a new scan)
+  port_down?: { device: string; port: string; previous_state: LivenessState | null };
 };
 
 export type LivenessResponse = {

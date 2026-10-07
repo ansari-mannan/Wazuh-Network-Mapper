@@ -303,6 +303,87 @@ class TestPortDown(unittest.TestCase):
         self.assertEqual(doc["nodes"]["endpoint:pc"]["state"], "unknown")
 
 
+class TestPortRecovery(unittest.TestCase):
+    """A node made inactive by a down port gets its earlier state back once the
+    port is up again or a new scan places it elsewhere."""
+
+    SW_UP = {"10.0.0.2": True}
+
+    def g(self, port="Gi1/0/5", target="device:sw", extra=()):
+        return graph(switch(), switch("device:sw2", "10.0.0.3"),
+                     host("endpoint:pc", "10.0.0.50", discovery_method="wazuh"), *extra,
+                     edges=[link("endpoint:pc", target, port)])
+
+    def passes(self, state, *port_states, graphs=None, snmp=None):
+        for i, ports in enumerate(port_states):
+            prober = FakeProber(snmp=snmp or self.SW_UP, ports={"10.0.0.2": ports})
+            state = run((graphs or [self.g()] * len(port_states))[i], state, prober)
+        return state["nodes"]["endpoint:pc"], state
+
+    def test_ping_silent_host_returns_to_earlier_state_on_port_up(self):
+        start = prev(**{"endpoint:pc": was("active", misses=1, proven=("icmp",))})
+        node, state = self.passes(start, {"Gi1/0/5": "down"})
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+        self.assertEqual(node["port_down"], {"device": "device:sw", "port": "Gi1/0/5",
+                                             "previous_state": "active"})
+        node, state = self.passes(state, {"Gi1/0/5": "down"})       # still down
+        self.assertEqual((node["state"], node["method"], node["misses"]),
+                         ("inactive", "port", 2))
+        node, _ = self.passes(state, {"Gi1/0/5": "up"})
+        self.assertEqual((node["state"], node["misses"], node["proven_methods"]),
+                         ("active", 0, ["icmp"]))
+        self.assertNotIn("port_down", node)
+        self.assertNotEqual(node["method"], "port")
+
+    def test_no_earlier_state_returns_to_unknown(self):
+        node, state = self.passes({}, {"Gi1/0/5": "down"})
+        self.assertEqual(node["port_down"]["previous_state"], None)
+        node, _ = self.passes(state, {"Gi1/0/5": "up"})
+        self.assertEqual((node["state"], node["misses"]), ("unknown", 0))
+        self.assertNotIn("port_down", node)
+
+    def test_replaced_by_a_new_scan_is_restored(self):
+        start = prev(**{"endpoint:pc": was("active", proven=("icmp",))})
+        _, state = self.passes(start, {"Gi1/0/5": "down"})
+        for moved in (self.g(port="Gi1/0/8"), self.g(target="device:sw2")):
+            with self.subTest(moved=moved["edges"][0]):
+                # the old port is still down, and sw2's ports are never read
+                node, _ = self.passes(state, {"Gi1/0/5": "down", "Gi1/0/8": "up"},
+                                      graphs=[moved])
+                self.assertEqual((node["state"], node["misses"]), ("active", 0))
+                self.assertNotIn("port_down", node)
+
+    def test_replaced_onto_another_down_port_stays_inactive(self):
+        start = prev(**{"endpoint:pc": was("active", proven=("icmp",))})
+        _, state = self.passes(start, {"Gi1/0/5": "down"})
+        node, _ = self.passes(state, {"Gi1/0/5": "down", "Gi1/0/8": "down"},
+                              graphs=[self.g(port="Gi1/0/8")])
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+        self.assertEqual(node["port_down"], {"device": "device:sw", "port": "Gi1/0/8",
+                                             "previous_state": "active"})
+
+    def test_switch_not_answering_keeps_it_inactive(self):
+        _, state = self.passes({}, {"Gi1/0/5": "down"})
+        node, _ = self.passes(state, {"Gi1/0/5": "up"}, snmp={"10.0.0.2": False})
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+
+    def test_reply_while_port_down_marks_active(self):
+        _, state = self.passes({}, {"Gi1/0/5": "down"})
+        prober = FakeProber(snmp=self.SW_UP, icmp={"10.0.0.50": True},
+                            ports={"10.0.0.2": {"Gi1/0/5": "down"}})
+        node = run(self.g(), state, prober)["nodes"]["endpoint:pc"]
+        self.assertEqual((node["state"], node["method"]), ("active", "icmp"))
+        self.assertNotIn("port_down", node)
+
+    def test_up_port_never_promotes_unknown_to_active(self):
+        node, state = self.passes({}, {"Gi1/0/5": "up"})
+        self.assertEqual(node["state"], "unknown")
+        _, state = self.passes(state, {"Gi1/0/5": "down"})
+        node, state = self.passes(state, {"Gi1/0/5": "up"})        # restored: unknown
+        node, _ = self.passes(state, {"Gi1/0/5": "up"})            # and it stays so
+        self.assertEqual(node["state"], "unknown")
+
+
 class TestRobustness(unittest.TestCase):
     def test_one_probe_failure_does_not_abort_the_pass(self):
         prober = FakeProber(icmp={"10.0.0.11": True}, boom={"10.0.0.10"})
