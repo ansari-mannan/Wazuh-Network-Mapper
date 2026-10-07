@@ -16,6 +16,7 @@ import {
 } from '@elastic/eui';
 import { CveSummary, GraphNode, NodeLiveness } from '../../../common';
 import { useLiveness } from '../../lib/liveness';
+import { livenessMethod } from '../../lib/livenessText';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
@@ -118,14 +119,6 @@ const LIVENESS_HEALTH: Record<string, { color: string; label: string }> = {
   inactive: { color: 'danger', label: 'Inactive' },
   unknown: { color: 'subdued', label: 'Unknown' },
 };
-
-function livenessMethod(l: NodeLiveness): string {
-  if (l.method === 'icmp') return 'ping';
-  if (l.method === 'snmp') return 'SNMP';
-  if (l.method === 'port') return 'switch port down';
-  if (l.reason === 'shared_ip') return 'not checked: IP shared with another node';
-  return 'not checked';
-}
 
 function LivenessValue({ value }: { value: NodeLiveness | undefined }) {
   if (!value) {
