@@ -75,15 +75,32 @@ interface TopologyViewProps {
   graph: GraphResponse;
   onSelect: (nodeId: string | null) => void;
   selectedId: string | null;
+  /**
+   * node_ids left off the canvas (with their edges), sorted and joined by
+   * newlines. A string so the layout re-runs only when the set changes, not
+   * whenever the caller builds a new array.
+   */
+  hiddenKey?: string;
+}
+
+// The graph without the hidden nodes and any edge that touches one.
+function withoutHidden(graph: GraphResponse, hiddenKey: string): GraphResponse {
+  if (!hiddenKey) return graph;
+  const hidden = new Set(hiddenKey.split('\n'));
+  return {
+    ...graph,
+    nodes: graph.nodes.filter((n) => !hidden.has(n.node_id)),
+    edges: graph.edges.filter((e) => !hidden.has(e.source) && !hidden.has(e.target)),
+  };
 }
 
 export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
-  ({ graph, onSelect, selectedId }, ref) => {
+  ({ graph, onSelect, selectedId, hiddenKey = '' }, ref) => {
     const { layoutNodes, edges } = useMemo(() => {
       // layoutGraph is the pure layout-prep module: it computes positions/ranks
       // from the real edges and returns the edges to draw (incl. dashed "inferred"
       // links). We only translate its output into React Flow styling here.
-      const { nodes: laidOut, edges: laidEdges } = layoutGraph(graph);
+      const { nodes: laidOut, edges: laidEdges } = layoutGraph(withoutHidden(graph, hiddenKey));
       const layoutY = new Map(laidOut.map((n) => [n.id, n.position.y]));
       const rfNodes: TopologyFlowNode[] = laidOut.map((p) => ({
         id: p.id,
@@ -119,7 +136,7 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       });
 
       return { layoutNodes: rfNodes, edges: rfEdges };
-    }, [graph]);
+    }, [graph, hiddenKey]);
 
     const moved = useMemo(() => {
       let m = movedPositions.get(graph);
@@ -133,7 +150,8 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
     const [nodes, setNodes, onNodesChange] = useNodesState(withMoves(layoutNodes));
     const instance = useRef<ReactFlowInstance | null>(null);
 
-    // A new graph (reload) replaces the nodes outright.
+    // A new graph (reload), or a change in the hidden set, replaces the nodes;
+    // positions the user dragged are kept (they are keyed by the full graph).
     const lastLayout = useRef(layoutNodes);
     if (lastLayout.current !== layoutNodes) {
       lastLayout.current = layoutNodes;

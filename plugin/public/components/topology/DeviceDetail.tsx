@@ -14,7 +14,8 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { CveSummary, GraphNode } from '../../../common';
+import { CveSummary, GraphNode, NodeLiveness } from '../../../common';
+import { useLiveness } from '../../lib/liveness';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
@@ -105,12 +106,53 @@ function RiskSummary({ score, summary }: { score: number | null; summary: CveSum
   );
 }
 
+/** "last seen" time for liveness, in the viewer's locale; "never" if not seen. */
+export function formatSeen(iso: string | null | undefined): string {
+  if (!iso) return 'never';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
+}
+
+const LIVENESS_HEALTH: Record<string, { color: string; label: string }> = {
+  active: { color: 'success', label: 'Active' },
+  inactive: { color: 'danger', label: 'Inactive' },
+  unknown: { color: 'subdued', label: 'Unknown' },
+};
+
+function livenessMethod(l: NodeLiveness): string {
+  if (l.method === 'icmp') return 'ping';
+  if (l.method === 'snmp') return 'SNMP';
+  if (l.method === 'port') return 'switch port down';
+  if (l.reason === 'shared_ip') return 'not checked: IP shared with another node';
+  return 'not checked';
+}
+
+function LivenessValue({ value }: { value: NodeLiveness | undefined }) {
+  if (!value) {
+    return <EuiHealth color="subdued">Unknown · not checked yet</EuiHealth>;
+  }
+  const health = LIVENESS_HEALTH[value.state] || LIVENESS_HEALTH.unknown;
+  return (
+    <span data-test-subj="vmLiveness">
+      <EuiHealth color={health.color}>{health.label}</EuiHealth>
+      <EuiText size="xs" color="subdued">
+        <p>
+          last seen {formatSeen(value.last_seen)} · via {livenessMethod(value)}
+        </p>
+      </EuiText>
+    </span>
+  );
+}
+
 export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () => void }) {
+  const { liveness } = useLiveness();
+  const livenessOn = Boolean(liveness?.enabled);
+  const nodeLiveness = livenessOn ? liveness?.nodes[node.node_id] : undefined;
   const isDevice = node.kind === 'device';
   const Icon = iconForRole(node.role);
   const score = nodeRiskScore(node);
   const level = riskLevel(score);
-  const offline = isOffline(node.status);
+  const offline = isOffline(node.status, nodeLiveness);
   const cves = node.kind === 'endpoint' ? node.top_cves || [] : [];
   // Absent in older graph files (and null when unscored): keep the old display.
   const summary = node.kind === 'endpoint' ? node.cve_summary || null : null;
@@ -170,6 +212,9 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               ['Role', node.role],
               ['Discovery method', node.discovery_method],
               ['Status', node.status],
+              ...(livenessOn
+                ? ([['Liveness', <LivenessValue value={nodeLiveness} />]] as Array<[string, ReactNode]>)
+                : []),
             ])}
           />
         </Section>

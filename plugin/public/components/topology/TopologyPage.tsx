@@ -1,17 +1,24 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   EuiButton,
   EuiCallOut,
   EuiFlexGroup,
   EuiFlexItem,
+  EuiListGroup,
+  EuiListGroupItem,
   EuiLoadingSpinner,
   EuiPanel,
+  EuiSpacer,
+  EuiSwitch,
   EuiText,
+  EuiTextColor,
+  EuiTitle,
 } from '@elastic/eui';
-import { GraphResponse } from '../../../common';
+import { GraphNode, GraphResponse, LivenessResponse } from '../../../common';
 import { useGraph } from '../../lib/graph';
+import { useLiveness } from '../../lib/liveness';
 import { TopologyView, TopologyViewHandle } from './TopologyView';
-import { DeviceDetail } from './DeviceDetail';
+import { DeviceDetail, formatSeen } from './DeviceDetail';
 
 // Counts line, all from the loaded graph. "Unparented" = endpoints the scanner
 // could not attach to a switch port (parent_id null).
@@ -44,12 +51,72 @@ function useFillHeight() {
   return { ref, height };
 }
 
+// Discovered hosts (no agent, found in switch tables) that liveness reports
+// inactive: these leave the canvas. Inactive Wazuh agents and network devices
+// stay on it, dimmed.
+function inactiveDiscoveredHosts(graph: GraphResponse, liveness: LivenessResponse): GraphNode[] {
+  return graph.nodes.filter(
+    (n) =>
+      n.kind === 'endpoint' &&
+      n.discovery_method === 'snmp_fdb' &&
+      liveness.nodes[n.node_id]?.state === 'inactive'
+  );
+}
+
+function InactivePanel({ hosts, liveness, onSelect }: {
+  hosts: GraphNode[];
+  liveness: LivenessResponse;
+  onSelect: (nodeId: string) => void;
+}) {
+  return (
+    <EuiPanel paddingSize="s" className="vmInactivePanel" data-test-subj="vmInactivePanel">
+      <EuiTitle size="xxs">
+        <h3>Inactive ({hosts.length})</h3>
+      </EuiTitle>
+      <EuiSpacer size="xs" />
+      <EuiListGroup flush gutterSize="none" maxWidth={false}>
+        {hosts.map((n) => (
+          <EuiListGroupItem
+            key={n.node_id}
+            size="xs"
+            wrapText
+            onClick={() => onSelect(n.node_id)}
+            label={
+              <span>
+                <span className="vmMono">{n.ip || '—'}</span>
+                <br />
+                <EuiTextColor color="subdued">
+                  <small>
+                    <span className="vmMono">{n.mac || '—'}</span>
+                    <br />
+                    last seen {formatSeen(liveness.nodes[n.node_id]?.last_seen)}
+                  </small>
+                </EuiTextColor>
+              </span>
+            }
+          />
+        ))}
+      </EuiListGroup>
+    </EuiPanel>
+  );
+}
+
 export function TopologyPage() {
   const { graph, loading, error, reload } = useGraph();
+  const { liveness } = useLiveness();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hideInactive, setHideInactive] = useState(true);
   const view = useRef<TopologyViewHandle>(null);
   const { ref, height } = useFillHeight();
   const selected = graph?.nodes.find((n) => n.node_id === selectedId) || null;
+
+  const livenessOn = Boolean(liveness?.enabled);
+  const hidden = useMemo(
+    () => (graph && liveness && livenessOn && hideInactive ? inactiveDiscoveredHosts(graph, liveness) : []),
+    [graph, liveness, livenessOn, hideInactive]
+  );
+  // The canvas re-lays out only when this key changes, not on every poll.
+  const hiddenKey = hidden.map((n) => n.node_id).sort().join('\n');
 
   return (
     <>
@@ -79,6 +146,17 @@ export function TopologyPage() {
             Reset layout
           </EuiButton>
         </EuiFlexItem>
+        {livenessOn && (
+          <EuiFlexItem grow={false}>
+            <EuiSwitch
+              compressed
+              label="Hide inactive discovered hosts"
+              checked={hideInactive}
+              onChange={(e) => setHideInactive(e.target.checked)}
+              data-test-subj="vmHideInactive"
+            />
+          </EuiFlexItem>
+        )}
         <EuiFlexItem>
           {graph && (
             <EuiText size="s" color="subdued" data-test-subj="vmCounts">
@@ -90,10 +168,30 @@ export function TopologyPage() {
       <div style={{ height: 12 }} />
       {error && <EuiCallOut color="danger" iconType="alert" title={error} />}
       <div ref={ref} style={{ height }}>
-        {graph ? (
+        {graph && !livenessOn ? (
           <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '100%' }}>
             <TopologyView ref={view} graph={graph} selectedId={selectedId} onSelect={setSelectedId} />
           </EuiPanel>
+        ) : graph ? (
+          // Liveness on: the canvas, plus the hidden hosts beside it.
+          <EuiFlexGroup gutterSize="s" responsive={false} style={{ height: '100%' }}>
+            <EuiFlexItem style={{ minWidth: 0 }}>
+              <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '100%' }}>
+                <TopologyView
+                  ref={view}
+                  graph={graph}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  hiddenKey={hiddenKey}
+                />
+              </EuiPanel>
+            </EuiFlexItem>
+            {liveness && hidden.length > 0 && (
+              <EuiFlexItem grow={false}>
+                <InactivePanel hosts={hidden} liveness={liveness} onSelect={setSelectedId} />
+              </EuiFlexItem>
+            )}
+          </EuiFlexGroup>
         ) : (
           loading && <EuiLoadingSpinner size="xl" />
         )}

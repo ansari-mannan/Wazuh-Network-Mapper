@@ -3,7 +3,7 @@
 // Ported from frontend/risk-module/ui/topology/nodeStyle.ts; the risk bands now
 // come from the shared riskLevel() so the map agrees with the overview.
 import { RISK_META, RiskLevel, riskLevel } from '../../lib/risk';
-import { NodeLiveness } from '../../common';
+import { NodeLiveness } from '../../../common';
 
 export function riskLabel(score: number | null | undefined): string {
   if (score === null || score === undefined) return 'unknown';

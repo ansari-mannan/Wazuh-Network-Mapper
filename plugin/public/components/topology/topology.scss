@@ -95,3 +95,10 @@
   grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: $euiSizeXS $euiSizeM;
 }
+
+// liveness: discovered hosts that left the network, beside the canvas
+.vmInactivePanel {
+  width: 240px;
+  height: 100%;
+  overflow-y: auto;
+}
