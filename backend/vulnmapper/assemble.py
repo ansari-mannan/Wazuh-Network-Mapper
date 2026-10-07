@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import ipaddress
 from collections import defaultdict, deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -43,7 +43,7 @@ from .schema import (
     format_mac,
     host_node_id,
 )
-from .network.roles import derive_role
+from .network.roles import decode_capabilities, derive_role
 
 
 # ===========================================================================
@@ -56,6 +56,10 @@ CONF_RESOLVED = "resolved"               # Tier 2: single FDB access-port surviv
 CONF_TIEBREAK = "tiebreak"               # Tier 2: several survivors, fewest-MAC wins
 CONF_SUBNET_FALLBACK = "subnet_fallback"  # Tier 3: parented by subnet, not L2
 CONF_FDB = "fdb"                          # FDB/ARP-discovered host (no agent, no LLDP)
+
+# discovery_method of a host that announced itself over LLDP (no agent, not
+# network equipment); emitted like an FDB-discovered host.
+DISCOVERY_LLDP_HOST = "lldp"
 
 # Reasons recorded for an endpoint that could not be placed.
 REASON_NO_MAC = "no_endpoint_mac"
@@ -126,6 +130,8 @@ class MacTable:
     Built once per assemble and read two ways: parenting (a MAC matching an
     existing node attaches it) and discovery (a MAC matching nothing becomes a
     new host). ``by_ip`` lets an endpoint whose Wazuh MAC is null match by IP.
+    ``arp_by_ip`` is every ARP entry (``ip -> mac``), FDB or not; it is only
+    trusted when an LLDP announcement of that MAC corroborates it.
     ``infra_macs`` are the polling devices' own interface/SVI/chassis MACs, which
     are excluded so a router's gateway MACs never become phantom hosts.
     """
@@ -133,6 +139,7 @@ class MacTable:
     by_mac: dict
     by_ip: dict
     infra_macs: set
+    arp_by_ip: dict = field(default_factory=dict)
 
 
 def _infra_macs(network_nodes: list[dict]) -> set:
@@ -195,7 +202,8 @@ def build_mac_table(network_nodes: list[dict]) -> MacTable:
         by_mac[mac] = HostFact(mac, arp_ip.get(mac), node_id, port, vlan, confidence)
 
     by_ip = {fact.ip: mac for mac, fact in by_mac.items() if fact.ip}
-    return MacTable(by_mac=by_mac, by_ip=by_ip, infra_macs=infra_macs)
+    arp_by_ip = {ip: mac for mac, ip in arp_ip.items()}
+    return MacTable(by_mac=by_mac, by_ip=by_ip, infra_macs=infra_macs, arp_by_ip=arp_by_ip)
 
 
 def same_subnet(ip_a: Optional[str], ip_b: Optional[str], prefix: int = 24) -> bool:
@@ -212,6 +220,24 @@ def same_subnet(ip_a: Optional[str], ip_b: Optional[str], prefix: int = 24) -> b
 # ===========================================================================
 # The assembly procedure (was assemble/merge.py)
 # ===========================================================================
+
+def _is_network_equipment(capabilities) -> bool:
+    """True when an LLDP capability map advertises bridge or router."""
+    return bool(decode_capabilities(capabilities) & {"bridge", "router"})
+
+
+def _is_end_host(raw: dict) -> bool:
+    """A non-pollable LLDP neighbour advertising no bridge/router capability.
+
+    That is a host announcing itself (e.g. a PC whose chassis id is its
+    hostname), not network equipment. A device we tried and failed to poll
+    (status "unreachable") is left alone: it may be a switch we lack
+    credentials for.
+    """
+    if raw.get("pollable") or raw.get("status") == "unreachable":
+        return False
+    return not _is_network_equipment(raw.get("lldp_cap_enabled"))
+
 
 def _device_node(raw: dict) -> Node:
     """Map a crawler network node into a unified device :class:`Node`."""
@@ -233,7 +259,8 @@ def _device_node(raw: dict) -> Node:
             vendor=raw.get("vendor"),
             model=raw.get("model"),
             mac=raw.get("mac") or chassis_id,
-            kind=KIND_DEVICE,
+            # an end host's fallback role is "host", not "Unknown Network Device"
+            kind=KIND_ENDPOINT if _is_end_host(raw) else KIND_DEVICE,
         ),
         chassis_id=chassis_id,
         pollable=raw.get("pollable"),
@@ -342,6 +369,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     raw_edges = network_doc.get("edges") or []
 
     device_by_chassis = {n["chassis_id"]: _device_node(n) for n in raw_nodes}
+    caps_by_chassis = {n["chassis_id"]: n.get("lldp_cap_enabled") for n in raw_nodes}
 
     # Capabilities a switch reported for an LLDP-speaking neighbor are keyed by the
     # neighbor's chassis id (== its MAC). An endpoint that speaks LLDP is merged
@@ -402,12 +430,30 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     unparented_reason: dict[str, str] = {}
     enriched_ids: list[str] = []   # endpoints whose mac/port we filled from the table
 
+    # A device whose MAC is an agent's is the same machine. An ordinary machine
+    # (e.g. a server that answers SNMP) is merged into its endpoint; network
+    # equipment running an agent (bridge/router capability) is kept, since
+    # removing it would break the topology around it, and the pair is reported.
+    agent_on_device_warnings: list[dict] = []
+
+    def agent_on_network_device(chassis: str, ep: Node) -> None:
+        device = device_by_chassis[chassis]
+        agent_on_device_warnings.append({
+            "type": "agent_on_network_device",
+            "mac": format_mac(chassis),
+            "nodes": [{"node_id": n.node_id, "hostname": n.hostname, "kind": n.kind}
+                      for n in (device, ep)],
+        })
+
     # --- TIER 1: merge LLDP phantom device nodes into their endpoints ---
     phantom_chassis: set[str] = set()
     for chassis in list(device_by_chassis):
         cmac = canonical_mac(chassis)
         ep = endpoints_by_mac.get(cmac) if cmac else None
         if ep is None:
+            continue
+        if _is_network_equipment(caps_by_chassis.get(chassis)):
+            agent_on_network_device(chassis, ep)
             continue
         switch_chassis, switch_port = _lldp_switch_and_port(chassis, raw_edges)
         if switch_chassis is None or switch_chassis not in device_by_chassis:
@@ -466,9 +512,111 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         else:
             unparented_reason[ep.node_id] = REASON_ABSENT
 
+    # --- TIER 1 AGAIN: phantoms whose endpoint MAC was only learned above ---
+    # Tier 1 ran before the switch tables filled in MACs Wazuh did not report,
+    # so a phantom for such an endpoint survived it. An endpoint still without a
+    # MAC may take one from ARP alone, but only when an LLDP phantom announcing
+    # that MAC corroborates it (a bare ARP entry may be stale), the MAC is not an
+    # infrastructure MAC, and the announcer advertises no bridge/router role.
+    phantom_by_mac = {canonical_mac(c): c for c in device_by_chassis if canonical_mac(c)}
+    warned = {w["mac"] for w in agent_on_device_warnings}
+    late_phantoms: set[str] = set()
+    for ep in endpoint_nodes:
+        mac = canonical_mac(ep.mac)
+        if mac is None and ep.ip:
+            arp_mac = mac_table.arp_by_ip.get(ep.ip)
+            announcer = phantom_by_mac.get(arp_mac) if arp_mac else None
+            if (announcer and arp_mac not in mac_table.infra_macs
+                    and not _is_network_equipment(caps_by_chassis.get(announcer))):
+                mac = arp_mac
+        chassis = phantom_by_mac.get(mac) if mac else None
+        if chassis is None or chassis in late_phantoms:
+            continue
+        if _is_network_equipment(caps_by_chassis.get(chassis)):
+            if ep.mac and format_mac(chassis) not in warned:
+                agent_on_network_device(chassis, ep)
+                warned.add(format_mac(chassis))
+            continue
+        switch_chassis, switch_port = _lldp_switch_and_port(chassis, raw_edges)
+        if switch_chassis is None or switch_chassis not in device_by_chassis \
+                or switch_chassis in late_phantoms:
+            continue  # can't identify the reporting switch; leave both nodes
+        late_phantoms.add(chassis)
+        if ep.mac is None:
+            ep.mac = format_mac(mac)
+        ep.role = derive_role(capabilities=caps_by_mac.get(mac), vendor=ep.vendor,
+                              model=ep.model, mac=ep.mac, kind=KIND_ENDPOINT)
+        # An LLDP announcement is direct evidence: it wins unless the tables
+        # already placed the endpoint on that very switch port.
+        lldp_parent = (device_node_id(switch_chassis), switch_port, CONF_LLDP)
+        parent, port, _conf = parent_of.get(ep.node_id, (None, None, None))
+        if (parent, port) != lldp_parent[:2]:
+            parent_of[ep.node_id] = lldp_parent
+            unparented_reason.pop(ep.node_id, None)
+
+    def retire_devices(chassis_ids) -> None:
+        """Remove device nodes (and their LLDP edges) that became other nodes.
+
+        A subnet-fallback parent can't be a node that no longer exists, so an
+        endpoint parented on one is re-pointed (or left unparented with a reason).
+        """
+        ids = {device_node_id(c) for c in chassis_ids}
+        if not ids:
+            return
+        for chassis in chassis_ids:
+            device_by_chassis.pop(chassis, None)
+        device_nodes[:] = [n for n in device_nodes if n.node_id not in ids]
+        device_node_ids.difference_update(ids)
+        lldp_edges[:] = [e for e in lldp_edges if e.source not in ids and e.target not in ids]
+        for ep_id, (parent, _port, _conf) in list(parent_of.items()):
+            if parent in ids:
+                ep = next(n for n in endpoint_nodes if n.node_id == ep_id)
+                gateway = _subnet_parent(ep.ip, device_nodes)
+                parent_of[ep_id] = (gateway, None, CONF_SUBNET_FALLBACK if gateway else None)
+                if gateway is None:
+                    online = (ep.status or "").lower() == "active"
+                    unparented_reason[ep_id] = (REASON_ABSENT if ep.mac and online
+                                                else REASON_NO_MAC if online
+                                                else REASON_OFFLINE)
+
+    phantom_chassis |= late_phantoms
+    retire_devices(late_phantoms)
+
+    # --- LLDP END HOSTS: non-pollable neighbours with no bridge/router role ---
+    # What is left of them (no agent claimed them above) is a host that announced
+    # itself, e.g. a PC with its hostname as chassis id. It becomes an endpoint-
+    # kind discovered host on the reporting switch port, not a device.
+    raw_by_chassis = {n["chassis_id"]: n for n in raw_nodes}
+    end_hosts = [c for c in device_by_chassis if _is_end_host(raw_by_chassis[c])]
+    lldp_hosts: list[Node] = []
+    for chassis in end_hosts:
+        dev = device_by_chassis[chassis]
+        mac = dev.mac or format_mac(chassis)
+        fact = mac_table.by_mac.get(canonical_mac(mac)) if mac else None
+        node = Node(
+            node_id=host_node_id(mac or chassis),
+            kind=KIND_ENDPOINT,
+            discovery_method=DISCOVERY_LLDP_HOST,
+            ip=dev.ip or (fact.ip if fact else None),
+            hostname=dev.hostname, vendor=dev.vendor, model=dev.model,
+            firmware=dev.firmware, serial=dev.serial,
+            mac=mac,
+            status="discovered",
+            role=dev.role,            # Fix 2: caps-derived, else "host"
+            risk_score=None,          # unscored — no Wazuh agent
+        )
+        switch_chassis, switch_port = _lldp_switch_and_port(chassis, raw_edges)
+        if switch_chassis in device_by_chassis and switch_chassis not in end_hosts:
+            parent_of[node.node_id] = (device_node_id(switch_chassis), switch_port, CONF_LLDP)
+        else:
+            parent_of[node.node_id] = (None, None, None)
+        lldp_hosts.append(node)
+    retire_devices(end_hosts)
+
     # --- FDB/ARP HOST DISCOVERY: a table MAC matching no node is a new host ---
     known_macs = {canonical_mac(n.chassis_id) for n in device_nodes}
     known_macs |= {canonical_mac(ep.mac) for ep in endpoint_nodes if ep.mac}
+    known_macs |= {canonical_mac(h.mac) for h in lldp_hosts if h.mac}
     known_macs |= mac_table.infra_macs
     known_macs.discard(None)
 
@@ -489,6 +637,27 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         discovered_nodes.append(node)
         parent_of[node.node_id] = (fact.switch_node_id, fact.port, CONF_FDB)
 
+    # --- an agent and a discovered host on one IP: warn, never merge ---
+    # A stale ARP entry produces the same picture as a second interface, so the
+    # two stay separate nodes; the host joins that IP's duplicate_ip warning.
+    def ip_entry(n: Node) -> dict:
+        return {"node_id": n.node_id, "hostname": n.hostname,
+                "status": n.status, "stale": n.stale}
+
+    warning_by_ip = {w["ip"]: w for w in duplicate_ip_warnings}
+    for node in lldp_hosts + discovered_nodes:
+        agents_on_ip = endpoints_by_ip.get(node.ip) if node.ip else None
+        if not agents_on_ip:
+            continue
+        warning = warning_by_ip.get(node.ip)
+        if warning is None:
+            warning = {"type": "duplicate_ip", "ip": node.ip,
+                       "nodes": [ip_entry(ep) for ep in agents_on_ip]}
+            warning_by_ip[node.ip] = warning
+            duplicate_ip_warnings.append(warning)
+        warning["nodes"].append(ip_entry(node))
+    duplicate_ip_warnings.sort(key=lambda w: w["ip"])
+
     # --- endpoint edges (no remote_port: the host's MAC is not a switch port) ---
     endpoint_edges = [
         Edge(source=ep_id, target=parent, type=EDGE_ENDPOINT_LINK,
@@ -499,7 +668,8 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     all_edges = lldp_edges + endpoint_edges
 
     # --- discovery stamping: devices BFS-first, endpoints after their switch ---
-    nodes_by_id = {n.node_id: n for n in device_nodes + endpoint_nodes + discovered_nodes}
+    nodes_by_id = {n.node_id: n for n in
+                   device_nodes + endpoint_nodes + lldp_hosts + discovered_nodes}
     device_order, device_parent = _bfs_device_order(
         [n.node_id for n in device_nodes], lldp_edges
     )
@@ -573,7 +743,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         "scan_time": datetime.now(timezone.utc).isoformat(),
         "network_scan_time": network_doc.get("scan_time"),
         "seed": network_doc.get("seed"),
-        "warnings": duplicate_ip_warnings,
+        "warnings": duplicate_ip_warnings + agent_on_device_warnings,
         "attack_path_sources": attack_path_sources,
         "counts": {
             "nodes": len(nodes_by_id),
