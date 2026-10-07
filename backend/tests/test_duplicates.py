@@ -196,6 +196,38 @@ class TestMergeByWhatTheDeviceIs(unittest.TestCase):
         self.assertEqual(g.doc["metadata"]["warnings"], [])
 
 
+class TestArpMacGuards(unittest.TestCase):
+    """The ARP-only MAC (confirmed by an LLDP announcement) is never an
+    infrastructure MAC or a bridge/router's MAC."""
+
+    ROUTER = "aa:bb:cc:00:10:01"
+    SERVER = "aa:bb:cc:00:20:01"
+
+    def graph(self, device):
+        net = {"nodes": [hp_switch(arp={bare(device["chassis_id"]): "172.20.99.50"}), device],
+               "edges": [lldp(device["chassis_id"], "GigabitEthernet1/0/48")]}
+        return Graph([agent("011", "laptop", "172.20.99.50")], net)
+
+    def assert_not_taken(self, g, chassis):
+        self.assertIn(f"device:{chassis}", g.nodes)
+        self.assertIsNone(g.nodes["endpoint:011"]["mac"])
+        self.assertEqual(g.doc["metadata"]["merged_lldp_endpoints"], 0)
+        self.assertNotIn("agent_on_network_device",
+                         [w["type"] for w in g.doc["metadata"]["warnings"]])
+
+    def test_router_announcing_itself_is_not_merged_and_mac_not_taken(self):
+        for pollable in (False, True):
+            with self.subTest(pollable=pollable):
+                g = self.graph(box(self.ROUTER, "0x08", pollable, "edge-router"))
+                self.assert_not_taken(g, self.ROUTER)
+
+    def test_infrastructure_mac_not_taken(self):
+        # A pollable machine's own MAC is an infrastructure MAC, even with no
+        # bridge/router capability: an ARP entry pointing at it proves nothing.
+        g = self.graph(box(self.SERVER, None, True, "file-server"))
+        self.assert_not_taken(g, self.SERVER)
+
+
 class TestLateMergeLeavesNoDanglingParent(unittest.TestCase):
     def test_subnet_child_of_merged_phantom_is_repointed(self):
         announced = dict(phantom(CYFOR3_MAC), ip="10.5.5.9")   # the only 10.5.5.x device

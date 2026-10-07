@@ -512,14 +512,19 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     # Tier 1 ran before the switch tables filled in MACs Wazuh did not report,
     # so a phantom for such an endpoint survived it. An endpoint still without a
     # MAC may take one from ARP alone, but only when an LLDP phantom announcing
-    # that MAC corroborates it (a bare ARP entry may be stale).
+    # that MAC corroborates it (a bare ARP entry may be stale), the MAC is not an
+    # infrastructure MAC, and the announcer advertises no bridge/router role.
     phantom_by_mac = {canonical_mac(c): c for c in device_by_chassis if canonical_mac(c)}
     warned = {w["mac"] for w in agent_on_device_warnings}
     late_phantoms: set[str] = set()
     for ep in endpoint_nodes:
         mac = canonical_mac(ep.mac)
         if mac is None and ep.ip:
-            mac = mac_table.arp_by_ip.get(ep.ip)
+            arp_mac = mac_table.arp_by_ip.get(ep.ip)
+            announcer = phantom_by_mac.get(arp_mac) if arp_mac else None
+            if (announcer and arp_mac not in mac_table.infra_macs
+                    and not _is_network_equipment(caps_by_chassis.get(announcer))):
+                mac = arp_mac
         chassis = phantom_by_mac.get(mac) if mac else None
         if chassis is None or chassis in late_phantoms:
             continue
