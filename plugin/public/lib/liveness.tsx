@@ -1,8 +1,14 @@
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { LivenessResponse } from '../../common';
 import { useServices } from './services';
 
+// Liveness state from GET /api/vulnmapper/liveness. Fetched once on mount (that
+// is how the UI learns whether liveness is enabled at all); after that it is
+// polled every intervalSeconds, but only while enabled and the tab is visible.
+// It never reloads the graph and never triggers a re-layout on its own.
+
 interface LivenessContextValue {
+  /** null until the first fetch answers; enabled false when the feature is off */
   liveness: LivenessResponse | null;
 }
 
@@ -14,29 +20,45 @@ export function LivenessProvider({ children }: { children: ReactNode }) {
 
   const fetchLiveness = useCallback(async () => {
     try {
-      setLiveness(await http.get<LivenessResponse>('/api/vulnmapper/liveness'));
+      const next = await http.get<LivenessResponse>('/api/vulnmapper/liveness');
+      // The file only changes once per pass: keep the old object (and spare
+      // every map node a re-render) when nothing new arrived.
+      setLiveness((prev) =>
+        prev &&
+        prev.enabled === next.enabled &&
+        prev.intervalSeconds === next.intervalSeconds &&
+        prev.checkedAt === next.checkedAt
+          ? prev
+          : next
+      );
     } catch (e) {
-      // keep last known
+      // keep the last known state
     }
   }, [http]);
 
+  // Once on mount, whatever the state.
   useEffect(() => {
-    if (!liveness?.enabled) return;
-
-    // Poll based on interval or default to 5s if not specified (backend default is 20s)
-    const interval = (liveness.intervalSeconds || 5) * 1000;
-
-    // Simple window visibility check
-    const intervalId = window.setInterval(() => {
-        if (document.hidden) return;
-        fetchLiveness();
-    }, interval);
-
     fetchLiveness();
-    return () => clearInterval(intervalId);
-  }, [liveness?.enabled, liveness?.intervalSeconds, fetchLiveness]);
+  }, [fetchLiveness]);
 
-  return <LivenessContext.Provider value={{ liveness }}>{children}</LivenessContext.Provider>;
+  const enabled = Boolean(liveness?.enabled);
+  const seconds = liveness?.intervalSeconds || 0;
+  useEffect(() => {
+    if (!enabled || seconds <= 0) return;
+    const poll = () => {
+      if (!document.hidden) fetchLiveness();
+    };
+    const id = window.setInterval(poll, seconds * 1000);
+    // Catch up as soon as the tab is shown again.
+    document.addEventListener('visibilitychange', poll);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener('visibilitychange', poll);
+    };
+  }, [enabled, seconds, fetchLiveness]);
+
+  const value = useMemo(() => ({ liveness }), [liveness]);
+  return <LivenessContext.Provider value={value}>{children}</LivenessContext.Provider>;
 }
 
 export function useLiveness(): LivenessContextValue {
