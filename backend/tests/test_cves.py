@@ -59,10 +59,58 @@ def source():
                        IndexerConfig("i", "9200", "u", "p"))
 
 
-def score(agents, fake):
+class FakeManager:
+    """Stands in for ``requests.get`` against the Manager API.
+
+    ``routes`` maps a path to its ``affected_items`` list, or to a list of
+    outcomes served one per call (an exception instance is raised). Any
+    ``/syscollector/<id>/packages`` path not in ``routes`` returns one package.
+    """
+
+    def __init__(self, routes=None):
+        self.routes = dict(routes or {})
+        self.calls = []
+
+    def __call__(self, url, params=None, **_kw):
+        path = url.split(":55000", 1)[-1]
+        self.calls.append((path, params))
+        if path in self.routes:
+            outcome = self.routes[path]
+            if isinstance(outcome, Outcomes):
+                outcome = outcome.next()
+        elif path.endswith("/packages"):
+            outcome = [{"name": "bash"}]
+        else:
+            outcome = []
+        if isinstance(outcome, Exception):
+            raise outcome
+        resp = mock.Mock()
+        resp.raise_for_status.return_value = None
+        resp.json.return_value = {"data": {"affected_items": outcome}}
+        return resp
+
+
+class Outcomes:
+    """A sequence of per-call outcomes for one FakeManager route."""
+
+    def __init__(self, *items):
+        self.items = list(items)
+
+    def next(self):
+        return self.items.pop(0)
+
+
+def http_error(status):
+    return requests.HTTPError(f"{status} Error", response=mock.Mock(status_code=status))
+
+
+def score(agents, fake, manager=None):
     """Run WazuhSource.score against ``fake``; returns (source, scored agents)."""
     src = source()
+    src._token = "t"
     with mock.patch.object(ep_mod.requests, "post", fake), \
+            mock.patch.object(ep_mod.requests, "get", manager or FakeManager()), \
+            mock.patch.object(ep_mod.time, "sleep"), \
             contextlib.redirect_stderr(io.StringIO()):
         return src, src.score(agents)
 

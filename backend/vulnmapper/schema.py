@@ -314,6 +314,8 @@ class Node:
     top_cves: list = field(default_factory=list)
     # Distinct-CVE counts per CVSS band + max_cvss; None when not scored.
     cve_summary: Optional[dict] = None
+    # True on the Wazuh server's own node (agent 000); emitted only when true.
+    is_wazuh_server: bool = False
     # True when this endpoint's IP collides with a currently-active endpoint and
     # its own status is disconnected (a stale Wazuh agent — IP reassigned).
     stale: bool = False
@@ -352,6 +354,8 @@ class Node:
             out["stale"] = self.stale
             out["top_cves"] = self.top_cves
             out["cve_summary"] = self.cve_summary
+            if self.is_wazuh_server:
+                out["is_wazuh_server"] = True
         else:
             out["chassis_id"] = self.chassis_id
             out["pollable"] = self.pollable

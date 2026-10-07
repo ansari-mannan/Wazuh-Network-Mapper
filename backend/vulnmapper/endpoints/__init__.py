@@ -17,7 +17,9 @@ shim modules that call this class.
 
 from __future__ import annotations
 
+import ipaddress
 import sys
+import time
 
 import requests
 
@@ -39,6 +41,17 @@ _VIRTUAL_IFACE_NEEDLES = (
 PAGE_SIZE = 1000
 MAX_DOCS_PER_AGENT = 20000
 TOP_CVES = 10
+
+# Agent 000 is the Wazuh server itself; the Manager API reports it as 127.0.0.1.
+SERVER_AGENT_ID = "000"
+# Interface-name prefixes of container / VM bridges, never the server's address.
+_BRIDGE_IFACE_PREFIXES = (
+    "docker", "br-", "veth", "virbr", "cni", "flannel", "cali", "podman",
+    "lxcbr", "lxdbr", "kube", "weave", "vxlan",
+)
+# A busy Manager API answers syscollector requests with a 5xx after ~10 s:
+# wait this long and retry once.
+INVENTORY_RETRY_DELAY_S = 3
 
 
 def is_locally_administered(mac) -> bool:
@@ -83,6 +96,35 @@ def _ipv4_by_iface(netaddr) -> dict:
             continue
         out.setdefault(addr.get("iface"), []).append(ip)
     return out
+
+
+def _usable_ipv4(ip) -> bool:
+    try:
+        addr = ipaddress.IPv4Address(ip)
+    except (ipaddress.AddressValueError, ValueError):
+        return False
+    return not (addr.is_loopback or addr.is_link_local or addr.is_unspecified)
+
+
+def server_ipv4(netaddr, netproto):
+    """The Wazuh server's real IPv4 from its syscollector inventory, or None.
+
+    Prefers an address on the interface that has a default gateway (netproto);
+    otherwise the first IPv4 that is not loopback, link-local or on a container
+    bridge.
+    """
+    ipv4s = [(a.get("iface") or "", a.get("address")) for a in netaddr or []
+             if (a.get("proto") or "").lower() == "ipv4" and _usable_ipv4(a.get("address"))]
+    ipv4s = [(iface, ip) for iface, ip in ipv4s
+             if not iface.lower().startswith(_BRIDGE_IFACE_PREFIXES)]
+    gateway_ifaces = [p.get("iface") for p in netproto or []
+                      if (p.get("type") or "").lower() == "ipv4"
+                      and _usable_ipv4((p.get("gateway") or "").strip())]
+    for gw_iface in gateway_ifaces:
+        for iface, ip in ipv4s:
+            if iface == gw_iface:
+                return ip
+    return ipv4s[0][1] if ipv4s else None
 
 
 def select_mac(netiface, netaddr, agent_ip):
@@ -265,6 +307,9 @@ class WazuhSource:
         self._wbase = f"https://{self._wcfg.host}:{self._wcfg.port}"
         self._ibase = f"https://{self._icfg.host}:{self._icfg.port}"
         self._token = None
+        self.collect_warnings: list = []   # set by collect()
+        self.warnings: list = []           # set by score()
+        self.cves: dict = {}               # set by score()
 
     # ---- Manager API (collect stage) --------------------------------------
 
@@ -293,16 +338,53 @@ class WazuhSource:
         r.raise_for_status()
         return r.json().get("data", {}).get("affected_items", [])
 
+    def _get_inventory(self, path, params=None):
+        """``_get`` for syscollector data: a 5xx or a timeout is retried once."""
+        try:
+            return self._get(path, params)
+        except (requests.HTTPError, requests.Timeout) as e:
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            if isinstance(e, requests.HTTPError) and not (status and status >= 500):
+                raise
+            time.sleep(INVENTORY_RETRY_DELAY_S)
+            return self._get(path, params)
+
+    def _server_node(self, agent, netiface, hardware, netaddr, netproto):
+        """Normalize agent 000 with its real IPv4 in place of 127.0.0.1, or None.
+
+        The address is what lets the assembler merge the server with the host
+        found in the switch tables. Its MAC is picked only among the interfaces
+        that carry that address, so a second NIC the switches never see can't
+        stop the address match.
+        """
+        ip = server_ipv4(netaddr, netproto)
+        if ip is None:
+            return None
+        ifaces = {a.get("iface") for a in netaddr or [] if a.get("address") == ip}
+        node = normalize_agent({**agent, "ip": ip},
+                               [i for i in netiface or [] if i.get("name") in ifaces],
+                               hardware, netaddr)
+        node["is_wazuh_server"] = True
+        return node
+
     def collect(self) -> list[dict]:
         """Authenticate, fetch every agent + syscollector, normalize.
 
         Returns the list of normalized node dicts. One agent's missing
-        syscollector data must not abort the run.
+        syscollector data must not abort the run: the agent is kept, and listed
+        in an ``inventory_unavailable`` warning (in :attr:`collect_warnings`).
+
+        Agent 000 (the Wazuh server) is included with its real IPv4 and
+        ``is_wazuh_server: true``. If no real address can be found it is left
+        out, with a ``wazuh_server_skipped`` note, rather than emitted as an
+        unmatched duplicate of the host the switch tables already show.
         """
         if not self._wcfg.password:
             raise SystemExit("vulnmapper: WAZUH_PASS is not set; export it to collect "
                              "endpoints (or run with --no-endpoints or --scored PATH).")
         self._authenticate()
+        self.collect_warnings: list = []
+        unavailable: list = []
 
         nodes: list[dict] = []
         agents = self._get(
@@ -313,17 +395,48 @@ class WazuhSource:
             },
         )
         for agent in agents:
-            if agent["id"] == "000":  # 000 is the manager itself, not an endpoint
-                continue
+            agent_id = agent["id"]
+            is_server = agent_id == SERVER_AGENT_ID
+            failed = False
             try:
-                netiface = self._get(f"/syscollector/{agent['id']}/netiface")
-                hardware = self._get(f"/syscollector/{agent['id']}/hardware")
-                netaddr = self._get(f"/syscollector/{agent['id']}/netaddr")
-            except requests.HTTPError as e:
-                print(f"  ! syscollector failed for agent {agent['id']}: {e}",
+                netiface = self._get_inventory(f"/syscollector/{agent_id}/netiface")
+                hardware = self._get_inventory(f"/syscollector/{agent_id}/hardware")
+                netaddr = self._get_inventory(f"/syscollector/{agent_id}/netaddr")
+                netproto = (self._get_inventory(f"/syscollector/{agent_id}/netproto")
+                            if is_server else [])
+            except requests.RequestException as e:
+                print(f"  ! syscollector failed for agent {agent_id}: {e}",
                       file=sys.stderr)
-                netiface, hardware, netaddr = [], [], []
-            nodes.append(normalize_agent(agent, netiface, hardware, netaddr))
+                failed = True
+                netiface, hardware, netaddr, netproto = [], [], [], []
+
+            if not is_server:
+                if failed:
+                    unavailable.append(agent_id)
+                nodes.append(normalize_agent(agent, netiface, hardware, netaddr))
+                continue
+            node = self._server_node(agent, netiface, hardware, netaddr, netproto)
+            if node is None:
+                reason = ("its syscollector inventory could not be read" if failed else
+                          "no IPv4 address other than loopback, link-local or a "
+                          "container bridge in its syscollector inventory")
+                print(f"  ! Wazuh server (agent 000) left out of this scan: {reason}",
+                      file=sys.stderr)
+                self.collect_warnings.append({
+                    "type": "wazuh_server_skipped",
+                    "agent_id": agent_id,
+                    "hostname": agent.get("name"),
+                    "reason": reason,
+                })
+            else:
+                nodes.append(node)
+
+        if unavailable:
+            self.collect_warnings.append({
+                "type": "inventory_unavailable",
+                "agents": unavailable,
+                "node_ids": [endpoint_node_id(a) for a in unavailable],
+            })
         return nodes
 
     # ---- Indexer (score stage) --------------------------------------------
@@ -399,13 +512,24 @@ class WazuhSource:
         A failed request leaves that agent unscored. If the indexer does not
         answer at all (connection error or timeout), the remaining agents are
         left unscored too rather than each waiting out its own timeout.
+
+        An agent with no vulnerability documents is only scored 0.0 if Wazuh
+        has a package inventory for it (one Manager API request); without one
+        it has not been examined yet, so it is left unscored and listed in a
+        ``not_yet_inventoried`` warning.
         """
         if not self._icfg.password:
             raise SystemExit("vulnmapper: INDEXER_PASS is not set; export it to score "
                              "endpoints (or run with --no-endpoints or --scored PATH).")
+        if not self._wcfg.password:
+            raise SystemExit("vulnmapper: WAZUH_PASS is not set; the score stage needs "
+                             "it to tell unexamined agents from clean ones (or run "
+                             "with --no-endpoints or --scored PATH).")
         self.cves: dict = {}
         self.warnings: list = []
-        unscored: list = []
+        unscored: list = []            # indexer failures
+        not_inventoried: list = []     # no CVE documents and no package inventory
+        inventory_failed: list = []    # the package check itself failed
         error = None
         down = False
 
@@ -413,31 +537,43 @@ class WazuhSource:
         for agent in agents:
             agent_id = agent.get("agent_id")  # hard join key carried from collect
             cves = None
-            if not down:
+            if down:
+                unscored.append(agent_id)
+            else:
                 try:
                     cves, capped = self._agent_cves(agent_id) if agent_id else ([], False)
                 except requests.RequestException as e:
                     error = error or e
                     down = isinstance(e, (requests.ConnectionError, requests.Timeout))
+                    unscored.append(agent_id)
                     print(f"  ! indexer request failed for agent {agent_id}: {e}"
                           + ("; leaving the remaining endpoints unscored" if down else ""),
                           file=sys.stderr)
-                else:
-                    if capped:
-                        self.warnings.append({
-                            "type": "cve_cap_reached",
-                            "agent_id": agent_id,
-                            "node_id": endpoint_node_id(agent_id),
-                            "hostname": agent.get("hostname"),
-                            "cap": MAX_DOCS_PER_AGENT,
-                        })
-                        print(f"  ! agent {agent_id}: more than {MAX_DOCS_PER_AGENT} "
-                              "vulnerability documents; the rest were not read",
-                              file=sys.stderr)
+                    capped = False
+                if capped:
+                    self.warnings.append({
+                        "type": "cve_cap_reached",
+                        "agent_id": agent_id,
+                        "node_id": endpoint_node_id(agent_id),
+                        "hostname": agent.get("hostname"),
+                        "cap": MAX_DOCS_PER_AGENT,
+                    })
+                    print(f"  ! agent {agent_id}: more than {MAX_DOCS_PER_AGENT} "
+                          "vulnerability documents; the rest were not read",
+                          file=sys.stderr)
+                if cves == [] and agent_id:
+                    try:
+                        if not self._has_packages(agent_id):
+                            not_inventoried.append(agent_id)
+                            cves = None
+                    except requests.RequestException as e:
+                        print(f"  ! package inventory check failed for agent "
+                              f"{agent_id}: {e}", file=sys.stderr)
+                        inventory_failed.append(agent_id)
+                        cves = None
 
             enriched = enrich_agent(agent, cves)
             if cves is None:
-                unscored.append(agent_id)
                 enriched["findings"] = None
             else:
                 for row in cves:
@@ -462,4 +598,19 @@ class WazuhSource:
                 "agents": unscored,
                 "node_ids": [endpoint_node_id(a) for a in unscored],
             })
+        for kind, ids in (("not_yet_inventoried", not_inventoried),
+                          ("inventory_unavailable", inventory_failed)):
+            if ids:
+                self.warnings.append({
+                    "type": kind,
+                    "agents": ids,
+                    "node_ids": [endpoint_node_id(a) for a in ids],
+                })
         return out
+
+    def _has_packages(self, agent_id) -> bool:
+        """True if the Manager API holds any package inventory for the agent."""
+        if self._token is None:
+            self._authenticate()
+        return bool(self._get_inventory(f"/syscollector/{agent_id}/packages",
+                                        params={"limit": 1}))

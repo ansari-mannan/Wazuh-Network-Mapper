@@ -110,7 +110,7 @@ def _load_endpoints(args, timing: dict, vulns: dict) -> list[dict]:
     scored = source.score(agents)
     timing["endpoint_score_s"] = time.monotonic() - t0
     vulns["cves"] = source.cves
-    vulns["warnings"] = source.warnings
+    vulns["warnings"] = source.collect_warnings + source.warnings
     return scored
 
 
