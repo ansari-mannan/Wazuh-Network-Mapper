@@ -562,6 +562,27 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         discovered_nodes.append(node)
         parent_of[node.node_id] = (fact.switch_node_id, fact.port, CONF_FDB)
 
+    # --- an agent and a discovered host on one IP: warn, never merge ---
+    # A stale ARP entry produces the same picture as a second interface, so the
+    # two stay separate nodes; the host joins that IP's duplicate_ip warning.
+    def ip_entry(n: Node) -> dict:
+        return {"node_id": n.node_id, "hostname": n.hostname,
+                "status": n.status, "stale": n.stale}
+
+    warning_by_ip = {w["ip"]: w for w in duplicate_ip_warnings}
+    for node in discovered_nodes:
+        agents_on_ip = endpoints_by_ip.get(node.ip) if node.ip else None
+        if not agents_on_ip:
+            continue
+        warning = warning_by_ip.get(node.ip)
+        if warning is None:
+            warning = {"type": "duplicate_ip", "ip": node.ip,
+                       "nodes": [ip_entry(ep) for ep in agents_on_ip]}
+            warning_by_ip[node.ip] = warning
+            duplicate_ip_warnings.append(warning)
+        warning["nodes"].append(ip_entry(node))
+    duplicate_ip_warnings.sort(key=lambda w: w["ip"])
+
     # --- endpoint edges (no remote_port: the host's MAC is not a switch port) ---
     endpoint_edges = [
         Edge(source=ep_id, target=parent, type=EDGE_ENDPOINT_LINK,

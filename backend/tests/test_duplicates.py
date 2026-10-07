@@ -210,5 +210,44 @@ class TestCaseC_HostnameChassisNeighbour(unittest.TestCase):
         self.assertEqual(Graph([], net).nodes[HP_ID]["role"], "Unknown Network Device")
 
 
+class TestCaseD_AgentAndDiscoveredHostShareIp(unittest.TestCase):
+    MANNAN_MAC = "e4:a7:a0:25:ce:ac"
+    OTHER_MAC = "e8:d0:fc:ca:35:1b"
+
+    def setUp(self):
+        net = {"nodes": [hp_switch(
+            fdb=[{"mac": bare(self.OTHER_MAC), "port": "GigabitEthernet1/0/9", "vlan": 80}],
+            arp={bare(self.OTHER_MAC): "172.20.80.2"})], "edges": []}
+        self.g = Graph([agent("001", "Mannan-PC", "172.20.80.2", mac=self.MANNAN_MAC)], net)
+
+    def test_both_kept(self):
+        self.assertIn("endpoint:001", self.g.nodes)
+        self.assertIn(f"host:{self.OTHER_MAC}", self.g.nodes)
+        self.assertFalse(self.g.nodes["endpoint:001"]["stale"])
+
+    def test_one_warning_naming_both(self):
+        dups = [w for w in self.g.doc["metadata"]["warnings"] if w["type"] == "duplicate_ip"]
+        self.assertEqual(len(dups), 1)
+        self.assertEqual(dups[0]["ip"], "172.20.80.2")
+        self.assertEqual(dups[0]["nodes"], [
+            {"node_id": "endpoint:001", "hostname": "Mannan-PC", "status": "active",
+             "stale": False},
+            {"node_id": f"host:{self.OTHER_MAC}", "hostname": None, "status": "discovered",
+             "stale": False},
+        ])
+
+    def test_joins_an_existing_endpoint_warning_for_that_ip(self):
+        net = {"nodes": [hp_switch(
+            fdb=[{"mac": bare(self.OTHER_MAC), "port": "GigabitEthernet1/0/9", "vlan": 80}],
+            arp={bare(self.OTHER_MAC): "172.20.80.2"})], "edges": []}
+        g = Graph([agent("001", "Mannan-PC", "172.20.80.2", mac=self.MANNAN_MAC),
+                   agent("002", "Old-PC", "172.20.80.2", mac="aa:bb:cc:00:00:02",
+                         status="disconnected")], net)
+        dups = [w for w in g.doc["metadata"]["warnings"] if w["type"] == "duplicate_ip"]
+        self.assertEqual(len(dups), 1)
+        self.assertEqual([n["node_id"] for n in dups[0]["nodes"]],
+                         ["endpoint:001", "endpoint:002", f"host:{self.OTHER_MAC}"])
+
+
 if __name__ == "__main__":
     unittest.main()
