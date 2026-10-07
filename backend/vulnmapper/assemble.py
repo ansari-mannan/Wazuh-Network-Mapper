@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import ipaddress
 from collections import defaultdict, deque
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -126,6 +126,8 @@ class MacTable:
     Built once per assemble and read two ways: parenting (a MAC matching an
     existing node attaches it) and discovery (a MAC matching nothing becomes a
     new host). ``by_ip`` lets an endpoint whose Wazuh MAC is null match by IP.
+    ``arp_by_ip`` is every ARP entry (``ip -> mac``), FDB or not; it is only
+    trusted when an LLDP announcement of that MAC corroborates it.
     ``infra_macs`` are the polling devices' own interface/SVI/chassis MACs, which
     are excluded so a router's gateway MACs never become phantom hosts.
     """
@@ -133,6 +135,7 @@ class MacTable:
     by_mac: dict
     by_ip: dict
     infra_macs: set
+    arp_by_ip: dict = field(default_factory=dict)
 
 
 def _infra_macs(network_nodes: list[dict]) -> set:
@@ -195,7 +198,8 @@ def build_mac_table(network_nodes: list[dict]) -> MacTable:
         by_mac[mac] = HostFact(mac, arp_ip.get(mac), node_id, port, vlan, confidence)
 
     by_ip = {fact.ip: mac for mac, fact in by_mac.items() if fact.ip}
-    return MacTable(by_mac=by_mac, by_ip=by_ip, infra_macs=infra_macs)
+    arp_by_ip = {ip: mac for mac, ip in arp_ip.items()}
+    return MacTable(by_mac=by_mac, by_ip=by_ip, infra_macs=infra_macs, arp_by_ip=arp_by_ip)
 
 
 def same_subnet(ip_a: Optional[str], ip_b: Optional[str], prefix: int = 24) -> bool:
@@ -405,6 +409,8 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
     # --- TIER 1: merge LLDP phantom device nodes into their endpoints ---
     phantom_chassis: set[str] = set()
     for chassis in list(device_by_chassis):
+        if device_by_chassis[chassis].pollable:
+            continue  # a pollable device is real equipment, never a phantom
         cmac = canonical_mac(chassis)
         ep = endpoints_by_mac.get(cmac) if cmac else None
         if ep is None:
@@ -465,6 +471,59 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
             unparented_reason[ep.node_id] = REASON_OFFLINE
         else:
             unparented_reason[ep.node_id] = REASON_ABSENT
+
+    # --- TIER 1 AGAIN: phantoms whose endpoint MAC was only learned above ---
+    # Tier 1 ran before the switch tables filled in MACs Wazuh did not report,
+    # so a phantom for such an endpoint survived it. An endpoint still without a
+    # MAC may take one from ARP alone, but only when an LLDP phantom announcing
+    # that MAC corroborates it (a bare ARP entry may be stale).
+    phantom_by_mac = {canonical_mac(c): c for c, dev in device_by_chassis.items()
+                      if not dev.pollable and canonical_mac(c)}
+    late_phantoms: set[str] = set()
+    for ep in endpoint_nodes:
+        mac = canonical_mac(ep.mac)
+        if mac is None and ep.ip:
+            mac = mac_table.arp_by_ip.get(ep.ip)
+        chassis = phantom_by_mac.get(mac) if mac else None
+        if chassis is None or chassis in late_phantoms:
+            continue
+        switch_chassis, switch_port = _lldp_switch_and_port(chassis, raw_edges)
+        if switch_chassis is None or switch_chassis not in device_by_chassis \
+                or switch_chassis in late_phantoms:
+            continue  # can't identify the reporting switch; leave both nodes
+        late_phantoms.add(chassis)
+        if ep.mac is None:
+            ep.mac = format_mac(mac)
+        ep.role = derive_role(capabilities=caps_by_mac.get(mac), vendor=ep.vendor,
+                              model=ep.model, mac=ep.mac, kind=KIND_ENDPOINT)
+        # An LLDP announcement is direct evidence: it wins unless the tables
+        # already placed the endpoint on that very switch port.
+        lldp_parent = (device_node_id(switch_chassis), switch_port, CONF_LLDP)
+        parent, port, _conf = parent_of.get(ep.node_id, (None, None, None))
+        if (parent, port) != lldp_parent[:2]:
+            parent_of[ep.node_id] = lldp_parent
+            unparented_reason.pop(ep.node_id, None)
+
+    if late_phantoms:
+        phantom_chassis |= late_phantoms
+        late_ids = {device_node_id(c) for c in late_phantoms}
+        for chassis in late_phantoms:
+            device_by_chassis.pop(chassis, None)
+        device_nodes = [n for n in device_nodes if n.node_id not in late_ids]
+        device_node_ids -= late_ids
+        lldp_edges = [e for e in lldp_edges
+                      if e.source not in late_ids and e.target not in late_ids]
+        # A subnet-fallback parent can't be a node that no longer exists.
+        for ep_id, (parent, port, conf) in list(parent_of.items()):
+            if parent in late_ids:
+                ep = next(n for n in endpoint_nodes if n.node_id == ep_id)
+                gateway = _subnet_parent(ep.ip, device_nodes)
+                parent_of[ep_id] = (gateway, None, CONF_SUBNET_FALLBACK if gateway else None)
+                if gateway is None:
+                    online = (ep.status or "").lower() == "active"
+                    unparented_reason[ep_id] = (REASON_ABSENT if ep.mac and online
+                                                else REASON_NO_MAC if online
+                                                else REASON_OFFLINE)
 
     # --- FDB/ARP HOST DISCOVERY: a table MAC matching no node is a new host ---
     known_macs = {canonical_mac(n.chassis_id) for n in device_nodes}
