@@ -7,7 +7,8 @@ as **Network Topology Mapper** and has:
 - **Overview**: network devices by type, endpoints by status, hosts by risk
   level, and cards for every page.
 - **Topology map**: the graph, with draggable nodes, reload and reset, and a
-  detail flyout for each device or endpoint.
+  detail flyout for each device or endpoint. A link between two devices shows
+  each device's port next to that device; a host link shows the switch port.
 - **Scan settings**: run a scan with an SNMP community string, follow its
   status, and see where the current graph came from.
 - Vulnerabilities, Attack paths and Recommendations: shown as "Coming soon".
@@ -79,6 +80,10 @@ vulnmapper.pythonBin: /home/ans/dev/venv/bin/python
 Type-check from the dashboard folder with
 `node_modules/.bin/tsc -p plugins/vulnmapper/tsconfig.json --noEmit`.
 
+Unit tests for the plugin's pure helpers (`*.test.ts`) run with the
+dashboard's own jest, from the dashboard folder:
+`node_modules/.bin/jest --config plugins/vulnmapper/test/jest.config.js`.
+
 ## API
 
 | Route | Purpose |
@@ -86,7 +91,7 @@ Type-check from the dashboard folder with
 | `GET /api/vulnmapper/graph` | the current graph; file time in the `x-vulnmapper-graph-mtime` header |
 | `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string }`; 409 if one is running |
 | `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message |
-| `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes }`; `checkedAt` null and `nodes` empty when disabled or before the first pass |
+| `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so
@@ -98,19 +103,35 @@ A background check of whether the nodes already on the map still answer. Off
 by default; turn it on in `opensearch_dashboards.yml` (or the dev config):
 
 ```yaml
-vulnmapper.liveness.enabled: true        # default false
-vulnmapper.liveness.intervalSeconds: 20  # default 20, at least 10
-vulnmapper.liveness.missThreshold: 3     # default 3, at least 1
-# vulnmapper.liveness.path: /path/to/liveness.json   # default: beside graphPath
+vulnmapper.liveness.enabled: true                  # default false
+vulnmapper.liveness.intervalSeconds: 10            # default 10, at least 10
+vulnmapper.liveness.missThreshold: 2               # default 2, at least 1
+vulnmapper.liveness.agentMaxAgeSeconds: 60         # default 60, at least 10
+vulnmapper.liveness.autoRescan: true               # default true
+vulnmapper.liveness.minRescanIntervalSeconds: 120  # default 120, at least 60
+# vulnmapper.liveness.path: /path/to/liveness.json # default: beside graphPath
 ```
 
 Every interval the server runs `<pythonBin> -m vulnmapper.liveness` (skipped
 while a scan runs) and saves the result to `liveness.json`; it never writes the
 graph. The SNMP community of the last scan is passed through the environment
-only. On the map, inactive nodes are dimmed; inactive discovered hosts leave
-the canvas for an "Inactive (n)" panel (switch "Hide inactive discovered
-hosts"), and the detail flyout shows a Liveness row. With liveness disabled the
-UI is unchanged.
+only. Endpoints with a Wazuh agent are checked by agent check-in when
+`WAZUH_PASS` is in the dashboard server's environment (the same variable a
+scan uses): a check-in older than `agentMaxAgeSeconds` is a miss, and a
+disconnected agent is inactive at once. Without it they are pinged.
+
+When a pass sees something new (a switch port came up with nothing on the map
+linked to it, or an active Wazuh agent that is not on the map) and
+`autoRescan` is on, the server starts a scan the way the Scan settings page
+does: never while one is running, and never sooner than
+`minRescanIntervalSeconds` after the last scan started. The map reloads the
+graph by itself when the graph file changes.
+
+On the map, inactive devices stay on the canvas, dimmed; every inactive host
+leaves it for an "Inactive (n)" panel (switch "Hide inactive hosts") showing
+its name or IP, MAC, last seen time and how it was checked. The detail flyout
+shows a Liveness row, for example "via Wazuh agent check-in, 8 s ago". With
+liveness disabled the UI is unchanged.
 
 ## Building the zip
 

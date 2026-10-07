@@ -45,6 +45,12 @@ The graph is written to stdout, or to the file given with `-o`. The web app
 reads `data/graph.json` at the repository root, and scans started from the web
 app write to that file.
 
+An endpoint is attached to a switch port from LLDP or the forwarding tables.
+Only an endpoint whose Wazuh status is `active` and has no such evidence is
+attached by subnet instead (to a device sharing its /24, confidence
+`subnet_fallback`); any other endpoint without evidence stays unparented and
+is listed in `metadata.unparented_endpoints` with its reason.
+
 ### CVEs and the base score
 
 The score stage reads every vulnerability document for each agent (paged, at
@@ -119,19 +125,39 @@ endpoints, which keeps its stored `risk_score` and has no full findings.
 ## Liveness
 
 ```
-python -m vulnmapper.liveness --graph ../data/graph.json [--state liveness.json] [--threshold 3]
+python -m vulnmapper.liveness --graph ../data/graph.json [--state liveness.json]
+                              [--threshold 2] [--agent-max-age 60]
 ```
 
 Re-checks the nodes already in the graph (never writes it) and prints a state
 document on stdout: per node `state` (`active` / `inactive` / `unknown`),
-`method`, `misses`, `last_seen`, `last_checked`, `proven_methods`. Pollable
-devices are probed by SNMP when `SNMP_COMMUNITIES` (or the other `SNMP_*`
-variables) is set, everything else by `ping -c 1 -W 1`. A node only goes
-inactive after `--threshold` misses on a method it has answered before, or at
-once when its switch port is reported down (`method: "port"`). Such a node gets
-its earlier state back, with misses reset, once that port is up again or a new
-scan places it on another port; an up port never makes a node active by itself.
-The plugin runs it on a timer.
+`method`, `misses`, `last_seen`, `last_checked`, `proven_methods`.
+
+- Endpoints with an `agent_id` are checked by Wazuh agent check-in
+  (`method: "agent"`) when `WAZUH_PASS` is set: one Manager API request per
+  pass lists every agent's status and `lastKeepAlive`. Active with a check-in
+  no older than `--agent-max-age` seconds is a reply (agent 000, the manager,
+  always is); an older check-in is a miss; `disconnected`, `pending` or
+  `never_connected` makes the node inactive at once. If the login or request
+  fails or takes over 5 seconds, those nodes keep their state for the pass
+  (`reason: "agent_unavailable"`, and `agent_error` in the document). Without
+  `WAZUH_PASS` they are pinged like any other endpoint.
+- Pollable devices are probed by SNMP when `SNMP_COMMUNITIES` (or the other
+  `SNMP_*` variables) is set, everything else by `ping -c 1 -W 1`.
+- A node goes inactive after `--threshold` misses on a method it has answered
+  before (`agent` counts as answered from the start), or at once when its
+  switch port is reported down (`method: "port"`). Such a node gets its
+  earlier state back, with misses reset, once that port is up again or a new
+  scan places it on another port; an up port never makes a node active by
+  itself.
+- Port states of every polled device are remembered between passes (`ports`).
+  The document sets `rescan_suggested` with short `rescan_reasons` when a port
+  goes from down to up with nothing in the graph linked to it, or when the
+  Manager API lists an active agent that is not in the graph. The suggestion
+  stands until a new scan replaces the graph (`graph_scan_time`).
+
+Credentials come from the environment only and are never logged, written or
+placed in argv. The plugin runs it on a timer and starts the suggested scans.
 
 ## Tests
 
