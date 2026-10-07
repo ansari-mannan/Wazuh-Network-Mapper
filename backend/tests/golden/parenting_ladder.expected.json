@@ -119,7 +119,7 @@
       "risk_score": 0,
       "max_cvss": null,
       "discovery_order": 4,
-      "parent_id": "device:access",
+      "parent_id": null,
       "agent_id": "003",
       "stale": false,
       "top_cves": [],
@@ -175,14 +175,6 @@
       "type": "endpoint_link",
       "local_port": "Gi2/0/7",
       "confidence": "resolved"
-    },
-    {
-      "source": "endpoint:003",
-      "source_name": "CYFOR-3",
-      "target": "device:access",
-      "target_name": "L2-Switch",
-      "type": "endpoint_link",
-      "confidence": "subnet_fallback"
     }
   ],
   "metadata": {
@@ -200,18 +192,22 @@
       "devices": 2,
       "fdb_discovered_hosts": 0,
       "lldp_edges": 1,
-      "endpoint_edges": 3,
-      "unparented_endpoints": 1
+      "endpoint_edges": 2,
+      "unparented_endpoints": 2
     },
     "confidence": {
       "lldp": 1,
-      "resolved": 1,
-      "subnet_fallback": 1
+      "resolved": 1
     },
     "merged_lldp_endpoints": 1,
     "fdb_discovered_hosts": 0,
     "fdb_enriched_nodes": 0,
     "unparented_endpoints": [
+      {
+        "node_id": "endpoint:003",
+        "hostname": "CYFOR-3",
+        "reason": "host_offline_no_l2_evidence"
+      },
       {
         "node_id": "endpoint:007",
         "hostname": "ANS",

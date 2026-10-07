@@ -16,7 +16,8 @@ Parenting ladder (per endpoint, first tier that succeeds wins; the tier becomes
 the edge ``confidence``):
   Tier 1 — LLDP match (merge the phantom device node into the endpoint).
   Tier 2 — per-VLAN FDB match (:func:`build_mac_table`).
-  Tier 3 — IP/subnet fallback (:func:`same_subnet`), else unparented with reason.
+  Tier 3 — IP/subnet fallback (:func:`same_subnet`), active endpoints only, else
+  unparented with reason.
 """
 
 from __future__ import annotations
@@ -499,7 +500,9 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
             parent_of[ep.node_id] = (fact.switch_node_id, fact.port, fact.confidence)
             continue
 
-        gateway = _subnet_parent(ep.ip, device_nodes)
+        # Tier 3 only for a host that is online: sharing a /24 is not evidence
+        # that an offline machine hangs off that device.
+        gateway = _subnet_parent(ep.ip, device_nodes) if online else None
         if gateway:
             parent_of[ep.node_id] = (gateway, None, CONF_SUBNET_FALLBACK)
             continue
@@ -571,10 +574,10 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         for ep_id, (parent, _port, _conf) in list(parent_of.items()):
             if parent in ids:
                 ep = next(n for n in endpoint_nodes if n.node_id == ep_id)
-                gateway = _subnet_parent(ep.ip, device_nodes)
+                online = (ep.status or "").lower() == "active"
+                gateway = _subnet_parent(ep.ip, device_nodes) if online else None
                 parent_of[ep_id] = (gateway, None, CONF_SUBNET_FALLBACK if gateway else None)
                 if gateway is None:
-                    online = (ep.status or "").lower() == "active"
                     unparented_reason[ep_id] = (REASON_ABSENT if ep.mac and online
                                                 else REASON_NO_MAC if online
                                                 else REASON_OFFLINE)

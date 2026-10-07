@@ -50,7 +50,8 @@ def endpoints():
         # Tier 2: online, non-LLDP, in the access switch FDB
         {"agent_id": "010", "hostname": "PRN-1", "mac": NON_LLDP_MAC,
          "ip": "172.20.20.50", "status": "active", "risk_score": 0, "top_cves": []},
-        # Tier 3: offline, same subnet as L2-Switch -> subnet fallback
+        # Offline, same subnet as L2-Switch, no table or LLDP evidence: the
+        # subnet fallback is for active endpoints only, so it stays unparented
         {"agent_id": "003", "hostname": "CYFOR-3", "mac": None,
          "ip": "172.20.20.99", "status": "disconnected", "risk_score": 0, "top_cves": []},
         # Unparented: offline, no MAC, no same-subnet device
@@ -87,10 +88,13 @@ class TestParentingLadder(unittest.TestCase):
         self.assertEqual(edge["local_port"], "Gi2/0/7")
         self.assertEqual(edge["confidence"], "resolved")
 
-    def test_tier3_subnet_fallback(self):
-        edge = self.ep_edges["endpoint:003"]
-        self.assertEqual(edge["confidence"], "subnet_fallback")
-        self.assertEqual(edge["target"], "device:access")  # same /24
+    def test_offline_same_subnet_not_attached_by_guess(self):
+        # CYFOR-3 is disconnected and no switch has seen it: sharing L2-Switch's
+        # /24 is not evidence, so no subnet_fallback edge is drawn.
+        self.assertNotIn("endpoint:003", self.ep_edges)
+        self.assertIsNone(self.by_id["endpoint:003"]["parent_id"])
+        unp = {u["node_id"]: u for u in self.doc["metadata"]["unparented_endpoints"]}
+        self.assertEqual(unp["endpoint:003"]["reason"], "host_offline_no_l2_evidence")
 
     def test_offline_no_evidence_unparented_with_honest_reason(self):
         self.assertNotIn("endpoint:007", self.ep_edges)  # no fabricated edge
@@ -112,8 +116,8 @@ class TestParentingLadder(unittest.TestCase):
         self.assertEqual(counts["devices"], 2)        # phantom removed (was 3)
         self.assertEqual(counts["endpoints"], 4)
         self.assertEqual(counts["lldp_edges"], 1)     # phantom edge dropped
-        self.assertEqual(counts["endpoint_edges"], 3) # 004, 010, 003
-        self.assertEqual(counts["unparented_endpoints"], 1)  # 007
+        self.assertEqual(counts["endpoint_edges"], 2) # 004, 010
+        self.assertEqual(counts["unparented_endpoints"], 2)  # 003, 007
         self.assertEqual(self.doc["metadata"]["merged_lldp_endpoints"], 1)
 
     def test_node_ids_unique(self):
@@ -146,6 +150,31 @@ class TestParentingLadder(unittest.TestCase):
 SCANNER_MAC = "d4:be:d9:97:f4:ca"
 ANS_MAC = "28:f1:0e:31:3f:0c"
 SVI_MAC = "00:23:ac:e5:74:41"
+
+
+class TestSubnetFallbackOnlyForActive(unittest.TestCase):
+    """Tier 3 (subnet fallback) applies only to endpoints whose status is active."""
+
+    def _edges(self, status):
+        eps = [{"agent_id": "020", "hostname": "PC-20", "mac": None,
+                "ip": "172.20.20.77", "status": status, "risk_score": 0, "top_cves": []}]
+        doc = assemble(eps, network_doc())
+        return doc, {e["source"]: e for e in doc["edges"] if e["type"] == "endpoint_link"}
+
+    def test_active_endpoint_still_gets_the_fallback(self):
+        doc, edges = self._edges("active")
+        self.assertEqual(edges["endpoint:020"]["confidence"], "subnet_fallback")
+        self.assertEqual(edges["endpoint:020"]["target"], "device:access")
+
+    def test_non_active_endpoint_with_no_evidence_is_unparented(self):
+        for status in ("disconnected", "pending", "never_connected", None):
+            with self.subTest(status=status):
+                doc, edges = self._edges(status)
+                self.assertNotIn("endpoint:020", edges)
+                node = next(n for n in doc["nodes"] if n["node_id"] == "endpoint:020")
+                self.assertIsNone(node["parent_id"])
+                unp = {u["node_id"]: u for u in doc["metadata"]["unparented_endpoints"]}
+                self.assertEqual(unp["endpoint:020"]["reason"], "host_offline_no_l2_evidence")
 
 
 class TestFdbArpDiscovery(unittest.TestCase):
