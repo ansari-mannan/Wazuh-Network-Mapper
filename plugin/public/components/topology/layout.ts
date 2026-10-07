@@ -29,6 +29,8 @@ export type LayoutEdge = {
   source: string;
   target: string;
   label: string | undefined;
+  /** remote_port of the recorded target (lldp links); label is local_port */
+  remotePort?: string;
   type: GraphEdge["type"] | "inferred";
   confidence?: string;
   inferred: boolean;
@@ -231,6 +233,7 @@ export function layoutGraph(
       source: e.source,
       target: e.target,
       label: e.local_port || undefined,
+      remotePort: e.remote_port || undefined,
       type: e.type,
       confidence: e.confidence,
       inferred: false,

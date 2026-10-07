@@ -1,8 +1,11 @@
 import React, { CSSProperties, forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import ReactFlow, {
   Background,
+  BezierEdge,
   Controls,
   Edge,
+  EdgeProps,
+  EdgeText,
   MarkerType,
   NodeChange,
   ReactFlowInstance,
@@ -12,6 +15,7 @@ import ReactFlow, {
 import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
 import { CustomNode, TopologyFlowNode } from './CustomNode';
+import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
 
 // Ported from frontend/risk-module/ui/topology/TopologyView.tsx (@xyflow/react
@@ -20,6 +24,41 @@ import { graphColors, themeVars } from '../../lib/theme';
 // Differences from the original: nodes are draggable, and every link is drawn
 // from the upper node to the lower one (see orientForDrawing).
 const nodeTypes = { device: CustomNode };
+
+// How far along a device-to-device link its two port labels sit, from each end.
+const PORT_LABEL_T = 0.22;
+
+// A device-to-device link: the usual bezier, with each device's port printed
+// near that device's end of the line instead of one label in the middle.
+function PortsEdge(props: EdgeProps<PortLabels>) {
+  const { sourceX, sourceY, targetX, targetY, data, labelStyle, labelBgStyle } = props;
+  const end = (port: string | undefined, t: number, which: string) => {
+    if (!port) return null;
+    const { x, y } = pointOnLink(sourceX, sourceY, targetX, targetY, t);
+    return (
+      <EdgeText
+        x={x}
+        y={y}
+        label={port}
+        labelStyle={labelStyle}
+        labelShowBg
+        labelBgStyle={labelBgStyle}
+        labelBgPadding={[3, 2]}
+        labelBgBorderRadius={2}
+        className={`vmPortLabel vmPortLabel--${which}`}
+      />
+    );
+  };
+  return (
+    <>
+      <BezierEdge {...props} label={undefined} />
+      {end(data?.sourcePort, PORT_LABEL_T, 'source')}
+      {end(data?.targetPort, 1 - PORT_LABEL_T, 'target')}
+    </>
+  );
+}
+
+const edgeTypes = { ports: PortsEdge };
 
 type EdgeStyle = CSSProperties & { stroke: string };
 
@@ -114,12 +153,23 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       //   endpoint_link  -> dashed slate, width 1.5 (a host attached to an access port)
       //     confidence=fdb -> lighter + finer dash (inferred-from-forwarding-table)
       //   inferred       -> dashed amber (tentative, subnet-guessed; not confirmed)
+      // Port labels: an lldp link shows each device's port at that device's
+      // end (see edgeLabels.ts); a host link shows the switch port in the middle.
       const rfEdges: Edge[] = laidEdges.map((e) => {
         const style = edgeStyle(e);
+        const drawn = orientForDrawing(e, layoutY);
+        const ports =
+          e.type === 'lldp'
+            ? portLabels(
+                { type: 'lldp', local_port: e.label, remote_port: e.remotePort },
+                drawn.source !== e.source
+              )
+            : null;
         return {
           id: e.id,
-          ...orientForDrawing(e, layoutY),
-          label: e.inferred ? 'inferred' : e.label,
+          ...drawn,
+          ...(ports ? { type: 'ports', data: ports } : {}),
+          label: e.inferred ? 'inferred' : ports ? undefined : e.label,
           style,
           labelStyle: {
             fontSize: 10,
@@ -183,6 +233,7 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
           nodes={nodes.map((n) => (n.selected === (n.id === selectedId) ? n : { ...n, selected: n.id === selectedId }))}
           edges={edges}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           onNodesChange={handleNodesChange}
           onNodeClick={(_, n) => onSelect(n.id)}
           onPaneClick={() => onSelect(null)}
