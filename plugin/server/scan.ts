@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
+import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { ScanState } from '../common';
 
@@ -42,7 +43,10 @@ function finish(status: ScanState['status'], message: string) {
  * Start `<pythonBin> -m vulnmapper` in backendDir. Returns false if a scan is
  * already running. The graph JSON arrives on stdout; it is validated and then
  * written to a temp file and renamed over graphPath, so a failed or partial scan
- * always leaves the previous graph in place.
+ * always leaves the previous graph in place. The full CVE list goes to
+ * vulnerabilities.json beside graphPath: the scanner writes it to a temp path,
+ * which is moved into place only after the graph has been saved and deleted if
+ * the scan or the save fails, so the two files always come from the same scan.
  */
 export function startScan({ pythonBin, backendDir, graphPath, community, logger }: ScanOptions) {
   if (scan.status === 'running') return false;
@@ -55,8 +59,12 @@ export function startScan({ pythonBin, backendDir, graphPath, community, logger 
   const env = { ...process.env };
   if (community) env.SNMP_COMMUNITIES = community;
 
-  logger.info(`scan started: ${pythonBin} -m vulnmapper (cwd ${backendDir})`);
-  const child = spawn(pythonBin, ['-m', 'vulnmapper'], { cwd: backendDir, env });
+  const vulnsPath = path.join(path.dirname(path.resolve(graphPath)), 'vulnerabilities.json');
+  const vulnsTmp = `${vulnsPath}.tmp-${process.pid}`;
+  const discardVulns = () => fs.unlink(vulnsTmp).catch(() => undefined);
+  const args = ['-m', 'vulnmapper', '--vulns-out', vulnsTmp];
+  logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
+  const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
   let stderr = '';
   child.stdout.on('data', (d: Buffer) => chunks.push(d));
@@ -68,6 +76,7 @@ export function startScan({ pythonBin, backendDir, graphPath, community, logger 
     // The binary itself could not be launched (missing python, bad cwd).
     finish('failed', `failed to start ${pythonBin}: ${e.message}`);
     logger.warn(`scan failed: ${scan.message}`);
+    discardVulns();
   });
 
   child.on('close', async (code: number | null) => {
@@ -76,6 +85,7 @@ export function startScan({ pythonBin, backendDir, graphPath, community, logger 
     if (code !== 0 || !out.length) {
       finish('failed', failureMessage(stderr, code, community));
       logger.warn(`scan failed: ${scan.message}`);
+      await discardVulns();
       return;
     }
     try {
@@ -83,11 +93,21 @@ export function startScan({ pythonBin, backendDir, graphPath, community, logger 
       const tmp = `${graphPath}.tmp-${process.pid}`;
       await fs.writeFile(tmp, out);
       await fs.rename(tmp, graphPath);
-      finish('idle', 'Scan completed; graph updated.');
-      logger.info('scan completed; graph updated');
     } catch (e) {
       finish('failed', `could not save scanner output: ${(e as Error).message}`);
       logger.warn(`scan failed: ${scan.message}`);
+      await discardVulns();
+      return;
+    }
+    try {
+      await fs.rename(vulnsTmp, vulnsPath);
+      finish('idle', 'Scan completed; graph updated.');
+      logger.info('scan completed; graph updated');
+    } catch (e) {
+      // The graph is saved; only the full CVE list is stale.
+      finish('idle', `Scan completed; graph updated, but vulnerabilities.json was not: ${(e as Error).message}`);
+      logger.warn(`could not save vulnerabilities.json: ${(e as Error).message}`);
+      await discardVulns();
     }
   });
 

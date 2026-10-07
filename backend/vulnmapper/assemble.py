@@ -266,9 +266,11 @@ def _endpoint_node(raw: dict) -> Node:
         mac=raw.get("mac"),
         status=raw.get("status"),
         agent_id=raw.get("agent_id"),
-        risk_score=raw.get("risk_score", 0) or 0,
+        risk_score=raw.get("risk_score", 0),  # None = unscored, kept as null
         max_cvss=_max_cvss(top_cves),
         top_cves=top_cves,
+        cve_summary=raw.get("cve_summary"),
+        is_wazuh_server=bool(raw.get("is_wazuh_server")),
     )
 
 

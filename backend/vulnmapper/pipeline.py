@@ -13,6 +13,8 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
   --scored PATH    use an existing scored endpoints JSON (skip collect + score)
   --network PATH   use an existing network topology JSON (skip the crawl)
   --no-endpoints / --no-network   build a one-sided graph
+  --vulns-out PATH every CVE finding (vulnerabilities.json); defaults to the
+                   folder of -o, skipped when the graph goes to stdout
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
 ``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl).
@@ -28,6 +30,7 @@ import time
 from datetime import datetime, timezone
 from typing import Optional
 
+from . import vulnfile
 from .assemble import assemble
 
 log = logging.getLogger("vulnmapper.pipeline")
@@ -64,21 +67,34 @@ def build_parser() -> argparse.ArgumentParser:
                         help="explicit seed device IP for the live crawl (repeatable).")
     parser.add_argument("-o", "--output", metavar="PATH",
                         help="write the graph JSON to PATH (UTF-8) instead of stdout.")
+    parser.add_argument("--vulns-out", metavar="PATH",
+                        help="write every CVE finding to PATH (default: "
+                             "vulnerabilities.json next to -o; skipped when the "
+                             "graph goes to stdout).")
     return parser
 
 
-def _load_endpoints(args, timing: dict) -> list[dict]:
+def _load_endpoints(args, timing: dict, vulns: dict) -> list[dict]:
     """Collect + score endpoints, recording per-phase elapsed time in ``timing``.
 
     A phase that is skipped (``--no-endpoints``, or a cached ``--scored`` file)
     leaves its duration as ``None`` rather than 0 — null means "did not run", not
-    "ran instantly".
+    "ran instantly". The shared CVE catalogue and the score-stage warnings go in
+    ``vulns`` (``cves`` / ``warnings``).
+
+    A ``--scored`` file is either the old shape (a list of endpoints, with no
+    full findings) or ``{"endpoints": [...], "cves": {...}, "warnings": [...]}``.
     """
     if args.no_endpoints:
         return []
     if args.scored:
         with open(args.scored) as f:
-            return json.load(f)
+            doc = json.load(f)
+        if isinstance(doc, list):
+            return doc
+        vulns["cves"] = doc.get("cves")
+        vulns["warnings"] = doc.get("warnings") or []
+        return doc.get("endpoints") or []
     # Live: collect from the Manager API, then score against the Indexer.
     from .endpoints import WazuhSource
 
@@ -93,6 +109,8 @@ def _load_endpoints(args, timing: dict) -> list[dict]:
     t0 = time.monotonic()
     scored = source.score(agents)
     timing["endpoint_score_s"] = time.monotonic() - t0
+    vulns["cves"] = source.cves
+    vulns["warnings"] = source.collect_warnings + source.warnings
     return scored
 
 
@@ -126,8 +144,8 @@ class Pipeline:
     to the same functions, in the same order, with the same timing and output.
     """
 
-    def load_endpoints(self, args, timing: dict) -> list[dict]:
-        return _load_endpoints(args, timing)
+    def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
+        return _load_endpoints(args, timing, vulns)
 
     def load_network(self, args, timing: dict) -> dict:
         return _load_network(args, timing)
@@ -165,7 +183,8 @@ class Pipeline:
         run_t0 = time.monotonic()
         timing["started_at"] = started_at.isoformat()
 
-        endpoints = self.load_endpoints(args, timing)
+        vulns: dict = {"cves": None, "warnings": []}
+        endpoints = self.load_endpoints(args, timing, vulns)
         network_doc = self.load_network(args, timing)
 
         assemble_t0 = time.monotonic()
@@ -180,6 +199,7 @@ class Pipeline:
         # breakdown lives in metadata.timing.
         document["metadata"]["timing"] = timing
         document["metadata"]["scan_time"] = finished_at.isoformat()
+        document["metadata"]["warnings"].extend(vulns["warnings"])
 
         counts = document["metadata"]["counts"]
         log.info(
@@ -191,6 +211,16 @@ class Pipeline:
         )
 
         self.emit(document, args.output)
+
+        vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
+                                        if args.output else None)
+        if vulns_path:
+            vulnfile.write_atomic(vulns_path, vulnfile.build_document(
+                endpoints, vulns["cves"], document["metadata"]["scan_time"]))
+            log.info("wrote vulnerabilities to %s", vulns_path)
+        else:
+            log.info("graph went to stdout and --vulns-out was not given; "
+                     "not writing %s", vulnfile.FILENAME)
         return 0
 
 
