@@ -1,4 +1,4 @@
-"""Top-level run: collect -> score -> link -> assemble -> one graph on stdout.
+"""Top-level run: collect -> score -> crawl -> assemble -> device CVEs -> one graph.
 
     python -m vulnmapper --community <community> > graph.json
 
@@ -15,9 +15,15 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
   --no-endpoints / --no-network   build a one-sided graph
   --vulns-out PATH every CVE finding (vulnerabilities.json); defaults to the
                    folder of -o, skipped when the graph goes to stdout
+  --no-device-cves skip the device vulnerability stage (NVD lookups)
+  --nvd-cache PATH where NVD answers are kept; default nvd-cache.json beside
+                   the vulnerabilities file (or beside -o)
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
-``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl).
+``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
+``NVD_API_KEY``, optional, for the device CVE stage). The device CVE stage runs
+on the assembled graph's devices whether they were crawled live or loaded with
+``--network``; NVD failing never fails the scan.
 """
 
 from __future__ import annotations
@@ -71,6 +77,14 @@ def build_parser() -> argparse.ArgumentParser:
                         help="write every CVE finding to PATH (default: "
                              "vulnerabilities.json next to -o; skipped when the "
                              "graph goes to stdout).")
+    parser.add_argument("--no-device-cves", action="store_true",
+                        help="skip the device vulnerability stage (no NVD lookups); "
+                             "device nodes are emitted as before.")
+    parser.add_argument("--nvd-cache", metavar="PATH",
+                        help="NVD answer cache (default: nvd-cache.json beside the "
+                             "vulnerabilities file, or beside -o).")
+    parser.add_argument("--nvd-budget", type=float, default=None, metavar="SECONDS",
+                        help="time budget for the NVD lookups of one scan (default 180).")
     return parser
 
 
@@ -137,12 +151,17 @@ def _load_network(args, timing: dict) -> dict:
 
 
 class Pipeline:
-    """The top-level orchestrator: collect -> score -> crawl -> assemble -> emit.
+    """The top-level orchestrator: collect -> score -> crawl -> assemble ->
+    device CVEs -> emit.
 
-    A thin object wrapper so the sequence diagram has a single clean lifeline; the
-    behaviour is exactly the former module-level ``run()`` — each stage delegates
-    to the same functions, in the same order, with the same timing and output.
+    A thin object wrapper so the sequence diagram has a single clean lifeline.
+    ``nvd_transport`` and ``clock`` replace the NVD HTTP layer and the clock
+    (tests serve saved replies).
     """
+
+    def __init__(self, nvd_transport=None, clock=None) -> None:
+        self._nvd_transport = nvd_transport
+        self._clock = clock
 
     def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
         return _load_endpoints(args, timing, vulns)
@@ -152,6 +171,15 @@ class Pipeline:
 
     def assemble(self, endpoints: list[dict], network_doc: dict) -> dict:
         return assemble(endpoints, network_doc)
+
+    def device_cves(self, document: dict, cache_path: Optional[str], budget_s: float):
+        from .devicecves.cache import Cache
+        from .devicecves.nvd import NvdClient, SystemClock
+        from .devicecves.stage import run_stage
+
+        clock = self._clock or SystemClock()
+        client = NvdClient(transport=self._nvd_transport, clock=clock, budget_s=budget_s)
+        return run_stage(document, client, Cache(cache_path, clock))
 
     def emit(self, document: dict, output_path: Optional[str]) -> None:
         text = json.dumps(document, indent=2)
@@ -175,6 +203,7 @@ class Pipeline:
             "endpoint_score_s": None,
             "network_crawl_s": None,
             "assemble_s": None,
+            "device_cves_s": None,
             "total_s": None,
             "started_at": None,
             "finished_at": None,
@@ -190,6 +219,25 @@ class Pipeline:
         assemble_t0 = time.monotonic()
         document = self.assemble(endpoints, network_doc)
         timing["assemble_s"] = time.monotonic() - assemble_t0
+
+        vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
+                                        if args.output else None)
+        device_entries: dict = {}
+        if not args.no_device_cves:
+            from .devicecves.cache import default_path as cache_beside
+            from .devicecves.stage import DEFAULT_BUDGET_S, merge_catalogue
+
+            cache_path = args.nvd_cache or (cache_beside(vulns_path) if vulns_path else None)
+            log.info("looking up device CVEs in NVD ...")
+            t0 = time.monotonic()
+            stage = self.device_cves(document, cache_path, args.nvd_budget or DEFAULT_BUDGET_S)
+            timing["device_cves_s"] = time.monotonic() - t0
+            document["metadata"]["device_cves"] = stage.block
+            document["metadata"]["warnings"].extend(stage.warnings)
+            vulns["cves"] = dict(vulns["cves"] or {})
+            for rows in stage.rows.values():
+                merge_catalogue(vulns["cves"], rows)
+            device_entries = stage.entries
 
         finished_at = datetime.now(timezone.utc)
         timing["finished_at"] = finished_at.isoformat()
@@ -212,11 +260,10 @@ class Pipeline:
 
         self.emit(document, args.output)
 
-        vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
-                                        if args.output else None)
         if vulns_path:
             vulnfile.write_atomic(vulns_path, vulnfile.build_document(
-                endpoints, vulns["cves"], document["metadata"]["scan_time"]))
+                endpoints, vulns["cves"], document["metadata"]["scan_time"],
+                devices=device_entries))
             log.info("wrote vulnerabilities to %s", vulns_path)
         else:
             log.info("graph went to stdout and --vulns-out was not given; "

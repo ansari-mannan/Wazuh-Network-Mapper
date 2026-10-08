@@ -173,7 +173,8 @@ class TestWazuhServerSkipped(unittest.TestCase):
                 mock.patch.object(ep_mod.requests, "post", FakeIndexer({})), \
                 contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             with self.assertLogs("vulnmapper.pipeline", "INFO"):
-                Pipeline().run(["--no-network", "-o", os.path.join(tmp, "g.json")])
+                Pipeline().run(["--no-network", "-o", os.path.join(tmp, "g.json"),
+                                "--no-device-cves"])
             with open(os.path.join(tmp, "g.json")) as f:
                 graph = json.load(f)
         self.assertNotIn("endpoint:000", {n["node_id"] for n in graph["nodes"]})

@@ -23,11 +23,15 @@ NETWORK = os.path.join(_FIX, "offline_network.json")
 
 
 def run(argv):
-    """Run the pipeline; returns (exit code, stdout text, pipeline log lines)."""
+    """Run the pipeline; returns (exit code, stdout text, pipeline log lines).
+
+    The device CVE stage is off here (it has its own tests, test_device_stage):
+    these tests pin the endpoint side, and must never reach NVD.
+    """
     out = io.StringIO()
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()), \
             unittest.TestCase().assertLogs("vulnmapper.pipeline", "INFO") as logs:
-        code = Pipeline().run(argv)
+        code = Pipeline().run(list(argv) + ["--no-device-cves"])
     return code, out.getvalue(), logs.output
 
 
@@ -56,7 +60,8 @@ class TestVulnsFileRules(unittest.TestCase):
         graph_ids = {n["node_id"] for n in graph["nodes"] if n.get("agent_id")}
         self.assertEqual(set(vulns["hosts"]), graph_ids)
         self.assertEqual(vulns["metadata"]["scan_time"], graph["metadata"]["scan_time"])
-        self.assertEqual(vulns["metadata"]["counts"], {"hosts": 4, "cves": 17, "findings": 19})
+        self.assertEqual(vulns["metadata"]["counts"], {"hosts": 4, "devices": 0, "cves": 17,
+                                                     "findings": 19})
         self.assertEqual(len(vulns["hosts"]["endpoint:101"]["findings"]), 15)
         self.assertEqual(vulns["hosts"]["endpoint:103"]["findings"], [])
         self.assertIsNone(vulns["hosts"]["endpoint:104"]["findings"])   # unscored
@@ -100,7 +105,8 @@ class TestVulnsFileRules(unittest.TestCase):
         with self.assertRaises(FileNotFoundError), \
                 contextlib.redirect_stderr(io.StringIO()):
             Pipeline().run(["--scored", SCORED, "--network",
-                            os.path.join(self.tmp, "missing.json"), "-o", self.graph])
+                            os.path.join(self.tmp, "missing.json"), "-o", self.graph,
+                            "--no-device-cves"])
         with open(self.default) as f:
             self.assertEqual(f.read(), "previous\n")    # untouched
         self.assertEqual(sorted(os.listdir(self.tmp)), ["vulnerabilities.json"])
@@ -161,7 +167,8 @@ class TestIndexerDownScanCompletes(unittest.TestCase):
                    if w["type"] == "indexer_unreachable"]
         self.assertEqual(len(warning), 1)
         self.assertEqual(warning[0]["agents"], ["001", "002"])
-        self.assertEqual(vulns["metadata"]["counts"], {"hosts": 2, "cves": 0, "findings": 0})
+        self.assertEqual(vulns["metadata"]["counts"], {"hosts": 2, "devices": 0, "cves": 0,
+                                                     "findings": 0})
 
 
 class TestRiskScoreNull(unittest.TestCase):

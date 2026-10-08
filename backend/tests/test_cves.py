@@ -325,7 +325,7 @@ class TestScale(unittest.TestCase):
             self.size = os.path.getsize(path)
 
         self.assertEqual(document["metadata"]["counts"],
-                         {"hosts": self.HOSTS, "cves": self.CVES,
+                         {"hosts": self.HOSTS, "devices": 0, "cves": self.CVES,
                           "findings": self.HOSTS * self.CVES})
         for description in descriptions:
             self.assertEqual(text.count(description), 1, description)
