@@ -43,11 +43,13 @@ from .snmp import (
     SnmpClient,
 )
 from .parse import (
+    CDP_CACHE_BASE,
     LLDP_LOC_PORT_BASE,
     LLDP_REM_BASE,
     LLDP_REM_MAN_ADDR_BASE,
     Neighbor,
     build_neighbors,
+    cdp_is_infrastructure,
     collapse_whitespace,
     collect_arp,
     collect_fdb,
@@ -59,6 +61,7 @@ from .parse import (
     normalize_chassis_id,
     normalize_mac,
     normalize_neighbor_ports,
+    parse_cdp_cache,
 )
 from .vendors import VENDOR_BY_ENTERPRISE
 
@@ -74,6 +77,8 @@ _log_runner = logging.getLogger("discovery")
 
 # discovery_method value stamped on every node this tool emits.
 DISCOVERY_METHOD = "snmp_lldp"
+# ...except a placeholder known only from a neighbour's CDP table.
+DISCOVERY_METHOD_CDP = "snmp_cdp"
 
 # Node status values.
 STATUS_ONLINE = "online"            # polled successfully over SNMP
@@ -151,10 +156,16 @@ class Device:
     # track (ARP supplies IPs; own_macs filter out the device's SVI/gateway MACs).
     arp: dict = field(default_factory=dict)
     own_macs: list = field(default_factory=list)
+    # The platform string a neighbour's CDP table reported for this device.
+    platform: Optional[str] = None
 
     def to_node(self) -> dict:
-        """Render to the output node schema (field order is intentional)."""
-        return {
+        """Render to the output node schema (field order is intentional).
+
+        Fields that only CDP / wireless discovery fill are emitted only when
+        set, so a network without them produces exactly the old document.
+        """
+        node = {
             "ip": self.ip,
             "hostname": self.hostname,
             "vendor": self.vendor,
@@ -174,6 +185,9 @@ class Device:
             "arp": self.arp,
             "own_macs": self.own_macs,
         }
+        if self.platform is not None:
+            node["platform"] = self.platform
+        return node
 
 
 @dataclass(frozen=True)
@@ -190,6 +204,7 @@ class Link:
     target_chassis_id: str
     local_port: Optional[str] = None
     remote_port: Optional[str] = None
+    protocol: str = "lldp"          # which neighbour table reported it
 
 
 # =========================================================================
@@ -585,6 +600,7 @@ def _dedupe_edges(links: list[Link]) -> list[dict]:
     best port label seen for each endpoint from either direction.
     """
     merged: dict[tuple[str, str], dict] = {}
+    protocols: dict[tuple[str, str], set] = {}
     for link in links:
         a, b = link.source_chassis_id, link.target_chassis_id
         # Canonical orientation: source = the smaller chassis id.
@@ -595,6 +611,7 @@ def _dedupe_edges(links: list[Link]) -> list[dict]:
             key = (b, a)
             local, remote = link.remote_port, link.local_port
 
+        protocols.setdefault(key, set()).add(link.protocol)
         edge = merged.get(key)
         if edge is None:
             merged[key] = {
@@ -608,6 +625,10 @@ def _dedupe_edges(links: list[Link]) -> list[dict]:
             edge["local_port"] = edge["local_port"] or local
             edge["remote_port"] = edge["remote_port"] or remote
 
+    # Only a link no LLDP table reported says which protocol found it.
+    for key, edge in merged.items():
+        if "lldp" not in protocols[key]:
+            edge["protocol"] = sorted(protocols[key])[0]
     return list(merged.values())
 
 
@@ -685,6 +706,12 @@ class Crawler:
         # chassis_id -> raw LLDP capability bitmap, aggregated from whatever a
         # device's neighbors advertised about it (a device's own role).
         self._caps: dict[str, str] = {}
+        # CDP names a neighbour instead of giving its chassis id, so CDP links
+        # are kept aside and resolved once every device has been polled: by the
+        # address it was polled at, else by its name.
+        self._cid_by_ip: dict[str, str] = {}
+        self._cid_by_name: dict[str, str] = {}
+        self._cdp_links: list[tuple[str, Neighbor]] = []
 
     # ---- enqueue helpers (must hold the lock) -----------------------------
 
@@ -732,6 +759,7 @@ class Crawler:
         await asyncio.gather(*workers, return_exceptions=True)
 
         async with self._lock:
+            self._resolve_cdp_links()
             # Stamp each device with the capability bitmap its neighbors reported
             # for it (a device's own advertised role), filled in now that every
             # device node exists regardless of crawl order.
@@ -770,11 +798,16 @@ class Crawler:
             return
 
         chassis_id = info["chassis_id"] or expected_cid or f"ip:{ip}"
-        await self._record_polled_device(ip, chassis_id, info)
+        if not await self._record_polled_device(ip, chassis_id, info):
+            # The same device, reached at another of its addresses (a CDP
+            # neighbour advertises the address facing it): polled already.
+            _log_crawler.info("%s is %s, already polled", ip, chassis_id)
+            return
 
         neighbors = await self._walk_neighbors(ip)
-        _log_crawler.info("%s (%s): %d LLDP neighbor(s)",
-                 info.get("hostname") or ip, chassis_id, len(neighbors))
+        cdp = [nb for nb in await self._walk_cdp(ip) if not _same_neighbor(nb, neighbors)]
+        _log_crawler.info("%s (%s): %d LLDP neighbor(s), %d more over CDP",
+                 info.get("hostname") or ip, chassis_id, len(neighbors), len(cdp))
 
         # neighbor_ports = every local port with an LLDP neighbor (for display).
         # uplink_ports = the INFRASTRUCTURE-facing subset: a neighbor that is
@@ -787,6 +820,9 @@ class Crawler:
             nb.local_port for nb in neighbors
             if nb.local_port and neighbor_is_infrastructure(nb.mgmt_ip, nb.cap_enabled)
         }
+        neighbor_ports |= {nb.local_port for nb in cdp if nb.local_port}
+        uplink_ports |= {nb.local_port for nb in cdp
+                         if nb.local_port and cdp_is_infrastructure(nb.cdp_capabilities)}
         try:
             fdb_entries = await collect_fdb(self._client, ip)
             arp = await collect_arp(self._client, ip)
@@ -802,6 +838,15 @@ class Crawler:
 
         for nb in neighbors:
             await self._handle_neighbor(chassis_id, nb)
+        for nb in cdp:
+            await self._handle_cdp_neighbor(chassis_id, nb)
+
+    async def _walk_cdp(self, ip: str) -> list[Neighbor]:
+        """The CDP neighbour table: one walk, plus the port names if it has rows."""
+        rows = await self._client.walk(ip, CDP_CACHE_BASE)
+        if not rows:
+            return []
+        return parse_cdp_cache(rows, await collect_ifname_map(self._client, ip))
 
     async def _walk_neighbors(self, ip: str) -> list[Neighbor]:
         rem = await self._client.walk(ip, LLDP_REM_BASE)
@@ -825,10 +870,16 @@ class Crawler:
 
     # ---- state mutations (each takes the lock) ----------------------------
 
-    async def _record_polled_device(self, ip: str, chassis_id: str, info: dict) -> None:
+    async def _record_polled_device(self, ip: str, chassis_id: str, info: dict) -> bool:
+        """Record a polled device; False if it was already polled (same chassis)."""
         async with self._lock:
             self._seen.add(chassis_id)
+            self._cid_by_ip.setdefault(ip, chassis_id)
             dev = self._devices.get(chassis_id)
+            if dev is not None and dev.pollable:
+                return False
+            if info.get("hostname"):
+                self._cid_by_name.setdefault(_name_key(info["hostname"]), chassis_id)
             if dev is None:
                 dev = Device(chassis_id=chassis_id)
                 self._devices[chassis_id] = dev
@@ -847,6 +898,7 @@ class Crawler:
             # reported about it (applied as a fallback in run()).
             if info.get("cap_enabled"):
                 dev.lldp_cap_enabled = info.get("cap_enabled")
+            return True
 
     async def _record_fdb_uplinks(
         self, chassis_id: str, fdb_entries: list[dict], neighbor_ports: set,
@@ -867,6 +919,7 @@ class Crawler:
         chassis_id = expected_cid or f"ip:{ip}"
         async with self._lock:
             self._seen.add(chassis_id)
+            self._cid_by_ip.setdefault(ip, chassis_id)
             dev = self._devices.get(chassis_id)
             if dev is None:
                 dev = Device(chassis_id=chassis_id, ip=ip,
@@ -915,6 +968,82 @@ class Crawler:
                     pollable=False,
                 )
                 self._seen.add(target_cid)
+
+
+    async def _handle_cdp_neighbor(self, source_cid: str, nb: Neighbor) -> None:
+        """Keep a CDP link for resolution and enqueue the neighbour if it is new."""
+        async with self._lock:
+            self._cdp_links.append((source_cid, nb))
+            if self._cdp_target(nb) is None and nb.mgmt_ip:
+                await self._enqueue(nb.mgmt_ip, None)
+
+    def _cdp_target(self, nb: Neighbor) -> Optional[str]:
+        """The chassis id of a known device a CDP entry describes (or None)."""
+        if nb.mgmt_ip and nb.mgmt_ip in self._cid_by_ip:
+            return self._cid_by_ip[nb.mgmt_ip]
+        if nb.sys_name:
+            return self._cid_by_name.get(_name_key(nb.sys_name))
+        return None
+
+    def _resolve_cdp_links(self) -> None:
+        """Turn the kept CDP entries into links (must hold the lock).
+
+        A neighbour that was polled (or tried) is matched by address or name; one
+        that never was becomes a placeholder like an unpollable LLDP neighbour. A
+        pair LLDP already links gets no second link.
+        """
+        linked = {frozenset((l.source_chassis_id, l.target_chassis_id)) for l in self._links}
+        for source_cid, nb in self._cdp_links:
+            target = self._cdp_target(nb) or f"cdp:{nb.sys_name or nb.mgmt_ip}"
+            dev = self._devices.get(target)
+            if dev is None:
+                dev = self._devices[target] = Device(
+                    chassis_id=target, ip=nb.mgmt_ip, status=STATUS_DISCOVERED,
+                    discovery_method=DISCOVERY_METHOD_CDP, pollable=False)
+                self._seen.add(target)
+            if not dev.pollable:          # fill what the CDP entry tells about it
+                dev.hostname = dev.hostname or nb.sys_name
+                dev.vendor = dev.vendor or vendor_from_descr(nb.sys_descr or nb.platform)
+                dev.model = dev.model or _platform_model(nb.platform)
+            dev.platform = dev.platform or nb.platform
+            if nb.cap_enabled and target not in self._caps:
+                self._caps[target] = nb.cap_enabled
+            pair = frozenset((source_cid, target))
+            if target == source_cid or (pair in linked and not self._cdp_only(pair)):
+                continue
+            linked.add(pair)
+            self._links.append(Link(source_chassis_id=source_cid, target_chassis_id=target,
+                                    local_port=nb.local_port, remote_port=nb.remote_port,
+                                    protocol="cdp"))
+
+    def _cdp_only(self, pair: frozenset) -> bool:
+        return all(l.protocol == "cdp" for l in self._links
+                   if frozenset((l.source_chassis_id, l.target_chassis_id)) == pair)
+
+
+def _name_key(name: str) -> str:
+    """A device name for matching: case-insensitive, without a domain suffix."""
+    return name.strip().split(".")[0].lower()
+
+
+def _same_neighbor(cdp_nb: Neighbor, lldp_neighbors: list[Neighbor]) -> bool:
+    """Whether an LLDP entry of the same device already describes this neighbour."""
+    for nb in lldp_neighbors:
+        if cdp_nb.local_port and cdp_nb.local_port == nb.local_port:
+            return True
+        if cdp_nb.mgmt_ip and cdp_nb.mgmt_ip == nb.mgmt_ip:
+            return True
+        if cdp_nb.sys_name and nb.sys_name and _name_key(cdp_nb.sys_name) == _name_key(nb.sys_name):
+            return True
+    return False
+
+
+def _platform_model(platform: Optional[str]) -> Optional[str]:
+    """``"cisco WS-C2960-48TT-L"`` -> ``"WS-C2960-48TT-L"``."""
+    if not platform:
+        return None
+    words = platform.split()
+    return " ".join(words[1:]) if len(words) > 1 and words[0].lower() == "cisco" else platform
 
 
 # =========================================================================

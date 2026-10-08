@@ -1,0 +1,9 @@
+# HP 1920 answering the CDP walk with nothing - SNMP capture, converted to OID<TAB>value (octets as 0xhex,
+# multi-line strings collapsed). Serial numbers replaced with placeholders.
+1.3.6.1.2.1.1.1.0	1920-48G Switch Software Version 5.20.99, Release 1107 Copyright(c)2010-2015 Hewlett-Packard Development Company, L.P.
+1.3.6.1.2.1.1.2.0	1.3.6.1.4.1.25506.11.1.169
+1.3.6.1.2.1.1.3.0	2727518
+1.3.6.1.2.1.1.4.0	
+1.3.6.1.2.1.1.5.0	CYFOR-HP-Switch
+1.3.6.1.2.1.1.6.0	
+1.3.6.1.2.1.1.7.0	78

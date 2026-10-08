@@ -261,6 +261,8 @@ class Edge:
     local_port: Optional[str] = None
     remote_port: Optional[str] = None
     confidence: Optional[str] = None
+    # A device link found only over CDP says so ("cdp"); None means LLDP.
+    protocol: Optional[str] = None
 
     def to_dict(self) -> dict:
         out: dict[str, Any] = {
@@ -274,6 +276,8 @@ class Edge:
             out["remote_port"] = self.remote_port
         if self.confidence is not None:
             out["confidence"] = self.confidence
+        if self.protocol is not None:
+            out["protocol"] = self.protocol
         return out
 
 

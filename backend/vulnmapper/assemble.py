@@ -61,6 +61,8 @@ CONF_FDB = "fdb"                          # FDB/ARP-discovered host (no agent, n
 # discovery_method of a host that announced itself over LLDP (no agent, not
 # network equipment); emitted like an FDB-discovered host.
 DISCOVERY_LLDP_HOST = "lldp"
+# ...and one known only from a neighbour's CDP table.
+DISCOVERY_CDP_HOST = "cdp"
 
 # Reasons recorded for an endpoint that could not be placed.
 REASON_NO_MAC = "no_endpoint_mac"
@@ -477,6 +479,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
             lldp_edges.append(Edge(
                 source=src, target=tgt, type=EDGE_LLDP,
                 local_port=raw.get("local_port"), remote_port=raw.get("remote_port"),
+                protocol=raw.get("protocol"),
             ))
 
     # --- TIER 2 (FDB table) + TIER 3 (subnet fallback) for the rest ---
@@ -599,7 +602,9 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         node = Node(
             node_id=host_node_id(mac or chassis),
             kind=KIND_ENDPOINT,
-            discovery_method=DISCOVERY_LLDP_HOST,
+            discovery_method=(DISCOVERY_CDP_HOST
+                              if raw_by_chassis[chassis].get("discovery_method") == "snmp_cdp"
+                              else DISCOVERY_LLDP_HOST),
             ip=dev.ip or (fact.ip if fact else None),
             hostname=dev.hostname, vendor=dev.vendor, model=dev.model,
             firmware=dev.firmware, serial=dev.serial,
@@ -720,6 +725,8 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
             out["remote_port"] = edge.remote_port
         if edge.confidence is not None:
             out["confidence"] = edge.confidence
+        if edge.protocol is not None:
+            out["protocol"] = edge.protocol
         return out
 
     # --- metadata ----------------------------------------------------------
