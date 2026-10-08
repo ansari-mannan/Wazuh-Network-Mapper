@@ -26,7 +26,7 @@ class FakeProber:
     """Answers from tables; records every probe. ``boom`` IPs raise."""
 
     def __init__(self, icmp=None, snmp=None, ports=None, has_snmp=True, boom=(),
-                 agents=None, agent_error=None, agent_delay=0.0):
+                 agents=None, agent_error=None, agent_delay=0.0, wifi=None, mac_tables=None):
         self.icmp_replies = icmp or {}
         self.snmp_replies = snmp or {}
         self.ports = ports or {}
@@ -37,6 +37,11 @@ class FakeProber:
         self.agent_list = agents or []
         self.agent_error = agent_error
         self.agent_delay = agent_delay
+        # access point IP -> the client MACs it lists (an exception is raised)
+        self.wifi = wifi or {}
+        # switch IP -> {(vlan, mac): port} answered by a MAC-table lookup, or an
+        # exception to raise, or a delay in seconds (float) before answering
+        self.mac_tables = mac_tables or {}
         self.calls = []
         self.in_flight = 0
         self.max_in_flight = 0
@@ -62,6 +67,24 @@ class FakeProber:
     async def port_status(self, ip):
         self.calls.append(("ports", ip))
         return self.ports.get(ip, {})
+
+    async def wifi_clients(self, ip):
+        self.calls.append(("wifi", ip))
+        answer = self.wifi.get(ip, set())
+        if isinstance(answer, Exception):
+            raise answer
+        return set(answer)
+
+    async def mac_lookup(self, ip, entries):
+        """``entries`` = [(vlan, mac)] -> {(vlan, mac): port or None}."""
+        self.calls.append(("mac_lookup", ip, tuple(entries)))
+        table = self.mac_tables.get(ip, {})
+        if isinstance(table, Exception):
+            raise table
+        if isinstance(table, float):
+            await asyncio.sleep(table)
+            table = {}
+        return {e: table.get(e) for e in entries}
 
     async def agents(self):
         self.calls.append(("agents",))
@@ -620,6 +643,132 @@ class TestAgentCheckInVsDownPort(unittest.TestCase):
                                                            method="agent")}),
                   FakeProber(agents=[agent("004", keepalive=old)]))
         self.assertEqual(doc["nodes"]["endpoint:004"]["misses"], 1)     # a miss, not a reply
+
+
+AP_IP = "10.0.0.5"
+PHONE_MAC = "7a:bd:06:18:06:2c"
+LAPTOP_MAC = "e4:a7:a0:25:ce:ac"
+
+
+def wifi_link(source, radio="Do0"):
+    return {"source": source, "target": "device:ap", "type": "endpoint_link",
+            "local_port": radio, "confidence": "wifi"}
+
+
+class TestWifiLiveness(unittest.TestCase):
+    """Part 4: a node under an access point is checked by its client list."""
+
+    def g(self):
+        ap = dict(switch("device:ap", AP_IP), role="access-point", hostname="AP1")
+        phone = host("host:phone", "10.0.0.81", mac=PHONE_MAC)
+        laptop = pc("001", "10.0.0.83", mac=LAPTOP_MAC)
+        return graph(switch(), ap, phone, laptop,
+                     edges=[wifi_link("host:phone"), wifi_link("endpoint:001", "Do1"),
+                            {"source": "device:sw", "target": "device:ap", "type": "lldp",
+                             "local_port": "Fa1/0/15", "protocol": "cdp"}])
+
+    def pass_at(self, now, state, clients, keepalive=FRESH, snmp=True, **kw):
+        prober = FakeProber(snmp={"10.0.0.2": True, AP_IP: snmp}, wifi={AP_IP: clients},
+                            agents=[agent("001", keepalive=keepalive)], **kw)
+        doc = run(self.g(), state, prober, now=now)
+        return doc, prober
+
+    def test_client_in_the_list_replied(self):
+        doc, prober = self.pass_at(T1, {}, {PHONE_MAC, LAPTOP_MAC})
+        phone = doc["nodes"]["host:phone"]
+        self.assertEqual((phone["state"], phone["method"], phone["proven_methods"]),
+                         ("active", "wifi", ["wifi"]))
+        self.assertNotIn(("icmp", "10.0.0.81"), prober.calls)         # in place of ping
+        self.assertEqual(prober.calls.count(("wifi", AP_IP)), 1)       # once per pass
+
+    def test_client_missing_from_the_list_is_inactive_at_once(self):
+        before = prev(**{"host:phone": was("active", proven=("wifi",), method="wifi")})
+        doc, _ = self.pass_at(T1, before, {LAPTOP_MAC})
+        phone = doc["nodes"]["host:phone"]
+        self.assertEqual((phone["state"], phone["method"]), ("inactive", "wifi"))
+        self.assertEqual(phone["port_down"], {"device": "device:ap", "port": "wifi",
+                                              "previous_state": "active", "since": T1})
+
+    def test_missing_then_back_is_active(self):
+        before = prev(**{"host:phone": was("active", proven=("wifi",), method="wifi")})
+        _, _ = self.pass_at(T1, before, {LAPTOP_MAC})
+        state = self.pass_at(T1, before, {LAPTOP_MAC})[0]
+        doc, _ = self.pass_at(T2, state, {PHONE_MAC, LAPTOP_MAC})
+        phone = doc["nodes"]["host:phone"]
+        self.assertEqual((phone["state"], phone["method"]), ("active", "wifi"))
+        self.assertNotIn("port_down", phone)
+
+    def test_agent_missing_from_the_list_with_an_older_check_in_is_inactive(self):
+        before = prev(**{"endpoint:001": was("active", proven=("agent",), method="agent")})
+        doc, _ = self.pass_at(T1, before, {PHONE_MAC})            # FRESH is before T1
+        node = doc["nodes"]["endpoint:001"]
+        self.assertEqual((node["state"], node["method"]), ("inactive", "wifi"))
+
+    def test_agent_check_in_after_it_left_the_list_makes_it_active(self):
+        before = prev(**{"endpoint:001": was("active", proven=("agent",), method="agent")})
+        state, _ = self.pass_at(T1, before, {PHONE_MAC})
+        doc, _ = self.pass_at(T2, state, {PHONE_MAC}, keepalive="2026-10-07T09:00:25+00:00")
+        node = doc["nodes"]["endpoint:001"]
+        self.assertEqual((node["state"], node["method"]), ("active", "agent"))
+        self.assertNotIn("port_down", node)
+
+    def test_access_point_not_answering_changes_nothing(self):
+        before = prev(**{"host:phone": was("active", proven=("wifi",), method="wifi")})
+        doc, prober = self.pass_at(T1, before, {LAPTOP_MAC}, snmp=False)
+        phone = doc["nodes"]["host:phone"]
+        self.assertEqual((phone["state"], phone["misses"], phone["reason"]),
+                         ("active", 0, "wifi_unavailable"))
+        self.assertNotIn(("wifi", AP_IP), prober.calls)
+
+    def test_client_list_failure_changes_nothing(self):
+        before = prev(**{"host:phone": was("active", proven=("wifi",), method="wifi")})
+        doc, _ = self.pass_at(T1, before, OSError("walk failed"))
+        self.assertEqual(doc["nodes"]["host:phone"]["state"], "active")
+
+    def test_radio_interface_status_is_not_a_wired_port(self):
+        doc, _ = self.pass_at(T1, {}, {PHONE_MAC, LAPTOP_MAC},
+                              ports={AP_IP: {"Do0": "down", "Do1": "down"}})
+        self.assertEqual(doc["nodes"]["host:phone"]["state"], "active")
+
+    def test_without_snmp_credentials_clients_are_pinged(self):
+        prober = FakeProber(has_snmp=False, icmp={"10.0.0.81": True})
+        node = run(self.g(), prober=prober)["nodes"]["host:phone"]
+        self.assertEqual((node["state"], node["method"]), ("active", "icmp"))
+
+    def test_unknown_client_suggests_a_rescan(self):
+        doc, _ = self.pass_at(T1, {}, {PHONE_MAC, LAPTOP_MAC, "02:11:22:33:44:55"})
+        self.assertTrue(doc["rescan_suggested"])
+        self.assertIn("Wi-Fi client 02:11:22:33:44:55 on AP1 is not in the graph",
+                      doc["rescan_reasons"])
+
+    def test_known_clients_suggest_nothing(self):
+        doc, _ = self.pass_at(T1, {}, {PHONE_MAC, LAPTOP_MAC})
+        self.assertFalse(doc["rescan_suggested"])
+
+
+class TestSystemProberWifi(unittest.TestCase):
+    """The real prober reads one column; an empty list must be a real one."""
+
+    def prober(self, rows):
+        from snmp_fakes import FakeSnmpClient
+        prober = SystemProber([], agent_source=object())
+        prober.has_snmp, prober._snmp = True, FakeSnmpClient({AP_IP: rows})
+        return prober
+
+    def test_reads_the_client_macs(self):
+        from snmp_fakes import load_rows
+        macs = asyncio.run(self.prober(load_rows("cisco_ap_c1140.snmp")).wifi_clients(AP_IP))
+        self.assertEqual(macs, {"7abd0618062c", "e4a7a025ceac"})
+
+    def test_empty_list_counts_only_when_the_counters_agree(self):
+        counters = "1.3.6.1.4.1.9.9.273.1.1.2.1.1"
+        empty = [(f"{counters}.1", "0"), (f"{counters}.2", "0")]
+        self.assertEqual(asyncio.run(self.prober(empty).wifi_clients(AP_IP)), set())
+        busy = [(f"{counters}.1", "0"), (f"{counters}.2", "3")]       # walk lost the rows
+        with self.assertRaises(RuntimeError):
+            asyncio.run(self.prober(busy).wifi_clients(AP_IP))
+        with self.assertRaises(RuntimeError):                           # nothing answered
+            asyncio.run(self.prober([("1.3.6.1.2.1.1.5.0", "AP")]).wifi_clients(AP_IP))
 
 
 class TestRescanSuggestion(unittest.TestCase):
