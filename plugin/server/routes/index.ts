@@ -60,6 +60,7 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
       if (!backendDir) return response.customError(notConfigured('backendDir'));
       if (!graphPath) return response.customError(notConfigured('graphPath'));
       const started = startScan({
+        deviceCves: config.deviceCves,
         pythonBin,
         backendDir,
         graphPath,

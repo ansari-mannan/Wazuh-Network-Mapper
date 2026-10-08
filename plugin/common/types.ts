@@ -47,8 +47,33 @@ type GraphNodeBase = {
   max_cvss?: number | null;
 };
 
+// How a network device's CVEs were looked up (backend/vulnmapper/devicecves).
+//   ok           NVD answered; match "cpe" (exact software identifier) or
+//                "keyword" (product name in NVD's descriptions)
+//   unidentified vendor, software family or version missing, or never polled
+//   unavailable  NVD could not be reached and nothing was cached
+//   unverified   NVD could not confirm the query (version not in its dictionary)
+// Absent in graphs written before devices were looked up.
+export type CveLookupStatus = "ok" | "unidentified" | "unavailable" | "unverified";
+
+export type CveLookup = {
+  status: CveLookupStatus;
+  match: "cpe" | "keyword" | null;
+  product: string | null;   // "Cisco IOS 12.2(55)SE12"
+  cpe: string | null;
+  source: string;           // "nvd"
+  fetched_at: string | null;
+  stale: boolean;           // an expired cached answer, NVD unreachable
+  total: number | null;     // distinct CVEs, when status is ok
+};
+
 export type DeviceNode = GraphNodeBase & {
   kind: "device";
+  // Device CVEs (potential: matched by software version). Absent in older graphs.
+  top_cves?: CVE[];
+  cve_summary?: CveSummary | null;
+  cve_lookup?: CveLookup;
+  software_family?: string;
   chassis_id?: string;
   pollable?: boolean;
   uplink_ports?: string[];

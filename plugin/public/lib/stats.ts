@@ -1,6 +1,6 @@
 import { euiPaletteColorBlind } from '@elastic/eui';
 import { GraphResponse } from '../../common';
-import { nodeRiskScore, RISK_META, RiskLevel, riskLevel, SCORED_RISK_LEVELS } from './risk';
+import { RISK_META, RiskLevel, riskCounts, SCORED_RISK_LEVELS } from './risk';
 import { STATUS_COLORS } from '../components/topology/nodeStyle';
 
 // Overview numbers, all derived from the graph the server returned.
@@ -70,17 +70,17 @@ export function endpointStats(graph: GraphResponse) {
 }
 
 /**
- * Hosts by risk level, endpoints only: network devices carry no CVE data yet,
- * so their risk_score is not meaningful.
+ * Endpoints and network devices by risk level, with the one risk rule
+ * (riskRule.ts). The four levels plus unscored add up to total; the
+ * per-kind split says how many of each are scored.
  */
-export function hostRiskStats(graph: GraphResponse) {
-  const endpoints = graph.nodes.filter((n) => n.kind === 'endpoint');
-  const counts = countBy(endpoints, (e) => riskLevel(nodeRiskScore(e)));
+export function riskStats(graph: GraphResponse) {
+  const c = riskCounts(graph.nodes);
   const levels = SCORED_RISK_LEVELS.map((level: RiskLevel) => ({
     level,
     label: RISK_META[level].label,
     color: RISK_META[level].color,
-    value: counts.get(level) || 0,
+    value: c[level],
   }));
-  return { total: endpoints.length, levels, unscored: counts.get('unscored') || 0 };
+  return { total: c.total, levels, unscored: c.unscored, devices: c.devices, endpoints: c.endpoints };
 }

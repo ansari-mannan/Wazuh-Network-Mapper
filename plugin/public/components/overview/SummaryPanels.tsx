@@ -11,7 +11,8 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { GraphResponse } from '../../../common';
-import { deviceStats, endpointStats, hostRiskStats, Slice } from '../../lib/stats';
+import { deviceStats, endpointStats, riskStats, Slice } from '../../lib/stats';
+import { plural } from '../../lib/deviceCveText';
 import { Donut } from './Donut';
 
 function SummaryPanel({ title, children }: { title: string; children: React.ReactNode }) {
@@ -57,7 +58,7 @@ function DonutWithLegend({ slices, caption }: { slices: Slice[]; caption: string
 export function SummaryPanels({ graph }: { graph: GraphResponse }) {
   const devices = deviceStats(graph);
   const endpoints = endpointStats(graph);
-  const risk = hostRiskStats(graph);
+  const risk = riskStats(graph);
 
   return (
     <EuiFlexGroup gutterSize="m">
@@ -76,7 +77,7 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
         </SummaryPanel>
       </EuiFlexItem>
       <EuiFlexItem>
-        <SummaryPanel title="Hosts by risk level">
+        <SummaryPanel title="Risk level">
           <EuiFlexGrid columns={2} gutterSize="m">
             {risk.levels.map((l) => (
               <EuiFlexItem key={l.level}>
@@ -93,13 +94,17 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
             ))}
           </EuiFlexGrid>
           <EuiSpacer size="s" />
-          <EuiText size="xs" color="subdued">
-            {risk.unscored > 0 && (
-              <p>
-                {risk.unscored} {risk.unscored === 1 ? 'host' : 'hosts'} unscored (no CVE data).
-              </p>
-            )}
-            <p>Endpoints only; network devices have no CVE data yet.</p>
+          <EuiText size="xs" color="subdued" data-test-subj="vmRiskNote">
+            <p>
+              {plural(risk.endpoints.scored + risk.endpoints.unscored, 'endpoint')} and{' '}
+              {plural(risk.devices.scored + risk.devices.unscored, 'network device')}.
+              {risk.unscored > 0 &&
+                ` ${risk.unscored} unscored (${plural(risk.endpoints.unscored, 'endpoint')}, ${plural(
+                  risk.devices.unscored,
+                  'device'
+                )}): no CVE data.`}
+            </p>
+            {risk.devices.scored > 0 && <p>Device findings are potential: matched by software version.</p>}
           </EuiText>
         </SummaryPanel>
       </EuiFlexItem>

@@ -23,3 +23,10 @@ describe('liveness config', () => {
     expect(() => configSchema.validate({ liveness: { intervalSeconds: 10, missThreshold: 1 } })).not.toThrow();
   });
 });
+
+describe('device CVE config', () => {
+  it('looks devices up in NVD by default', () => {
+    expect(configSchema.validate({}).deviceCves).toBe(true);
+    expect(configSchema.validate({ deviceCves: false }).deviceCves).toBe(false);
+  });
+});

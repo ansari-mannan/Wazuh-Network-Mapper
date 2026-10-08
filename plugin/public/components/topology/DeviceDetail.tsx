@@ -19,12 +19,14 @@ import { useGraph } from '../../lib/graph';
 import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
+import { hasDeviceFindings, potentialText, staleText, unscoredReason } from '../../lib/deviceCveText';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
 
 // Ported from frontend/risk-module/ui/topology/DeviceDetail.tsx to an OUI
-// flyout: identity, risk, CVE list for endpoints, port grid for devices.
+// flyout: identity, risk and CVE list (endpoints from Wazuh, devices from NVD),
+// port grid for devices.
 
 const EMPTY = '—';
 
@@ -161,10 +163,14 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   const score = nodeRiskScore(node);
   const level = riskLevel(score);
   const offline = isOffline(node.status, nodeLiveness);
-  const cves = node.kind === 'endpoint' ? node.top_cves || [] : [];
+  const cves = node.top_cves || [];
   // Absent in older graph files (and null when unscored): keep the old display.
-  const summary = node.kind === 'endpoint' ? node.cve_summary || null : null;
+  const summary = node.cve_summary || null;
   const cveTotal = summary ? summary.total : cves.length;
+  // A device's CVEs come from NVD by software version: potential findings.
+  const lookup = node.kind === 'device' ? node.cve_lookup : undefined;
+  const deviceLookedUp = hasDeviceFindings(lookup);
+  const reason = level === 'unscored' ? unscoredReason(node) : '';
   const ports = node.kind === 'device' && node.port_status ? Object.entries(node.port_status) : [];
 
   return (
@@ -196,12 +202,18 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
         </EuiFlexGroup>
         <EuiSpacer size="s" />
         <EuiBadge color={RISK_META[level].color} data-test-subj="vmDetailRisk">
-          {level === 'unscored'
-            ? isDevice
-              ? 'Unscored · no CVE data for devices yet'
-              : 'Unscored'
-            : `${RISK_META[level].label} · risk ${riskLabel(score)}`}
+          {level === 'unscored' ? 'Unscored' : `${RISK_META[level].label} · risk ${riskLabel(score)}`}
         </EuiBadge>
+        {lookup && lookup.stale && (
+          <EuiBadge color="warning" data-test-subj="vmCveStale">
+            stale
+          </EuiBadge>
+        )}
+        {reason && (
+          <EuiText size="xs" color="subdued" data-test-subj="vmUnscoredReason">
+            <p>{reason}</p>
+          </EuiText>
+        )}
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
         <Section title="Identity">
@@ -216,6 +228,9 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               ['Vendor', node.vendor],
               ['Model', node.model],
               ['Firmware', node.firmware],
+              ...(lookup && lookup.product
+                ? ([['Software', lookup.product]] as Array<[string, ReactNode]>)
+                : []),
               ['Serial', node.serial],
               ['Role', node.role],
               ['Discovery method', node.discovery_method],
@@ -236,8 +251,17 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
           </>
         )}
 
-        {!isDevice && (
+        {(!isDevice || deviceLookedUp) && (
           <Section title="Vulnerabilities" count={cveTotal}>
+            {lookup && (
+              <>
+                <EuiText size="xs" color="subdued" data-test-subj="vmCvePotential">
+                  <p>{potentialText(lookup)}</p>
+                  {lookup.stale && <p>{staleText(lookup)}</p>}
+                </EuiText>
+                <EuiSpacer size="s" />
+              </>
+            )}
             {cveTotal > cves.length && (
               <>
                 <EuiText size="xs" color="subdued" data-test-subj="vmCveShowing">
@@ -250,7 +274,13 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
             )}
             {cves.length === 0 ? (
               <EuiText size="s" color="subdued">
-                <p>No CVEs reported{score === null ? ' (host is unscored)' : ''}.</p>
+                <p>
+                  {isDevice
+                    ? score === null
+                      ? 'No CVEs found.'
+                      : 'NVD lists no CVEs for this software version.'
+                    : `No CVEs reported${score === null ? ' (host is unscored)' : ''}.`}
+                </p>
               </EuiText>
             ) : (
               cves.map((c, i) => {

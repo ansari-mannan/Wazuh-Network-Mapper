@@ -116,7 +116,8 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
     getScan,
     // The manual-scan path, with the last community given to a scan (if any).
     startScan: () =>
-      startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(), logger }),
+      startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(),
+        deviceCves: config.deviceCves, logger }),
     logger,
   });
   const tick = () => {

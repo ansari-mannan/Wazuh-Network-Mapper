@@ -4,6 +4,8 @@ import { schema, TypeOf } from '@osd/config-schema';
 //   vulnmapper.backendDir  folder containing the Python `vulnmapper` package
 //   vulnmapper.graphPath   graph.json written by a scan and served to the UI
 //   vulnmapper.pythonBin   Python interpreter used to run the scanner
+//   vulnmapper.deviceCves  look network devices' software up in NVD during a
+//                          scan (default true; false passes --no-device-cves)
 //   vulnmapper.liveness.*  the background liveness check (off by default):
 //     enabled, intervalSeconds (min 10), missThreshold (min 1),
 //     agentMaxAgeSeconds (oldest Wazuh agent check-in that counts, default
@@ -17,6 +19,7 @@ export const configSchema = schema.object({
   backendDir: schema.maybe(schema.string()),
   graphPath: schema.maybe(schema.string()),
   pythonBin: schema.string({ defaultValue: 'python3' }),
+  deviceCves: schema.boolean({ defaultValue: true }),
   liveness: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
     intervalSeconds: schema.number({ defaultValue: 10, min: 10 }),

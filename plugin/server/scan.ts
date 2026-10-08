@@ -24,6 +24,8 @@ interface ScanOptions {
   backendDir: string;
   graphPath: string;
   community?: string;
+  // false: the scanner skips the device CVE stage (--no-device-cves)
+  deviceCves?: boolean;
   logger: Logger;
 }
 
@@ -50,7 +52,7 @@ function finish(status: ScanState['status'], message: string) {
  * which is moved into place only after the graph has been saved and deleted if
  * the scan or the save fails, so the two files always come from the same scan.
  */
-export function startScan({ pythonBin, backendDir, graphPath, community, logger }: ScanOptions) {
+export function startScan({ pythonBin, backendDir, graphPath, community, deviceCves = true, logger }: ScanOptions) {
   if (scan.status === 'running') return false;
   scan = { status: 'running', message: null, startedAt: new Date().toISOString(), finishedAt: null };
   // A scan started without one falls back to the environment; keep the last
@@ -66,7 +68,11 @@ export function startScan({ pythonBin, backendDir, graphPath, community, logger 
   const vulnsPath = path.join(path.dirname(path.resolve(graphPath)), 'vulnerabilities.json');
   const vulnsTmp = `${vulnsPath}.tmp-${process.pid}`;
   const discardVulns = () => fs.unlink(vulnsTmp).catch(() => undefined);
+  // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
+  // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
+  // environment like the other credentials.
   const args = ['-m', 'vulnmapper', '--vulns-out', vulnsTmp];
+  if (!deviceCves) args.push('--no-device-cves');
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
