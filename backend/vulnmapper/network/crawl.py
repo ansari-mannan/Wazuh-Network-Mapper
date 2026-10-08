@@ -68,6 +68,7 @@ from .parse import (
     normalize_neighbor_ports,
     parse_cdp_cache,
 )
+from ..devicecves.families import detect_family
 from . import entity
 from .vendors import VENDOR_BY_ENTERPRISE
 
@@ -171,6 +172,9 @@ class Device:
     # Its associated clients ``[{mac, ip, ssid, radio, vlan}]``; None when the
     # device has no association table to read them from.
     wifi_clients: Optional[list] = None
+    # The software family decided when it was identified ("cisco_ios", ...;
+    # vulnmapper.devicecves.families); None when not known.
+    software_family: Optional[str] = None
 
     def to_node(self) -> dict:
         """Render to the output node schema (field order is intentional).
@@ -204,6 +208,8 @@ class Device:
             node["access_point"] = True
         if self.wifi_clients is not None:
             node["wifi_clients"] = self.wifi_clients
+        if self.software_family is not None:
+            node["software_family"] = self.software_family
         return node
 
 
@@ -634,6 +640,7 @@ async def fetch(snmp_client, ip: str) -> Optional[dict]:
         "chassis_id": normalize_chassis_id(raw_chassis),
         "cap_enabled": cap_enabled,
         "sys_descr": sys_descr,
+        "software_family": detect_family(vendor_name, sys_descr, sys_object_id),
     }
 
 
@@ -974,6 +981,7 @@ class Crawler:
             dev.firmware = info.get("firmware")
             dev.serial = info.get("serial")
             dev.mac = info.get("mac")
+            dev.software_family = info.get("software_family")
             dev.discovery_method = info.get("discovery_method") or DISCOVERY_METHOD
             dev.status = STATUS_ONLINE
             dev.pollable = True

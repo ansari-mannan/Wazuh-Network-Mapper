@@ -187,7 +187,10 @@ class TestNoCdpAnywhere(unittest.TestCase):
     def test_output_shape_is_todays(self):
         doc = crawl(lab(cdp=False))
         for node in doc["nodes"]:
-            self.assertEqual(set(node), LEGACY_NODE_KEYS, node["chassis_id"])
+            # the one addition: a polled device's software family, when recognised
+            extra = {"software_family"} if node["pollable"] else set()
+            self.assertLessEqual(set(node) - LEGACY_NODE_KEYS, extra, node["chassis_id"])
+            self.assertLessEqual(LEGACY_NODE_KEYS, set(node), node["chassis_id"])
         for edge in doc["edges"]:
             self.assertEqual(set(edge), LEGACY_EDGE_KEYS)
         # without CDP the access point is never found, as today

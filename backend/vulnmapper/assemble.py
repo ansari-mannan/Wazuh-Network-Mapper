@@ -277,6 +277,7 @@ def _device_node(raw: dict) -> Node:
         uplink_ports=raw.get("uplink_ports") or [],
         port_status=raw.get("port_status") or {},
         risk_score=raw.get("risk_score", 0) or 0,
+        software_family=raw.get("software_family"),
     )
 
 

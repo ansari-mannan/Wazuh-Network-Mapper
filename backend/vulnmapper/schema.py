@@ -337,6 +337,9 @@ class Node:
     uplink_ports: Optional[list] = None
     port_status: Optional[dict] = None
     fdb: Optional[list] = None
+    # The software family the crawler recognised (devicecves.families); None
+    # when not known, and then not emitted.
+    software_family: Optional[str] = None
     # ---- discovery stamping (set by the assembler) ----
     discovery_order: Optional[int] = None
     parent_id: Optional[str] = None
@@ -382,4 +385,6 @@ class Node:
                 out["port_status"] = self.port_status
             if self.wifi_clients is not None:
                 out["wifi_clients"] = self.wifi_clients
+            if self.software_family is not None:
+                out["software_family"] = self.software_family
         return out
