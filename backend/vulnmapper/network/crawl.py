@@ -29,10 +29,12 @@ import shlex
 import shutil
 import subprocess
 import sys
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Optional
 
+from ..schema import canonical_mac, format_mac
 from .roles import neighbor_is_infrastructure
 from .snmp import (
     OID_LLDP_LOC_CHASSIS_ID,
@@ -79,9 +81,10 @@ _log_runner = logging.getLogger("discovery")
 # Dataclasses: Credential / Device / Link (was models.py)
 # =========================================================================
 
-# discovery_method value stamped on every node this tool emits.
+# discovery_method value stamped on every node this tool emits: a seed or a
+# device first reached through an LLDP neighbour entry...
 DISCOVERY_METHOD = "snmp_lldp"
-# ...except a placeholder known only from a neighbour's CDP table.
+# ...or one first reached through a CDP neighbour entry (polled or not).
 DISCOVERY_METHOD_CDP = "snmp_cdp"
 
 # Node status values.
@@ -543,6 +546,29 @@ def enterprise_number(sys_object_id: Optional[str]) -> Optional[str]:
     return remainder.split(".")[0] or None
 
 
+def base_mac(own_macs) -> Optional[str]:
+    """A device's base MAC from its own interface MACs (ifPhysAddress).
+
+    Used when LLDP gives the device no MAC. All-zero, broadcast, multicast
+    and locally administered MACs are skipped; of the rest, the MAC the most
+    interfaces share wins (VLAN and sub-interfaces repeat the bridge MAC), and
+    a tie goes to the numerically lowest. The same interfaces always give the
+    same answer, so the node id stays stable across scans. Colon form, or None.
+    """
+    counts = Counter()
+    for raw in own_macs or []:
+        mac = canonical_mac(raw)
+        if mac is None or mac in ("000000000000", "ffffffffffff"):
+            continue
+        if int(mac[:2], 16) & 0x03:          # multicast or locally administered
+            continue
+        counts[mac] += 1
+    if not counts:
+        return None
+    best = min(counts, key=lambda m: (-counts[m], m))
+    return format_mac(best)
+
+
 def vendor_from_descr(sys_descr: Optional[str]) -> Optional[str]:
     """Best-effort vendor guess from a free-text sysDescr.
 
@@ -743,8 +769,12 @@ class Crawler:
     def _cap_reached(self) -> bool:
         return self._reserved >= self._max_nodes
 
-    async def _enqueue(self, ip: str, chassis_id: Optional[str]) -> bool:
-        """Reserve and queue a next-hop. Returns False if skipped (dup/cap)."""
+    async def _enqueue(self, ip: str, chassis_id: Optional[str], via: str = "lldp") -> bool:
+        """Reserve and queue a next-hop. Returns False if skipped (dup/cap).
+
+        ``via`` is the neighbour table that first named the address ("lldp",
+        also used for seeds, or "cdp"); it becomes the device's discovery label.
+        """
         if ip in self._enqueued_ips:
             return False
         if chassis_id is not None and chassis_id in self._seen:
@@ -758,7 +788,7 @@ class Crawler:
             self._seen.add(chassis_id)
         self._reserved += 1
         # Queue is sized to max_nodes, so this never blocks before the cap.
-        self._queue.put_nowait((ip, chassis_id))
+        self._queue.put_nowait((ip, chassis_id, via))
         return True
 
     async def seed(self, ips: list[str]) -> int:
@@ -800,15 +830,15 @@ class Crawler:
             if item is _STOP:
                 self._queue.task_done()
                 return
-            ip, expected_cid = item
+            ip, expected_cid, via = item
             try:
-                await self._process(ip, expected_cid)
+                await self._process(ip, expected_cid, via)
             except Exception:  # never let one device kill a worker
                 _log_crawler.exception("error processing %s", ip)
             finally:
                 self._queue.task_done()
 
-    async def _process(self, ip: str, expected_cid: Optional[str]) -> None:
+    async def _process(self, ip: str, expected_cid: Optional[str], via: str = "lldp") -> None:
         """Poll one device, record it, and enqueue its pollable neighbors."""
         cred = await self._client.resolve_credential(ip)
         if cred is None:
@@ -822,7 +852,18 @@ class Crawler:
             await self._record_unpollable_ip(ip, expected_cid)
             return
 
-        chassis_id = info["chassis_id"] or expected_cid or f"ip:{ip}"
+        # The device's own interface MACs: a base MAC when LLDP gives none, and
+        # the filter that keeps its SVI/gateway MACs from becoming hosts.
+        try:
+            own_macs = await collect_own_macs(self._client, ip)
+        except Exception:
+            _log_crawler.exception("interface MAC read failed for %s", ip)
+            own_macs = []
+        if not info.get("mac"):
+            info["mac"] = base_mac(own_macs)
+        # An address names the device only when no MAC can be read at all.
+        chassis_id = info["chassis_id"] or expected_cid or info["mac"] or f"ip:{ip}"
+        info["discovery_method"] = DISCOVERY_METHOD_CDP if via == "cdp" else DISCOVERY_METHOD
         if not await self._record_polled_device(ip, chassis_id, info):
             # The same device, reached at another of its addresses (a CDP
             # neighbour advertises the address facing it): polled already.
@@ -870,11 +911,10 @@ class Crawler:
             # Ethernet sub-interfaces) is not used for host placement.
             fdb_entries = [] if access_point else await collect_fdb(self._client, ip)
             arp = await collect_arp(self._client, ip)
-            own_macs = await collect_own_macs(self._client, ip)
             port_status = await collect_port_status(self._client, ip)
         except Exception:  # an unsupported MIB must not abort the device
             _log_crawler.exception("FDB/ARP collection failed for %s", ip)
-            fdb_entries, arp, own_macs, port_status = [], {}, [], {}
+            fdb_entries, arp, port_status = [], {}, {}
         await self._record_fdb_uplinks(
             chassis_id, fdb_entries, neighbor_ports, uplink_ports, arp, own_macs,
             port_status,
@@ -934,7 +974,7 @@ class Crawler:
             dev.firmware = info.get("firmware")
             dev.serial = info.get("serial")
             dev.mac = info.get("mac")
-            dev.discovery_method = DISCOVERY_METHOD
+            dev.discovery_method = info.get("discovery_method") or DISCOVERY_METHOD
             dev.status = STATUS_ONLINE
             dev.pollable = True
             # A polled device's OWN advertised capabilities are the most reliable
@@ -1028,7 +1068,7 @@ class Crawler:
             if nb.mgmt_ip and nb.platform:
                 self._platform_by_ip.setdefault(nb.mgmt_ip, nb.platform)
             if self._cdp_target(nb) is None and nb.mgmt_ip:
-                await self._enqueue(nb.mgmt_ip, None)
+                await self._enqueue(nb.mgmt_ip, None, via="cdp")
 
     def _cdp_target(self, nb: Neighbor) -> Optional[str]:
         """The chassis id of a known device a CDP entry describes (or None)."""

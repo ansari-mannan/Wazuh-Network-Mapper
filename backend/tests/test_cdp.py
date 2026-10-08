@@ -16,7 +16,8 @@ L3_IPS = ("172.20.20.254", "172.20.10.254", "172.20.80.254")
 L3_CID = "00:23:ac:e5:74:00"
 L2_CID = "00:17:95:be:b2:00"
 AP_IP = "172.20.99.21"
-AP_CID = f"ip:{AP_IP}"
+# No LLDP chassis id: the access point is named by its base MAC (Gi0).
+AP_CID = "54:75:d0:ab:bd:1a"
 
 # The node/edge keys the crawler has always emitted (a network without CDP or
 # access points must produce exactly these).
@@ -164,7 +165,7 @@ class TestUnpollableCdpNeighbour(unittest.TestCase):
         client = lab()
         del client.devices[AP_IP]                            # no credential works
         nodes = {n["chassis_id"]: n for n in crawl(client)["nodes"]}
-        ap = nodes[AP_CID]
+        ap = nodes[f"ip:{AP_IP}"]                            # no MAC can be read
         self.assertEqual((ap["pollable"], ap["status"], ap["hostname"], ap["vendor"]),
                          (False, "unreachable", "CYFOR-AP1", "Cisco"))
 

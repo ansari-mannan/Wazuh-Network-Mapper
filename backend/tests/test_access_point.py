@@ -75,7 +75,8 @@ class TestAccessPointRole(unittest.TestCase):
         del client.devices[AP_IP]
         doc = crawl(client)
         nodes = {n["node_id"]: n for n in assemble([], doc)["nodes"]}
-        self.assertEqual(nodes[AP_NODE]["role"], "access-point")
+        # not polled, so no MAC can be read: the address names it
+        self.assertEqual(nodes[f"device:ip:{AP_IP}"]["role"], "access-point")
 
     def test_unpollable_access_point_without_capabilities_stays_a_device(self):
         net = {"nodes": [
