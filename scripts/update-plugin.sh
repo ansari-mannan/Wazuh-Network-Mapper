@@ -1,10 +1,11 @@
 #!/bin/bash
-# On the server: reinstall the plugin from the copied zip and restart the dashboard.
+# On the server: reinstall the plugin from the copied zip, then start the dashboard.
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OSD_VERSION="${OSD_VERSION:-2.19.3}"
-pkill -f "$HOME/osd/node/bin/node" && sleep 3
+OSD_HOME="${OSD_HOME:-$HOME/osd}"
+pkill -f "$OSD_HOME/node/bin/node" && sleep 3
 set -e
-cd ~/osd
+cd "$OSD_HOME"
 ./bin/opensearch-dashboards-plugin remove vulnmapper || true
 ./bin/opensearch-dashboards-plugin install "file://$HOME/vulnmapper-$OSD_VERSION.zip"
-set -a; . ~/.vulnmapper.env; set +a
-exec ./bin/opensearch-dashboards
+exec "$HERE/run.sh"
