@@ -37,6 +37,8 @@ Useful options:
 - `--scored PATH` / `--network PATH`: use saved stage output instead of a live run.
 - `--seed IP`: start the crawl from a specific device.
 - `--vulns-out PATH`: where to write `vulnerabilities.json` (see below).
+- `--no-device-cves`, `--nvd-cache PATH`, `--nvd-budget SECONDS`: the device
+  CVE stage (see "Device CVEs").
 - `--help`: list every option.
 
 ## Output
@@ -50,6 +52,25 @@ Only an endpoint whose Wazuh status is `active` and has no such evidence is
 attached by subnet instead (to a device sharing its /24, confidence
 `subnet_fallback`); any other endpoint without evidence stays unparented and
 is listed in `metadata.unparented_endpoints` with its reason.
+
+### Device identity
+
+Every polled device has the standard inventory table (ENTITY-MIB
+`entPhysicalTable`) read, whatever its vendor: the chassis entry's model name
+and serial number (the first member of a stack). Only the first page of two
+columns is read, two requests per device (three for a table without a class
+column). The model becomes the exact product name ("WS-C3750-48TS-S" instead
+of the image family "C3750"); a FortiGate keeps Fortinet's own model and serial,
+and a Comware switch its model table's name. A missing serial is filled. A
+device without the table loses nothing.
+
+A device is named by its LLDP chassis id. One without (e.g. an access point
+that speaks only CDP) is named by its base MAC: of its own globally
+administered interface MACs, the one the most interfaces share, a tie going to
+the lowest. `device:ip:<address>` is used only when no MAC can be read at all.
+A device first reached through a CDP neighbour entry has `discovery_method:
+"snmp_cdp"`; seeds and LLDP-reached devices keep `"snmp_lldp"`. A device whose
+software family is recognised carries `software_family` (see "Device CVEs").
 
 ### CDP and access points
 
@@ -129,21 +150,109 @@ succeeds (via a temp file and rename), as compact JSON:
 
 ```
 {
-  "metadata": {"scan_time": "...", "counts": {"hosts": 0, "cves": 0, "findings": 0}},
+  "metadata": {"scan_time": "...",
+               "counts": {"hosts": 0, "devices": 0, "cves": 0, "findings": 0}},
   "cves":  {"<CVE id>": {"cvss", "cvss_version", "severity", "description",
                          "reference", "published_at"}},
-  "hosts": {"<node_id>": {"hostname", "agent_id",
-                          "findings": [{"cve", "package", "version", "detected_at"}]}}
+  "hosts": {"<node_id>": {"kind": "endpoint", "hostname", "agent_id",
+                          "findings": [{"cve", "package", "version", "detected_at"}]},
+            "<node_id>": {"kind": "device", "hostname", "agent_id": null,
+                          "cve_lookup": {...}, "findings": [...]}}
 }
 ```
 
-Each CVE's text is stored once in `cves`; hosts list one finding per CVE and
-package. Host keys are the graph's `node_id` values. `findings` is `null` when
-the host was not scored or came from an old `--scored` file.
+Each CVE's text is stored once in `cves`; entries list one finding per CVE and
+package. Keys are the graph's `node_id` values; endpoints and network devices
+share the map and `kind` tells them apart (`counts.hosts` counts endpoints,
+`counts.devices` devices). `findings` is `null` when the host was not scored,
+came from an old `--scored` file, or a device lookup did not succeed.
 
 `--scored PATH` reads `{"endpoints": [...], "cves": {...}, "warnings": [...]}`
 (what `python -m vulnmapper.endpoints.score` writes) or the older plain list of
 endpoints, which keeps its stored `risk_score` and has no full findings.
+
+### Device CVEs
+
+Switches, firewalls and access points have no Wazuh agent, so their CVEs come
+from NVD, the US National Vulnerability Database. After assembly, every device
+in the graph is looked up (after a live crawl and with `--network` alike).
+
+**From identity to a product identifier.** When the crawler identifies a device
+it also decides its software family from the system description, vendor and
+sysObjectID (for Cisco, IOS XE, IOS XR, NX-OS and ASA are tested before plain
+IOS, since an IOS XE description also says "IOS Software"). A rule table turns
+family and firmware into a CPE, NVD's standard product name, e.g.
+`cpe:2.3:o:cisco:ios:12.2\(55\)se12:*:*:*:*:*:*:*`:
+
+| Family | CPE |
+|---|---|
+| Cisco IOS, IOS XE, NX-OS | `o:cisco:ios`, `o:cisco:ios_xe`, `o:cisco:nx-os` |
+| Cisco ASA | `a:cisco:adaptive_security_appliance_software` |
+| Fortinet FortiOS | `o:fortinet:fortios` |
+| HP Comware | none: NVD has no Comware product, only some Comware 7 part numbers |
+| Cisco IOS XR | none yet (recognised, so never taken for IOS) |
+
+The CPE is first looked up in NVD's CPE dictionary: NVD answers a version it
+has never listed with every CVE whose range happens to include it, so a CPE the
+dictionary lacks is "unverified" and not asked. A listed CPE is asked for the
+CVEs where that software is the vulnerable component (`isVulnerable`).
+
+A family without a CPE uses a keyword search, under a strict rule because a
+wrong match puts a false critical on the map: a CVE counts only when its
+configuration data or its text names the same vendor and the device's product
+line as a whole word ("1920" never matches "1920S"), and, where its versions can
+be compared with the device's, the version falls inside them.
+
+**Potential findings.** A device finding means the software version matches.
+It does not prove the affected feature is enabled on that device. Findings
+count fully in the score; `cve_lookup` marks them as potential.
+
+**On each device node:** `cve_summary`, `top_cves`, `max_cvss` and `risk_score`,
+built exactly as for hosts, and `cve_lookup` (`status`, `match`, `product`,
+`cpe`, `source`, `fetched_at`, `stale`, `total`).
+
+| Situation | `status` | `risk_score` |
+|---|---|---|
+| CPE query answered, CVEs found | `ok` | base score |
+| CPE query answered, nothing found | `ok` | 0.0 |
+| keyword search, CVEs found | `ok`, `match: keyword` | base score |
+| keyword search, nothing found | `ok`, `match: keyword` | null |
+| vendor, family or version missing | `unidentified` | null |
+| NVD unreachable and nothing cached | `unavailable` | null |
+| NVD could not confirm the query | `unverified` | null |
+| device not polled | `unidentified` | null |
+
+A 0.0 means "asked precisely, and NVD has nothing"; a failed, guessed or
+skipped lookup never gives it. Problems go to `metadata.warnings`
+(`nvd_unreachable`, `nvd_stale_cache`, `nvd_budget_exceeded`,
+`device_unidentified`, each with node ids); `metadata.device_cves` counts the
+devices looked up, by status, served from the cache, and the NVD requests made.
+
+**Cache.** NVD answers are kept in `nvd-cache.json` beside the vulnerabilities
+file (`data/nvd-cache.json` in practice; `--nvd-cache PATH` to move it), keyed
+by query, so devices on the same software share an entry. An answer with CVEs
+is fresh for 7 days, an empty one for 1 day. When NVD cannot be reached an
+expired entry is used and marked `stale`. A corrupt cache is rebuilt. With a
+warm cache a scan makes no NVD request.
+
+**Rate and time.** Without a key requests are 6 seconds apart (NVD allows 5 per
+30 seconds); with `NVD_API_KEY` set in the environment, 0.8 seconds. A
+rate-limit or server error is retried twice. The stage has a time budget per
+scan (`--nvd-budget`, default 180 seconds); devices it does not reach wait for
+the next scan, with a warning. NVD never fails a scan. `--no-device-cves`
+skips the stage, and device nodes are then written as before.
+
+**Refresh without a rescan.** NVD publishes new CVEs every day:
+
+```
+python -m vulnmapper.devicecves --graph ../data/graph.json
+```
+
+re-runs only this stage on an existing graph, rewrites the graph's device CVE
+fields and updates the device entries of `vulnerabilities.json` beside it. It
+needs no SNMP and no Wazuh. For a graph written before software families were
+recorded, the family is inferred only when unambiguous (a classic IOS version
+string, a FortiGate, the Comware version format).
 
 ## Liveness
 
@@ -205,5 +314,7 @@ From `backend/`:
 ```
 python -m unittest discover -s tests
 ```
+
+or plain `pytest` (7 or later).
 
 The tests use fixtures only and need no network access or credentials.

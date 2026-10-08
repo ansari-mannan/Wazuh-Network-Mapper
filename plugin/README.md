@@ -4,8 +4,8 @@ An OpenSearch Dashboards plugin that shows the network topology graph produced
 by the Python scanner in `../backend`. It appears in the dashboard's left menu
 as **Network Topology Mapper** and has:
 
-- **Overview**: network devices by type, endpoints by status, hosts by risk
-  level, and cards for every page.
+- **Overview**: network devices by type, endpoints by status, endpoints and
+  devices by risk level, and cards for every page.
 - **Topology map**: the graph, with draggable nodes, reload and reset, and a
   detail flyout for each device or endpoint. A link between two devices shows
   each device's port next to that device; a host link shows the switch port.
@@ -47,9 +47,34 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.backendDir` | folder containing the scanner (`python -m vulnmapper` runs there) |
 | `vulnmapper.graphPath` | graph JSON the scanner output is written to and the UI reads |
 | `vulnmapper.pythonBin` | Python interpreter for the scanner (default `python3`) |
+| `vulnmapper.deviceCves` | look network devices' software up in NVD during a scan (default `true`; `false` starts scans with `--no-device-cves`) |
 
 `backendDir` and `graphPath` have no default; until they are set, the API
 returns an error saying which key is missing.
+
+An NVD API key is optional: set `NVD_API_KEY` in the dashboard server's
+environment (like `WAZUH_PASS`) and scans pass it on to the scanner through the
+environment, never on the command line.
+
+## Device CVEs
+
+Switches, firewalls and access points get their CVEs from NVD by software
+version (see "Device CVEs" in `../backend/README.md`). In the detail flyout a
+device shows, like a host, its risk summary and its Vulnerabilities, plus a
+Software row with the product it was matched as and one line saying what the
+findings rest on, e.g. "Potential: matched by software version (Cisco IOS
+12.2(55)SE12) against NVD on 9 Oct 2026. A version match does not confirm the
+affected feature is in use." A device that is Unscored says why in one
+sentence: its software could not be identified, it was never polled, NVD
+could not be reached, NVD does not list its version, or (for a product with no
+exact identifier) no NVD entry names it. A result served from an old cached
+answer because NVD could not be reached is marked stale.
+
+One risk rule drives the node border, the flyout and the overview: a device
+with a successful lookup shows its score, a real 0.0 included; anything else
+is Unscored. A graph written before device lookups behaves as before (a device
+is Unscored unless it carries CVE data). The overview's "Risk level" panel
+counts endpoints and devices together.
 
 ## Development setup
 
@@ -163,8 +188,8 @@ dashboard has not been tested yet.
   commas and whitespace and parses it with `shlex`. So a community containing
   a comma or space is treated as several communities, quotes and backslashes
   are interpreted, and an unbalanced quote makes the scan fail.
-- **Device risk.** Network devices have no CVE data yet, so the plugin shows a
-  device as Unscored unless it carries CVE data (`max_cvss` or a CVE list),
-  even though the scanner writes `risk_score: 0` for it.
+- **Device findings are potential.** They match the device's software
+  version; whether the affected feature is in use on that device is not
+  checked.
 - **Scan state lives in server memory.** It resets when the dashboard server
   restarts.
