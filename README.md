@@ -8,13 +8,14 @@ of the network, instead of reading CVE lists per host in isolation.
 
 ## Status
 
-Network discovery, the topology map and the per-device detail pages work on
-real scan data. Attack path analysis, recommendations and the summary screens
-currently show sample data and are in development. The project runs as a
-standalone web app; packaging it as a Wazuh dashboard plugin is planned.
-
-The OpenSearch Dashboards plugin in `plugin/` (OpenSearch Dashboards 2.19.3,
-Wazuh 4.14) shows the overview, topology map and scan settings on real scan data.
+The project runs as an OpenSearch Dashboards plugin (`plugin/`, OpenSearch
+Dashboards 2.19.3, Wazuh dashboard 4.14). On real scan data it shows the
+overview, the topology map with a detail panel per node, and the scan settings.
+Endpoints get CVEs and a base score from Wazuh; network devices get potential
+CVEs and a base score from NVD, matched by software version. An optional
+liveness check marks nodes that have left the network. Vulnerabilities, attack
+paths and recommendations are not built yet and show "Coming soon". The earlier
+standalone web app is still in `frontend/`; new work goes into the plugin.
 
 ## Project structure
 
