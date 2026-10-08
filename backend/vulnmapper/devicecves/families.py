@@ -145,7 +145,7 @@ def product_line(model: Optional[str]) -> Optional[str]:
 def identify(node: dict) -> dict:
     """``{family, product, cpe, match, keyword}`` for one graph device node."""
     out = {"family": None, "product": None, "cpe": None, "match": "unidentified",
-           "keyword": None}
+           "keyword": None, "version": None}
     if node.get("kind") != "device" or not node.get("pollable"):
         return out                        # seen only in a neighbour's table
     family = family_of(node)
@@ -157,6 +157,7 @@ def identify(node: dict) -> dict:
     if not firmware:
         return out
     out["product"] = f"{entry['label']} {firmware}"
+    out["version"] = firmware
     if entry.get("cpe"):
         part, vendor, product = entry["cpe"]
         out["cpe"] = f"cpe:2.3:{part}:{vendor}:{product}:{cpe_value(firmware)}:*:*:*:*:*:*:*"

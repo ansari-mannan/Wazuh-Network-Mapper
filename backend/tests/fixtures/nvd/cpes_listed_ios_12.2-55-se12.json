@@ -1,0 +1,31 @@
+{
+ "resultsPerPage": 1,
+ "startIndex": 0,
+ "totalResults": 1,
+ "format": "NVD_CPE",
+ "version": "2.0",
+ "timestamp": "2026-10-08T22:45:26.413",
+ "products": [
+  {
+   "cpe": {
+    "deprecated": false,
+    "cpeName": "cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*",
+    "cpeNameId": "02F50601-8D28-41C0-A9B0-AF2B0B4216C8",
+    "lastModified": "2020-06-22T14:49:00.447",
+    "created": "2020-06-22T14:49:00.447",
+    "titles": [
+     {
+      "title": "Cisco IOS 12.2(55)SE12",
+      "lang": "en"
+     }
+    ],
+    "refs": [
+     {
+      "ref": "https://tools.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20180926-vtp/cvrf/cisco-sa-20180926-vtp_cvrf.xml",
+      "type": "Advisory"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,839 @@
+{
+ "resultsPerPage": 8,
+ "startIndex": 0,
+ "totalResults": 8,
+ "format": "NVD_CVE",
+ "version": "2.0",
+ "timestamp": "2026-10-08T22:47:27.550",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "id": "CVE-2000-0486",
+    "vulnStatus": "Modified",
+    "published": "2000-05-30T04:00:00.000",
+    "lastModified": "2026-06-16T21:51:50.270",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Buffer overflow in Cisco TACACS+ tac_plus server allows remote attackers to cause a denial of service via a malformed packet with a long length field."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+        "baseScore": 5.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "PARTIAL"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "operator": "AND",
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5802E2D8-7069-474C-826F-AEE7B50BFE34"
+         }
+        ]
+       },
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:tacacs\\+:f4.0.2alpha:*:*:*:*:*:*:*",
+          "matchCriteriaId": "87DF1CE3-048E-49E4-86F0-FBC92BB81901"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:tacacs\\+:f4.0.3alpha:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D28D4B48-AF91-48B0-97D3-876E8E52D7D0"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://archives.neohapsis.com/archives/bugtraq/2000-05/0369.html",
+      "source": "cve@mitre.org",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "http://archives.neohapsis.com/archives/bugtraq/2000-05/0370.html",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2005-3921",
+    "vulnStatus": "Modified",
+    "published": "2005-11-30T11:03:00.000",
+    "lastModified": "2026-06-16T22:17:53.350",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Cross-site scripting (XSS) vulnerability in Cisco IOS Web Server for IOS 12.0(2a) allows remote attackers to inject arbitrary web script or HTML by (1) packets containing HTML that an administrator views via an HTTP interface to the contents of memory buffers, as demonstrated by the URI /level/15/exec/-/buffers/assigned/dump; or (2) sending the router Cisco Discovery Protocol (CDP) packets with HTML payload that an administrator views via the CDP status pages.  NOTE: these vectors were originally reported as being associated with the dump and packet options in /level/15/exec/-/show/buffers."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:H/Au:N/C:N/I:P/A:N",
+        "baseScore": 2.6,
+        "accessVector": "NETWORK",
+        "accessComplexity": "HIGH",
+        "authentication": "NONE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "PARTIAL",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "LOW",
+       "exploitabilityScore": 4.9,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "12.3",
+          "matchCriteriaId": "E3C9293E-8A2C-41FA-84F1-25752BA19339"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(1a\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "6C2928F8-6C6B-4C3F-BBE7-EAE8A0C47E77"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)ja:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5BC51475-7819-4C46-AF3C-251520C3EEFB"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)ja5:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B5538B7E-6AB4-4DB5-920F-EC2BA61DF73A"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)jk:*:*:*:*:*:*:*",
+          "matchCriteriaId": "C8011951-B642-4706-8936-74DCB59304C9"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)jk1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "042B6178-F186-40F3-A1AB-51AEAFCB7244"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)t3:*:*:*:*:*:*:*",
+          "matchCriteriaId": "19940BFF-0888-4717-AC5F-87A85BE165A5"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)t8:*:*:*:*:*:*:*",
+          "matchCriteriaId": "35C4D3D1-5E63-4A1E-BF9B-588FFE5790B1"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xa4:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D94D6CD6-3AF5-4CC6-991D-3D8C229A1C16"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xa5:*:*:*:*:*:*:*",
+          "matchCriteriaId": "60704633-BFAB-486F-A613-A806733E9AB0"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xc1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "9E5A2A58-D7B2-4018-BAAE-D6CB49A3A709"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xc2:*:*:*:*:*:*:*",
+          "matchCriteriaId": "1C268494-F83A-488D-AEE6-AF7D319B6F64"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://secunia.com/advisories/17780",
+      "source": "cve@mitre.org"
+     },
+     {
+      "url": "http://secunia.com/advisories/18528",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2006-3906",
+    "vulnStatus": "Modified",
+    "published": "2006-07-27T22:04:00.000",
+    "lastModified": "2026-06-16T22:28:03.097",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Internet Key Exchange (IKE) version 1 protocol, as implemented on Cisco IOS, VPN 3000 Concentrators, and PIX firewalls, allows remote attackers to cause a denial of service (resource exhaustion) via a flood of IKE Phase-1 packets that exceed the session expiration rate. NOTE: it has been argued that this is due to a design weakness of the IKE version 1 protocol, in which case other vendors and implementations would also be affected."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+        "baseScore": 5.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "PARTIAL"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "operator": "AND",
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5802E2D8-7069-474C-826F-AEE7B50BFE34"
+         }
+        ]
+       },
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:vpn_3001_concentrator:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "786346D5-13D8-45C9-B91D-C2AACF675377"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:vpn_3015_concentrator:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "0A512328-2FD0-4B1D-9327-A13A0BCE9C0D"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:vpn_3020_concentrator:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D5D50FE2-A4E6-4EF4-A91C-88FB0AF6CCB4"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:vpn_3030_concentator:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "6548F964-B8EE-4B39-87CF-99743D41C42C"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:vpn_3060_concentrator:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "E08810E6-33B6-45FF-91C7-EED10DC023EA"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:vpn_3080_concentrator:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "2BD1A1AC-980F-428E-8BAF-0FC821014868"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:adaptive_security_appliance_software:7.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "85ED2D96-5CC9-4851-986A-C9ED5E2D96CB"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:adaptive_security_appliance_software:7.0\\(4\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "AC150564-7413-401A-9DD8-8AD773F1D8F9"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:adaptive_security_appliance_software:7.0\\(5\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "D0714F9E-75AD-4405-BBC3-E0D817C05EF6"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:adaptive_security_appliance_software:7.0.1.4:*:*:*:*:*:*:*",
+          "matchCriteriaId": "7EA0DDDD-C987-4DA6-ADEE-77B387C26A92"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:adaptive_security_appliance_software:7.0.4.3:*:*:*:*:*:*:*",
+          "matchCriteriaId": "49696766-ECCE-4903-AA54-271EFEA58B8D"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:adaptive_security_appliance_software:7.1\\(2\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "D1557499-D1A1-4A26-80DA-A3D66AA53580"
+         }
+        ]
+       },
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:pix_asa_ids:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "701810DC-0A46-4D01-90BD-03AAF277E4DE"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:pix_firewall:6.2.2_.111:*:*:*:*:*:*:*",
+          "matchCriteriaId": "ECBC761F-A8F5-4CD8-B19C-5CE8FFC58FDD"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:pix_firewall:6.2.3_\\(110\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "900DC321-4CEF-4810-8247-B82FE93F48BF"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:pix_firewall:6.3.3_\\(133\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "422F8E64-2376-4E82-A1A2-916BFB7172AB"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:cisco:pix_firewall:6.3.5_\\(112\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "54389797-86AA-4744-AA84-9B66FB6E01E3"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_501:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "151D5A44-2D0D-478A-B011-A0892817B814"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_506:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "E346F334-9BA3-4BDC-8D0F-D749A7D76E66"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_515:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "F6EE5C14-F556-48A5-BB3F-5465DC823B85"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_515e:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "286199EA-71CF-46B4-9131-F1752C2EA82D"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_520:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "32E437F4-1B19-4B57-9EAD-3AC04717E389"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_525:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "29B2019F-DF6E-4924-B0D2-37094B5265F9"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:h:cisco:pix_firewall_535:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "9600B7CF-4AEB-4319-8EF4-4FEA40EF6367"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://archives.neohapsis.com/archives/bugtraq/2006-07/0531.html",
+      "source": "cve@mitre.org"
+     },
+     {
+      "url": "http://securityreason.com/securityalert/1293",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2006-4950",
+    "vulnStatus": "Modified",
+    "published": "2006-09-23T10:07:00.000",
+    "lastModified": "2026-06-16T22:30:11.117",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+        "baseScore": 10.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "COMPLETE",
+        "integrityImpact": "COMPLETE",
+        "availabilityImpact": "COMPLETE"
+       },
+       "baseSeverity": "HIGH",
+       "exploitabilityScore": 10.0,
+       "impactScore": 10.0,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": true,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "12.3",
+          "matchCriteriaId": "E3C9293E-8A2C-41FA-84F1-25752BA19339"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(1a\\):*:*:*:*:*:*:*",
+          "matchCriteriaId": "6C2928F8-6C6B-4C3F-BBE7-EAE8A0C47E77"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)ja:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5BC51475-7819-4C46-AF3C-251520C3EEFB"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)ja5:*:*:*:*:*:*:*",
+          "matchCriteriaId": "B5538B7E-6AB4-4DB5-920F-EC2BA61DF73A"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)jk:*:*:*:*:*:*:*",
+          "matchCriteriaId": "C8011951-B642-4706-8936-74DCB59304C9"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)jk1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "042B6178-F186-40F3-A1AB-51AEAFCB7244"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)t3:*:*:*:*:*:*:*",
+          "matchCriteriaId": "19940BFF-0888-4717-AC5F-87A85BE165A5"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)t8:*:*:*:*:*:*:*",
+          "matchCriteriaId": "35C4D3D1-5E63-4A1E-BF9B-588FFE5790B1"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xa4:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D94D6CD6-3AF5-4CC6-991D-3D8C229A1C16"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xa5:*:*:*:*:*:*:*",
+          "matchCriteriaId": "60704633-BFAB-486F-A613-A806733E9AB0"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xc1:*:*:*:*:*:*:*",
+          "matchCriteriaId": "9E5A2A58-D7B2-4018-BAAE-D6CB49A3A709"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:12.3\\(2\\)xc2:*:*:*:*:*:*:*",
+          "matchCriteriaId": "1C268494-F83A-488D-AEE6-AF7D319B6F64"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://secunia.com/advisories/21974",
+      "source": "cve@mitre.org",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "http://securitytracker.com/id?1016899",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2007-0199",
+    "vulnStatus": "Modified",
+    "published": "2007-01-11T11:28:00.000",
+    "lastModified": "2026-06-16T22:35:06.490",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "The Data-link Switching (DLSw) feature in Cisco IOS 11.0 through 12.4 allows remote attackers to cause a denial of service (device reload) via \"an invalid value in a DLSw message... during the capabilities exchange.\""
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+        "baseScore": 5.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "PARTIAL"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "12.4",
+          "matchCriteriaId": "991BA935-4449-4D43-A8F9-0D5EDC8A4F3B"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:11.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D626B494-6210-4F74-8D17-BA480B6665C3"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://osvdb.org/32683",
+      "source": "cve@mitre.org"
+     },
+     {
+      "url": "http://secunia.com/advisories/23697",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2007-2587",
+    "vulnStatus": "Modified",
+    "published": "2007-05-10T00:19:00.000",
+    "lastModified": "2026-06-16T22:39:53.597",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "The IOS FTP Server in Cisco IOS 11.3 through 12.4 allows remote authenticated users to cause a denial of service (IOS reload) via unspecified vectors involving transferring files (aka bug ID CSCse29244)."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:M/Au:S/C:N/I:N/A:C",
+        "baseScore": 6.3,
+        "accessVector": "NETWORK",
+        "accessComplexity": "MEDIUM",
+        "authentication": "SINGLE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "COMPLETE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 6.8,
+       "impactScore": 6.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "11.3",
+          "versionEndIncluding": "12.4",
+          "matchCriteriaId": "C1081F37-F74F-4CD4-9534-E5D6584C7150"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://secunia.com/advisories/25199",
+      "source": "cve@mitre.org",
+      "tags": [
+       "Third Party Advisory"
+      ]
+     },
+     {
+      "url": "http://www.cisco.com/en/US/products/products_security_advisory09186a00808399d0.shtml",
+      "source": "cve@mitre.org",
+      "tags": [
+       "Patch",
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2007-5547",
+    "vulnStatus": "Modified",
+    "published": "2007-10-18T20:17:00.000",
+    "lastModified": "2026-06-16T22:46:22.650",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Cross-site scripting (XSS) vulnerability in Cisco IOS allows remote attackers to inject arbitrary web script or HTML, and execute IOS commands, via unspecified vectors, aka PSIRT-2022590358.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:M/Au:N/C:N/I:P/A:N",
+        "baseScore": 4.3,
+        "accessVector": "NETWORK",
+        "accessComplexity": "MEDIUM",
+        "authentication": "NONE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "PARTIAL",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 8.6,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5802E2D8-7069-474C-826F-AEE7B50BFE34"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://osvdb.org/43742",
+      "source": "cve@mitre.org"
+     },
+     {
+      "url": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2007-5548",
+    "vulnStatus": "Modified",
+    "published": "2007-10-18T20:17:00.000",
+    "lastModified": "2026-06-16T22:46:22.753",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "Multiple stack-based buffer overflows in Command EXEC in Cisco IOS allow local users to gain privileges via unspecified vectors, aka (1) PSIRT-0474975756 and (2) PSIRT-0388256465.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information.  However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:L/AC:M/Au:N/C:C/I:C/A:C",
+        "baseScore": 6.9,
+        "accessVector": "LOCAL",
+        "accessComplexity": "MEDIUM",
+        "authentication": "NONE",
+        "confidentialityImpact": "COMPLETE",
+        "integrityImpact": "COMPLETE",
+        "availabilityImpact": "COMPLETE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 3.4,
+       "impactScore": 10.0,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": true,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:cisco:ios:*:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5802E2D8-7069-474C-826F-AEE7B50BFE34"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "http://osvdb.org/45360",
+      "source": "cve@mitre.org"
+     },
+     {
+      "url": "http://osvdb.org/45361",
+      "source": "cve@mitre.org"
+     }
+    ]
+   }
+  }
+ ]
+}

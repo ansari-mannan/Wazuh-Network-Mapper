@@ -1,0 +1,1000 @@
+{
+ "resultsPerPage": 8,
+ "startIndex": 0,
+ "totalResults": 8,
+ "format": "NVD_CVE",
+ "version": "2.0",
+ "timestamp": "2026-10-08T22:48:27.008",
+ "vulnerabilities": [
+  {
+   "cve": {
+    "id": "CVE-2018-13367",
+    "vulnStatus": "Modified",
+    "published": "2019-08-23T21:15:10.600",
+    "lastModified": "2026-06-17T01:39:17.210",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "An information exposure vulnerability in FortiOS 6.2.3, 6.2.0 and below may allow an unauthenticated attacker to gain platform information such as version, models, via parsing a JavaScript file through admin webUI."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV30": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.0",
+        "vectorString": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "baseScore": 5.3,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 1.4
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:N/A:N",
+        "baseScore": 5.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "6.2.0",
+          "matchCriteriaId": "1023D06F-42D8-40DA-BEE0-A71397F58202"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-18-173",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-18-173",
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2019-17655",
+    "vulnStatus": "Modified",
+    "published": "2020-06-16T21:15:10.313",
+    "lastModified": "2026-06-17T02:24:21.477",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "A cleartext storage in a file or on disk (CWE-313) vulnerability in FortiOS SSL VPN 6.2.0 through 6.2.2, 6.0.9 and earlier and FortiProxy 2.0.0, 1.2.9 and earlier may allow an attacker to retrieve a logged-in SSL VPN user's credentials should that attacker be able to read the session file stored on the targeted device's system."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "psirt@fortinet.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "baseScore": 5.3,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 1.4
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "baseScore": 7.5,
+        "baseSeverity": "HIGH",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 3.6
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:N/A:N",
+        "baseScore": 5.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndExcluding": "6.2.3",
+          "matchCriteriaId": "BB277B3D-5973-445E-B688-4E1911D00FFE"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/psirt/FG-IR-19-217",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://fortiguard.com/psirt/FG-IR-20-224",
+      "source": "psirt@fortinet.com"
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2019-5591",
+    "vulnStatus": "Analyzed",
+    "published": "2020-08-14T16:15:16.070",
+    "lastModified": "2026-08-15T04:17:41.413",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "A Default Configuration vulnerability in FortiOS may allow an unauthenticated attacker on the same subnet to intercept sensitive information by impersonating the LDAP server."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "baseScore": 6.5,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "ADJACENT_NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 2.8,
+       "impactScore": 3.6
+      },
+      {
+       "source": "134c704f-9b21-4f2e-91b3-4a467353bcc0",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "baseScore": 6.5,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "ADJACENT_NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 2.8,
+       "impactScore": 3.6
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:A/AC:L/Au:N/C:P/I:N/A:N",
+        "baseScore": 3.3,
+        "accessVector": "ADJACENT_NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "LOW",
+       "exploitabilityScore": 6.5,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "6.2.0",
+          "matchCriteriaId": "1023D06F-42D8-40DA-BEE0-A71397F58202"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://www.fortiguard.com/psirt/FG-IR-19-037",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Mitigation",
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://www.fortiguard.com/psirt/FG-IR-19-037",
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Mitigation",
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2020-12818",
+    "vulnStatus": "Modified",
+    "published": "2020-09-24T15:15:13.237",
+    "lastModified": "2026-06-17T02:52:22.140",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "An insufficient logging vulnerability in FortiGate before 6.4.1 may allow the traffic from an unauthenticated attacker to Fortinet owned IP addresses to go unnoticed."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "baseScore": 5.3,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 1.4
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:L/Au:N/C:P/I:N/A:N",
+        "baseScore": 5.0,
+        "accessVector": "NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 10.0,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "operator": "AND",
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndExcluding": "6.4.1",
+          "matchCriteriaId": "366223BF-F61D-4AC7-A884-D6FB48CD47A7"
+         }
+        ]
+       },
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_1000d:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "64F7589C-F20B-4222-B859-78D15C457CE5"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_100e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "5E4BAC86-6E1C-4ECE-8E41-789A6A617A40"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_100f:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "561D84F5-E3D4-4293-AC13-26D2E217D970"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_1100e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "648723EC-E144-4975-8D23-A4BB5EF6F07A"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_1500d:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "D8C8DA5D-9CB6-4BA6-BB8B-F41501726AF9"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_1800f:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "76792D6F-B647-43A8-8A60-17BE35824BF7"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_2000e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "92C3D2D8-A79C-4D10-B72E-D71EA3EB06F4"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_200e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "F3D08C3F-51A4-44CF-BB85-A00536FAADAE"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_2200e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "0B2A9D43-348B-45DB-94F7-825B29141F09"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_3000d:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "C79E67E1-8A10-4AD3-A6F5-9E82890216B3"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_3300e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "0CCCA9CD-2B75-46AF-989C-C300CB53358E"
+         },
+         {
+          "vulnerable": false,
+          "criteria": "cpe:2.3:h:fortinet:fortigate_3400e:-:*:*:*:*:*:*:*",
+          "matchCriteriaId": "CD1CDB68-B412-45E2-9AC4-F2A6E5300AA4"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-20-033",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://www.fortiguard.com/psirt/FG-IR-20-033",
+      "source": "nvd@nist.gov",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2020-15938",
+    "vulnStatus": "Modified",
+    "published": "2021-03-04T18:15:12.863",
+    "lastModified": "2026-06-17T02:57:26.367",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "When traffic other than HTTP/S (eg: SSH traffic, etc...) traverses the FortiGate in version below 6.2.5 and below 6.4.2 on port 80/443, it is not redirected to the transparent proxy policy for processing, as it doesn't have a valid HTTP header."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "psirt@fortinet.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:L/A:N",
+        "baseScore": 4.0,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "HIGH",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "CHANGED",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "LOW",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 2.2,
+       "impactScore": 1.4
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+        "baseScore": 7.5,
+        "baseSeverity": "HIGH",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "HIGH",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 3.9,
+       "impactScore": 3.6
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:N/AC:M/Au:N/C:N/I:P/A:N",
+        "baseScore": 4.3,
+        "accessVector": "NETWORK",
+        "accessComplexity": "MEDIUM",
+        "authentication": "NONE",
+        "confidentialityImpact": "NONE",
+        "integrityImpact": "PARTIAL",
+        "availabilityImpact": "NONE"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 8.6,
+       "impactScore": 2.9,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "6.2.5",
+          "matchCriteriaId": "3D02C781-85DB-4474-A90B-042398B080D2"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "6.4.0",
+          "versionEndIncluding": "6.4.2",
+          "matchCriteriaId": "1CBBBF98-0E21-4C0B-BE40-040CF6F81C9C"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-20-172",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-20-172",
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2021-24018",
+    "vulnStatus": "Modified",
+    "published": "2021-08-04T15:15:08.983",
+    "lastModified": "2026-06-17T03:39:10.043",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "A buffer underwrite vulnerability in the firmware verification routine of FortiOS before 7.0.1 may allow an attacker located in the adjacent network to potentially execute arbitrary code via a specifically crafted firmware image."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "psirt@fortinet.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:L/I:L/A:L",
+        "baseScore": 4.3,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "ADJACENT_NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "HIGH",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "LOW",
+        "availabilityImpact": "LOW"
+       },
+       "exploitabilityScore": 0.9,
+       "impactScore": 3.4
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "baseScore": 8.8,
+        "baseSeverity": "HIGH",
+        "attackVector": "ADJACENT_NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "HIGH",
+        "integrityImpact": "HIGH",
+        "availabilityImpact": "HIGH"
+       },
+       "exploitabilityScore": 2.8,
+       "impactScore": 5.9
+      }
+     ],
+     "cvssMetricV2": [
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "2.0",
+        "vectorString": "AV:A/AC:L/Au:N/C:P/I:P/A:P",
+        "baseScore": 5.8,
+        "accessVector": "ADJACENT_NETWORK",
+        "accessComplexity": "LOW",
+        "authentication": "NONE",
+        "confidentialityImpact": "PARTIAL",
+        "integrityImpact": "PARTIAL",
+        "availabilityImpact": "PARTIAL"
+       },
+       "baseSeverity": "MEDIUM",
+       "exploitabilityScore": 6.5,
+       "impactScore": 6.4,
+       "acInsufInfo": false,
+       "obtainAllPrivilege": false,
+       "obtainUserPrivilege": false,
+       "obtainOtherPrivilege": false,
+       "userInteractionRequired": false
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndExcluding": "6.2.10",
+          "matchCriteriaId": "C628FD97-5D1C-48BC-8A4F-932AEFEC2F5D"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "6.4.0",
+          "versionEndExcluding": "6.4.7",
+          "matchCriteriaId": "868E19AD-D2ED-4424-9CA1-56E07BFBC0DB"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:7.0.0:*:*:*:*:*:*:*",
+          "matchCriteriaId": "79FEE7F6-F72E-4A43-883C-0CF492DF355B"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-21-046",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://fortiguard.com/advisory/FG-IR-21-046",
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2022-23438",
+    "vulnStatus": "Modified",
+    "published": "2022-07-18T18:15:08.963",
+    "lastModified": "2026-06-17T04:30:00.717",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "An improper neutralization of input during web page generation ('Cross-site Scripting') [CWE-79] vulnerability in FortiOS version 7.0.5 and prior and 6.4.9 and prior may allow an unauthenticated remote attacker to perform a reflected cross site scripting (XSS) attack in the captive portal authentication replacement page."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "psirt@fortinet.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N",
+        "baseScore": 4.7,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "HIGH",
+        "privilegesRequired": "NONE",
+        "userInteraction": "REQUIRED",
+        "scope": "CHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "LOW",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 1.6,
+       "impactScore": 2.7
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+        "baseScore": 6.1,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "NONE",
+        "userInteraction": "REQUIRED",
+        "scope": "CHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "LOW",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 2.8,
+       "impactScore": 2.7
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionEndIncluding": "6.4.9",
+          "matchCriteriaId": "023BE7D8-97EE-43AA-9E7E-5911D6F6FD11"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "7.0.0",
+          "versionEndIncluding": "7.0.5",
+          "matchCriteriaId": "3D763E12-9F72-46DA-825B-A573AC9AA947"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/psirt/FG-IR-21-057",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Broken Link",
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://fortiguard.com/psirt/FG-IR-21-057",
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Broken Link",
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "cve": {
+    "id": "CVE-2021-43074",
+    "vulnStatus": "Modified",
+    "published": "2023-02-16T19:15:11.677",
+    "lastModified": "2026-06-17T04:10:28.760",
+    "descriptions": [
+     {
+      "lang": "en",
+      "value": "An improper verification of cryptographic signature vulnerability [CWE-347] in FortiWeb 6.4 all versions, 6.3.16 and below, 6.2 all versions, 6.1 all versions, 6.0 all versions; FortiOS 7.0.3 and below, 6.4.8\u00a0and below, 6.2 all versions, 6.0 all versions; FortiSwitch 7.0.3 and below, 6.4.10\u00a0and below, 6.2 all versions, 6.0 all versions; FortiProxy 7.0.1\u00a0and below, 2.0.7\u00a0and below, 1.2 all versions, 1.1 all versions, 1.0 all versions\u00a0may allow an attacker\u00a0to decrypt portions of the administrative session management cookie\u00a0if able to intercept the latter."
+     }
+    ],
+    "metrics": {
+     "cvssMetricV31": [
+      {
+       "source": "psirt@fortinet.com",
+       "type": "Secondary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+        "baseScore": 4.3,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "LOW",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 2.8,
+       "impactScore": 1.4
+      },
+      {
+       "source": "nvd@nist.gov",
+       "type": "Primary",
+       "cvssData": {
+        "version": "3.1",
+        "vectorString": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+        "baseScore": 4.3,
+        "baseSeverity": "MEDIUM",
+        "attackVector": "NETWORK",
+        "attackComplexity": "LOW",
+        "privilegesRequired": "LOW",
+        "userInteraction": "NONE",
+        "scope": "UNCHANGED",
+        "confidentialityImpact": "LOW",
+        "integrityImpact": "NONE",
+        "availabilityImpact": "NONE"
+       },
+       "exploitabilityScore": 2.8,
+       "impactScore": 1.4
+      }
+     ]
+    },
+    "configurations": [
+     {
+      "nodes": [
+       {
+        "operator": "OR",
+        "negate": false,
+        "cpeMatch": [
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:fortinet:fortiproxy:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "1.0.0",
+          "versionEndExcluding": "2.0.8",
+          "matchCriteriaId": "29C4F347-1E27-4517-8E9D-E932B3A7F271"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:fortinet:fortiproxy:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "7.0.0",
+          "versionEndExcluding": "7.0.2",
+          "matchCriteriaId": "EFEA53FA-16E1-4CDB-933C-2F886CAB15DA"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:fortinet:fortiweb:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "6.0.0",
+          "versionEndExcluding": "6.3.17",
+          "matchCriteriaId": "C85CEB11-2682-448D-852A-9EE113E54539"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:a:fortinet:fortiweb:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "6.4.0",
+          "versionEndExcluding": "7.0.0",
+          "matchCriteriaId": "1725A170-7445-459F-A682-A9EA13470393"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "6.0.0",
+          "versionEndExcluding": "6.4.9",
+          "matchCriteriaId": "E23ACB3B-E74F-4AF6-B67B-7603ED113B36"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortios:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "7.0.0",
+          "versionEndExcluding": "7.0.4",
+          "matchCriteriaId": "30F10D70-1176-4119-BF1A-C2A5FCA386D4"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortiswitch:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "6.0.0",
+          "versionEndExcluding": "6.4.11",
+          "matchCriteriaId": "8C7EE382-AA93-4634-B48E-3BE9012EC96B"
+         },
+         {
+          "vulnerable": true,
+          "criteria": "cpe:2.3:o:fortinet:fortiswitch:*:*:*:*:*:*:*:*",
+          "versionStartIncluding": "7.0.0",
+          "versionEndExcluding": "7.0.4",
+          "matchCriteriaId": "69CF7A08-72CB-4CEC-9900-8B26180B2782"
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "references": [
+     {
+      "url": "https://fortiguard.com/psirt/FG-IR-21-126",
+      "source": "psirt@fortinet.com",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     },
+     {
+      "url": "https://fortiguard.com/psirt/FG-IR-21-126",
+      "source": "af854a3a-2127-422b-91ae-364da2661108",
+      "tags": [
+       "Vendor Advisory"
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
