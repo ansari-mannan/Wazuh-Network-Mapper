@@ -45,7 +45,8 @@ Entry point: `python -m vulnmapper.liveness --graph PATH [--state PATH] [--thres
 | `kind == "endpoint"` with an `agent_id`, Wazuh credentials (`WAZUH_PASS`) available | `agent`: see "Wazuh agent check-in" below. Matched by agent id, so a missing or shared IP does not matter. Not pinged. |
 | `kind == "device"`, `pollable` true, has `ip`, SNMP credentials available | `snmp`: reuse `SnmpClient` and `load_credentials(None)`; a successful credential resolve / sysUpTime GET is a reply. Timeout 1 s, 1 retry. |
 | same device, no SNMP credentials available | `icmp` |
-| `kind == "endpoint"` with `ip` (`snmp_fdb` hosts, and Wazuh agents when no Wazuh credentials are set) | `icmp`: `ping -c 1 -W 1 <ip>`, exit code 0 is a reply |
+| endpoint linked to an access point with confidence `wifi` (no agent method), the AP pollable and SNMP credentials available | `wifi`: in the AP's client list this pass is a reply (see Phase 6). Not pinged. |
+| `kind == "endpoint"` with `ip` (`snmp_fdb` hosts, and Wazuh agents when no Wazuh credentials are set) | `icmp`: `ping -c 1 -W 1 <ip>`, exit code 0 is a reply; then `mac-table` if no faster method was ever proven (Phase 6) |
 | no `ip` | no probe |
 
 Run probes concurrently with a cap of 32 in flight. One pass over the current lab graph should finish in under 5 seconds.
@@ -172,6 +173,11 @@ The heartbeat only re-checks nodes it already knows, so a newly connected device
 - Backend: the port status of every SNMP-answering pollable device is read and remembered between passes (`ports`; a device that does not answer keeps what it had). A pass suggests a rescan when (a) a port goes from down to up and no graph edge uses that port (a host link's switch port, or either end of a device link), or (b) the Manager API lists an active agent, other than 000, that is not in the graph. A port coming back up for a node the graph already links there is recovery, not a reason. The document carries `rescan_suggested` and a short list (at most 10) of `rescan_reasons`; the suggestion stands until a new scan replaces the graph (`graph_scan_time`, from `metadata.scan_time`), so it is not lost while a scan runs or the plugin waits.
 - Plugin server (`autoRescan.ts`): after a pass that suggests a rescan, when `liveness.autoRescan` is on, start a scan through the same `startScan` path as a manual scan, with the last community given to a scan. Never while a scan runs, and never sooner than `liveness.minRescanIntervalSeconds` after the last scan started, automatic or manual.
 - UI: reloads the graph when `graphMtime` changes, so an automatic scan's result appears without a manual reload.
+
+## Phase 6: access points and the MAC table
+
+- `wifi`: once per pass, every access point (role `access-point`) that answered SNMP has its client list read (one column walk of cDot11ClientConfigInfoTable; an empty list counts only when the AP's per-radio client counters say it is empty). A node linked to it with confidence `wifi` replied if its MAC is in the list; an agent endpoint keeps its agent method as well. Missing from the list is handled exactly like a down port: inactive at once with method `wifi`, `port_down: {device: <AP>, port: "wifi", previous_state, since}`, revived by a Wazuh check-in later than `since` or by reappearing in the list. If the AP does not answer, nothing changes (`reason: "wifi_unavailable"`). The port layer works per link, so a Wi-Fi link is never judged by the radio interface's status. A MAC in a client list that is not in the graph is a rescan reason.
+- `mac-table`: a wired endpoint with a MAC and a known switch port (on a switch that answered SNMP this pass), no agent, not marked down by its port, and no method in `icmp`, `snmp`, `agent`, `wifi` ever proven, is looked up in its switch's forwarding table: found on that port is a reply, not found (or on another port) a miss under the normal threshold, counting from the start. Specific entries are fetched with GETs (Cisco: 802.1D in the community@vlan context, using the `vlan` the scan records on the node; others: 802.1Q in the default context), one batched lookup per switch per pass, then bridge port -> ifIndex -> ifName. A switch that does not answer within 2 s is skipped for the pass (`reason: "mac_table_unavailable"`). A MAC-table entry is not a live reply: a down port still wins.
 
 ## Verification
 

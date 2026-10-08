@@ -129,6 +129,14 @@ does: never while one is running, and never sooner than
 `minRescanIntervalSeconds` after the last scan started. The map reloads the
 graph by itself when the graph file changes.
 
+Wi-Fi clients of an access point are checked against the AP's client list
+(a client that leaves it is inactive at once), and a wired host that ignores
+ping is confirmed from its switch's MAC table.
+
+An access point found by the scan (over CDP, for a Cisco AP) shows a Wi-Fi
+icon; its clients hang off it on short teal dotted links, and the flyout
+shows its client count, or for a client its SSID, access point and radio.
+
 On the map, inactive devices stay on the canvas, dimmed; every inactive host
 leaves it for an "Inactive (n)" panel (switch "Hide inactive hosts") showing
 its name or IP, MAC, last seen time and how it was checked. The detail flyout

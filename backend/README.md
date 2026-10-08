@@ -51,6 +51,29 @@ attached by subnet instead (to a device sharing its /24, confidence
 `subnet_fallback`); any other endpoint without evidence stays unparented and
 is listed in `metadata.unparented_endpoints` with its reason.
 
+### CDP and access points
+
+The crawl follows CDP neighbours as well as LLDP ones (Cisco `cdpCacheTable`;
+a device without CDP costs one request). A neighbour seen over both is one
+device and one link; a link only CDP reported carries `"protocol": "cdp"`.
+Only a CDP neighbour with router or switch capability makes its port an
+uplink, so the hosts behind a phone or an access point stay visible.
+
+A polled device that answers the Cisco wireless association MIB (or, failing
+that, whose CDP platform or system description names an access point) gets
+the role `access-point`. Its clients are read from its association table
+(MAC, and IP, SSID, radio where provided); its bridge table is not used.
+
+- A host or endpoint in an access point's client list is placed under it
+  (confidence `wifi`, the radio as the port) with `"wifi": {ssid,
+  access_point, radio}` on its node, replacing a switch-table or subnet
+  placement. A client nothing else knows becomes a host with
+  `discovery_method: "snmp_wifi"`.
+- The access point sits on the switch port its CDP link names, with
+  `"wifi_clients": <count>` on its node.
+- A host learned from a switch's forwarding table carries the `"vlan"` it was
+  learned on.
+
 ### CVEs and the base score
 
 The score stage reads every vulnerability document for each agent (paged, at
@@ -144,6 +167,18 @@ document on stdout: per node `state` (`active` / `inactive` / `unknown`),
   `WAZUH_PASS` they are pinged like any other endpoint.
 - Pollable devices are probed by SNMP when `SNMP_COMMUNITIES` (or the other
   `SNMP_*` variables) is set, everything else by `ping -c 1 -W 1`.
+- A Wi-Fi client of an access point that answers SNMP is checked against the
+  AP's client list once per pass (`method: "wifi"`) instead of ping. Missing
+  from the list is treated like a down port (inactive at once, recorded in
+  `port_down` with `"port": "wifi"`); a later Wazuh check-in or reappearing
+  in the list makes it active again.
+- A wired host with a MAC and a known switch port that no faster method has
+  ever proven (one that blocks ping, or has no IP) is looked up in its
+  switch's forwarding table (`method: "mac-table"`): found on that port is a
+  reply, not found a miss. Specific entries are fetched, never whole tables,
+  one batched lookup per switch per pass; a switch over 2 s is skipped for the
+  pass. A switch keeps a MAC for minutes, so this confirms presence and is
+  slow to show absence; a down port still wins.
 - A node goes inactive after `--threshold` misses on a method it has answered
   before (`agent` counts as answered from the start), or at once when its
   switch port is reported down (`method: "port"`; `port_down.since` is when
@@ -155,8 +190,9 @@ document on stdout: per node `state` (`active` / `inactive` / `unknown`),
   on another port; an up port never makes a node active by itself.
 - Port states of every polled device are remembered between passes (`ports`).
   The document sets `rescan_suggested` with short `rescan_reasons` when a port
-  goes from down to up with nothing in the graph linked to it, or when the
-  Manager API lists an active agent that is not in the graph. The suggestion
+  goes from down to up with nothing in the graph linked to it, when the
+  Manager API lists an active agent that is not in the graph, or when an
+  access point lists a Wi-Fi client that is not in the graph. The suggestion
   stands until a new scan replaces the graph (`graph_scan_time`).
 
 Credentials come from the environment only and are never logged, written or
