@@ -101,7 +101,8 @@
       "agent_id": "010",
       "stale": false,
       "top_cves": [],
-      "cve_summary": null
+      "cve_summary": null,
+      "vlan": 20
     },
     {
       "node_id": "endpoint:003",

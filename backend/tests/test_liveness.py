@@ -75,9 +75,9 @@ class FakeProber:
             raise answer
         return set(answer)
 
-    async def mac_lookup(self, ip, entries):
+    async def mac_lookup(self, ip, entries, per_vlan_context=False):
         """``entries`` = [(vlan, mac)] -> {(vlan, mac): port or None}."""
-        self.calls.append(("mac_lookup", ip, tuple(entries)))
+        self.calls.append(("mac_lookup", ip, tuple(entries), per_vlan_context))
         table = self.mac_tables.get(ip, {})
         if isinstance(table, Exception):
             raise table
@@ -769,6 +769,110 @@ class TestSystemProberWifi(unittest.TestCase):
             asyncio.run(self.prober(busy).wifi_clients(AP_IP))
         with self.assertRaises(RuntimeError):                           # nothing answered
             asyncio.run(self.prober([("1.3.6.1.2.1.1.5.0", "AP")]).wifi_clients(AP_IP))
+
+
+Q_MAC = "28:f1:0e:31:3f:0c"
+Q_KEY = (20, "28f10e313f0c")
+
+
+class TestMacTable(unittest.TestCase):
+    """Part 6: a wired host no faster method has proven is confirmed by its
+    switch's forwarding table."""
+
+    def g(self, vendor="Cisco", **quiet):
+        sw = dict(switch(), vendor=vendor)
+        node = dict(host("host:quiet", "10.0.0.40", mac=Q_MAC, vlan=20), **quiet)
+        return graph(sw, node, edges=[link("host:quiet", "device:sw", "Gi1/0/7")])
+
+    def run_with(self, table=None, state=None, ports=None, g=None, **kw):
+        prober = FakeProber(snmp={"10.0.0.2": True}, ports={"10.0.0.2": ports or {}},
+                            mac_tables={"10.0.0.2": {} if table is None else table}, **kw)
+        doc = run(g or self.g(), state, prober)
+        return doc["nodes"]["host:quiet"], doc, prober
+
+    def test_found_on_its_port_replied(self):
+        node, _, prober = self.run_with({Q_KEY: "Gi1/0/7"})
+        self.assertEqual((node["state"], node["method"], node["proven_methods"]),
+                         ("active", "mac-table", ["mac-table"]))
+        self.assertEqual(node["last_seen"], T1)
+        self.assertEqual([c for c in prober.calls if c[0] == "mac_lookup"],
+                         [("mac_lookup", "10.0.0.2", (Q_KEY,), True)])   # Cisco: per VLAN
+
+    def test_other_vendors_use_the_default_context(self):
+        _, _, prober = self.run_with({Q_KEY: "Gi1/0/7"}, g=self.g(vendor="HP"))
+        self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"][0][3])
+
+    def test_missing_under_and_over_the_threshold(self):
+        state = prev(**{"host:quiet": was("active", proven=("mac-table",), method="mac-table")})
+        for expected in ((1, "active"), (2, "active"), (3, "inactive")):
+            node, state, _ = self.run_with({}, state)
+            self.assertEqual((node["misses"], node["state"], node["method"]),
+                             expected + ("mac-table",))
+
+    def test_missing_counts_before_any_reply(self):
+        # the scan found it in this table, so its absence is evidence
+        node, _, _ = self.run_with({})
+        self.assertEqual((node["state"], node["misses"]), ("unknown", 1))
+
+    def test_on_another_port_is_not_found(self):
+        node, _, _ = self.run_with({Q_KEY: "Gi1/0/9"}, prev(**{"host:quiet": was(
+            "active", proven=("mac-table",), method="mac-table")}))
+        self.assertEqual(node["misses"], 1)
+
+    def test_port_down_still_wins(self):
+        node, _, _ = self.run_with({Q_KEY: "Gi1/0/7"}, ports={"Gi1/0/7": "down"})
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+
+    def test_marked_down_port_is_not_looked_up(self):
+        _, state, _ = self.run_with({}, ports={"Gi1/0/7": "down"})
+        _, _, prober = self.run_with({Q_KEY: "Gi1/0/7"}, state, ports={"Gi1/0/7": "down"})
+        self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"])
+
+    def test_host_without_an_ip_is_confirmed(self):
+        node, _, _ = self.run_with({Q_KEY: "Gi1/0/7"}, g=self.g(ip=None))
+        self.assertEqual((node["state"], node["method"]), ("active", "mac-table"))
+
+    def test_ping_that_ever_proved_itself_is_used_instead(self):
+        state = prev(**{"host:quiet": was("active", proven=("icmp",))})
+        _, _, prober = self.run_with({Q_KEY: "Gi1/0/7"}, state)
+        self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"])
+
+    def test_ping_reply_first_then_no_lookup(self):
+        node, _, prober = self.run_with({Q_KEY: "Gi1/0/7"}, icmp={"10.0.0.40": True})
+        self.assertEqual(node["method"], "icmp")
+        self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"])
+
+    def test_agent_and_wifi_nodes_are_not_looked_up(self):
+        g = graph(dict(switch(), vendor="Cisco"), pc("004", "10.0.0.60", mac=Q_MAC, vlan=20),
+                  edges=[link("endpoint:004", "device:sw", "Gi1/0/7")])
+        prober = FakeProber(snmp={"10.0.0.2": True}, agents=[agent("004")],
+                            mac_tables={"10.0.0.2": {Q_KEY: "Gi1/0/7"}})
+        run(g, prober=prober)
+        self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"])
+
+    def test_switch_not_answering_snmp_is_not_asked(self):
+        prober = FakeProber(snmp={"10.0.0.2": False}, mac_tables={"10.0.0.2": {Q_KEY: "Gi1/0/7"}})
+        node = run(self.g(), prober=prober)["nodes"]["host:quiet"]
+        self.assertEqual(node["state"], "unknown")
+        self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"])
+
+    def test_slow_or_failing_device_is_skipped(self):
+        from vulnmapper import liveness
+        state = prev(**{"host:quiet": was("active", proven=("mac-table",), method="mac-table")})
+        for table in (0.5, OSError("timeout")):
+            with self.subTest(table=table), \
+                    mock.patch.object(liveness, "MAC_TABLE_BUDGET_S", 0.1):
+                node, _, _ = self.run_with(table, state)
+                self.assertEqual((node["state"], node["misses"], node["reason"]),
+                                 ("active", 0, "mac_table_unavailable"))
+
+    def test_one_lookup_per_switch_per_pass(self):
+        g = self.g()
+        g["nodes"].append(host("host:b", None, mac="02:00:00:00:00:0b", vlan=30))
+        g["edges"].append(link("host:b", "device:sw", "Gi1/0/8"))
+        _, _, prober = self.run_with({Q_KEY: "Gi1/0/7"}, g=g)
+        (call,) = [c for c in prober.calls if c[0] == "mac_lookup"]
+        self.assertEqual(set(call[2]), {Q_KEY, (30, "02000000000b")})
 
 
 class TestRescanSuggestion(unittest.TestCase):

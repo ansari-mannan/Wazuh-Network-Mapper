@@ -720,6 +720,13 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         warning["nodes"].append(ip_entry(node))
     duplicate_ip_warnings.sort(key=lambda w: w["ip"])
 
+    # --- the VLAN a host was learned on, where its parent switch learned it ---
+    for node in endpoint_nodes + lldp_hosts + discovered_nodes + wifi_hosts:
+        fact = mac_table.by_mac.get(canonical_mac(node.mac)) if node.mac else None
+        if fact is not None and fact.vlan is not None \
+                and parent_of.get(node.node_id, (None,))[0] == fact.switch_node_id:
+            node.vlan = fact.vlan
+
     # --- endpoint edges (no remote_port: the host's MAC is not a switch port) ---
     endpoint_edges = [
         Edge(source=ep_id, target=parent, type=EDGE_ENDPOINT_LINK,

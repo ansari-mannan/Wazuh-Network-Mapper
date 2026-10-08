@@ -985,6 +985,80 @@ async def collect_ifindex_by_mac(client, ip: str) -> dict:
     return parse_ifphys_ifindex(await client.walk(ip, IFPHYS_BASE))
 
 
+# OIDs per GET when looking up specific forwarding-table entries.
+MAC_LOOKUP_BATCH = 20
+
+
+def _decimal_mac(mac: str) -> str:
+    return ".".join(str(int(mac[i:i + 2], 16)) for i in range(0, 12, 2))
+
+
+async def _get_in_batches(client, ip: str, oids: list[str], vlan: Optional[int] = None) -> dict:
+    """GET ``oids`` (default context, or the per-VLAN one) in small batches."""
+    out: dict = {}
+    for i in range(0, len(oids), MAC_LOOKUP_BATCH):
+        chunk = oids[i:i + MAC_LOOKUP_BATCH]
+        got = await (client.get_many_vlan_context(ip, chunk, vlan) if vlan is not None
+                     else client.get_many(ip, chunk))
+        out.update(got or {})
+    return out
+
+
+async def lookup_fdb_ports(
+    client, ip: str, entries: list[tuple[Optional[int], str]], per_vlan_context: bool
+) -> dict:
+    """Where specific MACs sit in a switch's forwarding table, without walking it.
+
+    ``entries`` are ``(vlan, canonical mac)``; returns ``{entry: port name or
+    None}``. The tables are the ones :func:`collect_fdb` reads: with
+    ``per_vlan_context`` (Cisco) the 802.1D table in each VLAN's
+    community@vlan context, otherwise the 802.1Q table (802.1D when the VLAN is
+    unknown) in the default context. The bridge port is resolved through
+    dot1dBasePortIfIndex and ifName, as in the scan.
+    """
+    bridge: dict = {}          # entry -> (bridge port, context vlan or None)
+    if per_vlan_context:
+        by_vlan: dict = {}
+        for vlan, mac in entries:
+            if vlan is not None:
+                by_vlan.setdefault(vlan, []).append(mac)
+        for vlan, macs in by_vlan.items():
+            got = await _get_in_batches(
+                client, ip, [f"{DOT1D_FDB_PORT_BASE}.{_decimal_mac(m)}" for m in macs], vlan)
+            for mac in macs:
+                port = got.get(f"{DOT1D_FDB_PORT_BASE}.{_decimal_mac(mac)}")
+                if port and port != "0":
+                    bridge[(vlan, mac)] = (port, vlan)
+    else:
+        oid_of = {(vlan, mac): (f"{DOT1Q_FDB_PORT_BASE}.{vlan}.{_decimal_mac(mac)}"
+                                if vlan is not None
+                                else f"{DOT1D_FDB_PORT_BASE}.{_decimal_mac(mac)}")
+                  for vlan, mac in entries}
+        got = await _get_in_batches(client, ip, list(oid_of.values()))
+        for entry, oid in oid_of.items():
+            port = got.get(oid)
+            if port and port != "0":
+                bridge[entry] = (port, None)
+
+    if_index: dict = {}        # (bridge port, context) -> ifIndex
+    for context in {ctx for _p, ctx in bridge.values()}:
+        ports = sorted({p for p, ctx in bridge.values() if ctx == context})
+        got = await _get_in_batches(
+            client, ip, [f"{DOT1D_BASEPORT_IFINDEX_BASE}.{p}" for p in ports], context)
+        for p in ports:
+            if got.get(f"{DOT1D_BASEPORT_IFINDEX_BASE}.{p}"):
+                if_index[(p, context)] = got[f"{DOT1D_BASEPORT_IFINDEX_BASE}.{p}"]
+    indexes = sorted(set(if_index.values()))
+    names = await _get_in_batches(client, ip, [f"{IFNAME_BASE}.{i}" for i in indexes])
+
+    out: dict = {}
+    for entry in entries:
+        found = bridge.get(entry)
+        index = if_index.get(found) if found else None
+        out[entry] = (names.get(f"{IFNAME_BASE}.{index}") or index) if index else None
+    return out
+
+
 async def collect_wifi_clients(client, ip: str) -> list[dict]:
     """An access point's associated clients (three column walks, no full rows)."""
     rows = await client.walk(ip, f"{DOT11_CLIENT_BASE}.{DOT11_CLIENT_PARENT_COL}")

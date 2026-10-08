@@ -282,6 +282,21 @@ class SnmpClient:
         auth = CommunityData(f"{cred.community}@{vlan}", mpModel=1)
         return await self._walk_with_auth(auth, ip, base_oid, max_repetitions=max_repetitions)
 
+    async def get_many_vlan_context(
+        self, ip: str, oids: Iterable[str], vlan: int
+    ) -> Optional[dict[str, Optional[str]]]:
+        """GET OIDs in the per-VLAN context (community@vlan, as for the walk).
+
+        Lets a caller look up specific per-VLAN forwarding-table entries
+        without walking the whole table. None for a v3 credential or when the
+        device does not answer.
+        """
+        cred = self._resolved.get(ip)
+        if cred is None or cred.version == "v3" or not cred.community:
+            return None
+        auth = CommunityData(f"{cred.community}@{vlan}", mpModel=1)
+        return await self._get_with_auth(auth, ip, list(oids))
+
     def is_v2c(self, ip: str) -> bool:
         """Whether ``ip``'s resolved credential is SNMPv2c (community-context capable)."""
         cred = self._resolved.get(ip)

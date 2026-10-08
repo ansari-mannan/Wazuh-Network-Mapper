@@ -75,8 +75,17 @@ AGENT_MAX_AGE_S = 30            # a check-in older than this is a miss
 AGENT_TIMEOUT_S = 5.0           # login + agent list, or the method is skipped
 AGENT_DOWN = {"disconnected", "pending", "never_connected"}
 MANAGER_AGENT_ID = "000"        # reports a far-future lastKeepAlive
-# Methods whose silence counts as a miss before any reply was ever seen.
-PROVEN_FROM_START = {"agent"}
+# Methods whose silence counts as a miss before any reply was ever seen. The
+# scan found a host's MAC in its switch's table, so its absence there is
+# evidence too.
+PROVEN_FROM_START = {"agent", "mac-table"}
+
+# MAC-table confirmation (method "mac-table"): a wired host that no faster
+# method has ever proven is looked up in its switch's forwarding table. A
+# switch keeps a MAC for minutes after its host goes quiet, so this confirms
+# presence and is slow to show absence; the port layer stays the fast signal.
+FAST_METHODS = {"icmp", "snmp", "agent", "wifi"}
+MAC_TABLE_BUDGET_S = 2.0        # per switch per pass, or it is skipped this pass
 
 # Wi-Fi clients (method "wifi"): a node linked to an access point with
 # confidence "wifi" is checked against the AP's client list. In a port_down
@@ -135,6 +144,11 @@ class SystemProber:
     async def port_status(self, ip: str) -> dict:
         from .network.parse import collect_port_status
         return await collect_port_status(self._snmp, ip)
+
+    async def mac_lookup(self, ip: str, entries: list, per_vlan_context: bool = False) -> dict:
+        """``{(vlan, mac): port name or None}`` from GETs of those entries only."""
+        from .network.parse import lookup_fdb_ports
+        return await lookup_fdb_ports(self._snmp, ip, entries, per_vlan_context)
 
     async def wifi_clients(self, ip: str) -> set:
         """The canonical MACs an access point lists as associated (one column).
@@ -399,14 +413,17 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
     replied_now: set = set()
     snmp_up: list = []
 
-    def settle(node, method, replied, down=False):
+    def settle(node, method, replied, down=False, live=True):
+        """Apply one method's verdict. A ``live`` reply (the host itself
+        answered) also overrides a down port this pass; a MAC-table entry is
+        not live, so a down port still wins over it."""
         rec = records[node["node_id"]]
-        if replied:
+        if replied and live:
             rec.pop("port_down", None)
         elif "port_down" in rec:
             return          # the down port explains the silence
         _apply_probe(rec, method, bool(replied), threshold, now, down)
-        if replied:
+        if replied and live:
             replied_now.add(node["node_id"])
             if method == "snmp":
                 snmp_up.append(node)
@@ -504,6 +521,44 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
             settle(next(n for n in nodes if n["node_id"] == nid), "wifi", True)
         elif state is None and any(n["node_id"] == nid for n in by_wifi):
             rec["reason"] = "wifi_unavailable"
+
+    # MAC table: a wired host no faster method has proven, on a switch that
+    # answered SNMP this pass, is looked up in that switch's forwarding table.
+    switches = {d["node_id"]: d for d in snmp_up}
+    agent_ids = {n["node_id"] for n in by_agent}
+    by_switch: dict = defaultdict(list)
+    for node in nodes:
+        nid = node["node_id"]
+        rec = records[nid]
+        here = link_of.get(nid)
+        if node.get("kind") != "endpoint" or nid in agent_ids or nid in replied_now \
+                or "port_down" in rec or not mac_of.get(nid) or here is None \
+                or here[1] == WIFI_LINK or here[0] not in switches \
+                or set(rec["proven_methods"]) & FAST_METHODS:
+            continue
+        vlan = node.get("vlan") if isinstance(node.get("vlan"), int) else None
+        by_switch[here[0]].append((node, (vlan, mac_of[nid]), here[1]))
+
+    async def mac_lookup(device_id, items):
+        device = switches[device_id]
+        per_vlan = str(device.get("vendor") or "").lower().startswith("cisco")
+        try:
+            found = await asyncio.wait_for(prober.mac_lookup(
+                device["ip"], [entry for _n, entry, _p in items], per_vlan_context=per_vlan),
+                MAC_TABLE_BUDGET_S)
+        except Exception as e:      # slow (over the budget) or failing: skipped
+            log.warning("%s: MAC-table lookup skipped this pass: %s", device_id,
+                        e or type(e).__name__)
+            return items, None
+        return items, found
+
+    for items, found in await asyncio.gather(
+            *(mac_lookup(d, items) for d, items in by_switch.items())):
+        for node, entry, port in items:
+            if found is None:
+                records[node["node_id"]]["reason"] = "mac_table_unavailable"
+            else:
+                settle(node, "mac-table", found.get(entry) == port, live=False)
 
     # Recovery: the port that went down is up again, or a new scan placed the
     # node elsewhere. Its earlier state comes back (an up port never makes a

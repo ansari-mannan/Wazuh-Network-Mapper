@@ -322,6 +322,9 @@ class Node:
     is_wazuh_server: bool = False
     # A Wi-Fi client: {ssid, access_point (node_id), radio}; None otherwise.
     wifi: Optional[dict] = None
+    # The VLAN its switch learned it on (from the forwarding table); lets the
+    # liveness pass look the MAC up on that switch. None when not known.
+    vlan: Optional[int] = None
     # An access point: how many clients it reported; None for anything else.
     wifi_clients: Optional[int] = None
     # True when this endpoint's IP collides with a currently-active endpoint and
@@ -366,6 +369,8 @@ class Node:
                 out["is_wazuh_server"] = True
             if self.wifi is not None:
                 out["wifi"] = self.wifi
+            if self.vlan is not None:
+                out["vlan"] = self.vlan
         else:
             out["chassis_id"] = self.chassis_id
             out["pollable"] = self.pollable
