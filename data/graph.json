@@ -13,8 +13,8 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l3-switch",
-      "risk_score": 0,
-      "max_cvss": null,
+      "risk_score": 8.9,
+      "max_cvss": 10.0,
       "discovery_order": 0,
       "parent_id": null,
       "chassis_id": "00:23:ac:e5:74:00",
@@ -71,6 +71,147 @@
         "Gi1/0/1": "down",
         "Gi1/0/2": "down",
         "Nu0": "up"
+      },
+      "top_cves": [
+        {
+          "cve": "CVE-2006-4950",
+          "cvss": 10.0,
+          "cvss_version": "2.0",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
+          "reference": "http://secunia.com/advisories/21974",
+          "published_at": "2006-09-23T10:07:00.000Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-12240",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
+          "reference": "http://www.securityfocus.com/bid/101034",
+          "published_at": "2017-09-29T01:34:49.077Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2007-5552",
+          "cvss": 9.3,
+          "cvss_version": "2.0",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "Integer overflow in Cisco IOS allows remote attackers to execute arbitrary code via unspecified vectors.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+          "reference": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
+          "published_at": "2007-10-18T20:17:00.000Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2025-20363",
+          "cvss": 9.0,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "A vulnerability in the web services of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software, Cisco Secure Firewall Threat Defense (FTD) Software, Cisco IOS Software, Cisco IOS XE Software, and Cisco IOS XR Software could allow an unauthenticated, remote attacker (Cisco ASA and FTD Software) or authenticated, remote attacker (Cisco IOS, IOS XE, and IOS XR Software) with low user privileges to execute arbitrary code on an affected device. \r\n\r This vulnerability is due to improper validation of user-supplied input in HTTP requests. An attacker could exploit this vulnerability by sending crafted HTTP requests to a targeted web service on an affected device after obtaining additional information about the system, overcoming exploit mitigations, or both. A successful exploit could allow the attacker to execute arbitrary code as root, which may lead to the complete compromise of the affected device.\r\n\r For more information about this vulnerability, see the Details [\"#details\"] section of this advisory.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-http-code-exec-WmfP3h3O",
+          "published_at": "2025-09-25T16:15:32.497Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-6736",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.213Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-6737",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.243Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-6738",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.290Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-6739",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.337Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-6740",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.370Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        },
+        {
+          "cve": "CVE-2017-6742",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.447Z",
+          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+        }
+      ],
+      "cve_summary": {
+        "total": 90,
+        "critical": 4,
+        "high": 44,
+        "medium": 40,
+        "low": 2,
+        "unknown": 0,
+        "max_cvss": 10.0
+      },
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 12.2(55)SE12",
+        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-08T23:09:10.453101+00:00",
+        "stale": false,
+        "total": 90
       }
     },
     {
@@ -118,8 +259,8 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "router",
-      "risk_score": 0,
-      "max_cvss": null,
+      "risk_score": 8.5,
+      "max_cvss": 9.8,
       "discovery_order": 2,
       "parent_id": "device:00:23:ac:e5:74:00",
       "chassis_id": "90:6c:ac:d7:43:7f",
@@ -137,6 +278,147 @@
         "lan": "up",
         "port1": "up",
         "port2": "up"
+      },
+      "top_cves": [
+        {
+          "cve": "CVE-2023-25610",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A buffer underwrite ('buffer underflow') vulnerability in the administrative interface of Fortinet FortiOS version 7.2.0 through 7.2.3, version 7.0.0 through 7.0.6, version 6.4.0 through 6.4.11 and version 6.2.12 and below, FortiProxy version 7.2.0 through 7.2.2, version 7.0.0 through 7.0.8, version 2.0.12 and below and FortiOS-6K7K version 7.0.5, version 6.4.0 through 6.4.10 and version 6.2.0 through 6.2.10 and below allows a remote unauthenticated attacker to execute arbitrary code or commands via specifically crafted requests.",
+          "reference": "https://fortiguard.com/psirt/FG-IR-23-001",
+          "published_at": "2025-03-24T16:15:17.273Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2023-27997",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A heap-based buffer overflow vulnerability [CWE-122] in FortiOS version 7.2.4 and below, version 7.0.11 and below, version 6.4.12 and below, version 6.0.16 and below and FortiProxy version 7.2.3 and below, version 7.0.9 and below, version 2.0.12 and below, version 1.2 all versions, version 1.1 all versions SSL-VPN may allow a remote attacker to execute arbitrary code or commands via specifically crafted requests.",
+          "reference": "https://fortiguard.com/psirt/FG-IR-23-097",
+          "published_at": "2023-06-13T09:15:16.613Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2024-21762",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A out-of-bounds write in Fortinet FortiOS versions 7.4.0 through 7.4.2, 7.2.0 through 7.2.6, 7.0.0 through 7.0.13, 6.4.0 through 6.4.14, 6.2.0 through 6.2.15, 6.0.0 through 6.0.17, FortiProxy versions 7.4.0 through 7.4.2, 7.2.0 through 7.2.8, 7.0.0 through 7.0.14, 2.0.0 through 2.0.13, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7 allows attacker to execute unauthorized code or commands via specifically crafted requests",
+          "reference": "https://fortiguard.com/psirt/FG-IR-24-015",
+          "published_at": "2024-02-09T09:15:08.087Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2024-26011",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A missing authentication for critical function in Fortinet FortiManager version 7.4.0 through 7.4.2, 7.2.0 through 7.2.4, 7.0.0 through 7.0.11, 6.4.0 through 6.4.14, FortiPAM version 1.2.0, 1.1.0 through 1.1.2, 1.0.0 through 1.0.3, FortiProxy version 7.4.0 through 7.4.2, 7.2.0 through 7.2.9, 7.0.0 through 7.0.17, 2.0.0 through 2.0.14, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7, FortiSwitchManager version 7.2.0 through 7.2.3, 7.0.0 through 7.0.3, FortiPortal version 6.0.0 through 6.0.14, FortiOS version 7.4.0 through 7.4.3, 7.2.0 through 7.2.7, 7.0.0 through 7.0.14, 6.4.0 through 6.4.15, 6.2.0 through 6.2.16, 6.0.0 through 6.0.18 allows attacker to execute unauthorized code or commands via specially crafted packets.",
+          "reference": "https://fortiguard.fortinet.com/psirt/FG-IR-24-032",
+          "published_at": "2024-11-12T19:15:08.320Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2021-24018",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A buffer underwrite vulnerability in the firmware verification routine of FortiOS before 7.0.1 may allow an attacker located in the adjacent network to potentially execute arbitrary code via a specifically crafted firmware image.",
+          "reference": "https://fortiguard.com/advisory/FG-IR-21-046",
+          "published_at": "2021-08-04T15:15:08.983Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2023-22640",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A out-of-bounds write in Fortinet FortiOS version 7.2.0 through 7.2.3, FortiOS version 7.0.0 through 7.0.10, FortiOS version 6.4.0 through 6.4.11, FortiOS version 6.2.0 through 6.2.13, FortiOS all versions 6.0,  FortiProxy version 7.2.0 through 7.2.1, FortiProxy version 7.0.0 through 7.0.7, FortiProxy all versions 2.0, FortiProxy all versions 1.2, FortiProxy all versions 1.1, FortiProxy all versions 1.0 allows an authenticated attacker to execute unauthorized code or commands via specifically crafted requests.",
+          "reference": "https://fortiguard.com/psirt/FG-IR-22-475",
+          "published_at": "2023-05-03T22:15:17.857Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2023-29181",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A use of externally-controlled format string in Fortinet FortiOS 7.2.0 through 7.2.4, 7.0.0 through 7.0.11, 6.4.0 through 6.4.12, 6.2.0 through 6.2.14, 6.0.0 through 6.0.16, FortiProxy 7.2.0 through 7.2.4, 7.0.0 through 7.0.10, 2.0.0 through 2.0.12, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7, FortiPAM 1.0.0 through 1.0.3 allows attacker to execute unauthorized code or commands via specially crafted command.",
+          "reference": "https://fortiguard.com/psirt/FG-IR-23-119",
+          "published_at": "2024-02-22T10:15:08.140Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2023-36639",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A use of externally-controlled format string in Fortinet FortiProxy versions 7.2.0 through 7.2.4, 7.0.0 through 7.0.10, FortiOS versions 7.4.0, 7.2.0 through 7.2.4, 7.0.0 through 7.0.11, 6.4.0 through 6.4.12, 6.2.0 through 6.2.15, 6.0.0 through 6.0.17, FortiPAM versions 1.0.0 through 1.0.3 allows attacker to execute unauthorized code or commands  via specially crafted API requests.",
+          "reference": "https://fortiguard.com/psirt/FG-IR-23-138",
+          "published_at": "2023-12-13T07:15:12.900Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2023-41677",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "A insufficiently protected credentials in Fortinet FortiProxy 7.4.0, 7.2.0 through 7.2.6, 7.0.0 through 7.0.12, 2.0.0 through 2.0.13, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7, Fortinet FortiOS 7.4.0 through 7.4.1, 7.2.0 through 7.2.6, 7.0.0 through 7.0.12, 6.4.0 through 6.4.14, 6.2.0 through 6.2.15, 6.0.0 through 6.0.17 allows attacker to execute unauthorized code or commands via targeted social engineering attack",
+          "reference": "https://fortiguard.com/psirt/FG-IR-23-493",
+          "published_at": "2024-04-09T15:15:27.400Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        },
+        {
+          "cve": "CVE-2024-26009",
+          "cvss": 8.1,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Fortinet FortiOS 6.0.16",
+          "version": "6.0.16",
+          "description": "An authentication bypass using an alternate path or channel [CWE-288] vulnerability in Fortinet FortiOS 6.4.0 through 6.4.15, FortiOS 6.2.0 through 6.2.16, FortiOS 6.0 all versions, FortiPAM 1.2.0, FortiPAM 1.1.0 through 1.1.2, FortiPAM 1.0.0 through 1.0.3, FortiProxy 7.4.0 through 7.4.2, FortiProxy 7.2.0 through 7.2.8, FortiProxy 7.0.0 through 7.0.15, FortiSwitchManager 7.2.0 through 7.2.3, FortiSwitchManager 7.0.0 through 7.0.3 allows an unauthenticated attacker to seize control of a managed device via crafted FGFM requests, if the device is managed by a FortiManager, and if the attacker knows that FortiManager's serial number.",
+          "reference": "https://fortiguard.fortinet.com/psirt/FG-IR-24-042",
+          "published_at": "2025-08-12T19:15:27.230Z",
+          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+        }
+      ],
+      "cve_summary": {
+        "total": 44,
+        "critical": 4,
+        "high": 18,
+        "medium": 21,
+        "low": 1,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Fortinet FortiOS 6.0.16",
+        "cpe": "cpe:2.3:o:fortinet:fortios:6.0.16:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-08T23:09:21.608036+00:00",
+        "stale": false,
+        "total": 44
       }
     },
     {
@@ -152,8 +434,8 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l2-switch",
-      "risk_score": 0,
-      "max_cvss": null,
+      "risk_score": 9.0,
+      "max_cvss": 10.0,
       "discovery_order": 3,
       "parent_id": "device:00:23:ac:e5:74:00",
       "chassis_id": "00:17:95:be:b2:00",
@@ -221,6 +503,147 @@
         "Gi0/1": "down",
         "Gi0/2": "down",
         "Nu0": "up"
+      },
+      "top_cves": [
+        {
+          "cve": "CVE-2006-4950",
+          "cvss": 10.0,
+          "cvss_version": "2.0",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
+          "reference": "http://secunia.com/advisories/21974",
+          "published_at": "2006-09-23T10:07:00.000Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2017-12240",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
+          "reference": "http://www.securityfocus.com/bid/101034",
+          "published_at": "2017-09-29T01:34:49.077Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2007-5552",
+          "cvss": 9.3,
+          "cvss_version": "2.0",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "Integer overflow in Cisco IOS allows remote attackers to execute arbitrary code via unspecified vectors.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+          "reference": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
+          "published_at": "2007-10-18T20:17:00.000Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2023-20186",
+          "cvss": 9.1,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "A vulnerability in the Authentication, Authorization, and Accounting (AAA) feature of Cisco IOS Software and Cisco IOS XE Software could allow an authenticated, remote attacker to bypass command authorization and copy files to or from the file system of an affected device using the Secure Copy Protocol (SCP).\r\n\r This vulnerability is due to incorrect processing of SCP commands in AAA command authorization checks. An attacker with valid credentials and level 15 privileges could exploit this vulnerability by using SCP to connect to an affected device from an external machine. A successful exploit could allow the attacker to obtain or change the configuration of the affected device and put files on or retrieve files from the affected device.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-aaascp-Tyj4fEJm",
+          "published_at": "2023-09-27T18:15:11.050Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2025-20363",
+          "cvss": 9.0,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "A vulnerability in the web services of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software, Cisco Secure Firewall Threat Defense (FTD) Software, Cisco IOS Software, Cisco IOS XE Software, and Cisco IOS XR Software could allow an unauthenticated, remote attacker (Cisco ASA and FTD Software) or authenticated, remote attacker (Cisco IOS, IOS XE, and IOS XR Software) with low user privileges to execute arbitrary code on an affected device. \r\n\r This vulnerability is due to improper validation of user-supplied input in HTTP requests. An attacker could exploit this vulnerability by sending crafted HTTP requests to a targeted web service on an affected device after obtaining additional information about the system, overcoming exploit mitigations, or both. A successful exploit could allow the attacker to execute arbitrary code as root, which may lead to the complete compromise of the affected device.\r\n\r For more information about this vulnerability, see the Details [\"#details\"] section of this advisory.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-http-code-exec-WmfP3h3O",
+          "published_at": "2025-09-25T16:15:32.497Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2017-6736",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.213Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2017-6737",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.243Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2017-6738",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.290Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2017-6739",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.337Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        },
+        {
+          "cve": "CVE-2017-6740",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.370Z",
+          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+        }
+      ],
+      "cve_summary": {
+        "total": 108,
+        "critical": 5,
+        "high": 60,
+        "medium": 41,
+        "low": 2,
+        "unknown": 0,
+        "max_cvss": 10.0
+      },
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 12.2(58)SE2",
+        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-08T23:09:38.009129+00:00",
+        "stale": false,
+        "total": 108
       }
     },
     {
@@ -236,7 +659,7 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l3-switch",
-      "risk_score": 0,
+      "risk_score": null,
       "max_cvss": null,
       "discovery_order": 4,
       "parent_id": "device:00:23:ac:e5:74:00",
@@ -307,6 +730,18 @@
         "NULL0": "up",
         "Vlan-interface1": "down",
         "Vlan-interface99": "up"
+      },
+      "top_cves": [],
+      "cve_summary": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "keyword",
+        "product": "HP Comware 5.20.99 Release 1107",
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": "2026-10-08T23:09:39.322715+00:00",
+        "stale": false,
+        "total": 0
       }
     },
     {
@@ -824,8 +1259,8 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "access-point",
-      "risk_score": 0,
-      "max_cvss": null,
+      "risk_score": 8.7,
+      "max_cvss": 9.8,
       "discovery_order": 10,
       "parent_id": "device:00:23:ac:e5:74:00",
       "chassis_id": "ip:172.20.99.21",
@@ -847,7 +1282,148 @@
         "Gi0.99": "up",
         "BV1": "up"
       },
-      "wifi_clients": 1
+      "wifi_clients": 1,
+      "top_cves": [
+        {
+          "cve": "CVE-2017-12240",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
+          "reference": "http://www.securityfocus.com/bid/101034",
+          "published_at": "2017-09-29T01:34:49.077Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2007-5552",
+          "cvss": 9.3,
+          "cvss_version": "2.0",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "Integer overflow in Cisco IOS allows remote attackers to execute arbitrary code via unspecified vectors.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+          "reference": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
+          "published_at": "2007-10-18T20:17:00.000Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2025-20363",
+          "cvss": 9.0,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "A vulnerability in the web services of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software, Cisco Secure Firewall Threat Defense (FTD) Software, Cisco IOS Software, Cisco IOS XE Software, and Cisco IOS XR Software could allow an unauthenticated, remote attacker (Cisco ASA and FTD Software) or authenticated, remote attacker (Cisco IOS, IOS XE, and IOS XR Software) with low user privileges to execute arbitrary code on an affected device. \r\n\r This vulnerability is due to improper validation of user-supplied input in HTTP requests. An attacker could exploit this vulnerability by sending crafted HTTP requests to a targeted web service on an affected device after obtaining additional information about the system, overcoming exploit mitigations, or both. A successful exploit could allow the attacker to execute arbitrary code as root, which may lead to the complete compromise of the affected device.\r\n\r For more information about this vulnerability, see the Details [\"#details\"] section of this advisory.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-http-code-exec-WmfP3h3O",
+          "published_at": "2025-09-25T16:15:32.497Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6736",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.213Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6737",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.243Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6738",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.290Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6739",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.337Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6740",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.370Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6742",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.447Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        },
+        {
+          "cve": "CVE-2017-6743",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "Cisco IOS 15.3(3)JB",
+          "version": "15.3(3)JB",
+          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r\nThe vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r\nCustomers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r\n  There are workarounds that address these vulnerabilities.",
+          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
+          "published_at": "2017-07-17T21:29:00.477Z",
+          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+        }
+      ],
+      "cve_summary": {
+        "total": 72,
+        "critical": 3,
+        "high": 45,
+        "medium": 23,
+        "low": 1,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 15.3(3)JB",
+        "cpe": "cpe:2.3:o:cisco:ios:15.3\\(3\\)jb:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-08T23:09:55.500531+00:00",
+        "stale": false,
+        "total": 72
+      }
     },
     {
       "node_id": "host:76:82:7b:80:01:73",
@@ -1488,6 +2064,18 @@
       "total_s": 19.183329441999376,
       "started_at": "2026-10-08T12:58:01.811650+00:00",
       "finished_at": "2026-10-08T12:58:20.994981+00:00"
+    },
+    "device_cves": {
+      "looked_up": 5,
+      "by_status": {
+        "ok": 5
+      },
+      "from_cache": 5,
+      "nvd_requests": 0,
+      "stale": 0,
+      "api_key": false,
+      "budget_s": 180.0,
+      "refreshed_at": "2026-10-08T23:10:10.028816+00:00"
     }
   }
 }
