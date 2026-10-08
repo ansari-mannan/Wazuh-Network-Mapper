@@ -52,6 +52,10 @@ _BRIDGE_IFACE_PREFIXES = (
 # A busy Manager API answers syscollector requests with a 5xx after ~10 s:
 # wait this long and retry once.
 INVENTORY_RETRY_DELAY_S = 3
+# For hours after the Wazuh server restarts, its API refuses or times out the
+# login. Try this many times, this far apart, then fail the scan with one line.
+LOGIN_ATTEMPTS = 3
+LOGIN_RETRY_DELAY_S = 5
 
 
 def is_locally_administered(mac) -> bool:
@@ -327,6 +331,28 @@ class WazuhSource:
             )
         self._token = r.json()["data"]["token"]
 
+    def _login(self) -> None:
+        """Log in to the Manager API, retrying a login that gets no answer.
+
+        A refused connection or a timeout is retried (LOGIN_ATTEMPTS in all);
+        then the scan ends with one plain message, so the plugin keeps the
+        previous graph rather than one that has lost every endpoint. A rejected
+        login (HTTP 4xx) is not retried.
+        """
+        for attempt in range(1, LOGIN_ATTEMPTS + 1):
+            try:
+                self._authenticate()
+                return
+            except (requests.ConnectionError, requests.Timeout) as e:
+                what = "timed out" if isinstance(e, requests.Timeout) else "refused the connection"
+                if attempt < LOGIN_ATTEMPTS:
+                    print(f"  ! Wazuh Manager API login {what} (attempt {attempt} of "
+                          f"{LOGIN_ATTEMPTS}); retrying in {LOGIN_RETRY_DELAY_S} s", file=sys.stderr)
+                    time.sleep(LOGIN_RETRY_DELAY_S)
+        raise SystemExit(
+            f"vulnmapper: the Wazuh Manager API at {self._wcfg.host}:{self._wcfg.port} did not "
+            f"answer the login ({what}, {LOGIN_ATTEMPTS} tries); is the Wazuh server up?")
+
     def _get(self, path, params=None):
         r = requests.get(
             f"{self._wbase}{path}",
@@ -382,7 +408,7 @@ class WazuhSource:
         if not self._wcfg.password:
             raise SystemExit("vulnmapper: WAZUH_PASS is not set; export it to collect "
                              "endpoints (or run with --no-endpoints or --scored PATH).")
-        self._authenticate()
+        self._login()
         self.collect_warnings: list = []
         unavailable: list = []
 
