@@ -57,6 +57,7 @@ CONF_RESOLVED = "resolved"               # Tier 2: single FDB access-port surviv
 CONF_TIEBREAK = "tiebreak"               # Tier 2: several survivors, fewest-MAC wins
 CONF_SUBNET_FALLBACK = "subnet_fallback"  # Tier 3: parented by subnet, not L2
 CONF_FDB = "fdb"                          # FDB/ARP-discovered host (no agent, no LLDP)
+CONF_WIFI = "wifi"                        # in an access point's association table
 
 # discovery_method of a host that announced itself over LLDP (no agent, not
 # network equipment); emitted like an FDB-discovered host.
@@ -66,6 +67,8 @@ DISCOVERY_CDP_HOST = "cdp"
 
 # The crawler marks a wireless access point (association MIB, else its name).
 ROLE_ACCESS_POINT = "access-point"
+# discovery_method of a client only an access point's association table knows.
+DISCOVERY_WIFI_HOST = "snmp_wifi"
 
 # Reasons recorded for an endpoint that could not be placed.
 REASON_NO_MAC = "no_endpoint_mac"
@@ -648,6 +651,54 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
         discovered_nodes.append(node)
         parent_of[node.node_id] = (fact.switch_node_id, fact.port, CONF_FDB)
 
+    # --- Wi-Fi: an access point's association table places its clients ---
+    # The table is live, direct evidence, so a client the switches learned on
+    # the access point's port (or placed by subnet, or not at all) moves under
+    # the access point. An LLDP placement (a wired adjacency) is kept. A client
+    # nothing else knows becomes a host of its own.
+    wifi_hosts: list[Node] = []
+    by_mac = {canonical_mac(n.mac): n for n in endpoint_nodes + lldp_hosts + discovered_nodes
+              if n.mac}
+    ip_by_mac = {mac: ip for ip, mac in mac_table.arp_by_ip.items()}
+    for raw in raw_nodes:
+        ap = device_by_chassis.get(raw["chassis_id"])
+        if ap is None or raw.get("wifi_clients") is None:
+            continue
+        clients = raw["wifi_clients"] or []
+        ap.wifi_clients = len(clients)
+        for client in clients:
+            mac = canonical_mac(client.get("mac"))
+            if mac is None or mac in mac_table.infra_macs:
+                continue
+            node = by_mac.get(mac)
+            if node is None and client.get("ip"):
+                # an agent Wazuh gave no MAC: the access point's own pairing
+                # of this IP with this MAC identifies it
+                owners = [ep for ep in endpoint_nodes if not ep.mac and ep.ip == client["ip"]]
+                if len(owners) == 1:
+                    node = owners[0]
+                    node.mac = format_mac(mac)
+                    enriched_ids.append(node.node_id)
+            if node is None:
+                node = Node(
+                    node_id=host_node_id(format_mac(mac)),
+                    kind=KIND_ENDPOINT,
+                    discovery_method=DISCOVERY_WIFI_HOST,
+                    ip=client.get("ip") or ip_by_mac.get(mac),
+                    mac=format_mac(mac),
+                    status="discovered",
+                    role=derive_role(mac=format_mac(mac), kind=KIND_ENDPOINT),  # -> "host"
+                    risk_score=None,
+                )
+                wifi_hosts.append(node)
+            elif parent_of.get(node.node_id, (None, None, None))[2] == CONF_LLDP:
+                continue
+            by_mac[mac] = node
+            parent_of[node.node_id] = (ap.node_id, client.get("radio"), CONF_WIFI)
+            unparented_reason.pop(node.node_id, None)
+            node.wifi = {"ssid": client.get("ssid"), "access_point": ap.node_id,
+                         "radio": client.get("radio")}
+
     # --- an agent and a discovered host on one IP: warn, never merge ---
     # A stale ARP entry produces the same picture as a second interface, so the
     # two stay separate nodes; the host joins that IP's duplicate_ip warning.
@@ -656,7 +707,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
                 "status": n.status, "stale": n.stale}
 
     warning_by_ip = {w["ip"]: w for w in duplicate_ip_warnings}
-    for node in lldp_hosts + discovered_nodes:
+    for node in lldp_hosts + discovered_nodes + wifi_hosts:
         agents_on_ip = endpoints_by_ip.get(node.ip) if node.ip else None
         if not agents_on_ip:
             continue
@@ -680,7 +731,7 @@ def _build_graph(endpoints: list[dict], network_doc: dict) -> dict:
 
     # --- discovery stamping: devices BFS-first, endpoints after their switch ---
     nodes_by_id = {n.node_id: n for n in
-                   device_nodes + endpoint_nodes + lldp_hosts + discovered_nodes}
+                   device_nodes + endpoint_nodes + lldp_hosts + discovered_nodes + wifi_hosts}
     device_order, device_parent = _bfs_device_order(
         [n.node_id for n in device_nodes], lldp_edges
     )

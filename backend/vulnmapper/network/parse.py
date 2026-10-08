@@ -749,6 +749,60 @@ def looks_like_access_point(sys_descr: Optional[str], platform: Optional[str]) -
     return any(text and _ACCESS_POINT_RE.search(text) for text in (sys_descr, platform))
 
 
+# cDot11ClientConfigInfoEntry: one row per associated client, indexed by
+# ``<radio ifIndex>.<SSID length>.<SSID octets>.<client MAC, 6 octets>``.
+DOT11_CLIENT_BASE = "1.3.6.1.4.1.9.9.273.1.2.1.1"
+DOT11_CLIENT_PARENT_COL = "2"     # cDot11ClientParentAddress: every client has one
+DOT11_CLIENT_IP_COL = "16"        # cDot11ClientIpAddress (when the AP knows it)
+DOT11_CLIENT_VLAN_COL = "17"      # cDot11ClientVlanId
+
+
+def _dot11_client_key(index: str) -> Optional[tuple[str, str, str]]:
+    """``(radio ifIndex, ssid, canonical mac)`` from a client-table index."""
+    parts = index.split(".")
+    try:
+        ssid_len = int(parts[1])
+        ssid = bytes(int(b) for b in parts[2:2 + ssid_len]).decode("utf-8", "replace")
+    except (IndexError, ValueError):
+        return None
+    mac = _mac_from_decimal_octets(parts[2 + ssid_len:])
+    return (parts[0], ssid, mac) if mac else None
+
+
+def parse_wifi_clients(
+    rows: list[tuple[str, Optional[str]]], ifname_by_index: dict[str, str]
+) -> list[dict]:
+    """Client-table rows -> ``[{mac, ip, ssid, radio, vlan}, ...]``.
+
+    ``rows`` hold at least the parent-address column (the client list) and,
+    where the access point provides them, the IP and VLAN columns. ``radio`` is
+    the radio's interface name (the raw ifIndex if unknown).
+    """
+    clients: dict[tuple, dict] = {}
+    for oid, value in rows:
+        remainder = _strip(oid, DOT11_CLIENT_BASE)
+        if remainder is None:
+            continue
+        column, _, index = remainder.partition(".")
+        key = _dot11_client_key(index)
+        if key is None:
+            continue
+        if_index, ssid, mac = key
+        client = clients.setdefault(key, {
+            "mac": format_mac(mac), "ip": None, "ssid": ssid or None,
+            "radio": ifname_by_index.get(if_index, if_index), "vlan": None})
+        if column == DOT11_CLIENT_IP_COL:
+            data = _octets(value)
+            if len(data) == 4 and any(data):
+                client["ip"] = ".".join(str(b) for b in data)
+        elif column == DOT11_CLIENT_VLAN_COL:
+            try:
+                client["vlan"] = int(value) or None
+            except (TypeError, ValueError):
+                pass
+    return list(clients.values())
+
+
 def _octets(value: Optional[str]) -> bytes:
     """Raw bytes of a rendered OctetString: ``0x<hex>``, or printable text."""
     if not value:
@@ -929,6 +983,18 @@ async def collect_ifindex_by_mac(client, ip: str) -> dict:
     back to a port name.
     """
     return parse_ifphys_ifindex(await client.walk(ip, IFPHYS_BASE))
+
+
+async def collect_wifi_clients(client, ip: str) -> list[dict]:
+    """An access point's associated clients (three column walks, no full rows)."""
+    rows = await client.walk(ip, f"{DOT11_CLIENT_BASE}.{DOT11_CLIENT_PARENT_COL}")
+    if not rows:
+        return []
+    rows += await client.walk(ip, f"{DOT11_CLIENT_BASE}.{DOT11_CLIENT_IP_COL}")
+    rows += await client.walk(ip, f"{DOT11_CLIENT_BASE}.{DOT11_CLIENT_VLAN_COL}")
+    clients = parse_wifi_clients(rows, await collect_ifname_map(client, ip))
+    _log_fdb.info("%s: %d wireless client(s)", ip, len(clients))
+    return clients
 
 
 async def collect_port_status(client, ip: str) -> dict:

@@ -58,6 +58,7 @@ from .parse import (
     collect_ifname_map,
     collect_own_macs,
     collect_port_status,
+    collect_wifi_clients,
     needs_port_resolution as _needs_port_resolution,
     normalize_chassis_id,
     normalize_mac,
@@ -163,6 +164,9 @@ class Device:
     # A wireless access point (it answers the association MIB, or failing that
     # its platform / system description names one).
     access_point: bool = False
+    # Its associated clients ``[{mac, ip, ssid, radio, vlan}]``; None when the
+    # device has no association table to read them from.
+    wifi_clients: Optional[list] = None
 
     def to_node(self) -> dict:
         """Render to the output node schema (field order is intentional).
@@ -194,6 +198,8 @@ class Device:
             node["platform"] = self.platform
         if self.access_point:
             node["access_point"] = True
+        if self.wifi_clients is not None:
+            node["wifi_clients"] = self.wifi_clients
         return node
 
 
@@ -838,10 +844,17 @@ class Crawler:
         # its name is the fallback.
         async with self._lock:
             platform = self._platform_by_ip.get(ip)
-        access_point = bool(await self._client.walk(ip, DOT11_ACTIVE_CLIENTS_BASE)) \
+        has_association_table = bool(await self._client.walk(ip, DOT11_ACTIVE_CLIENTS_BASE))
+        access_point = has_association_table \
             or looks_like_access_point(info.get("sys_descr"), platform)
         if access_point:
-            await self._mark_access_point(chassis_id)
+            clients = None
+            if has_association_table:
+                try:
+                    clients = await collect_wifi_clients(self._client, ip)
+                except Exception:
+                    _log_crawler.exception("wireless client list failed for %s", ip)
+            await self._mark_access_point(chassis_id, clients)
         try:
             # An access point's clients come from its association table; its
             # bridge table (clients on radio sub-interfaces, upstream MACs on
@@ -992,11 +1005,12 @@ class Crawler:
                 self._seen.add(target_cid)
 
 
-    async def _mark_access_point(self, chassis_id: str) -> None:
+    async def _mark_access_point(self, chassis_id: str, clients: Optional[list]) -> None:
         async with self._lock:
             dev = self._devices.get(chassis_id)
             if dev is not None:
                 dev.access_point = True
+                dev.wifi_clients = clients
 
     async def _handle_cdp_neighbor(self, source_cid: str, nb: Neighbor) -> None:
         """Keep a CDP link for resolution and enqueue the neighbour if it is new."""

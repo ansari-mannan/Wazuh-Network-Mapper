@@ -97,5 +97,112 @@ class TestAccessPointRole(unittest.TestCase):
         self.assertFalse(parse.looks_like_access_point(None, None))
 
 
+AP_MAC = "54:75:d0:ab:bd:1a"        # the access point's own wired MAC
+
+
+def bare(mac):
+    return mac.replace(":", "")
+
+
+class TestClientTable(unittest.TestCase):
+    def test_parse_clients(self):
+        rows = load_rows("cisco_ap_c1140.snmp")
+        clients = {c["mac"]: c for c in parse.parse_wifi_clients(
+            rows, parse.parse_ifnames(rows, base=parse.IFDESCR_BASE))}
+        self.assertEqual(clients, {
+            PHONE: {"mac": PHONE, "ip": "172.20.80.1", "ssid": "BIG-CYFOR",
+                    "radio": "Dot11Radio0", "vlan": 80},
+            LAPTOP: {"mac": LAPTOP, "ip": "172.20.80.3", "ssid": "BIG-CYFOR-5G",
+                     "radio": "Dot11Radio1", "vlan": 80},
+        })
+
+    def test_missing_ip_and_vlan_columns(self):
+        rows = [(o, v) for o, v in load_rows("cisco_ap_c1140.snmp")
+                if not o.startswith((parse.DOT11_CLIENT_BASE + ".16.", parse.DOT11_CLIENT_BASE + ".17."))]
+        clients = parse.parse_wifi_clients(rows, {})
+        self.assertEqual({(c["ip"], c["vlan"], c["radio"]) for c in clients},
+                         {(None, None, "1"), (None, None, "2")})
+
+    def test_crawl_reads_the_client_list(self):
+        ap = {n["chassis_id"]: n for n in crawl(lab())["nodes"]}[AP_CID]
+        self.assertEqual(sorted(c["mac"] for c in ap["wifi_clients"]), [PHONE, LAPTOP])
+
+    def test_not_an_access_point_reads_nothing(self):
+        client = lab()
+        crawl(client)
+        self.assertEqual(client.walks("172.20.99.4", parse.DOT11_CLIENT_BASE + ".2"), [])
+
+
+class TestClientPlacement(unittest.TestCase):
+    """The switch learns the clients on the access point's port; the AP's
+    association table moves them under the AP."""
+
+    def network(self, fdb_macs=(PHONE, LAPTOP, AP_MAC), clients=None):
+        doc = crawl(lab())
+        nodes = {n["chassis_id"]: n for n in doc["nodes"]}
+        nodes[L3_CID]["fdb"] = [{"mac": bare(m), "port": "FastEthernet1/0/15", "vlan": 80}
+                                for m in fdb_macs]
+        nodes[L3_CID]["arp"] = {bare(PHONE): "172.20.80.1", bare(AP_MAC): AP_IP}
+        if clients is not None:
+            nodes[AP_CID]["wifi_clients"] = clients
+        return doc
+
+    def graph(self, endpoints=(), **kw):
+        g = assemble(list(endpoints), self.network(**kw))
+        return g, {n["node_id"]: n for n in g["nodes"]}, \
+            {e["source"]: e for e in g["edges"] if e["type"] == "endpoint_link"}
+
+    def test_switch_learned_client_moves_under_the_access_point(self):
+        _g, nodes, links = self.graph()
+        phone = nodes[f"host:{PHONE}"]
+        self.assertEqual((phone["discovery_method"], phone["parent_id"]), ("snmp_fdb", AP_NODE))
+        self.assertEqual((links[f"host:{PHONE}"]["confidence"], links[f"host:{PHONE}"]["local_port"]),
+                         ("wifi", "Dot11Radio0"))
+        self.assertEqual(phone["wifi"], {"ssid": "BIG-CYFOR", "access_point": AP_NODE,
+                                         "radio": "Dot11Radio0"})
+
+    def test_agent_endpoint_moves_under_the_access_point(self):
+        agent = {"agent_id": "001", "hostname": "Mannan-PC", "mac": LAPTOP, "ip": "172.20.80.3",
+                 "status": "active", "risk_score": 5.0, "top_cves": []}
+        _g, nodes, links = self.graph([agent])
+        self.assertEqual(nodes["endpoint:001"]["parent_id"], AP_NODE)
+        self.assertEqual(links["endpoint:001"]["confidence"], "wifi")
+        self.assertEqual(nodes["endpoint:001"]["wifi"]["ssid"], "BIG-CYFOR-5G")
+        self.assertNotIn(f"host:{LAPTOP}", nodes)
+
+    def test_agent_known_only_by_ip_takes_the_clients_mac(self):
+        agent = {"agent_id": "001", "hostname": "Mannan-PC", "mac": None, "ip": "172.20.80.3",
+                 "status": "active", "risk_score": 5.0, "top_cves": []}
+        _g, nodes, _links = self.graph([agent], fdb_macs=(AP_MAC,))
+        self.assertEqual((nodes["endpoint:001"]["mac"], nodes["endpoint:001"]["parent_id"]),
+                         (LAPTOP, AP_NODE))
+
+    def test_client_no_other_source_knows_becomes_a_wifi_host(self):
+        _g, nodes, links = self.graph(fdb_macs=(AP_MAC,))
+        laptop = nodes[f"host:{LAPTOP}"]
+        self.assertEqual((laptop["discovery_method"], laptop["status"], laptop["ip"], laptop["kind"]),
+                         ("snmp_wifi", "discovered", "172.20.80.3", "endpoint"))
+        self.assertEqual(links[f"host:{LAPTOP}"]["confidence"], "wifi")
+
+    def test_access_point_on_its_cdp_port_with_its_client_count(self):
+        g, nodes, _links = self.graph()
+        ap = nodes[AP_NODE]
+        self.assertEqual((ap["parent_id"], ap["wifi_clients"]), (L3_NODE, 2))
+        self.assertNotIn(f"host:{AP_MAC}", nodes)              # not a host as well
+        (edge,) = [e for e in g["edges"] if {e["source"], e["target"]} == {AP_NODE, L3_NODE}]
+        port_on_l3 = edge["local_port"] if edge["source"] == L3_NODE else edge["remote_port"]
+        self.assertEqual(port_on_l3, "FastEthernet1/0/15")
+
+    def test_no_new_duplicates(self):
+        g, nodes, _links = self.graph()
+        macs = [n["mac"] for n in g["nodes"] if n["kind"] == "endpoint" and n["mac"]]
+        self.assertEqual(len(macs), len(set(macs)))
+
+    def test_empty_client_list(self):
+        _g, nodes, _links = self.graph(clients=[])
+        self.assertEqual(nodes[AP_NODE]["wifi_clients"], 0)
+        self.assertEqual(nodes[f"host:{PHONE}"]["parent_id"], L3_NODE)   # as today
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -320,6 +320,10 @@ class Node:
     cve_summary: Optional[dict] = None
     # True on the Wazuh server's own node (agent 000); emitted only when true.
     is_wazuh_server: bool = False
+    # A Wi-Fi client: {ssid, access_point (node_id), radio}; None otherwise.
+    wifi: Optional[dict] = None
+    # An access point: how many clients it reported; None for anything else.
+    wifi_clients: Optional[int] = None
     # True when this endpoint's IP collides with a currently-active endpoint and
     # its own status is disconnected (a stale Wazuh agent — IP reassigned).
     stale: bool = False
@@ -360,6 +364,8 @@ class Node:
             out["cve_summary"] = self.cve_summary
             if self.is_wazuh_server:
                 out["is_wazuh_server"] = True
+            if self.wifi is not None:
+                out["wifi"] = self.wifi
         else:
             out["chassis_id"] = self.chassis_id
             out["pollable"] = self.pollable
@@ -369,4 +375,6 @@ class Node:
                 out["uplink_ports"] = self.uplink_ports
             if self.port_status is not None:
                 out["port_status"] = self.port_status
+            if self.wifi_clients is not None:
+                out["wifi_clients"] = self.wifi_clients
         return out
