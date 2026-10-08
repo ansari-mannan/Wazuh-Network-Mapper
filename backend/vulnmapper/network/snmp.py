@@ -209,9 +209,14 @@ class SnmpClient:
         return None if result is None else result.get(oid)
 
     async def _walk_with_auth(
-        self, auth, ip: str, base_oid: str, *, max_repetitions: int = 25
+        self, auth, ip: str, base_oid: str, *, max_repetitions: int = 25,
+        max_rows: Optional[int] = None,
     ) -> list[tuple[str, Optional[str]]]:
-        """GETBULK-walk an OID subtree using an explicit auth object."""
+        """GETBULK-walk an OID subtree using an explicit auth object.
+
+        ``max_rows`` stops the walk once that many rows are in hand (the first
+        page of a large table, e.g. the inventory table's leading rows).
+        """
         transport = await self._transport(ip)
 
         prefix = base_oid.rstrip(".") + "."
@@ -242,6 +247,9 @@ class SnmpClient:
                     break
                 rows.append((oid_str, _render_value(value)))
                 next_oid = oid_str
+                if max_rows is not None and len(rows) >= max_rows:
+                    ended = True
+                    break
 
             if ended:
                 break
@@ -249,7 +257,8 @@ class SnmpClient:
         return rows
 
     async def walk(
-        self, ip: str, base_oid: str, *, max_repetitions: int = 25
+        self, ip: str, base_oid: str, *, max_repetitions: int = 25,
+        max_rows: Optional[int] = None,
     ) -> list[tuple[str, Optional[str]]]:
         """GETBULK-walk an OID subtree using ``ip``'s resolved credential.
 
@@ -261,7 +270,8 @@ class SnmpClient:
         if cred is None:
             return []
         auth = self._auth_by_cred[id(cred)]
-        return await self._walk_with_auth(auth, ip, base_oid, max_repetitions=max_repetitions)
+        return await self._walk_with_auth(auth, ip, base_oid, max_repetitions=max_repetitions,
+                                          max_rows=max_rows)
 
     async def walk_vlan_context(
         self, ip: str, base_oid: str, vlan: int, *, max_repetitions: int = 25

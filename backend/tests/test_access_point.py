@@ -33,9 +33,11 @@ class TestAccessPointRole(unittest.TestCase):
         self.assertEqual(nodes[L3_NODE]["role"], "l3-switch")
 
     def test_identity_through_the_existing_cisco_handling(self):
+        # vendor and firmware from the system description; the exact product
+        # and the serial from the standard inventory table
         self.assertEqual((self.ap["vendor"], self.ap["model"], self.ap["firmware"]),
-                         ("Cisco", "C1140", "15.3(3)JB"))
-        self.assertIsNone(self.ap["serial"])           # Cisco handling reads no serial
+                         ("Cisco", "AIR-LAP1142N-A-K9", "15.3(3)JB"))
+        self.assertEqual(self.ap["serial"], "SERIAL-PLACEHOLDER-1")
         self.assertEqual(self.ap["platform"], "cisco AIR-AP1142N-A-K9")
 
     def test_switches_are_not_access_points(self):

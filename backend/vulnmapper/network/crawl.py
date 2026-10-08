@@ -66,6 +66,7 @@ from .parse import (
     normalize_neighbor_ports,
     parse_cdp_cache,
 )
+from . import entity
 from .vendors import VENDOR_BY_ENTERPRISE
 
 _log_seed = logging.getLogger("discovery.seed")
@@ -564,7 +565,9 @@ async def fetch(snmp_client, ip: str) -> Optional[dict]:
 
     The caller is expected to have already resolved a working credential for
     ``ip`` (so ``snmp_client.get_many`` uses it). Returns a dict with
-    ``hostname, vendor, model, firmware, serial, mac, chassis_id``.
+    ``hostname, vendor, model, firmware, serial, mac, chassis_id``. Model and
+    serial are completed from the standard inventory table
+    (:mod:`vulnmapper.network.entity`) where the vendor code leaves them open.
     """
     base = await snmp_client.get_many(
         ip,
@@ -588,6 +591,12 @@ async def fetch(snmp_client, ip: str) -> Optional[dict]:
     else:
         vendor_name = vendor_from_descr(sys_descr) or "unknown vendor"
         specifics = {"model": None, "firmware": None, "serial": None}
+    try:
+        inventory = await entity.collect_inventory(snmp_client, ip)
+    except Exception:              # an unsupported table must not cost the device
+        _log_crawler.exception("inventory table read failed for %s", ip)
+        inventory = {}
+    specifics = entity.merge(specifics, inventory)
 
     return {
         "hostname": hostname,

@@ -13,8 +13,10 @@ substring. See :func:`matches`.
 
   * model    -> sysObjectID looked up in comware_models.json
   * firmware -> sysDescr "Version <x.y.z>, Release <nnnn>" -> "x.y.z Release nnnn"
-  * serial   -> left null (like Cisco); the graph doesn't need it and a reliable
-                serial would cost an extra entity-MIB walk.
+  * serial   -> left null here; the crawler fills it from the standard
+                inventory table (vulnmapper.network.entity). The model name from
+                comware_models.json is kept over the table's (marked
+                authoritative), since the table may give only a part number.
 
 Note on the FDB: Comware returns dot1qTpFdbPort sorted by MAC, which the net-snmp
 CLI rejects as "OID not increasing". This pipeline's walk (snmp_client.py) steps
@@ -99,4 +101,5 @@ async def identify(
         "model": _model_from_object_id(sys_object_id),
         "firmware": _firmware(sys_descr),
         "serial": None,
+        "authoritative": ("model",),
     }

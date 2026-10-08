@@ -61,7 +61,9 @@ async def _cisco_identify(sys_descr, sys_object_id, snmp_client, ip) -> dict:
     """Return Cisco-specific fields parsed from sysDescr.
 
     ``snmp_client`` and ``ip`` are accepted for interface symmetry with other
-    vendors (Cisco needs no extra queries). Serial is left null here.
+    vendors (Cisco needs no extra queries). The model here is the software
+    image family ("C3750") and the serial is null; the crawler replaces and
+    fills both from the inventory table when the device has one.
     """
     sys_descr = sys_descr or ""
     return {
@@ -125,6 +127,8 @@ async def _fortinet_identify(sys_descr, sys_object_id, snmp_client, ip) -> dict:
         "model": _fortinet_model_from_object_id(sys_object_id),
         "firmware": _fortinet_parse_firmware(extra.get(OID_FG_SYS_VERSION)),
         "serial": extra.get(OID_FN_SYS_SERIAL),
+        # Fortinet's own OIDs beat the inventory table for these two.
+        "authoritative": ("model", "serial"),
     }
 
 

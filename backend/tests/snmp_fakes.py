@@ -71,9 +71,10 @@ class FakeSnmpClient:
         prefix = base.rstrip(".") + "."
         return [(o, v) for o, v in rows if o.startswith(prefix)]
 
-    async def walk(self, ip, base_oid, **_kw):
+    async def walk(self, ip, base_oid, max_rows=None, **_kw):
         self.calls.append(("walk", ip, base_oid))
-        return self._walk(self.devices.get(ip) or [], base_oid)
+        rows = self._walk(self.devices.get(ip) or [], base_oid)
+        return rows if max_rows is None else rows[:max_rows]
 
     async def walk_vlan_context(self, ip, base_oid, vlan, **_kw):
         self.calls.append(("walk_vlan", ip, base_oid, vlan))
