@@ -15,7 +15,9 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { CveSummary, GraphNode, NodeLiveness } from '../../../common';
+import { useGraph } from '../../lib/graph';
 import { useLiveness } from '../../lib/liveness';
+import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { iconForRole } from './icons';
@@ -138,6 +140,19 @@ function LivenessValue({ value }: { value: NodeLiveness | undefined }) {
 }
 
 export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () => void }) {
+  const { graph } = useGraph();
+  const nameOf = (id: string) => {
+    const other = graph?.nodes.find((n) => n.node_id === id);
+    return (other && (other.hostname || other.ip)) || id;
+  };
+  // An access point shows its client count; a Wi-Fi client its SSID and AP.
+  const wifiRows: Array<[string, ReactNode]> = [];
+  if (node.kind === 'device' && typeof node.wifi_clients === 'number') {
+    wifiRows.push(['Wi-Fi clients', clientCountText(node.wifi_clients)]);
+  }
+  if (node.kind === 'endpoint' && node.wifi) {
+    wifiRows.push(['Wi-Fi', wifiClientText(node.wifi, nameOf)]);
+  }
   const { liveness } = useLiveness();
   const livenessOn = Boolean(liveness?.enabled);
   const nodeLiveness = livenessOn ? liveness?.nodes[node.node_id] : undefined;
@@ -205,6 +220,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               ['Role', node.role],
               ['Discovery method', node.discovery_method],
               ['Status', node.status],
+              ...wifiRows,
               ...(livenessOn
                 ? ([['Liveness', <LivenessValue value={nodeLiveness} />]] as Array<[string, ReactNode]>)
                 : []),

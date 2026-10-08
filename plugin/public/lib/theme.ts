@@ -16,6 +16,7 @@ export const graphColors = isDarkMode
       edgeLldp: '#a3b1c6',
       edgeEndpoint: '#8494ab',
       edgeFdb: '#66758c',
+      edgeWifi: '#2dd4bf',
       edgeInferred: '#f59e0b',
       labelInferred: '#fbbf24',
     }
@@ -23,6 +24,7 @@ export const graphColors = isDarkMode
       edgeLldp: '#475569',
       edgeEndpoint: '#64748b',
       edgeFdb: '#94a3b8',
+      edgeWifi: '#0d9488',
       edgeInferred: '#f59e0b',
       labelInferred: '#b45309',
     };

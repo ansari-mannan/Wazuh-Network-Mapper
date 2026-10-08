@@ -1,4 +1,4 @@
-import { Network, Router, Shield, Monitor, Server, Box, LucideIcon } from 'lucide-react';
+import { Network, Router, Shield, Monitor, Server, Box, Wifi, LucideIcon } from 'lucide-react';
 
 // role -> icon, in the clean/flat "network diagram" style (lucide, MIT licensed —
 // deliberately NOT Cisco's proprietary Packet Tracer assets). Glyphs are chosen
@@ -10,6 +10,7 @@ const ROLE_ICON: Record<string, LucideIcon> = {
   'l2-switch': Network,
   switch: Network,
   router: Router,
+  'access-point': Wifi,
   firewall: Shield,
   host: Monitor,
   station: Monitor,

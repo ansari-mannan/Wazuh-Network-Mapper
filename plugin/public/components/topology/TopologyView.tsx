@@ -68,6 +68,11 @@ export function edgeStyle(e: Pick<LayoutEdge, 'inferred' | 'type' | 'confidence'
     return { stroke: graphColors.edgeInferred, strokeWidth: 1.5, strokeDasharray: '6 3', opacity: 0.9 };
   }
   if (e.type === 'endpoint_link') {
+    // A Wi-Fi client hangs off its access point: short teal dots, unlike any
+    // wired host link.
+    if (e.confidence === 'wifi') {
+      return { stroke: graphColors.edgeWifi, strokeWidth: 2, strokeDasharray: '1 5', strokeLinecap: 'round' };
+    }
     // FDB-confidence links are visually distinct (lighter, finer dash) from the
     // higher-confidence LLDP-confidence ones.
     if (e.confidence === 'fdb') {

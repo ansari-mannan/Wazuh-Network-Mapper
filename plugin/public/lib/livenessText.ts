@@ -44,6 +44,19 @@ export function livenessMethod(l: NodeLiveness, now: number = Date.now()): strin
   if (l.method === 'icmp') return 'ping';
   if (l.method === 'snmp') return 'SNMP';
   if (l.method === 'port') return 'switch port down';
+  if (l.method === 'wifi') {
+    if (l.state === 'inactive' && l.port_down) return 'left the access point';
+    const text = "access point's client list";
+    return l.reason === 'wifi_unavailable'
+      ? `${text} (access point not answering on the last check)`
+      : text;
+  }
+  if (l.method === 'mac-table') {
+    const text = "switch's MAC table";
+    return l.reason === 'mac_table_unavailable'
+      ? `${text} (switch not answering on the last check)`
+      : text;
+  }
   if (l.reason === 'shared_ip') return 'not checked: IP shared with another node';
   return 'not checked';
 }

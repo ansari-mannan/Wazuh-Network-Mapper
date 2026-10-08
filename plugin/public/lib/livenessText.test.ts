@@ -66,3 +66,31 @@ describe('ago', () => {
     expect(ago('2026-10-07T09:10:00Z', NOW)).toBeNull();
   });
 });
+
+describe('livenessMethod for Wi-Fi and the MAC table', () => {
+  it('names the two methods', () => {
+    expect(livenessMethod(rec({ method: 'wifi' }))).toBe("access point's client list");
+    expect(livenessMethod(rec({ method: 'mac-table' }))).toBe("switch's MAC table");
+  });
+
+  it('says when the source could not be read', () => {
+    expect(livenessMethod(rec({ method: 'wifi', reason: 'wifi_unavailable' }))).toBe(
+      "access point's client list (access point not answering on the last check)"
+    );
+    expect(livenessMethod(rec({ method: 'mac-table', reason: 'mac_table_unavailable' }))).toBe(
+      "switch's MAC table (switch not answering on the last check)"
+    );
+  });
+
+  it('says a Wi-Fi client left its access point', () => {
+    expect(
+      livenessMethod(
+        rec({
+          state: 'inactive',
+          method: 'wifi',
+          port_down: { device: 'device:ap', port: 'wifi', previous_state: 'active' },
+        })
+      )
+    ).toBe('left the access point');
+  });
+});

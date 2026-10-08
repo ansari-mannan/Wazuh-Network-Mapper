@@ -55,6 +55,8 @@ export type DeviceNode = GraphNodeBase & {
   neighbor_ports?: string[];
   port_status?: Record<string, string>;
   port_status_note?: string;
+  // An access point: how many Wi-Fi clients it reported.
+  wifi_clients?: number;
 };
 
 export type EndpointNode = GraphNodeBase & {
@@ -66,7 +68,13 @@ export type EndpointNode = GraphNodeBase & {
   cve_summary?: CveSummary | null;
   // Present (true) only on the Wazuh server's own node (agent 000).
   is_wazuh_server?: boolean;
+  // A Wi-Fi client: the SSID, the access point (node_id) and the radio.
+  wifi?: WifiInfo;
+  // The VLAN its switch learned it on.
+  vlan?: number;
 };
+
+export type WifiInfo = { ssid: string | null; access_point: string; radio: string | null };
 
 export type GraphNode = DeviceNode | EndpointNode;
 
@@ -80,6 +88,8 @@ export type GraphEdge = {
   target_name?: string;
   confidence?: string;
   inferred?: boolean;
+  // A device link found only over CDP: "cdp" (absent for LLDP).
+  protocol?: string;
 };
 
 export type GraphWarning = {
