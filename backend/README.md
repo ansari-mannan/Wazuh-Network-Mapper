@@ -126,7 +126,7 @@ endpoints, which keeps its stored `risk_score` and has no full findings.
 
 ```
 python -m vulnmapper.liveness --graph ../data/graph.json [--state liveness.json]
-                              [--threshold 2] [--agent-max-age 60]
+                              [--threshold 2] [--agent-max-age 30]
 ```
 
 Re-checks the nodes already in the graph (never writes it) and prints a state
@@ -136,8 +136,8 @@ document on stdout: per node `state` (`active` / `inactive` / `unknown`),
 - Endpoints with an `agent_id` are checked by Wazuh agent check-in
   (`method: "agent"`) when `WAZUH_PASS` is set: one Manager API request per
   pass lists every agent's status and `lastKeepAlive`. Active with a check-in
-  no older than `--agent-max-age` seconds is a reply (agent 000, the manager,
-  always is); an older check-in is a miss; `disconnected`, `pending` or
+  no older than `--agent-max-age` seconds (default 30) is a reply (agent 000,
+  the manager, always is); an older check-in is a miss; `disconnected`, `pending` or
   `never_connected` makes the node inactive at once. If the login or request
   fails or takes over 5 seconds, those nodes keep their state for the pass
   (`reason: "agent_unavailable"`, and `agent_error` in the document). Without
@@ -146,10 +146,13 @@ document on stdout: per node `state` (`active` / `inactive` / `unknown`),
   `SNMP_*` variables) is set, everything else by `ping -c 1 -W 1`.
 - A node goes inactive after `--threshold` misses on a method it has answered
   before (`agent` counts as answered from the start), or at once when its
-  switch port is reported down (`method: "port"`). Such a node gets its
-  earlier state back, with misses reset, once that port is up again or a new
-  scan places it on another port; an up port never makes a node active by
-  itself.
+  switch port is reported down (`method: "port"`; `port_down.since` is when
+  the port was first seen down). A ping or SNMP reply in the same pass still
+  wins, but an agent check-in is a stored time: it counts only if
+  `lastKeepAlive` is later than `since`, which also revives the node (it
+  reconnected some other way). Otherwise the node gets its earlier state
+  back, with misses reset, once that port is up again or a new scan places it
+  on another port; an up port never makes a node active by itself.
 - Port states of every polled device are remembered between passes (`ports`).
   The document sets `rescan_suggested` with short `rescan_reasons` when a port
   goes from down to up with nothing in the graph linked to it, or when the

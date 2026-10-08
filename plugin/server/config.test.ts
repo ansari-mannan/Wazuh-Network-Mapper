@@ -1,12 +1,12 @@
 import { configSchema } from './config';
 
 describe('liveness config', () => {
-  it('defaults to a 10 s interval and 2 misses', () => {
+  it('defaults to a 10 s interval, 2 misses and a 30 s check-in age', () => {
     const { liveness } = configSchema.validate({});
     expect(liveness.enabled).toBe(false);
     expect(liveness.intervalSeconds).toBe(10);
     expect(liveness.missThreshold).toBe(2);
-    expect(liveness.agentMaxAgeSeconds).toBe(60);
+    expect(liveness.agentMaxAgeSeconds).toBe(30);
   });
 
   it('rescans automatically by default, at most every 120 s', () => {

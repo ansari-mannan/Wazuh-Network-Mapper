@@ -1,7 +1,7 @@
 """Liveness heartbeat: re-check whether the nodes already in graph.json answer.
 
     python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 2]
-                                  [--agent-max-age 60]
+                                  [--agent-max-age 30]
 
 Reads the graph (never writes it) and the previous state, runs one pass and
 prints the new state document on stdout; logs go to stderr only, the same
@@ -34,8 +34,12 @@ never-proven method proves nothing (Windows blocks ping), so nothing changes;
 Port layer: each pollable device that answered SNMP in this pass has its port
 status read with the crawler's ``collect_port_status``. An endpoint whose link
 to that device uses a port that is now ``down`` becomes ``inactive`` at once
-with method ``port`` (unless it answered in this same pass). An ``up`` port
-changes nothing.
+with method ``port``, and ``port_down.since`` records when that port was first
+seen down. A ping or SNMP reply in the same pass still wins. An agent check-in
+is a stored time, not a live reply: on a down port it counts only if
+``lastKeepAlive`` is later than ``since`` (the machine reconnected some other
+way). The node gets its earlier state back once the port is up again or a new
+scan places it elsewhere. An ``up`` port never makes a node active by itself.
 
 Rescan suggestion: the port states are remembered between passes (``ports``).
 A pass sets ``rescan_suggested`` (with short ``rescan_reasons``) when a port
@@ -65,7 +69,7 @@ MAX_IN_FLIGHT = 32
 EDGE_ENDPOINT_LINK = "endpoint_link"
 
 # Wazuh agent check-in (method "agent")
-AGENT_MAX_AGE_S = 60            # a check-in older than this is a miss
+AGENT_MAX_AGE_S = 30            # a check-in older than this is a miss
 AGENT_TIMEOUT_S = 5.0           # login + agent list, or the method is skipped
 AGENT_DOWN = {"disconnected", "pending", "never_connected"}
 MANAGER_AGENT_ID = "000"        # reports a far-future lastKeepAlive
@@ -355,21 +359,9 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
             continue
         settle(node, method, replied)
 
-    # Agent check-in. If the Manager API could not be read, these nodes keep
-    # the state they had (no fallback to ping: Windows hosts would not answer).
     agent_rows, agent_error = (await agent_task) if agent_task else ({}, None)
     if agent_error:
         log.warning("%s; agent endpoints left unchanged this pass", agent_error)
-    now_dt = _parse_time(now) or datetime.now(timezone.utc)
-    for node in by_agent:
-        rec = records[node["node_id"]]
-        row = agent_rows.get(str(node["agent_id"])) if agent_rows is not None else None
-        if row is None:
-            rec["reason"] = "agent_unavailable" if agent_rows is None else "agent_not_listed"
-            continue
-        rec["agent"] = {"status": row.get("status"), "last_keepalive": row.get("lastKeepAlive")}
-        replied, down = _agent_verdict(row, now_dt, agent_max_age)
-        settle(node, "agent", replied, down)
 
     # Port layer: a link on a port that is now down means the host is gone.
     links = defaultdict(list)    # device node_id -> [(endpoint node_id, port)]
@@ -391,6 +383,41 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
     statuses = {dev: status for dev, status in await asyncio.gather(
         *(ports(d) for d in snmp_up)) if isinstance(status, dict)}
 
+    def down_since(nid: str, rec: dict) -> Optional[str]:
+        """When the port this node is linked on went down; None if it is not down.
+
+        Read down now: since its first observation (this pass if new). Not read
+        (the switch did not answer) but already marked down: still down.
+        """
+        here = link_of.get(nid)
+        if here is None:
+            return None
+        mark = rec.get("port_down")
+        marked_here = isinstance(mark, dict) and (mark.get("device"), mark.get("port")) == here
+        port_state = statuses[here[0]].get(here[1]) if here[0] in statuses else None
+        if port_state == "down" or (port_state is None and marked_here):
+            # a mark from before "since" existed: first observed now (strict)
+            return (mark.get("since") if marked_here else None) or now
+        return None
+
+    # Agent check-in. If the Manager API could not be read, these nodes keep
+    # the state they had (no fallback to ping: Windows hosts would not answer).
+    now_dt = _parse_time(now) or datetime.now(timezone.utc)
+    for node in by_agent:
+        rec = records[node["node_id"]]
+        row = agent_rows.get(str(node["agent_id"])) if agent_rows is not None else None
+        if row is None:
+            rec["reason"] = "agent_unavailable" if agent_rows is None else "agent_not_listed"
+            continue
+        rec["agent"] = {"status": row.get("status"), "last_keepalive": row.get("lastKeepAlive")}
+        replied, down = _agent_verdict(row, now_dt, agent_max_age)
+        since = down_since(node["node_id"], rec) if replied else None
+        if since is not None:
+            seen, went_down = _parse_time(row.get("lastKeepAlive")), _parse_time(since)
+            if seen is None or went_down is None or seen <= went_down:
+                continue    # checked in before the port went down: the port decides
+        settle(node, "agent", replied, down)
+
     # Recovery: the port that went down is up again, or a new scan placed the
     # node elsewhere. Its earlier state comes back (an up port never makes a
     # node active by itself); misses restart from 0.
@@ -411,11 +438,14 @@ async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
             rec = records.get(source)
             if rec is None or source in replied_now or status.get(port) != "down":
                 continue
-            if rec.get("port_down", {}).get("port") != port or \
-                    rec["port_down"].get("device") != device_id:
+            mark = rec.get("port_down")
+            if not mark or (mark.get("device"), mark.get("port")) != (device_id, port):
                 rec["port_down"] = {"device": device_id, "port": port,
                                     "previous_state": rec["state"] if source in had_state
-                                    or rec["state"] != "unknown" else None}
+                                    or rec["state"] != "unknown" else None,
+                                    "since": now}
+            elif not mark.get("since"):
+                mark["since"] = now       # a mark written before "since" existed
             rec.update(state="inactive", method="port")
 
     ports_now, reasons = _port_memory_and_rescan(graph, nodes, previous, statuses, agent_rows)

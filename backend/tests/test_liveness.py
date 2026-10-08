@@ -345,7 +345,7 @@ class TestPortRecovery(unittest.TestCase):
         node, state = self.passes(start, {"Gi1/0/5": "down"})
         self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
         self.assertEqual(node["port_down"], {"device": "device:sw", "port": "Gi1/0/5",
-                                             "previous_state": "active"})
+                                             "previous_state": "active", "since": T1})
         node, state = self.passes(state, {"Gi1/0/5": "down"})       # still down
         self.assertEqual((node["state"], node["method"], node["misses"]),
                          ("inactive", "port", 2))
@@ -380,7 +380,7 @@ class TestPortRecovery(unittest.TestCase):
                               graphs=[self.g(port="Gi1/0/8")])
         self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
         self.assertEqual(node["port_down"], {"device": "device:sw", "port": "Gi1/0/8",
-                                             "previous_state": "active"})
+                                             "previous_state": "active", "since": T1})
 
     def test_switch_not_answering_keeps_it_inactive(self):
         _, state = self.passes({}, {"Gi1/0/5": "down"})
@@ -531,11 +531,95 @@ class TestAgentMethod(unittest.TestCase):
         node = run(g, prev(**{"endpoint:004": was("active", proven=("agent",), method="agent")}),
                    prober)["nodes"]["endpoint:004"]
         self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
-        # a fresh check-in in the same pass beats the down port
+        # a check-in that is fresh but older than the port going down (this
+        # pass) is a stored time, not a live reply: the down port wins
         prober = FakeProber(snmp={"10.0.0.2": True}, ports={"10.0.0.2": {"Gi1/0/5": "down"}},
                             agents=[agent("004", keepalive=FRESH)])
         node = run(g, prober=prober)["nodes"]["endpoint:004"]
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+
+
+T2 = "2026-10-07T09:00:30+00:00"          # the pass after T1
+
+
+class TestAgentCheckInVsDownPort(unittest.TestCase):
+    """A stored check-in time is not a live reply: with the node's port down,
+    the agent counts only if it checked in after the port went down."""
+
+    G = graph(switch(), pc(), edges=[link("endpoint:004", "device:sw", "Gi1/0/5")])
+
+    def pass_at(self, now, state, keepalive, port="down", snmp=True, icmp=None):
+        prober = FakeProber(snmp={"10.0.0.2": snmp}, ports={"10.0.0.2": {"Gi1/0/5": port}},
+                            agents=[agent("004", keepalive=keepalive)], icmp=icmp)
+        doc = run(self.G, state, prober, now=now)
+        return doc["nodes"]["endpoint:004"], doc
+
+    def down_at_t1(self):
+        before = prev(**{"endpoint:004": was("active", proven=("agent",), method="agent")})
+        return self.pass_at(T1, before, FRESH)          # check-in 8 s before T1
+
+    def test_check_in_from_before_the_port_went_down_is_inactive_at_once(self):
+        node, _ = self.down_at_t1()
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+        self.assertEqual(node["port_down"], {"device": "device:sw", "port": "Gi1/0/5",
+                                             "previous_state": "active", "since": T1})
+        self.assertEqual(node["misses"], 0)
+        self.assertEqual(node["last_seen"], T0)          # the old check-in proves nothing
+
+    def test_check_in_after_the_port_went_down_is_active(self):
+        _, state = self.down_at_t1()
+        node, _ = self.pass_at(T2, state, "2026-10-07T09:00:25+00:00")
+        self.assertEqual((node["state"], node["method"], node["last_seen"]), ("active", "agent", T2))
+        self.assertNotIn("port_down", node)
+
+    def test_port_still_down_and_no_newer_check_in_stays_inactive(self):
+        _, state = self.down_at_t1()
+        node, _ = self.pass_at(T2, state, "2026-10-07T09:00:15+00:00")  # fresh, but before T1
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+        self.assertEqual(node["port_down"]["since"], T1)                # first observation kept
+
+    def test_newer_check_in_revives_while_the_switch_is_silent(self):
+        # the switch did not answer, so the port is unknown: a check-in after
+        # the port went down still shows the machine reconnected another way
+        _, state = self.down_at_t1()
+        node, _ = self.pass_at(T2, state, "2026-10-07T09:00:25+00:00", snmp=False)
         self.assertEqual((node["state"], node["method"]), ("active", "agent"))
+        node, _ = self.pass_at(T2, state, "2026-10-07T09:00:15+00:00", snmp=False)
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+
+    def test_port_up_restores_as_before(self):
+        _, state = self.down_at_t1()
+        node, _ = self.pass_at(T2, state, "2026-10-07T09:00:15+00:00", port="up")
+        self.assertEqual(node["state"], "active")
+        self.assertNotIn("port_down", node)
+
+    def test_check_in_counts_normally_on_an_up_port(self):
+        node, _ = self.pass_at(T1, {}, FRESH, port="up")
+        self.assertEqual((node["state"], node["method"]), ("active", "agent"))
+
+    def test_ping_reply_with_the_port_down_is_active(self):
+        g = graph(switch(), H, edges=[link("host:a", "device:sw", "Gi1/0/5")])
+        prober = FakeProber(snmp={"10.0.0.2": True}, icmp={"10.0.0.10": True},
+                            ports={"10.0.0.2": {"Gi1/0/5": "down"}})
+        node = run(g, prober=prober)["nodes"]["host:a"]
+        self.assertEqual((node["state"], node["method"]), ("active", "icmp"))
+        self.assertNotIn("port_down", node)
+
+    def test_state_from_before_since_existed_is_strict(self):
+        # an older liveness.json has port_down without "since": no stored
+        # check-in can be shown to be newer, so the node stays inactive
+        _, state = self.down_at_t1()
+        del state["nodes"]["endpoint:004"]["port_down"]["since"]
+        node, _ = self.pass_at(T2, state, "2026-10-07T09:00:25+00:00")
+        self.assertEqual((node["state"], node["method"]), ("inactive", "port"))
+        self.assertEqual(node["port_down"]["since"], T2)
+
+    def test_default_max_age_is_30_seconds(self):
+        old = "2026-10-07T08:59:45+00:00"          # 35 s before T1
+        doc = run(graph(pc()), prev(**{"endpoint:004": was("active", proven=("agent",),
+                                                           method="agent")}),
+                  FakeProber(agents=[agent("004", keepalive=old)]))
+        self.assertEqual(doc["nodes"]["endpoint:004"]["misses"], 1)     # a miss, not a reply
 
 
 class TestRescanSuggestion(unittest.TestCase):

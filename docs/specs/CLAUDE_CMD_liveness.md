@@ -32,7 +32,7 @@ Run and record the output in your report:
 
 ## Phase 1: backend module `backend/vulnmapper/liveness.py`
 
-Entry point: `python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 2] [--agent-max-age 60]`
+Entry point: `python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 2] [--agent-max-age 30]`
 
 - Reads the graph at `--graph` and the previous state at `--state` (missing or invalid file = empty state).
 - Runs one pass and prints the new state document as JSON on stdout. Logs go to stderr only, same contract as `pipeline.py`.
@@ -54,7 +54,7 @@ Run probes concurrently with a cap of 32 in flight. One pass over the current la
 
 Windows PCs do not answer ping, but every agent checks in with the manager. Once per pass, log in to the Manager API with the existing Wazuh configuration and login code (`WazuhSource`, read-only helper `agent_status()`) and fetch `id`, `status` and `lastKeepAlive` for all agents in one request (paged if needed).
 
-- `status == "active"` and `lastKeepAlive` within `--agent-max-age` seconds of now (default 60): a reply.
+- `status == "active"` and `lastKeepAlive` within `--agent-max-age` seconds of now (default 30; lab check-ins were a few seconds old): a reply, except on a down port (Phase 4).
 - `status == "active"` with an older check-in: a miss under the normal threshold. `agent` is a proven method from the start, so this counts even before any reply.
 - `disconnected`, `pending` or `never_connected`: `inactive` at once.
 - Agent `000` is the manager itself and reports a far-future `lastKeepAlive`: a reply.
@@ -67,7 +67,7 @@ Shared IPs: if two or more nodes have the same IP, skip nodes with `stale: true`
 
 ### State rules (per node)
 
-Stored fields: `state`, `method`, `last_seen`, `last_checked`, `misses`, `proven_methods`, optional `reason`, optional `port_down` (`{device, port, previous_state}`, see Phase 4).
+Stored fields: `state`, `method`, `last_seen`, `last_checked`, `misses`, `proven_methods`, optional `reason`, optional `port_down` (`{device, port, previous_state, since}`, see Phase 4).
 
 - Reply via method M: `state = "active"`, `misses = 0`, `last_seen = now`, add M to `proven_methods`.
 - No reply via method M, and M is in `proven_methods` (or M is `agent`): `misses += 1`. When `misses >= threshold`, `state = "inactive"`. Below the threshold the state does not change.
@@ -127,7 +127,7 @@ Inject fake probers so nothing touches the network. Cover at least:
    - `liveness.enabled` (boolean, default `false`)
    - `liveness.intervalSeconds` (number, default `10`, min `10`)
    - `liveness.missThreshold` (number, default `2`, min `1`)
-   - `liveness.agentMaxAgeSeconds` (number, default `60`, min `10`; passed as `--agent-max-age`)
+   - `liveness.agentMaxAgeSeconds` (number, default `30`, min `10`; passed as `--agent-max-age`)
    - `liveness.autoRescan` (boolean, default `true`; Phase 5)
    - `liveness.minRescanIntervalSeconds` (number, default `120`, min `60`; Phase 5)
    - `liveness.path` (optional string; default is `liveness.json` in the same folder as `graphPath`)
@@ -159,9 +159,11 @@ Inject fake probers so nothing touches the network. Cover at least:
 
 ## Phase 4 (required): port-down layer
 
-For each pollable device that answered SNMP in the pass, call the existing `collect_port_status` unchanged. If an endpoint's `endpoint_link` edge points at that device with a `local_port` that is now `down`, mark the endpoint `inactive` immediately with `method: "port"` (unless it answered a probe in the same pass), and store `port_down: {device, port, previous_state}`, where `previous_state` is the state it had before the port went down (null if it had none). While `port_down` stands, a probe with no reply changes nothing (the down port explains the silence).
+For each pollable device that answered SNMP in the pass, call the existing `collect_port_status` unchanged. If an endpoint's `endpoint_link` edge points at that device with a `local_port` that is now `down`, mark the endpoint `inactive` immediately with `method: "port"`, and store `port_down: {device, port, previous_state, since}`, where `previous_state` is the state it had before the port went down (null if it had none) and `since` is the time the port was first observed down (kept while it stays down). While `port_down` stands, a probe with no reply changes nothing (the down port explains the silence).
 
-Port recovery: on a later pass, restore `previous_state` (or `"unknown"` if null), reset `misses` to 0, keep `proven_methods` and drop `port_down`, when either the same port is reported `up` again, or the node's `endpoint_link` in the graph no longer points at that device and port (a new scan placed it elsewhere). If the new place is also down, the node is marked again. If the device does not answer SNMP in a pass, its ports are unknown and nothing changes. A reply to any probe still makes the node `active` and drops `port_down`. A port that is `up` never makes a node `active` by itself. Add tests. Skip this phase if `collect_port_status` cannot be reused without edits, and tell me why.
+A ping or SNMP reply in the same pass still overrides a down port. An agent check-in does not by itself: `lastKeepAlive` is a stored time, not a live reply. On a down port (or one already marked down whose switch did not answer this pass) the agent counts as a reply only if `lastKeepAlive` is later than `since`; otherwise the down port wins and the agent method neither replies nor misses. A state file written before `since` existed is treated strictly: the port counts as first observed down in the current pass.
+
+Port recovery: on a later pass, restore `previous_state` (or `"unknown"` if null), reset `misses` to 0, keep `proven_methods` and drop `port_down`, when either the same port is reported `up` again, or the node's `endpoint_link` in the graph no longer points at that device and port (a new scan placed it elsewhere). If the new place is also down, the node is marked again. If the device does not answer SNMP in a pass, its ports are unknown and nothing changes. A reply to any probe still makes the node `active` and drops `port_down`; for the agent method that means a check-in later than `since`, since the machine has reconnected some other way. A port that is `up` never makes a node `active` by itself. Add tests. Skip this phase if `collect_port_status` cannot be reused without edits, and tell me why.
 
 ## Phase 5: automatic rescan
 

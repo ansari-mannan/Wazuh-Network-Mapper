@@ -106,7 +106,7 @@ by default; turn it on in `opensearch_dashboards.yml` (or the dev config):
 vulnmapper.liveness.enabled: true                  # default false
 vulnmapper.liveness.intervalSeconds: 10            # default 10, at least 10
 vulnmapper.liveness.missThreshold: 2               # default 2, at least 1
-vulnmapper.liveness.agentMaxAgeSeconds: 60         # default 60, at least 10
+vulnmapper.liveness.agentMaxAgeSeconds: 30         # default 30, at least 10
 vulnmapper.liveness.autoRescan: true               # default true
 vulnmapper.liveness.minRescanIntervalSeconds: 120  # default 120, at least 60
 # vulnmapper.liveness.path: /path/to/liveness.json # default: beside graphPath
@@ -118,7 +118,9 @@ graph. The SNMP community of the last scan is passed through the environment
 only. Endpoints with a Wazuh agent are checked by agent check-in when
 `WAZUH_PASS` is in the dashboard server's environment (the same variable a
 scan uses): a check-in older than `agentMaxAgeSeconds` is a miss, and a
-disconnected agent is inactive at once. Without it they are pinged.
+disconnected agent is inactive at once. When the host's switch port goes down,
+it is inactive at once: a check-in counts again only if it is later than the
+moment the port was first seen down. Without `WAZUH_PASS` they are pinged.
 
 When a pass sees something new (a switch port came up with nothing on the map
 linked to it, or an active Wazuh agent that is not on the map) and

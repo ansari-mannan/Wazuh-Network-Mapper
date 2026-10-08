@@ -141,7 +141,14 @@ export type NodeLiveness = {
   agent?: { status: string | null; last_keepalive: string | null };
   // set while method is "port": the down port and the state to restore once
   // it is up again (or the node is placed elsewhere by a new scan)
-  port_down?: { device: string; port: string; previous_state: LivenessState | null };
+  // since: when that port was first seen down; an agent check-in only counts
+  // as a reply if it is later than this
+  port_down?: {
+    device: string;
+    port: string;
+    previous_state: LivenessState | null;
+    since?: string;
+  };
 };
 
 export type LivenessResponse = {
