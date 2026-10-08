@@ -64,6 +64,9 @@ DISCOVERY_LLDP_HOST = "lldp"
 # ...and one known only from a neighbour's CDP table.
 DISCOVERY_CDP_HOST = "cdp"
 
+# The crawler marks a wireless access point (association MIB, else its name).
+ROLE_ACCESS_POINT = "access-point"
+
 # Reasons recorded for an endpoint that could not be placed.
 REASON_NO_MAC = "no_endpoint_mac"
 REASON_ABSENT = "mac_absent_from_all_fdb"
@@ -237,7 +240,7 @@ def _is_end_host(raw: dict) -> bool:
     (status "unreachable") is left alone: it may be a switch we lack
     credentials for.
     """
-    if raw.get("pollable") or raw.get("status") == "unreachable":
+    if raw.get("pollable") or raw.get("status") == "unreachable" or raw.get("access_point"):
         return False
     return not _is_network_equipment(raw.get("lldp_cap_enabled"))
 
@@ -257,7 +260,7 @@ def _device_node(raw: dict) -> Node:
         serial=raw.get("serial"),
         mac=raw.get("mac"),
         status=raw.get("status"),
-        role=derive_role(
+        role=ROLE_ACCESS_POINT if raw.get("access_point") else derive_role(
             capabilities=raw.get("lldp_cap_enabled"),
             vendor=raw.get("vendor"),
             model=raw.get("model"),

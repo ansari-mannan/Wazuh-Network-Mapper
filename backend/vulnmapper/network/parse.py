@@ -728,6 +728,27 @@ _CDP_TO_LLDP_BITS = (
 )
 
 
+# ===========================================================================
+# Wireless access points (CISCO-DOT11-ASSOCIATION-MIB)
+# ===========================================================================
+
+DOT11_BASE = "1.3.6.1.4.1.9.9.273"
+# cDot11ActiveWirelessClients, one row per radio: present on an access point
+# even with no client associated, absent on anything else.
+DOT11_ACTIVE_CLIENTS_BASE = "1.3.6.1.4.1.9.9.273.1.1.2.1.1"
+
+# Name evidence, used only when the device itself gives none: a Cisco AP
+# platform ("cisco AIR-AP1142N-A-K9", "AIR-LAP..."), "Aironet", "access point",
+# or an autonomous / lightweight AP image name (C1140-K9W7-M, ...-K9W8-M).
+_ACCESS_POINT_RE = re.compile(
+    r"\bAIR-[A-Z]*AP\d|\baironet\b|\baccess[ -]point\b|-K9W[78]-", re.IGNORECASE)
+
+
+def looks_like_access_point(sys_descr: Optional[str], platform: Optional[str]) -> bool:
+    """Whether a system description or CDP platform names an access point."""
+    return any(text and _ACCESS_POINT_RE.search(text) for text in (sys_descr, platform))
+
+
 def _octets(value: Optional[str]) -> bytes:
     """Raw bytes of a rendered OctetString: ``0x<hex>``, or printable text."""
     if not value:

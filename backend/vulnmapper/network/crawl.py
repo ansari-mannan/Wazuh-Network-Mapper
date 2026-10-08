@@ -44,6 +44,7 @@ from .snmp import (
 )
 from .parse import (
     CDP_CACHE_BASE,
+    DOT11_ACTIVE_CLIENTS_BASE,
     LLDP_LOC_PORT_BASE,
     LLDP_REM_BASE,
     LLDP_REM_MAN_ADDR_BASE,
@@ -60,6 +61,7 @@ from .parse import (
     needs_port_resolution as _needs_port_resolution,
     normalize_chassis_id,
     normalize_mac,
+    looks_like_access_point,
     normalize_neighbor_ports,
     parse_cdp_cache,
 )
@@ -158,6 +160,9 @@ class Device:
     own_macs: list = field(default_factory=list)
     # The platform string a neighbour's CDP table reported for this device.
     platform: Optional[str] = None
+    # A wireless access point (it answers the association MIB, or failing that
+    # its platform / system description names one).
+    access_point: bool = False
 
     def to_node(self) -> dict:
         """Render to the output node schema (field order is intentional).
@@ -187,6 +192,8 @@ class Device:
         }
         if self.platform is not None:
             node["platform"] = self.platform
+        if self.access_point:
+            node["access_point"] = True
         return node
 
 
@@ -585,6 +592,7 @@ async def fetch(snmp_client, ip: str) -> Optional[dict]:
         "mac": normalize_mac(raw_chassis),
         "chassis_id": normalize_chassis_id(raw_chassis),
         "cap_enabled": cap_enabled,
+        "sys_descr": sys_descr,
     }
 
 
@@ -712,6 +720,8 @@ class Crawler:
         self._cid_by_ip: dict[str, str] = {}
         self._cid_by_name: dict[str, str] = {}
         self._cdp_links: list[tuple[str, Neighbor]] = []
+        # Platform strings CDP neighbours reported, by the address they gave.
+        self._platform_by_ip: dict[str, str] = {}
 
     # ---- enqueue helpers (must hold the lock) -----------------------------
 
@@ -823,8 +833,20 @@ class Crawler:
         neighbor_ports |= {nb.local_port for nb in cdp if nb.local_port}
         uplink_ports |= {nb.local_port for nb in cdp
                          if nb.local_port and cdp_is_infrastructure(nb.cdp_capabilities)}
+
+        # An access point: the device's own association MIB is the evidence;
+        # its name is the fallback.
+        async with self._lock:
+            platform = self._platform_by_ip.get(ip)
+        access_point = bool(await self._client.walk(ip, DOT11_ACTIVE_CLIENTS_BASE)) \
+            or looks_like_access_point(info.get("sys_descr"), platform)
+        if access_point:
+            await self._mark_access_point(chassis_id)
         try:
-            fdb_entries = await collect_fdb(self._client, ip)
+            # An access point's clients come from its association table; its
+            # bridge table (clients on radio sub-interfaces, upstream MACs on
+            # Ethernet sub-interfaces) is not used for host placement.
+            fdb_entries = [] if access_point else await collect_fdb(self._client, ip)
             arp = await collect_arp(self._client, ip)
             own_macs = await collect_own_macs(self._client, ip)
             port_status = await collect_port_status(self._client, ip)
@@ -970,10 +992,18 @@ class Crawler:
                 self._seen.add(target_cid)
 
 
+    async def _mark_access_point(self, chassis_id: str) -> None:
+        async with self._lock:
+            dev = self._devices.get(chassis_id)
+            if dev is not None:
+                dev.access_point = True
+
     async def _handle_cdp_neighbor(self, source_cid: str, nb: Neighbor) -> None:
         """Keep a CDP link for resolution and enqueue the neighbour if it is new."""
         async with self._lock:
             self._cdp_links.append((source_cid, nb))
+            if nb.mgmt_ip and nb.platform:
+                self._platform_by_ip.setdefault(nb.mgmt_ip, nb.platform)
             if self._cdp_target(nb) is None and nb.mgmt_ip:
                 await self._enqueue(nb.mgmt_ip, None)
 
@@ -1006,6 +1036,8 @@ class Crawler:
                 dev.vendor = dev.vendor or vendor_from_descr(nb.sys_descr or nb.platform)
                 dev.model = dev.model or _platform_model(nb.platform)
             dev.platform = dev.platform or nb.platform
+            if not dev.pollable and looks_like_access_point(nb.sys_descr, nb.platform):
+                dev.access_point = True   # name evidence is all there is
             if nb.cap_enabled and target not in self._caps:
                 self._caps[target] = nb.cap_enabled
             pair = frozenset((source_cid, target))
