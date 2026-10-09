@@ -5,14 +5,14 @@ by the Python scanner in `../backend`. It appears in the dashboard's left menu
 as **Network Topology Mapper** and has:
 
 - **Overview**: network devices by type, endpoints by status, endpoints and
-  devices by risk level, failed device configuration checks by severity, and
-  cards for every page.
+  devices by risk level, failed device configuration checks by severity, how
+  many hosts have a Wazuh agent, and cards for every page.
 - **Topology map**: the graph, with draggable nodes, reload and reset, and a
   detail flyout for each device or endpoint. A link between two devices shows
   each device's port next to that device; a host link shows the switch port.
 - **Scan settings**: run a scan with an SNMP community string (and,
-  optionally, a test of the factory-default SNMP names), follow its status,
-  and see where the current graph came from.
+  optionally, three active checks that are off by default), follow its
+  status, and see where the current graph came from.
 - Vulnerabilities, Attack paths and Recommendations: shown as "Coming soon".
 
 The server side reads the graph file and runs the scanner; the scanner itself
@@ -51,6 +51,8 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.pythonBin` | Python interpreter for the scanner (default `python3`) |
 | `vulnmapper.deviceCves` | look network devices' software up in NVD during a scan (default `true`; `false` starts scans with `--no-device-cves`) |
 | `vulnmapper.checkDefaultCommunities` | where the Scan settings switch "Also test factory-default SNMP names (public, private)" starts (default `false`); the switch's position is what a scan uses |
+| `vulnmapper.checkManagementPorts` | where the switch "Test whether telnet and web management answer on devices that do not report it" starts (default `false`); on, the scan runs with `--check-management-ports` |
+| `vulnmapper.probeUnmanagedSnmp` | where the switch "Ask unmanaged hosts for their identity over SNMP" starts (default `false`); on, the scan runs with `--probe-unmanaged-snmp` |
 
 `backendDir` and `graphPath` have no default; until they are set, the API
 returns an error saying which key is missing.
@@ -101,12 +103,56 @@ Configuration findings do not change the risk colour or score. The overview's
 "Device configuration" panel counts the failed checks of every checked device
 by severity.
 
-**Default SNMP names.** Scan settings has a switch, off by default, "Also test
-factory-default SNMP names (public, private)". On, the scan is started with
-`--check-default-communities`: each device gets two extra read-only SNMP
-requests with those names, which the network may log as failed logins.
-`vulnmapper.checkDefaultCommunities` sets where the switch starts; an
-automatic rescan keeps the choice of the last scan.
+A telnet or HTTP finding from the connection test says "TCP port 23 accepted
+a connection from the scanner." A spare-port finding names each port with its
+VLAN ("Fa1/0/5 (VLAN 40)") and says how many of them are enabled and how many
+shut down, and how many ports lost their link after boot and are not counted.
+
+## Unmanaged hosts
+
+A host without a Wazuh agent (see "Unmanaged hosts" in
+`../backend/README.md`) carries an **Unmanaged** label in the top left corner
+of its node on the map. The label does not change the risk border. Its detail
+flyout shows an "Unmanaged" badge and one sentence: "No Wazuh agent reports
+from this machine, so its software and vulnerabilities are not known." The
+Identity section adds:
+
+- **Manufacturer**: the maker from the MAC address, "Randomised or virtual
+  address (names no manufacturer)" for a locally administered one, or "Not in
+  the IEEE registry". Managed hosts show this line too.
+- **Name from**: "Reverse DNS" or "Its own SNMP system name", when the name
+  did not come from Wazuh.
+- **SNMP reports**: the system description, when the host answered the SNMP
+  question. Such a host's software is then looked up like a device's, and its
+  Vulnerabilities section reads like a device's ("Potential: matched by
+  software version ...").
+
+The overview's **Agent coverage** panel says, for example, "7 of 10 hosts
+have a Wazuh agent", how many are unmanaged, and why it matters (CIS Controls
+v8.1 Control 1 and NIST SP 800-53 CM-8 ask for an inventory of every asset).
+It is information, not a finding: the other totals do not change.
+
+## Active checks
+
+Scan settings groups three switches under "Active checks: optional, off by
+default". Each sends something the scan otherwise would not, and each says
+what in one sentence:
+
+- "Also test factory-default SNMP names (public, private)": each device gets
+  two extra read-only SNMP requests with those names, which the network may
+  log as failed logins (`--check-default-communities`).
+- "Test whether telnet and web management answer on devices that do not
+  report it": one TCP connection to port 23 and one to port 80 of each such
+  device, closed at once; nothing is sent and no login is tried
+  (`--check-management-ports`).
+- "Ask unmanaged hosts for their identity over SNMP": the scan's SNMP
+  credential goes to every host without an agent (at most 256), and those
+  machines are not verified; a hostile one receives the credential
+  (`--probe-unmanaged-snmp`).
+
+The config keys above set where each switch starts. The scan request carries
+the switches' positions; an automatic rescan keeps the choices of the last
+scan.
 
 ## Development setup
 
@@ -146,8 +192,8 @@ dashboard's own jest, from the dashboard folder:
 | Route | Purpose |
 |---|---|
 | `GET /api/vulnmapper/graph` | the current graph; file time in the `x-vulnmapper-graph-mtime` header |
-| `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string, "checkDefaultCommunities"?: boolean }` (the latter defaults to `vulnmapper.checkDefaultCommunities`); 409 if one is running |
-| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, and `defaults: { checkDefaultCommunities }` for the scan form |
+| `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string, "checkDefaultCommunities"?: boolean, "checkManagementPorts"?: boolean, "probeUnmanagedSnmp"?: boolean }` (each switch defaults to its `vulnmapper.*` key); 409 if one is running |
+| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp }` for the scan form |
 | `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The

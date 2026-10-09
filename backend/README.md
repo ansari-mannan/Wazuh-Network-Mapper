@@ -13,7 +13,8 @@ device, and merges both into one graph document with `nodes`, `edges` and
   files; `verify_comware.py` checks an HP Comware switch over SNMP;
   `captures.py` turns raw SNMP captures into test fixtures;
   `checklist_sample_graph.py` puts configuration checks from captures into a
-  graph).
+  graph; `hosts_sample_graph.py` labels the hosts of an existing graph;
+  `build_oui.py` rebuilds the MAC manufacturer registry).
 - `requirements.txt`: third-party packages.
 
 ## Install
@@ -42,8 +43,10 @@ Useful options:
 - `--vulns-out PATH`: where to write `vulnerabilities.json` (see below).
 - `--no-device-cves`, `--nvd-cache PATH`, `--nvd-budget SECONDS`: the device
   CVE stage (see "Device CVEs").
-- `--no-checklist`, `--check-default-communities`: the configuration checks
-  (see "Configuration checks").
+- `--no-checklist`, `--check-default-communities`, `--check-management-ports`:
+  the configuration checks (see "Configuration checks").
+- `--no-name-lookup`, `--probe-unmanaged-snmp`: hosts without an agent (see
+  "Unmanaged hosts").
 - `--help`: list every option.
 
 ## Output
@@ -370,6 +373,62 @@ stage's duration.
 captures (`snmpwalk -On` output) of devices already in a graph and writes the
 results onto them, with `metadata.checklist.source` set to say so. It contacts
 no device.
+
+### Unmanaged hosts
+
+A host is an endpoint-kind node. A host with a Wazuh agent is managed, whether
+the agent is active or disconnected; the Wazuh server is managed too. A host
+without one is unmanaged: the scan found it in a switch's forwarding table, in
+an LLDP or CDP announcement, or in an access point's client list, but nothing
+reports its software, so its vulnerabilities are not known. It is a blind
+spot. Network devices are not hosts.
+
+Every host has `unmanaged` (true or false). There is no severity and no
+score: `risk_score` stays null on an unmanaged host. `metadata.coverage` gives
+`hosts`, `managed`, `unmanaged` and `managed_share` (null with no hosts).
+
+**Three passive clues.** None of them touches the host.
+
+- `mac_type`: `global`, or `local` when the MAC's locally administered bit is
+  set. A local address is randomised (phones and laptops do this on Wi-Fi for
+  privacy) or virtual (a virtual machine; the lab's Wazuh server has one). It
+  names no manufacturer.
+- `mac_vendor`: for a global MAC, the organisation IEEE's public registry
+  gives for its block (the longest match of the 36-, 28- and 24-bit blocks),
+  else null. `vendor` is not touched: on an agent it holds the operating
+  system's vendor. Both fields are on every host with a MAC, managed or not.
+  The registry ships as `vulnmapper/oui.tsv.gz` (about 560 KB), built by
+  `scripts/build_oui.py` from IEEE's MA-L, MA-M and MA-S files; its header
+  names the source and the date. Nothing is downloaded during a scan.
+- Name from DNS: a host with an address and no name is looked up with the
+  system resolver. This asks the site's DNS server, not the host, so it is on
+  by default; `--no-name-lookup` turns it off. `hostname` is filled only when
+  it is empty, with `name_source: "dns"`. Lookups run 32 at a time; an answer
+  later than 1 second is not waited for, and no new lookup starts after 5
+  seconds. `metadata.name_lookup` gives `asked`, `named` and `budget_reached`.
+
+**Optional SNMP question.** `--probe-unmanaged-snmp` (off by default) asks
+each unmanaged host with an address for its SNMP system group, with the
+credentials given for the scan and never the factory names: one attempt, a 1
+second timeout, 32 hosts at a time, at most 256 per scan (a warning,
+`snmp_question_cap_reached`, when there are more).
+
+The risk: this sends the owner's SNMP credential to machines nobody has
+vouched for. A hostile machine simply receives it. That is why it is off.
+
+A host that answers is usually a printer, a camera, a storage box or a small
+switch. It gets `snmp: true`, its system name as `hostname` when it has none
+(`name_source: "snmp"`), `sys_descr`, and `vendor`, `model`, `firmware` and
+`software_family` where the vendor code recognises it. With a software family
+it goes through the device CVE stage like a device (`cve_summary`,
+`top_cves`, `max_cvss`, `cve_lookup`, `risk_score`). A host that has LLDP or
+CDP neighbours or a forwarding table of its own is crawled as a device from
+its address, so it is placed and checked like any other device. Either way it
+keeps `unmanaged: true`. A host that does not answer is unchanged.
+`metadata.snmp_question` gives `asked`, `answered`, `forwarding`, `cap` and
+`cap_reached`.
+
+**Planned:** an optional nmap service scan of unmanaged hosts, off by default.
 
 ## Liveness
 
