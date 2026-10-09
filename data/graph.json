@@ -333,6 +333,26 @@
                 "vlan": 40
               },
               {
+                "port": "FastEthernet1/0/8",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet1/0/9",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet1/0/10",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet1/0/11",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet1/0/12",
+                "vlan": 10
+              },
+              {
                 "port": "FastEthernet1/0/13",
                 "vlan": 20
               },
@@ -369,6 +389,14 @@
                 "vlan": 30
               },
               {
+                "port": "FastEthernet1/0/23",
+                "vlan": 99
+              },
+              {
+                "port": "FastEthernet1/0/24",
+                "vlan": 99
+              },
+              {
                 "port": "GigabitEthernet1/0/1",
                 "vlan": 1
               },
@@ -377,10 +405,13 @@
                 "vlan": 1
               }
             ],
-            "total": 12,
-            "enabled": 11,
+            "total": 19,
+            "enabled": 18,
             "shut_down": 1,
-            "down_recently_not_counted": 0
+            "down_recently_not_counted": 0,
+            "unused_vlans": [
+              50
+            ]
           }
         },
         {
@@ -1088,6 +1119,46 @@
                 "vlan": 1
               },
               {
+                "port": "FastEthernet0/3",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/4",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/5",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/6",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/7",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/8",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/9",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/10",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/11",
+                "vlan": 10
+              },
+              {
+                "port": "FastEthernet0/12",
+                "vlan": 10
+              },
+              {
                 "port": "FastEthernet0/13",
                 "vlan": 20
               },
@@ -1122,52 +1193,13 @@
               {
                 "port": "FastEthernet0/21",
                 "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/22",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/23",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/24",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/25",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet0/26",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet0/27",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet0/28",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet0/29",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet0/30",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet0/31",
-                "vlan": 30
               }
             ],
-            "total": 26,
-            "enabled": 26,
+            "total": 48,
+            "enabled": 48,
             "shut_down": 0,
-            "down_recently_not_counted": 0
+            "down_recently_not_counted": 0,
+            "unused_vlans": []
           }
         },
         {
