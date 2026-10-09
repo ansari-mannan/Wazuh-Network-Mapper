@@ -82,27 +82,30 @@ class TestLabCaptures(unittest.TestCase):
         self.assertEqual(results(out), {
             "mgmt-telnet-enabled": "unknown", "mgmt-http-enabled": "unknown",
             "snmp-no-auth": "fail", "snmp-default-community": "not_checked",
-            "ports-enabled-unused": "fail", "access-ports-default-vlan": "fail",
+            "spare-ports-in-used-vlan": "fail", "access-ports-default-vlan": "fail",
             "bpdu-guard-missing": "fail", "port-security-disabled": "fail"})
-        unused = finding(out, "ports-enabled-unused")["evidence"]
-        self.assertEqual((unused["total"], unused["down_since_boot"], unused["down_later"]),
-                         (19, 19, 0))
+        spare = finding(out, "spare-ports-in-used-vlan")["evidence"]
+        self.assertEqual(spare["ports"][0], {"port": "FastEthernet1/0/5", "vlan": 40})
+        self.assertEqual((spare["total"], spare["enabled"], spare["shut_down"]), (3, 2, 1))
         self.assertEqual(finding(out, "access-ports-default-vlan")["evidence"],
                          {"ports": ["GigabitEthernet1/0/1", "GigabitEthernet1/0/2"],
                           "total": 2, "with_link": 0})
         self.assertEqual(finding(out, "bpdu-guard-missing")["evidence"]["total"], 22)
         self.assertEqual(out["config_summary"]["findings"],
-                         {"high": 0, "medium": 3, "low": 0, "advisory": 2})
+                         {"high": 0, "medium": 4, "low": 0, "advisory": 1})
         refs = finding(out, "bpdu-guard-missing")["references"]
         self.assertEqual(refs[0]["rule_id"], "V-220630")
 
     def test_cisco_l2_switch(self):
         out = evaluate_device({"role": "l2-switch", "vendor": "Cisco", "uplink_ports": ["Fa0/1"]},
                               captured("l2", "Cisco"), False, "cisco_ios")
-        self.assertEqual(results(out)["ports-enabled-unused"], "fail")
-        self.assertEqual(finding(out, "ports-enabled-unused")["evidence"]["total"], 48)
-        self.assertEqual(len(finding(out, "ports-enabled-unused")["evidence"]["ports"]),
-                         EVIDENCE_CAP)
+        self.assertEqual(results(out)["spare-ports-in-used-vlan"], "fail")
+        self.assertEqual(finding(out, "spare-ports-in-used-vlan")["evidence"]["total"], 2)
+        # hosts learned on VLANs 20 and 30 elsewhere put those VLANs in use
+        out = evaluate_device({"role": "l2-switch", "vendor": "Cisco", "uplink_ports": ["Fa0/1"]},
+                              captured("l2", "Cisco"), False, "cisco_ios", host_vlans={20, 30})
+        spare = finding(out, "spare-ports-in-used-vlan")["evidence"]
+        self.assertEqual((spare["total"], len(spare["ports"])), (26, EVIDENCE_CAP))
         self.assertEqual(finding(out, "port-security-disabled")["evidence"]["total"], 48)
 
     def test_hp_switch(self):
@@ -112,11 +115,8 @@ class TestLabCaptures(unittest.TestCase):
         self.assertEqual(results(out), {
             "mgmt-telnet-enabled": "fail", "mgmt-http-enabled": "fail",
             "snmp-no-auth": "fail", "snmp-default-community": "not_checked",
-            "ports-enabled-unused": "fail", "access-ports-default-vlan": "unknown",
+            "spare-ports-in-used-vlan": "unknown", "access-ports-default-vlan": "unknown",
             "bpdu-guard-missing": "not_applicable", "port-security-disabled": "not_applicable"})
-        unused = finding(out, "ports-enabled-unused")["evidence"]
-        self.assertEqual((unused["total"], unused["down_since_boot"], unused["down_later"]),
-                         (46, 44, 2))
         # not a Cisco IOS device: the SRG reference, not the Cisco STIG
         refs = finding(out, "mgmt-telnet-enabled")["references"]
         self.assertEqual([r["rule_id"] for r in refs], ["V-202118"])
@@ -127,7 +127,7 @@ class TestLabCaptures(unittest.TestCase):
         self.assertEqual(results(out), {
             "mgmt-telnet-enabled": "pass", "mgmt-http-enabled": "fail",
             "snmp-no-auth": "fail", "snmp-default-community": "not_checked",
-            "ports-enabled-unused": "not_applicable", "access-ports-default-vlan": "not_applicable",
+            "spare-ports-in-used-vlan": "not_applicable", "access-ports-default-vlan": "not_applicable",
             "bpdu-guard-missing": "not_applicable", "port-security-disabled": "not_applicable"})
         self.assertEqual(out["config_checks"][4]["reason"], "applies to switches")
 
@@ -226,21 +226,57 @@ class TestChecks(unittest.TestCase):
         self.assertEqual(self.check(cid, own)[0], "fail")
         self.assertEqual(self.check(cid, own)[2]["found_by"], "the scan's own credential")
 
-    def test_enabled_ports_without_link(self):
-        cid = "ports-enabled-unused"
+    def test_spare_ports_in_a_vlan_in_use(self):
+        cid = "spare-ports-in-used-vlan"
         self.assertEqual(self.check(cid, config())[0], "pass")
         ifs = config()["interfaces"]
-        ifs[2] = iface("FastEthernet0/2", oper=t.DOWN, last_change=1000)       # since boot
-        ifs[3] = iface("FastEthernet0/3", oper=t.DOWN, last_change=5_000_000)  # later
+        ifs[2] = iface("FastEthernet0/2", oper=t.DOWN, last_change=1000)   # spare, VLAN 10 live
         self.assertEqual(self.check(cid, config(interfaces=ifs)),
-                         ("fail", None, {"ports": ["FastEthernet0/2", "FastEthernet0/3"],
-                                         "total": 2, "down_since_boot": 1, "down_later": 1}))
-        # an administratively down port is not "enabled"
+                         ("fail", None, {"ports": [{"port": "FastEthernet0/2", "vlan": 10}],
+                                         "total": 1, "enabled": 1, "shut_down": 0,
+                                         "down_recently_not_counted": 0}))
+        # shut down or not, the same result; only the detail differs
+        ifs[2] = iface("FastEthernet0/2", admin=t.DOWN, oper=t.DOWN, last_change=1000)
+        result = self.check(cid, config(interfaces=ifs))
+        self.assertEqual((result[0], result[2]["enabled"], result[2]["shut_down"]),
+                         ("fail", 0, 1))
+
+    def test_spare_port_in_an_unused_vlan_passes(self):
+        cid = "spare-ports-in-used-vlan"
         ifs = config()["interfaces"]
-        ifs[2] = iface("FastEthernet0/2", admin=t.DOWN, oper=t.DOWN)
+        ifs[3] = iface("FastEthernet0/3", oper=t.DOWN, last_change=1000)   # alone in VLAN 20
         self.assertEqual(self.check(cid, config(interfaces=ifs))[0], "pass")
+        # ... unless a host was learned on VLAN 20 somewhere
+        out = evaluate_device(switch(), config(interfaces=ifs), False, "cisco_ios",
+                              host_vlans={20})
+        self.assertEqual(results(out)[cid], "fail")
+
+    def test_vlan_1_is_always_in_use(self):
+        ifs = config()["interfaces"]
+        ifs[3] = iface("FastEthernet0/3", oper=t.DOWN, last_change=1000)
+        result = self.check("spare-ports-in-used-vlan",
+                            config(interfaces=ifs, vm_vlan={1: 10, 2: 10, 3: 1}))
+        self.assertEqual(result[2]["ports"], [{"port": "FastEthernet0/3", "vlan": 1}])
+
+    def test_recently_down_ports_are_not_counted(self):
+        ifs = config()["interfaces"]
+        ifs[2] = iface("FastEthernet0/2", oper=t.DOWN, last_change=5_000_000)   # after boot
+        self.assertEqual(self.check("spare-ports-in-used-vlan", config(interfaces=ifs))[0], "pass")
+        ifs[1] = iface("FastEthernet0/1", oper=t.DOWN, last_change=0)
+        ifs[3] = iface("FastEthernet0/3", oper=t.UP)
+        result = self.check("spare-ports-in-used-vlan",
+                            config(interfaces=ifs, vm_vlan={1: 10, 2: 10, 3: 10}))
+        self.assertEqual((result[2]["total"], result[2]["down_recently_not_counted"]), (1, 1))
+
+    def test_spare_ports_unknown_without_vlan_or_state(self):
+        cid = "spare-ports-in-used-vlan"
+        self.assertEqual(self.check(cid, config(vm_vlan=None, pvid=None), switch("HP")),
+                         ("unknown", "the VLAN of each port was not read", None))
+        ifs = config()["interfaces"]
         ifs[3] = iface("FastEthernet0/3", admin=None, oper=None)
         self.assertEqual(self.check(cid, config(interfaces=ifs))[0], "unknown")
+        ifs[3] = iface("FastEthernet0/3", oper=t.DOWN, last_change=1000)
+        self.assertEqual(self.check(cid, config(interfaces=ifs, uptime=None))[0], "unknown")
 
     def test_default_vlan_lists_linked_ports_first(self):
         cid = "access-ports-default-vlan"
@@ -338,11 +374,11 @@ class TestEvidenceCap(unittest.TestCase):
         ifs = {i: iface(f"FastEthernet0/{i}", oper=t.DOWN) for i in range(1, 31)}
         cfg = config(interfaces=ifs, vm_vlan={i: 10 for i in ifs},
                      bridge_ports={i: i for i in ifs})
-        out = evaluate_device(switch(uplinks=()), cfg, False, "cisco_ios")
-        evidence = finding(out, "ports-enabled-unused")["evidence"]
+        out = evaluate_device(switch(uplinks=()), cfg, False, "cisco_ios", host_vlans={10})
+        evidence = finding(out, "spare-ports-in-used-vlan")["evidence"]
         self.assertEqual(len(evidence["ports"]), EVIDENCE_CAP)
         self.assertEqual(evidence["total"], 30)
-        self.assertEqual(evidence["ports"][0], "FastEthernet0/1")
+        self.assertEqual(evidence["ports"][0], {"port": "FastEthernet0/1", "vlan": 10})
 
 
 class TestFinding(unittest.TestCase):
@@ -397,6 +433,20 @@ class TestStage(unittest.TestCase):
         self.assertEqual(stage.block["probe_enabled"], False)
         self.assertEqual(stage.block["source"], "scan")
         self.assertEqual(stage.block["results"]["not_checked"], 1)   # bb: unknown, not "not checked"
+
+    def test_host_vlans_come_from_the_graph(self):
+        ifs = config()["interfaces"]
+        ifs[3] = iface("FastEthernet0/3", oper=t.DOWN, last_change=1000)    # alone in VLAN 20
+        network = {"nodes": [{"chassis_id": "aa", "config_data": config(interfaces=ifs)}]}
+        result = lambda g: next(c["result"] for c in g["nodes"][0]["config_checks"]  # noqa: E731
+                                if c["id"] == "spare-ports-in-used-vlan")
+        graph = self.graph()
+        run_stage(graph, network, False)
+        self.assertEqual(result(graph), "pass")
+        graph = self.graph()
+        graph["nodes"][3]["vlan"] = 20
+        run_stage(graph, network, False)
+        self.assertEqual(result(graph), "fail")
 
     def test_data_missing_is_warned(self):
         graph = self.graph()

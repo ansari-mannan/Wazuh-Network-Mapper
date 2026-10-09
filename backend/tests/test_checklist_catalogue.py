@@ -5,7 +5,7 @@ import unittest
 from vulnmapper.checklist.catalogue import CATALOGUE, SEVERITIES, by_id, references_for
 
 FIRST_PASS = ["mgmt-telnet-enabled", "mgmt-http-enabled", "snmp-no-auth",
-              "snmp-default-community", "ports-enabled-unused", "access-ports-default-vlan",
+              "snmp-default-community", "spare-ports-in-used-vlan", "access-ports-default-vlan",
               "bpdu-guard-missing", "port-security-disabled"]
 
 
@@ -56,8 +56,13 @@ class TestCatalogue(unittest.TestCase):
                 self.assertRegex(c["cwe"], r"^CWE-\d+$")
 
     def test_advisory_checks(self):
-        self.assertIsNone(by_id("ports-enabled-unused")["severity"])
         self.assertIsNone(by_id("port-security-disabled")["severity"])
+
+    def test_spare_ports_implement_the_unused_vlan_rule(self):
+        check = by_id("spare-ports-in-used-vlan")
+        self.assertEqual(check["severity"], "medium")
+        self.assertEqual([(r["rule_id"], r["relation"]) for r in check["references"]],
+                         [("V-220641", "requires"), ("V-206666", "requires")])
 
     def test_cisco_devices_get_the_cisco_rule_others_the_srg(self):
         cisco = [r["rule_id"] for r in references_for(by_id("bpdu-guard-missing"), "cisco_ios")]

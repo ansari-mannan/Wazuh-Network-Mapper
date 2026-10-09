@@ -263,7 +263,8 @@ string, a FortiGate, the Comware version format).
 
 Each polled device is checked against a short list of configuration rules,
 from SNMP data it already offers: column walks and GETs with the crawl's own
-credential, never a write, a login or a port scan. The stage runs after the
+credential, never a write, a login or a port scan (two optional, off-by-default
+tests below add a little to that). The stage runs after the
 device CVEs; `--no-checklist` skips it and its SNMP reads, and the document is
 then written exactly as before.
 
@@ -281,7 +282,7 @@ condition is not exactly what the check tests.
 | `mgmt-http-enabled` | every device | high | STIG V-220586 / SRG V-202049, CAT I; CWE-319 |
 | `snmp-no-auth` | every device | medium | STIG V-220604, V-220605 / SRG V-202111, CAT II; CWE-319 |
 | `snmp-default-community` | every device | high | NVD CVE-1999-0517 (CVSS 2.0 7.5); CWE-1392 |
-| `ports-enabled-unused` | switches | Advisory | related: STIG V-220641 / SRG V-206666, CAT II |
+| `spare-ports-in-used-vlan` | switches | medium | STIG V-220641 / SRG V-206666, CAT II |
 | `access-ports-default-vlan` | switches | medium | STIG V-220642 / SRG V-206667, CAT II |
 | `bpdu-guard-missing` | Cisco switches | medium | STIG V-220630 / SRG V-206655, CAT II |
 | `port-security-disabled` | Cisco switches | Advisory | related: STIG V-220623, CAT I (asks for 802.1X) |
@@ -305,12 +306,22 @@ elsewhere, being a bridge port does.
 **What each check reads.**
 
 - Telnet and HTTP: the TCP connection and listener tables. A device that lists
-  no TCP socket at all over SNMP (the lab's Cisco switches) gives `unknown`.
+  no TCP socket at all over SNMP (the lab's Cisco switches) gives `unknown`,
+  unless the connection test below is on.
 - SNMP without authentication: the version of the credential that worked.
-- Unused ports: `ifAdminStatus` up and `ifOperStatus` without link. A port with
-  no link may belong to a computer that is switched off, so the evidence says
-  how many have had no link since the device started (`ifLastChange` within
-  5 minutes of boot) and how many lost it later.
+- Spare ports in a VLAN in use: the rule's finding is "If any access switch
+  ports are not in use and not in an inactive VLAN, this is a finding." A
+  spare port is an access port with no link since the device started
+  (`ifOperStatus` without link, `ifLastChange` within 5 minutes of boot). A
+  port that lost its link later may be a computer that is switched off, so
+  it is not counted, only reported (`down_recently_not_counted`). A VLAN is
+  in use when an access port in it has a link, when a host anywhere in the
+  graph was learned on it, or when it is VLAN 1; any other VLAN counts as an
+  unused (parking) VLAN. Whether a spare port is shut down does not change
+  the result; the evidence says how many are `enabled` and `shut_down`, and
+  lists `{port, vlan}`. Without the VLAN of each port (on Cisco `vmVlan`,
+  elsewhere the PVID) the result is `unknown`. Not read: the rule's second
+  step (the parking VLAN kept off every trunk) and its 802.1X exemption.
 - Default VLAN: on Cisco `vmVlan`, elsewhere the 802.1Q PVID of each bridge
   port. Ports with a device attached are listed first.
 - BPDU guard: CISCO-STP-EXTENSIONS-MIB, per port and global, following the
@@ -332,6 +343,16 @@ network may log them as failed logins. Off, the check is `not_checked` with
 the reason "probe not enabled", except when the scan's own credential is one
 of these names, which is reported without a probe.
 
+**Connection test for telnet and HTTP.** `--check-management-ports` (off by
+default) is for devices that do not list their TCP listeners over SNMP. Only
+those get one TCP connection to port 23 and one to port 80 on their
+management address, with a 1 second timeout, closed as soon as it is
+accepted. No data is sent and no login is tried. Accepted: the check fails,
+with evidence that the port answered a connection test. Refused: it passes.
+No answer: `unknown`, "no answer from the scanner's position", since a
+filtered port proves nothing. Off, the `unknown` reason says the test is not
+enabled.
+
 **On each polled device node:** `config_checks` (one `{id, title, result,
 reason}` per check), `config_findings` (one per failed check: `id`, `title`,
 `severity`, `why`, `remediation`, `references`, `cwe`, `evidence`; port lists
@@ -339,8 +360,9 @@ hold at most 20 names plus `total`) and `config_summary` (`checks`, `results`
 by result, `findings` by `high`, `medium`, `low`, `advisory`). A device that
 was not polled gets none of them. `risk_score` and the base score are not
 touched. `metadata.checklist` counts the devices checked, the results and the
-findings, and says whether the probe was on and where the data came from
-(`source`: `scan`). Warnings: `checklist_data_missing` and
+findings, and says whether the probe (`probe_enabled`) and the connection
+test (`port_test_enabled`) were on and where the data came from (`source`:
+`scan`). Warnings: `checklist_data_missing` and
 `checklist_unreadable`, with node ids. `metadata.timing.checklist_s` is the
 stage's duration.
 

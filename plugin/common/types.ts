@@ -104,17 +104,18 @@ export type ConfigReference = {
   relation: 'requires' | 'related';
 };
 
-// What a failed check found. Port lists hold at most 20 names; total is the full count.
+// What a failed check found. Port lists hold at most 20 entries; total is the full count.
 export type ConfigEvidence = {
-  ports?: string[];
+  ports?: Array<string | { port: string; vlan: number }>; // spare ports: {port, vlan}
   total?: number;
-  down_since_boot?: number; // enabled, no link: down since the device started
-  down_later?: number;      // ... or went down later
+  enabled?: number;                   // spare ports: administratively up ...
+  shut_down?: number;                 // ... or shut down
+  down_recently_not_counted?: number; // spare ports: lost the link after boot, not counted
   with_link?: number;       // default VLAN: ports with a device attached (listed first)
   port?: number;            // a TCP port the device listens on
   snmp_version?: string;
   communities?: string[];   // factory names that answered
-  found_by?: string;
+  found_by?: string;        // who found it: the probe, or the connection test
 };
 
 export type ConfigFinding = {
@@ -140,6 +141,7 @@ export type ChecklistMeta = {
   results: Record<ConfigResult, number>;
   findings: { high: number; medium: number; low: number; advisory: number };
   probe_enabled: boolean;
+  port_test_enabled?: boolean; // the telnet/HTTP connection test; absent in older graphs
   source: string; // "scan", or where the data came from ("captures 2026-10-08")
 };
 

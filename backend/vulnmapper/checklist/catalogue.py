@@ -103,10 +103,10 @@ V_202111 = _disa(NDM_SRG, "V-202111", None, "SRG-APP-000395-NDM-000310",
                  "medium", "CCI-001967", "IA-3 (1)", scope="any")
 V_220641 = _disa(L2S_STIG, "V-220641", "CISC-L2-000210", "SRG-NET-000512-L2S-000007",
                  "The Cisco switch must have all disabled switch ports assigned to an unused VLAN.",
-                 "medium", "CCI-004891", "SC-7 (29)", scope="cisco_ios", relation="related")
+                 "medium", "CCI-004891", "SC-7 (29)", scope="cisco_ios")
 V_206666 = _disa(L2S_SRG, "V-206666", None, "SRG-NET-000512-L2S-000007",
                  "The layer 2 switch must have all disabled switch ports assigned to an unused VLAN.",
-                 "medium", "CCI-000366", "CM-6 b", scope="any", relation="related")
+                 "medium", "CCI-000366", "CM-6 b", scope="any")
 V_220642 = _disa(L2S_STIG, "V-220642", "CISC-L2-000220", "SRG-NET-000512-L2S-000008",
                  "The Cisco switch must not have the default VLAN assigned to any host-facing "
                  "switch ports.",
@@ -195,18 +195,19 @@ CATALOGUE: list = [
         "remediation": "Remove the public and private communities and use SNMPv3 users.",
     },
     {
-        "id": "ports-enabled-unused",
-        "title": "Unused access ports left enabled",
-        "why": "An enabled port with nothing plugged in lets anyone who reaches the socket "
-               "join that VLAN; it may also belong to a PC that is switched off.",
+        "id": "spare-ports-in-used-vlan",
+        "title": "Spare access ports in a VLAN in use",
+        "why": "A port nobody uses but that sits in a live VLAN gives anyone who plugs into "
+               "the socket, or turns the port on, a place on that VLAN.",
         "applies_to": {"roles": SWITCH_ROLES, "vendors": None},
-        # DISA's rule for unused ports finds ports that are not in an inactive
-        # VLAN; shutting them down appears only in its example. It is cited for
-        # context; no body publishes a severity for "enabled with no link".
+        # The rule's finding: "If any access switch ports are not in use and not
+        # in an inactive VLAN, this is a finding." Its trunk part (the parking
+        # VLAN kept off every trunk) and its 802.1x exemption are not read.
         "references": [V_220641, V_206666],
-        "severity": None,
+        "severity": "medium",
         "cwe": None,
-        "remediation": "Shut down ports that are not in use and move them to an unused VLAN.",
+        "remediation": "Move every access port that is not in use to an unused (parking) "
+                       "VLAN that no trunk carries.",
     },
     {
         "id": "access-ports-default-vlan",

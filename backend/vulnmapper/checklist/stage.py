@@ -43,6 +43,8 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
     findings: Counter = Counter()
     not_collected, failed = [], []
     checked = 0
+    host_vlans = {n["vlan"] for n in graph.get("nodes") or []
+                  if n.get("kind") != KIND_DEVICE and n.get("vlan") is not None}
     for node in graph.get("nodes") or []:
         if node.get("kind") != KIND_DEVICE or not node.get("pollable"):
             continue
@@ -52,7 +54,7 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
         elif config.get("failed"):
             failed.append(node["node_id"])
         node.update(evaluate_device(node, config, probe_enabled, family_of(node),
-                                    port_test))
+                                    port_test, host_vlans))
         checked += 1
         results.update(node["config_summary"]["results"])
         findings.update(node["config_summary"]["findings"])

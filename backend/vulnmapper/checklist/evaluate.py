@@ -148,36 +148,57 @@ def _default_community(config: dict, probe_enabled: bool):
     return PASS, None, None
 
 
-def _unused_ports(config: dict, ports: list):
-    ifs = config["interfaces"]
-    unknown = [i for i in ports if ifs[i]["admin"] is None or ifs[i]["oper"] is None]
-    unused = [i for i in ports if i not in unknown
-              and ifs[i]["admin"] == t.UP and ifs[i]["oper"] in NO_LINK]
-    if unused:
-        uptime = config.get("uptime")
-        boot, later = 0, 0
-        for i in unused:
-            last = ifs[i]["last_change"]
-            if uptime is None or last is None or last > uptime:
-                continue
-            if last <= BOOT_WINDOW_S * 100:
-                boot += 1
-            else:
-                later += 1
-        return FAIL, None, _evidence_ports([_name(config, i) for i in unused],
-                                           {"down_since_boot": boot, "down_later": later})
-    if unknown:
-        return UNKNOWN, "port state was not read for every access port", None
+def _vlan_of(config: dict, vendor: Optional[str]) -> dict:
+    """``{ifIndex: VLAN}`` for the access ports (empty when not read)."""
+    if vendor == "Cisco" and config.get("vm_vlan"):
+        return dict(config["vm_vlan"])
+    if config.get("pvid") and config.get("bridge_ports"):
+        return {config["bridge_ports"][bp]: v for bp, v in config["pvid"].items()
+                if bp in config["bridge_ports"]}
+    return {}
+
+
+def _spare_ports(config: dict, ports: list, vendor: Optional[str], host_vlans) -> tuple:
+    """Spare access ports (no link since the device booted) in a VLAN in use.
+
+    A VLAN is in use when one of the device's access ports in it has a link,
+    when a host was learned on it, or when it is VLAN 1. A port that lost its
+    link after boot may be a PC that is switched off: it is not counted, only
+    reported. Whether a spare port is shut down does not change the result.
+    """
+    vlan_of = _vlan_of(config, vendor)
+    if not vlan_of:
+        return UNKNOWN, "the VLAN of each port was not read", None
+    ifs, uptime = config["interfaces"], config.get("uptime")
+    no_link = [i for i in ports if ifs[i]["oper"] in NO_LINK]
+    spare, recent, unclear = [], 0, 0
+    for i in no_link:
+        last = ifs[i]["last_change"]
+        if uptime is None or last is None or last > uptime:
+            unclear += 1
+        elif last <= BOOT_WINDOW_S * 100:
+            spare.append(i)
+        else:
+            recent += 1
+    in_use = {DEFAULT_VLAN, *(host_vlans or ())}
+    in_use |= {vlan_of[i] for i in ports if ifs[i]["oper"] == t.UP and vlan_of.get(i)}
+    found = [i for i in spare if vlan_of.get(i) in in_use]
+    if found:
+        enabled = sum(ifs[i]["admin"] == t.UP for i in found)
+        return FAIL, None, {
+            "ports": [{"port": _name(config, i), "vlan": vlan_of[i]}
+                      for i in found[:EVIDENCE_CAP]],
+            "total": len(found), "enabled": enabled, "shut_down": len(found) - enabled,
+            "down_recently_not_counted": recent}
+    if any(ifs[i]["oper"] is None for i in ports) or unclear \
+            or any(not vlan_of.get(i) for i in spare):
+        return UNKNOWN, "port state, time of last change or VLAN was not read for every " \
+                        "access port", None
     return PASS, None, None
 
 
 def _default_vlan(config: dict, ports: list, vendor: Optional[str]):
-    vlan_of: dict = {}
-    if vendor == "Cisco" and config.get("vm_vlan"):
-        vlan_of = dict(config["vm_vlan"])
-    elif config.get("pvid") and config.get("bridge_ports"):
-        vlan_of = {config["bridge_ports"][bp]: v for bp, v in config["pvid"].items()
-                   if bp in config["bridge_ports"]}
+    vlan_of = _vlan_of(config, vendor)
     if not vlan_of:
         return UNKNOWN, "the VLAN of each port was not read", None
     ifs = config["interfaces"]
@@ -256,11 +277,13 @@ def _finding(check: dict, family: Optional[str], evidence: Optional[dict]) -> di
 
 
 def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
-                    family: Optional[str] = None, port_test: bool = False) -> dict:
+                    family: Optional[str] = None, port_test: bool = False,
+                    host_vlans=()) -> dict:
     """``{config_checks, config_findings, config_summary}`` for one polled device.
 
     ``node`` is the graph's device node (role, vendor, uplink_ports); ``config``
-    the crawl's ``config_data`` (None: not collected).
+    the crawl's ``config_data`` (None: not collected); ``host_vlans`` the VLANs
+    hosts were learned on anywhere in the graph.
     """
     role, vendor = node.get("role"), node.get("vendor")
     config = normalise(config)
@@ -287,8 +310,8 @@ def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
             result, reason, evidence = _default_community(config, probe_enabled)
         elif ports is None:
             result, reason, evidence = UNKNOWN, port_reason, None
-        elif check["id"] == "ports-enabled-unused":
-            result, reason, evidence = _unused_ports(config, ports)
+        elif check["id"] == "spare-ports-in-used-vlan":
+            result, reason, evidence = _spare_ports(config, ports, vendor, host_vlans)
         elif check["id"] == "access-ports-default-vlan":
             result, reason, evidence = _default_vlan(config, ports, vendor)
         elif check["id"] == "bpdu-guard-missing":

@@ -84,9 +84,11 @@ def apply(graph: dict, captures: str, version: str, source: str) -> dict:
         network_nodes.append({"chassis_id": node["chassis_id"], "config_data": config})
         matched[node["hostname"]] = device
 
-    # Only the matched devices are evaluated: the others keep no checklist.
+    # Only the matched devices are evaluated: the others keep no checklist. The
+    # hosts stay in, since the VLANs they were learned on are VLANs in use.
     keep = {n["chassis_id"] for n in network_nodes}
-    subset = {"nodes": [n for n in graph["nodes"] if n.get("chassis_id") in keep]}
+    subset = {"nodes": [n for n in graph["nodes"]
+                        if n.get("chassis_id") in keep or n.get("kind") != "device"]}
     stage = run_stage(subset, {"nodes": network_nodes}, False, source=source)
     graph["metadata"]["checklist"] = stage.block
     graph["metadata"].setdefault("warnings", []).extend(stage.warnings)

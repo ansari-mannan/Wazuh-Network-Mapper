@@ -44,20 +44,18 @@ export function evidenceLines(id: string, e: ConfigEvidence | null | undefined):
   const out: string[] = [];
   if (e.ports && e.ports.length) {
     const total = e.total ?? e.ports.length;
-    out.push(`${total === 1 ? 'Port' : `${total} ports`}: ${portList(e.ports, total)}.`);
+    const names = e.ports.map((p) => (typeof p === 'string' ? p : `${shortPort(p.port)} (VLAN ${p.vlan})`));
+    out.push(`${total === 1 ? 'Port' : `${total} ports`}: ${portList(names, total)}.`);
   }
-  if (id === 'ports-enabled-unused' && e.down_since_boot !== undefined) {
-    const total = e.total ?? 0;
-    const since = e.down_since_boot ?? 0;
-    const later = e.down_later ?? 0;
-    // The finding's own text already says a port may belong to a computer that is off.
-    if (since === total && total > 1) out.push(`All ${total} have had no link since the device started.`);
-    else if (since === total) out.push('It has had no link since the device started.');
-    else
-      out.push(
-        `${since} ${since === 1 ? 'has' : 'have'} had no link since the device started; ${later} lost it later` +
-          (since + later < total ? `; ${total - since - later} could not be dated.` : '.')
-      );
+  if (id === 'spare-ports-in-used-vlan' && e.enabled !== undefined) {
+    const shut = e.shut_down ?? 0;
+    out.push(
+      `None has had a link since the device started; ${e.enabled} ${e.enabled === 1 ? 'is' : 'are'} enabled, ${shut} shut down.`
+    );
+    const recent = e.down_recently_not_counted ?? 0;
+    if (recent > 0) {
+      out.push(`${count(recent, 'port')} lost ${recent === 1 ? 'its' : 'their'} link later and ${recent === 1 ? 'is' : 'are'} not counted: it may be a computer that is switched off.`);
+    }
   }
   if (id === 'access-ports-default-vlan' && e.with_link !== undefined) {
     out.push(
@@ -66,7 +64,13 @@ export function evidenceLines(id: string, e: ConfigEvidence | null | undefined):
         : 'None of them has a device attached at the moment.'
     );
   }
-  if (e.port !== undefined) out.push(`The device lists TCP port ${e.port} as in use.`);
+  if (e.port !== undefined) {
+    out.push(
+      e.found_by
+        ? `TCP port ${e.port} accepted a connection from the scanner.`
+        : `The device lists TCP port ${e.port} as in use.`
+    );
+  }
   if (e.snmp_version) out.push(`The scan polled it with SNMP ${e.snmp_version}.`);
   if (e.communities && e.communities.length) {
     out.push(`It answers to “${e.communities.join('” and “')}”, found by ${e.found_by || 'the scan'}.`);

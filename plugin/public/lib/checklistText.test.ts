@@ -115,24 +115,38 @@ describe('ports', () => {
 });
 
 describe('evidenceLines', () => {
-  it('tells "since boot" from "later" for ports with no link', () => {
+  it('names spare ports with their VLAN and says how many are shut down', () => {
     expect(
-      evidenceLines('ports-enabled-unused', {
-        ports: ['GigabitEthernet1/0/2', 'GigabitEthernet1/0/3'],
-        total: 46,
-        down_since_boot: 44,
-        down_later: 2,
+      evidenceLines('spare-ports-in-used-vlan', {
+        ports: [
+          { port: 'FastEthernet1/0/5', vlan: 40 },
+          { port: 'GigabitEthernet1/0/1', vlan: 1 },
+        ],
+        total: 2,
+        enabled: 1,
+        shut_down: 1,
+        down_recently_not_counted: 0,
       })
     ).toEqual([
-      '46 ports: Gi1/0/2, Gi1/0/3 and 44 more.',
-      '44 have had no link since the device started; 2 lost it later.',
+      '2 ports: Fa1/0/5 (VLAN 40) and Gi1/0/1 (VLAN 1).',
+      'None has had a link since the device started; 1 is enabled, 1 shut down.',
     ]);
     expect(
-      evidenceLines('ports-enabled-unused', { ports: ['Fa0/2'], total: 19, down_since_boot: 19, down_later: 0 })[1]
-    ).toBe('All 19 have had no link since the device started.');
+      evidenceLines('spare-ports-in-used-vlan', {
+        ports: [{ port: 'Fa0/2', vlan: 10 }],
+        total: 1,
+        enabled: 1,
+        shut_down: 0,
+        down_recently_not_counted: 2,
+      })[2]
+    ).toBe('2 ports lost their link later and are not counted: it may be a computer that is switched off.');
+  });
+
+  it('tells a port found by the connection test from a listed one', () => {
+    expect(evidenceLines('mgmt-telnet-enabled', { port: 23 })).toEqual(['The device lists TCP port 23 as in use.']);
     expect(
-      evidenceLines('ports-enabled-unused', { ports: ['Fa0/2', 'Fa0/3'], total: 3, down_since_boot: 1, down_later: 1 })[1]
-    ).toBe('1 has had no link since the device started; 1 lost it later; 1 could not be dated.');
+      evidenceLines('mgmt-telnet-enabled', { port: 23, found_by: 'the port answered a connection test' })
+    ).toEqual(['TCP port 23 accepted a connection from the scanner.']);
   });
 
   it('says how many default-VLAN ports have a device attached', () => {
