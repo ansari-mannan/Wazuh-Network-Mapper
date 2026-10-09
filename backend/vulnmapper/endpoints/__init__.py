@@ -337,12 +337,21 @@ class WazuhSource:
         A refused connection or a timeout is retried (LOGIN_ATTEMPTS in all);
         then the scan ends with one plain message, so the plugin keeps the
         previous graph rather than one that has lost every endpoint. A rejected
-        login (HTTP 4xx) is not retried.
+        login (HTTP 401 or 403) is not retried: the scan ends at once with one
+        plain message that names neither the password nor the server's reply.
         """
         for attempt in range(1, LOGIN_ATTEMPTS + 1):
             try:
                 self._authenticate()
                 return
+            except requests.HTTPError as e:
+                status = getattr(e.response, "status_code", None)
+                if status in (401, 403):
+                    raise SystemExit(
+                        f"vulnmapper: the Wazuh Manager API at {self._wcfg.host}:{self._wcfg.port} "
+                        f"rejected the login (HTTP {status}); check WAZUH_USER and WAZUH_PASS."
+                    ) from None
+                raise
             except (requests.ConnectionError, requests.Timeout) as e:
                 what = "timed out" if isinstance(e, requests.Timeout) else "refused the connection"
                 if attempt < LOGIN_ATTEMPTS:

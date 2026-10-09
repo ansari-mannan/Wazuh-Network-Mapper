@@ -41,7 +41,7 @@ interface ScanOptions {
 // The scanner logs to stderr and ends a failed run with one plain message line
 // (e.g. "vulnmapper: WAZUH_PASS is not set; ..."), so the last non-empty line is
 // the useful one to show. The community string is redacted in case it appears.
-function failureMessage(stderr: string, code: number | null, community?: string): string {
+export function failureMessage(stderr: string, code: number | null, community?: string): string {
   const lines = stderr.split('\n').map((l) => l.trim()).filter(Boolean);
   let msg = lines.length ? lines[lines.length - 1] : `scanner exited with code ${code}`;
   if (community) msg = msg.split(community).join('***');

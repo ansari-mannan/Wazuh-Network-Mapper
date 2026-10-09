@@ -79,19 +79,43 @@ class TestLoginRetry(unittest.TestCase):
         result, _, _ = self.collect([requests.Timeout("slow")] * 3)
         self.assertIn("timed out", str(result.code))
 
-    def test_a_rejected_password_is_not_retried(self):
+    def rejected(self, status):
         class Rejected:
             ok = False
-            status_code = 401
+            status_code = status
             reason = "Unauthorized"
-            text = "Invalid credentials"
+            text = "Invalid credentials for not-a-real-password"
 
-        with self.assertRaises(requests.HTTPError):
-            src = source()
-            with mock.patch.object(ep_mod.requests, "post", return_value=Rejected()), \
-                    mock.patch.object(ep_mod.time, "sleep") as sleep:
+        posts = []
+
+        def post(*args, **kwargs):
+            posts.append(1)
+            return Rejected()
+        src = source()
+        with mock.patch.object(ep_mod.requests, "post", post), \
+                mock.patch.object(ep_mod.time, "sleep") as sleep:
+            try:
                 src.collect()
-        self.assertEqual(sleep.call_count, 0)
+            except BaseException as e:      # SystemExit is the point
+                return e, len(posts), sleep.call_count
+        self.fail("a rejected login went on")
+
+    def test_a_rejected_login_ends_at_once_with_one_plain_line(self):
+        for status in (401, 403):
+            error, posts, sleeps = self.rejected(status)
+            self.assertIsInstance(error, SystemExit, status)
+            message = str(error.code)
+            self.assertEqual(message,
+                             f"vulnmapper: the Wazuh Manager API at wazuh.example:55000 rejected "
+                             f"the login (HTTP {status}); check WAZUH_USER and WAZUH_PASS.")
+            self.assertIsNone(error.__cause__)
+            self.assertTrue(error.__suppress_context__)   # no "during handling" traceback
+            self.assertEqual((posts, sleeps), (1, 0))     # not retried
+
+    def test_other_http_errors_are_not_turned_into_a_login_message(self):
+        error, posts, sleeps = self.rejected(500)
+        self.assertIsInstance(error, requests.HTTPError)
+        self.assertEqual((posts, sleeps), (1, 0))
 
 
 class TestScanFailsCleanly(unittest.TestCase):
@@ -109,6 +133,40 @@ class TestScanFailsCleanly(unittest.TestCase):
             self.assertNotEqual(ctx.exception.code, 0)
             self.assertIn("did not answer the login", str(ctx.exception.code))
             self.assertEqual(os.listdir(tmp), [])          # no graph, no vulnerabilities file
+
+    def test_rejected_login_prints_one_line_and_writes_nothing(self):
+        """Run as the plugin does: a child process, stderr read back."""
+        import subprocess
+        import sys
+        import textwrap
+        with tempfile.TemporaryDirectory() as tmp:
+            graph = os.path.join(tmp, "graph.json")
+            script = textwrap.dedent(f"""
+                from unittest import mock
+                import requests
+                from vulnmapper import endpoints
+                from vulnmapper.pipeline import Pipeline
+
+                class Rejected:
+                    ok, status_code, reason, text = False, 401, "Unauthorized", "no"
+
+                with mock.patch.object(endpoints.requests, "post", return_value=Rejected()):
+                    Pipeline().run(["--no-network", "-o", {graph!r}, "--no-device-cves"])
+                """)
+            env = dict(os.environ, WAZUH_PASS="not-a-real-password", INDEXER_PASS="y",
+                       WAZUH_HOST="wazuh.example")
+            here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            done = subprocess.run([sys.executable, "-c", script], cwd=here, env=env,
+                                  capture_output=True, text=True, timeout=60)
+            self.assertEqual(done.returncode, 1)
+            lines = [line for line in done.stderr.splitlines() if line.strip()]
+            self.assertEqual(lines[-1], "vulnmapper: the Wazuh Manager API at wazuh.example:55000 "
+                                        "rejected the login (HTTP 401); check WAZUH_USER and "
+                                        "WAZUH_PASS.")
+            self.assertNotIn("Traceback", done.stderr)
+            self.assertNotIn("not-a-real-password", done.stderr + done.stdout)
+            self.assertEqual(done.stdout, "")
+            self.assertEqual(os.listdir(tmp), [])
 
 
 if __name__ == "__main__":
