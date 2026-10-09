@@ -212,6 +212,296 @@
         "fetched_at": "2026-10-08T23:09:10.453101+00:00",
         "stale": false,
         "total": 90
+      },
+      "config_checks": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "result": "unknown",
+          "reason": "the device does not list its TCP listeners over SNMP"
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "result": "unknown",
+          "reason": "the device does not list its TCP listeners over SNMP"
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-default-community",
+          "title": "Default SNMP community name",
+          "result": "not_checked",
+          "reason": "probe not enabled"
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "result": "fail"
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "result": "fail"
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "result": "fail"
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "result": "fail"
+        }
+      ],
+      "config_findings": [
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "severity": "medium",
+          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
+          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220604",
+              "stig_id": "CISC-ND-001130",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220604",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-001967",
+              "nist": "IA-3 (1)",
+              "relation": "requires"
+            },
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220605",
+              "stig_id": "CISC-ND-001140",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220605",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-000068",
+              "nist": "AC-17 (2)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "snmp_version": "v2c"
+          }
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "severity": null,
+          "why": "An enabled port with nothing plugged in lets anyone who reaches the socket join that VLAN; it may also belong to a PC that is switched off.",
+          "remediation": "Shut down ports that are not in use and move them to an unused VLAN.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220641",
+              "stig_id": "CISC-L2-000210",
+              "srg_id": "SRG-NET-000512-L2S-000007",
+              "title": "The Cisco switch must have all disabled switch ports assigned to an unused VLAN.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220641",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-004891",
+              "nist": "SC-7 (29)",
+              "relation": "related"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet1/0/5",
+              "FastEthernet1/0/7",
+              "FastEthernet1/0/8",
+              "FastEthernet1/0/9",
+              "FastEthernet1/0/10",
+              "FastEthernet1/0/11",
+              "FastEthernet1/0/12",
+              "FastEthernet1/0/13",
+              "FastEthernet1/0/14",
+              "FastEthernet1/0/16",
+              "FastEthernet1/0/17",
+              "FastEthernet1/0/18",
+              "FastEthernet1/0/19",
+              "FastEthernet1/0/20",
+              "FastEthernet1/0/21",
+              "FastEthernet1/0/22",
+              "FastEthernet1/0/23",
+              "FastEthernet1/0/24",
+              "GigabitEthernet1/0/1"
+            ],
+            "total": 19,
+            "down_since_boot": 19,
+            "down_later": 0
+          }
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "severity": "medium",
+          "why": "VLAN 1 carries the switch's own control traffic, so hosts placed in it share a segment with the infrastructure.",
+          "remediation": "Assign every host port to a user VLAN other than VLAN 1.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220642",
+              "stig_id": "CISC-L2-000220",
+              "srg_id": "SRG-NET-000512-L2S-000008",
+              "title": "The Cisco switch must not have the default VLAN assigned to any host-facing switch ports.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220642",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-004891",
+              "nist": "SC-7 (29)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "GigabitEthernet1/0/1",
+              "GigabitEthernet1/0/2"
+            ],
+            "total": 2,
+            "with_link": 0
+          }
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "severity": "medium",
+          "why": "Without BPDU guard, a switch plugged into an access port can take part in spanning tree and even become its root.",
+          "remediation": "Enable BPDU guard on every user-facing access port.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220630",
+              "stig_id": "CISC-L2-000100",
+              "srg_id": "SRG-NET-000362-L2S-000022",
+              "title": "The Cisco switch must have Bridge Protocol Data Unit (BPDU) Guard enabled on all user-facing or untrusted access switch ports.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220630",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-002385",
+              "nist": "SC-5 a",
+              "relation": "requires"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet1/0/3",
+              "FastEthernet1/0/4",
+              "FastEthernet1/0/5",
+              "FastEthernet1/0/7",
+              "FastEthernet1/0/8",
+              "FastEthernet1/0/9",
+              "FastEthernet1/0/10",
+              "FastEthernet1/0/11",
+              "FastEthernet1/0/12",
+              "FastEthernet1/0/13",
+              "FastEthernet1/0/14",
+              "FastEthernet1/0/16",
+              "FastEthernet1/0/17",
+              "FastEthernet1/0/18",
+              "FastEthernet1/0/19",
+              "FastEthernet1/0/20",
+              "FastEthernet1/0/21",
+              "FastEthernet1/0/22",
+              "FastEthernet1/0/23",
+              "FastEthernet1/0/24"
+            ],
+            "total": 22
+          }
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "severity": null,
+          "why": "Without port security an access port accepts any number of MAC addresses, so a rogue switch or a MAC flood goes unchecked.",
+          "remediation": "Enable port security with a small MAC limit, or 802.1x authentication, on every access port.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220623",
+              "stig_id": "CISC-L2-000020",
+              "srg_id": "SRG-NET-000148-L2S-000015",
+              "title": "The Cisco switch must uniquely identify and authenticate all network-connected endpoint devices before establishing any connection.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220623",
+              "severity": "high",
+              "category": "CAT I",
+              "cci": "CCI-000778",
+              "nist": "IA-3",
+              "relation": "related"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet1/0/3",
+              "FastEthernet1/0/4",
+              "FastEthernet1/0/5",
+              "FastEthernet1/0/7",
+              "FastEthernet1/0/8",
+              "FastEthernet1/0/9",
+              "FastEthernet1/0/10",
+              "FastEthernet1/0/11",
+              "FastEthernet1/0/12",
+              "FastEthernet1/0/13",
+              "FastEthernet1/0/14",
+              "FastEthernet1/0/16",
+              "FastEthernet1/0/17",
+              "FastEthernet1/0/18",
+              "FastEthernet1/0/19",
+              "FastEthernet1/0/20",
+              "FastEthernet1/0/21",
+              "FastEthernet1/0/22",
+              "FastEthernet1/0/23",
+              "FastEthernet1/0/24"
+            ],
+            "total": 22
+          }
+        }
+      ],
+      "config_summary": {
+        "checks": 8,
+        "results": {
+          "pass": 0,
+          "fail": 5,
+          "not_applicable": 0,
+          "unknown": 2,
+          "not_checked": 1
+        },
+        "findings": {
+          "high": 0,
+          "medium": 3,
+          "low": 0,
+          "advisory": 2
+        }
       }
     },
     {
@@ -644,6 +934,297 @@
         "fetched_at": "2026-10-08T23:09:38.009129+00:00",
         "stale": false,
         "total": 108
+      },
+      "config_checks": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "result": "unknown",
+          "reason": "the device does not list its TCP listeners over SNMP"
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "result": "unknown",
+          "reason": "the device does not list its TCP listeners over SNMP"
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-default-community",
+          "title": "Default SNMP community name",
+          "result": "not_checked",
+          "reason": "probe not enabled"
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "result": "fail"
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "result": "fail"
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "result": "fail"
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "result": "fail"
+        }
+      ],
+      "config_findings": [
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "severity": "medium",
+          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
+          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220604",
+              "stig_id": "CISC-ND-001130",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220604",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-001967",
+              "nist": "IA-3 (1)",
+              "relation": "requires"
+            },
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220605",
+              "stig_id": "CISC-ND-001140",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220605",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-000068",
+              "nist": "AC-17 (2)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "snmp_version": "v2c"
+          }
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "severity": null,
+          "why": "An enabled port with nothing plugged in lets anyone who reaches the socket join that VLAN; it may also belong to a PC that is switched off.",
+          "remediation": "Shut down ports that are not in use and move them to an unused VLAN.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220641",
+              "stig_id": "CISC-L2-000210",
+              "srg_id": "SRG-NET-000512-L2S-000007",
+              "title": "The Cisco switch must have all disabled switch ports assigned to an unused VLAN.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220641",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-004891",
+              "nist": "SC-7 (29)",
+              "relation": "related"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet0/2",
+              "FastEthernet0/3",
+              "FastEthernet0/4",
+              "FastEthernet0/5",
+              "FastEthernet0/6",
+              "FastEthernet0/7",
+              "FastEthernet0/8",
+              "FastEthernet0/9",
+              "FastEthernet0/10",
+              "FastEthernet0/11",
+              "FastEthernet0/12",
+              "FastEthernet0/13",
+              "FastEthernet0/14",
+              "FastEthernet0/15",
+              "FastEthernet0/16",
+              "FastEthernet0/17",
+              "FastEthernet0/18",
+              "FastEthernet0/19",
+              "FastEthernet0/20",
+              "FastEthernet0/21"
+            ],
+            "total": 48,
+            "down_since_boot": 48,
+            "down_later": 0
+          }
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "severity": "medium",
+          "why": "VLAN 1 carries the switch's own control traffic, so hosts placed in it share a segment with the infrastructure.",
+          "remediation": "Assign every host port to a user VLAN other than VLAN 1.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220642",
+              "stig_id": "CISC-L2-000220",
+              "srg_id": "SRG-NET-000512-L2S-000008",
+              "title": "The Cisco switch must not have the default VLAN assigned to any host-facing switch ports.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220642",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-004891",
+              "nist": "SC-7 (29)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet0/2",
+              "GigabitEthernet0/2"
+            ],
+            "total": 2,
+            "with_link": 0
+          }
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "severity": "medium",
+          "why": "Without BPDU guard, a switch plugged into an access port can take part in spanning tree and even become its root.",
+          "remediation": "Enable BPDU guard on every user-facing access port.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220630",
+              "stig_id": "CISC-L2-000100",
+              "srg_id": "SRG-NET-000362-L2S-000022",
+              "title": "The Cisco switch must have Bridge Protocol Data Unit (BPDU) Guard enabled on all user-facing or untrusted access switch ports.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220630",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-002385",
+              "nist": "SC-5 a",
+              "relation": "requires"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet0/2",
+              "FastEthernet0/3",
+              "FastEthernet0/4",
+              "FastEthernet0/5",
+              "FastEthernet0/6",
+              "FastEthernet0/7",
+              "FastEthernet0/8",
+              "FastEthernet0/9",
+              "FastEthernet0/10",
+              "FastEthernet0/11",
+              "FastEthernet0/12",
+              "FastEthernet0/13",
+              "FastEthernet0/14",
+              "FastEthernet0/15",
+              "FastEthernet0/16",
+              "FastEthernet0/17",
+              "FastEthernet0/18",
+              "FastEthernet0/19",
+              "FastEthernet0/20",
+              "FastEthernet0/21"
+            ],
+            "total": 48
+          }
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "severity": null,
+          "why": "Without port security an access port accepts any number of MAC addresses, so a rogue switch or a MAC flood goes unchecked.",
+          "remediation": "Enable port security with a small MAC limit, or 802.1x authentication, on every access port.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch L2S STIG",
+              "release": "V3R3 (2026-09-01)",
+              "rule_id": "V-220623",
+              "stig_id": "CISC-L2-000020",
+              "srg_id": "SRG-NET-000148-L2S-000015",
+              "title": "The Cisco switch must uniquely identify and authenticate all network-connected endpoint devices before establishing any connection.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_L2S/3/3/V-220623",
+              "severity": "high",
+              "category": "CAT I",
+              "cci": "CCI-000778",
+              "nist": "IA-3",
+              "relation": "related"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "FastEthernet0/2",
+              "FastEthernet0/3",
+              "FastEthernet0/4",
+              "FastEthernet0/5",
+              "FastEthernet0/6",
+              "FastEthernet0/7",
+              "FastEthernet0/8",
+              "FastEthernet0/9",
+              "FastEthernet0/10",
+              "FastEthernet0/11",
+              "FastEthernet0/12",
+              "FastEthernet0/13",
+              "FastEthernet0/14",
+              "FastEthernet0/15",
+              "FastEthernet0/16",
+              "FastEthernet0/17",
+              "FastEthernet0/18",
+              "FastEthernet0/19",
+              "FastEthernet0/20",
+              "FastEthernet0/21"
+            ],
+            "total": 48
+          }
+        }
+      ],
+      "config_summary": {
+        "checks": 8,
+        "results": {
+          "pass": 0,
+          "fail": 5,
+          "not_applicable": 0,
+          "unknown": 2,
+          "not_checked": 1
+        },
+        "findings": {
+          "high": 0,
+          "medium": 3,
+          "low": 0,
+          "advisory": 2
+        }
       }
     },
     {
@@ -742,6 +1323,206 @@
         "fetched_at": "2026-10-08T23:09:39.322715+00:00",
         "stale": false,
         "total": 0
+      },
+      "config_checks": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "result": "fail"
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-default-community",
+          "title": "Default SNMP community name",
+          "result": "not_checked",
+          "reason": "probe not enabled"
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "result": "fail"
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "result": "unknown",
+          "reason": "the VLAN of each port was not read"
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "result": "not_applicable",
+          "reason": "no data source for this vendor"
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "result": "not_applicable",
+          "reason": "no data source for this vendor"
+        }
+      ],
+      "config_findings": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "severity": "high",
+          "why": "Telnet sends the administrator's password and every command in clear text, so anyone on the path can read them.",
+          "remediation": "Turn off Telnet on the management lines and use SSH instead.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Network Device Management SRG",
+              "release": "V5R5 (2026-05-23)",
+              "rule_id": "V-202118",
+              "stig_id": null,
+              "srg_id": "SRG-APP-000412-NDM-000331",
+              "title": "The network device must be configured to implement cryptographic mechanisms using a FIPS 140-2 approved algorithm to protect the confidentiality of remote maintenance sessions.",
+              "url": "https://cyber.trackr.live/stig/Network_Device_Management_Security_Requirements_Guide/5/5/V-202118",
+              "severity": "high",
+              "category": "CAT I",
+              "cci": "CCI-003123",
+              "nist": "MA-4 (6)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "port": 23
+          }
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "severity": "high",
+          "why": "The web interface on TCP 80 sends logins and settings in clear text.",
+          "remediation": "Turn off the HTTP server; if web management is needed, use HTTPS only.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Network Device Management SRG",
+              "release": "V5R5 (2026-05-23)",
+              "rule_id": "V-202049",
+              "stig_id": null,
+              "srg_id": "SRG-APP-000142-NDM-000245",
+              "title": "The network device must be configured to prohibit the use of all unnecessary and/or nonsecure functions, ports, protocols, and/or services.",
+              "url": "https://cyber.trackr.live/stig/Network_Device_Management_Security_Requirements_Guide/5/5/V-202049",
+              "severity": "high",
+              "category": "CAT I",
+              "cci": "CCI-000382",
+              "nist": "CM-7 b",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "port": 80
+          }
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "severity": "medium",
+          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
+          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Network Device Management SRG",
+              "release": "V5R5 (2026-05-23)",
+              "rule_id": "V-202111",
+              "stig_id": null,
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The network device must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
+              "url": "https://cyber.trackr.live/stig/Network_Device_Management_Security_Requirements_Guide/5/5/V-202111",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-001967",
+              "nist": "IA-3 (1)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "snmp_version": "v2c"
+          }
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "severity": null,
+          "why": "An enabled port with nothing plugged in lets anyone who reaches the socket join that VLAN; it may also belong to a PC that is switched off.",
+          "remediation": "Shut down ports that are not in use and move them to an unused VLAN.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Layer 2 Switch SRG",
+              "release": "V3R4 (2026-02-12)",
+              "rule_id": "V-206666",
+              "stig_id": null,
+              "srg_id": "SRG-NET-000512-L2S-000007",
+              "title": "The layer 2 switch must have all disabled switch ports assigned to an unused VLAN.",
+              "url": "https://cyber.trackr.live/stig/Layer_2_Switch_Security_Requirements_Guide/3/4/V-206666",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-000366",
+              "nist": "CM-6 b",
+              "relation": "related"
+            }
+          ],
+          "cwe": null,
+          "evidence": {
+            "ports": [
+              "GigabitEthernet1/0/2",
+              "GigabitEthernet1/0/3",
+              "GigabitEthernet1/0/4",
+              "GigabitEthernet1/0/5",
+              "GigabitEthernet1/0/6",
+              "GigabitEthernet1/0/7",
+              "GigabitEthernet1/0/8",
+              "GigabitEthernet1/0/9",
+              "GigabitEthernet1/0/10",
+              "GigabitEthernet1/0/11",
+              "GigabitEthernet1/0/12",
+              "GigabitEthernet1/0/13",
+              "GigabitEthernet1/0/16",
+              "GigabitEthernet1/0/17",
+              "GigabitEthernet1/0/18",
+              "GigabitEthernet1/0/19",
+              "GigabitEthernet1/0/20",
+              "GigabitEthernet1/0/21",
+              "GigabitEthernet1/0/22",
+              "GigabitEthernet1/0/23"
+            ],
+            "total": 46,
+            "down_since_boot": 44,
+            "down_later": 2
+          }
+        }
+      ],
+      "config_summary": {
+        "checks": 8,
+        "results": {
+          "pass": 0,
+          "fail": 4,
+          "not_applicable": 2,
+          "unknown": 1,
+          "not_checked": 1
+        },
+        "findings": {
+          "high": 2,
+          "medium": 1,
+          "low": 0,
+          "advisory": 1
+        }
       }
     },
     {
@@ -1423,6 +2204,142 @@
         "fetched_at": "2026-10-08T23:09:55.500531+00:00",
         "stale": false,
         "total": 72
+      },
+      "config_checks": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "result": "pass"
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-default-community",
+          "title": "Default SNMP community name",
+          "result": "not_checked",
+          "reason": "probe not enabled"
+        },
+        {
+          "id": "ports-enabled-unused",
+          "title": "Unused access ports left enabled",
+          "result": "not_applicable",
+          "reason": "applies to switches"
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "result": "not_applicable",
+          "reason": "applies to switches"
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "result": "not_applicable",
+          "reason": "applies to switches"
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "result": "not_applicable",
+          "reason": "applies to switches"
+        }
+      ],
+      "config_findings": [
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "severity": "high",
+          "why": "The web interface on TCP 80 sends logins and settings in clear text.",
+          "remediation": "Turn off the HTTP server; if web management is needed, use HTTPS only.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220586",
+              "stig_id": "CISC-ND-000470",
+              "srg_id": "SRG-APP-000142-NDM-000245",
+              "title": "The Cisco switch must be configured to prohibit the use of all unnecessary and non-secure functions and services.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220586",
+              "severity": "high",
+              "category": "CAT I",
+              "cci": "CCI-000382",
+              "nist": "CM-7 b",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "port": 80
+          }
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "severity": "medium",
+          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
+          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220604",
+              "stig_id": "CISC-ND-001130",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220604",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-001967",
+              "nist": "IA-3 (1)",
+              "relation": "requires"
+            },
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220605",
+              "stig_id": "CISC-ND-001140",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
+              "url": "https://cyber.trackr.live/stig/Cisco_IOS_Switch_NDM/3/9/V-220605",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-000068",
+              "nist": "AC-17 (2)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "snmp_version": "v2c"
+          }
+        }
+      ],
+      "config_summary": {
+        "checks": 8,
+        "results": {
+          "pass": 1,
+          "fail": 2,
+          "not_applicable": 4,
+          "unknown": 0,
+          "not_checked": 1
+        },
+        "findings": {
+          "high": 1,
+          "medium": 1,
+          "low": 0,
+          "advisory": 0
+        }
       }
     },
     {
@@ -2076,6 +2993,24 @@
       "api_key": false,
       "budget_s": 180.0,
       "refreshed_at": "2026-10-08T23:10:10.028816+00:00"
+    },
+    "checklist": {
+      "devices_checked": 4,
+      "results": {
+        "pass": 1,
+        "fail": 16,
+        "not_applicable": 6,
+        "unknown": 5,
+        "not_checked": 4
+      },
+      "findings": {
+        "high": 3,
+        "medium": 8,
+        "low": 0,
+        "advisory": 5
+      },
+      "probe_enabled": false,
+      "source": "captures 2026-10-08"
     }
   }
 }
