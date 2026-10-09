@@ -564,7 +564,10 @@
         "max_cvss": null
       },
       "is_wazuh_server": true,
-      "vlan": 40
+      "vlan": 40,
+      "unmanaged": false,
+      "mac_type": "local",
+      "mac_vendor": null
     },
     {
       "node_id": "device:90:6c:ac:d7:43:7f",
@@ -1715,7 +1718,10 @@
         "unknown": 0,
         "max_cvss": 9.9
       },
-      "vlan": 40
+      "vlan": 40,
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc."
     },
     {
       "node_id": "endpoint:005",
@@ -1867,7 +1873,10 @@
         "unknown": 0,
         "max_cvss": 9.8
       },
-      "vlan": 30
+      "vlan": 30,
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc."
     },
     {
       "node_id": "endpoint:002",
@@ -2019,7 +2028,10 @@
         "unknown": 0,
         "max_cvss": 9.8
       },
-      "vlan": 20
+      "vlan": 20,
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc."
     },
     {
       "node_id": "host:28:f1:0e:31:3f:0c",
@@ -2042,7 +2054,10 @@
       "stale": false,
       "top_cves": [],
       "cve_summary": null,
-      "vlan": 20
+      "vlan": 20,
+      "unmanaged": true,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc."
     },
     {
       "node_id": "host:d8:d3:85:97:10:84",
@@ -2065,7 +2080,10 @@
       "stale": false,
       "top_cves": [],
       "cve_summary": null,
-      "vlan": 40
+      "vlan": 40,
+      "unmanaged": true,
+      "mac_type": "global",
+      "mac_vendor": "Hewlett Packard"
     },
     {
       "node_id": "device:ip:172.20.99.21",
@@ -2407,7 +2425,10 @@
         "ssid": "BIG-CYFOR",
         "access_point": "device:ip:172.20.99.21",
         "radio": "Do0"
-      }
+      },
+      "unmanaged": true,
+      "mac_type": "local",
+      "mac_vendor": null
     },
     {
       "node_id": "endpoint:001",
@@ -2558,7 +2579,10 @@
         "low": 15,
         "unknown": 0,
         "max_cvss": 9.9
-      }
+      },
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Intel Corporate"
     },
     {
       "node_id": "endpoint:004",
@@ -2709,7 +2733,10 @@
         "low": 15,
         "unknown": 0,
         "max_cvss": 9.8
-      }
+      },
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc."
     },
     {
       "node_id": "endpoint:006",
@@ -2860,7 +2887,10 @@
         "low": 5,
         "unknown": 0,
         "max_cvss": 10.0
-      }
+      },
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "CLOUD NETWORK TECHNOLOGY SINGAPORE PTE. LTD."
     }
   ],
   "edges": [
@@ -3052,6 +3082,12 @@
       "probe_enabled": false,
       "port_test_enabled": false,
       "source": "captures 2026-10-08"
+    },
+    "coverage": {
+      "hosts": 10,
+      "managed": 7,
+      "unmanaged": 3,
+      "managed_share": 0.7
     }
   }
 }
