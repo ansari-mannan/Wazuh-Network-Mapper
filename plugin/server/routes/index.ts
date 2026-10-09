@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';
 import { LivenessResponse, ScanState } from '../../common';
-import { VulnmapperConfig } from '../config';
+import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
 
@@ -15,7 +15,7 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
   // The scan state, with the defaults the scan form starts from.
   const scanBody = (): ScanState => ({
     ...getScan(),
-    defaults: { checkDefaultCommunities: config.checkDefaultCommunities },
+    defaults: configuredChecks(config),
   });
 
   // The graph is read fresh from disk on every request so the file the scanner
@@ -60,6 +60,8 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
           schema.object({
             community: schema.maybe(schema.string({ maxLength: 256 })),
             checkDefaultCommunities: schema.maybe(schema.boolean()),
+            checkManagementPorts: schema.maybe(schema.boolean()),
+            probeUnmanagedSnmp: schema.maybe(schema.boolean()),
           })
         ),
       },
@@ -70,8 +72,12 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
       if (!graphPath) return response.customError(notConfigured('graphPath'));
       const started = startScan({
         deviceCves: config.deviceCves,
-        // the form's choice; the configured default when it sends none
-        checkDefaultCommunities: request.body?.checkDefaultCommunities ?? config.checkDefaultCommunities,
+        // the form's choices; the configured default for any it does not send
+        checks: {
+          checkDefaultCommunities: request.body?.checkDefaultCommunities ?? config.checkDefaultCommunities,
+          checkManagementPorts: request.body?.checkManagementPorts ?? config.checkManagementPorts,
+          probeUnmanagedSnmp: request.body?.probeUnmanagedSnmp ?? config.probeUnmanagedSnmp,
+        },
         pythonBin,
         backendDir,
         graphPath,

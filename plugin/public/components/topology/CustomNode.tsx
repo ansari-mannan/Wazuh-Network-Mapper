@@ -27,21 +27,30 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
   const label = data.hostname || data.ip || data.node_id;
 
   return (
-    <div
-      className={`node ${dimmed ? 'node--offline' : ''}`}
-      style={{
-        borderColor: border.color,
-        borderWidth: border.width,
-        opacity: data.stale ? 0.55 : undefined,
-      }}
-      title={`${label} · ${data.status || '?'} · risk ${riskLabel(risk)}`}
-    >
-      <Handle type="target" position={Position.Top} className="handle" />
-      <span className="node__dot" style={{ background: dot }} />
-      <Icon className="node__icon" size={26} strokeWidth={1.5} />
-      <div className="node__label">{label}</div>
-      {data.role && <div className="node__role">{data.role}</div>}
-      <Handle type="source" position={Position.Bottom} className="handle" />
+    // The unmanaged label sits beside the node, not in it, so an offline node's
+    // dimming does not fade it.
+    <div className="nodeWrap">
+      <div
+        className={`node ${dimmed ? 'node--offline' : ''}`}
+        style={{
+          borderColor: border.color,
+          borderWidth: border.width,
+          opacity: data.stale ? 0.55 : undefined,
+        }}
+        title={`${label} · ${data.status || '?'} · risk ${riskLabel(risk)}`}
+      >
+        <Handle type="target" position={Position.Top} className="handle" />
+        <span className="node__dot" style={{ background: dot }} />
+        <Icon className="node__icon" size={26} strokeWidth={1.5} />
+        <div className="node__label">{label}</div>
+        {data.role && <div className="node__role">{data.role}</div>}
+        <Handle type="source" position={Position.Bottom} className="handle" />
+      </div>
+      {data.unmanaged && (
+        <span className="node__badge" title="No Wazuh agent reports from this machine">
+          Unmanaged
+        </span>
+      )}
     </div>
   );
 }

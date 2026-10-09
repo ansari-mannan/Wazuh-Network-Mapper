@@ -20,6 +20,7 @@ import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
 import { hasDeviceFindings, potentialText, staleText, unscoredReason } from '../../lib/deviceCveText';
+import { manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { ConfigChecks } from './ConfigChecks';
 import { iconForRole } from './icons';
@@ -168,8 +169,16 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   // Absent in older graph files (and null when unscored): keep the old display.
   const summary = node.cve_summary || null;
   const cveTotal = summary ? summary.total : cves.length;
-  // A device's CVEs come from NVD by software version: potential findings.
-  const lookup = node.kind === 'device' ? node.cve_lookup : undefined;
+  // A device's CVEs come from NVD by software version: potential findings. So
+  // do those of a host without an agent that answered SNMP.
+  const lookup = node.cve_lookup;
+  const unmanaged = unmanagedText(node);
+  const hostRows: Array<[string, ReactNode]> = [];
+  if (node.kind === 'endpoint') {
+    if (node.mac_type) hostRows.push(['Manufacturer', manufacturerText(node)]);
+    if (node.name_source) hostRows.push(['Name from', nameSourceText(node.name_source)]);
+  }
+  if (node.snmp) hostRows.push(['SNMP reports', node.sys_descr || 'its name only']);
   const deviceLookedUp = hasDeviceFindings(lookup);
   const reason = level === 'unscored' ? unscoredReason(node) : '';
   const ports = node.kind === 'device' && node.port_status ? Object.entries(node.port_status) : [];
@@ -198,6 +207,11 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               {node.role || node.kind} · {node.discovery_method}{' '}
               {offline && <EuiBadge color="hollow">offline</EuiBadge>}
               {node.stale && <EuiBadge color="hollow">stale</EuiBadge>}
+              {node.unmanaged && (
+                <EuiBadge color="warning" data-test-subj="vmUnmanaged">
+                  Unmanaged
+                </EuiBadge>
+              )}
             </EuiText>
           </EuiFlexItem>
         </EuiFlexGroup>
@@ -215,6 +229,11 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
             <p>{reason}</p>
           </EuiText>
         )}
+        {unmanaged && (
+          <EuiText size="xs" color="subdued" data-test-subj="vmUnmanagedText">
+            <p>{unmanaged}</p>
+          </EuiText>
+        )}
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
         <Section title="Identity">
@@ -226,6 +245,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               ['Hostname', node.hostname],
               ['IP', node.ip],
               ['MAC', node.mac],
+              ...hostRows,
               ['Vendor', node.vendor],
               ['Model', node.model],
               ['Firmware', node.firmware],

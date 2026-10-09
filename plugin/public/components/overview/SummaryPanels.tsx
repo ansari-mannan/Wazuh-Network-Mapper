@@ -14,6 +14,7 @@ import { GraphResponse } from '../../../common';
 import { deviceStats, endpointStats, riskStats, Slice } from '../../lib/stats';
 import { plural } from '../../lib/deviceCveText';
 import { CONFIG_SEVERITIES, configFindingCounts, severityLabel } from '../../lib/checklistText';
+import { coverageText } from '../../lib/hostText';
 import { RISK_META } from '../../lib/risk';
 import { configSeverityColor } from '../topology/ConfigChecks';
 import { Donut } from './Donut';
@@ -103,6 +104,44 @@ function ConfigPanel({ graph }: { graph: GraphResponse }) {
   );
 }
 
+// How many hosts a Wazuh agent reports from. A host without one is a blind
+// spot; it is information, not a finding, so it has no severity.
+function CoveragePanel({ graph }: { graph: GraphResponse }) {
+  const coverage = graph.metadata?.coverage;
+  return (
+    <SummaryPanel title="Agent coverage">
+      {!coverage ? (
+        <EuiText size="s" color="subdued" data-test-subj="vmCoverageNone">
+          <p>This graph does not count hosts with and without an agent; the next scan adds it.</p>
+        </EuiText>
+      ) : (
+        <>
+          <EuiStat
+            title={`${coverage.managed} of ${coverage.hosts}`}
+            description={coverageText(coverage)}
+            titleSize="m"
+            reverse
+            data-test-subj="vmCoverage"
+          />
+          <EuiSpacer size="s" />
+          <EuiText size="xs" color="subdued" data-test-subj="vmCoverageNote">
+            {coverage.unmanaged > 0 && (
+              <p>
+                {plural(coverage.unmanaged, 'unmanaged host')}: no agent reports their software, so their
+                vulnerabilities are not known.
+              </p>
+            )}
+            <p>
+              Knowing every machine on the network is the first control of the CIS Controls v8.1 (Control 1, which
+              asks to find unmanaged assets) and NIST SP 800-53 CM-8.
+            </p>
+          </EuiText>
+        </>
+      )}
+    </SummaryPanel>
+  );
+}
+
 export function SummaryPanels({ graph }: { graph: GraphResponse }) {
   const devices = deviceStats(graph);
   const endpoints = endpointStats(graph);
@@ -158,6 +197,9 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
       </EuiFlexItem>
       <EuiFlexItem>
         <ConfigPanel graph={graph} />
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <CoveragePanel graph={graph} />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

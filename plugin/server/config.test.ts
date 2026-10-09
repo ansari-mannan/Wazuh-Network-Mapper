@@ -1,4 +1,4 @@
-import { configSchema } from './config';
+import { configSchema, configuredChecks } from './config';
 
 describe('liveness config', () => {
   it('defaults to a 10 s interval, 2 misses and a 30 s check-in age', () => {
@@ -24,10 +24,16 @@ describe('liveness config', () => {
   });
 });
 
-describe('default-community probe config', () => {
-  it('is off unless the owner turns it on', () => {
-    expect(configSchema.validate({}).checkDefaultCommunities).toBe(false);
+describe('active checks config', () => {
+  it('each is off unless the owner turns it on', () => {
+    expect(configuredChecks(configSchema.validate({}))).toEqual({
+      checkDefaultCommunities: false,
+      checkManagementPorts: false,
+      probeUnmanagedSnmp: false,
+    });
     expect(configSchema.validate({ checkDefaultCommunities: true }).checkDefaultCommunities).toBe(true);
+    expect(configSchema.validate({ checkManagementPorts: true }).checkManagementPorts).toBe(true);
+    expect(configSchema.validate({ probeUnmanagedSnmp: true }).probeUnmanagedSnmp).toBe(true);
   });
 });
 

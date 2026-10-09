@@ -42,6 +42,17 @@
     width: 10px; height: 10px; border-radius: 50%;
     box-shadow: 0 0 0 2px $euiColorEmptyShade;
   }
+  // a host without a Wazuh agent: a label, so the risk border keeps its meaning
+  .nodeWrap { position: relative; }
+  .node__badge {
+    position: absolute; top: -9px; left: 10px;
+    padding: 0 7px; border-radius: 9px;
+    font-size: 11px; line-height: 17px; font-weight: 600;
+    color: $euiColorWarningText;
+    background: tintOrShade($euiColorWarning, 85%, 70%);
+    border: 1px solid $euiColorWarning;
+    pointer-events: none;
+  }
   .node__icon { color: $euiColorDarkShade; display: block; margin: 2px auto 6px; }
   .node__label {
     font-weight: 600; font-size: 13px; color: $euiTextColor;

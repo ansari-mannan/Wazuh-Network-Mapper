@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
-import { ScanState } from '../common';
+import { ActiveChecks, ScanState } from '../common';
 
 // Ported from frontend/app/api/scan/route.ts and frontend/lib/scanState.ts.
 // One module-level state object: the server process runs one scan at a time.
@@ -10,9 +10,9 @@ let scan: ScanState = { status: 'idle', message: null, startedAt: null, finished
 // The last community a scan was started with, for the liveness pass's SNMP
 // probes. Memory only: never logged, written to disk or placed in argv.
 let lastCommunity: string | undefined;
-// The last scan's choice of the default-community probe, so an automatic rescan
-// does not silently change it.
-let lastCheckDefaultCommunities: boolean | undefined;
+// The last scan's choice of active checks, so an automatic rescan does not
+// silently change them.
+let lastChecks: Partial<ActiveChecks> | undefined;
 
 export function getScan(): ScanState {
   return scan;
@@ -22,9 +22,16 @@ export function getLastCommunity(): string | undefined {
   return lastCommunity;
 }
 
-export function getLastCheckDefaultCommunities(): boolean | undefined {
-  return lastCheckDefaultCommunities;
+export function getLastChecks(): Partial<ActiveChecks> | undefined {
+  return lastChecks;
 }
+
+// Each active check's scanner flag.
+const CHECK_FLAGS: Record<keyof ActiveChecks, string> = {
+  checkDefaultCommunities: '--check-default-communities',
+  checkManagementPorts: '--check-management-ports',
+  probeUnmanagedSnmp: '--probe-unmanaged-snmp',
+};
 
 interface ScanOptions {
   pythonBin: string;
@@ -33,8 +40,8 @@ interface ScanOptions {
   community?: string;
   // false: the scanner skips the device CVE stage (--no-device-cves)
   deviceCves?: boolean;
-  // true: also try the factory SNMP names public and private (--check-default-communities)
-  checkDefaultCommunities?: boolean;
+  // the optional active checks that are on (see CHECK_FLAGS)
+  checks?: Partial<ActiveChecks>;
   logger: Logger;
 }
 
@@ -51,11 +58,13 @@ export function failureMessage(stderr: string, code: number | null, community?: 
 /** The scanner's arguments. Never a credential: those go through the environment. */
 export function scanArgs(
   vulnsOut: string,
-  { deviceCves = true, checkDefaultCommunities = false }: { deviceCves?: boolean; checkDefaultCommunities?: boolean }
+  { deviceCves = true, checks = {} }: { deviceCves?: boolean; checks?: Partial<ActiveChecks> }
 ): string[] {
   const args = ['-m', 'vulnmapper', '--vulns-out', vulnsOut];
   if (!deviceCves) args.push('--no-device-cves');
-  if (checkDefaultCommunities) args.push('--check-default-communities');
+  for (const key of Object.keys(CHECK_FLAGS) as Array<keyof ActiveChecks>) {
+    if (checks[key]) args.push(CHECK_FLAGS[key]);
+  }
   return args;
 }
 
@@ -78,7 +87,7 @@ export function startScan({
   graphPath,
   community,
   deviceCves = true,
-  checkDefaultCommunities = false,
+  checks = {},
   logger,
 }: ScanOptions) {
   if (scan.status === 'running') return false;
@@ -86,7 +95,7 @@ export function startScan({
   // A scan started without one falls back to the environment; keep the last
   // community that was given rather than forgetting it.
   if (community) lastCommunity = community;
-  lastCheckDefaultCommunities = checkDefaultCommunities;
+  lastChecks = checks;
 
   // The community goes to the scanner through the environment, never argv (argv
   // is visible to every user via ps). It is never logged. With no community the
@@ -100,7 +109,7 @@ export function startScan({
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
   // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
   // environment like the other credentials.
-  const args = scanArgs(vulnsTmp, { deviceCves, checkDefaultCommunities });
+  const args = scanArgs(vulnsTmp, { deviceCves, checks });
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];

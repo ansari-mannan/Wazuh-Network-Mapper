@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ScanState } from '../../common';
+import { ActiveChecks, ScanState } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
 
@@ -11,7 +11,7 @@ const POLL_MS = 1500;
 interface ScanContextValue {
   scan: ScanState | null;
   /** start a scan; the community is sent once with this request only */
-  start: (community: string, options?: { checkDefaultCommunities?: boolean }) => Promise<void>;
+  start: (community: string, checks?: Partial<ActiveChecks>) => Promise<void>;
 }
 
 const ScanContext = createContext<ScanContextValue | null>(null);
@@ -58,14 +58,9 @@ export function ScanProvider({ children }: { children: ReactNode }) {
   }, [scan?.status, fetchStatus]);
 
   const start = useCallback(
-    async (community: string, options: { checkDefaultCommunities?: boolean } = {}) => {
+    async (community: string, checks: Partial<ActiveChecks> = {}) => {
       try {
-        const body = {
-          ...(community ? { community } : {}),
-          ...(options.checkDefaultCommunities !== undefined
-            ? { checkDefaultCommunities: options.checkDefaultCommunities }
-            : {}),
-        };
+        const body = { ...(community ? { community } : {}), ...checks };
         setScan(await http.post<ScanState>('/api/vulnmapper/scan', { body: JSON.stringify(body) }));
       } catch (e) {
         notifications.toasts.addDanger({

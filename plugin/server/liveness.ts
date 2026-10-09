@@ -4,7 +4,8 @@ import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { VulnmapperConfig } from './config';
 import { createAutoRescan } from './autoRescan';
-import { getLastCheckDefaultCommunities, getLastCommunity, getScan, startScan } from './scan';
+import { configuredChecks } from './config';
+import { getLastChecks, getLastCommunity, getScan, startScan } from './scan';
 
 // The background liveness check: every intervalSeconds, run
 // `python -m vulnmapper.liveness` over the current graph and save its state
@@ -118,7 +119,7 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
     startScan: () =>
       startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(),
         deviceCves: config.deviceCves,
-        checkDefaultCommunities: getLastCheckDefaultCommunities() ?? config.checkDefaultCommunities,
+        checks: getLastChecks() ?? configuredChecks(config),
         logger }),
     logger,
   });

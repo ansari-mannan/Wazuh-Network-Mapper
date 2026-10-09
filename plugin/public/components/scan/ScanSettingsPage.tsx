@@ -15,7 +15,7 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { ScanState } from '../../../common';
+import { ActiveChecks, ScanState } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { useScan } from '../../lib/scan';
 
@@ -97,19 +97,43 @@ function GraphSource() {
   );
 }
 
+// The optional active checks, in the order shown; what each sends, in one sentence.
+const ACTIVE_CHECKS: Array<{ key: keyof ActiveChecks; label: string; help: string; testSubj: string }> = [
+  {
+    key: 'checkDefaultCommunities',
+    label: 'Also test factory-default SNMP names (public, private)',
+    help: 'Each device gets two extra read-only SNMP requests with these names; the network may log them as failed logins.',
+    testSubj: 'vmCheckDefaultCommunities',
+  },
+  {
+    key: 'checkManagementPorts',
+    label: 'Test whether telnet and web management answer on devices that do not report it',
+    help: 'Each such device gets one TCP connection to port 23 and one to port 80, closed at once; nothing is sent and no login is tried.',
+    testSubj: 'vmCheckManagementPorts',
+  },
+  {
+    key: 'probeUnmanagedSnmp',
+    label: 'Ask unmanaged hosts for their identity over SNMP',
+    help: 'Sends this scan’s SNMP credential to every host without a Wazuh agent (at most 256), and those machines are not verified: one that is hostile receives the credential.',
+    testSubj: 'vmProbeUnmanagedSnmp',
+  },
+];
+
 export function ScanSettingsPage() {
   const { scan, start } = useScan();
   // The community string lives only in this component's state: it is never
   // written to browser storage and is sent once, with the scan request.
   const [community, setCommunity] = useState('');
-  // Starts from the server's default (vulnmapper.checkDefaultCommunities, off)
-  // until the user flips it.
-  const [probeChoice, setProbeChoice] = useState<boolean | null>(null);
-  const probe = probeChoice ?? Boolean(scan?.defaults?.checkDefaultCommunities);
+  // Each switch starts from the server's default (vulnmapper.<key>, off) until
+  // the user flips it.
+  const [choices, setChoices] = useState<Partial<ActiveChecks>>({});
+  const checks = Object.fromEntries(
+    ACTIVE_CHECKS.map(({ key }) => [key, choices[key] ?? Boolean(scan?.defaults?.[key])])
+  ) as ActiveChecks;
   const running = scan?.status === 'running';
 
   const run = () => {
-    if (!running) start(community, { checkDefaultCommunities: probe });
+    if (!running) start(community, checks);
   };
 
   return (
@@ -137,17 +161,25 @@ export function ScanSettingsPage() {
                 data-test-subj="vmCommunity"
               />
             </EuiFormRow>
-            <EuiFormRow
-              helpText="Each device gets two extra read-only SNMP requests with these names; the network may log them as failed logins."
-            >
-              <EuiSwitch
-                label="Also test factory-default SNMP names (public, private)"
-                checked={probe}
-                onChange={(e) => setProbeChoice(e.target.checked)}
-                disabled={running}
-                data-test-subj="vmCheckDefaultCommunities"
-              />
-            </EuiFormRow>
+            <EuiSpacer size="m" />
+            <EuiTitle size="xxs">
+              <h3>Active checks: optional, off by default</h3>
+            </EuiTitle>
+            <EuiText size="xs" color="subdued">
+              <p>Each one sends something to the network that the scan otherwise would not.</p>
+            </EuiText>
+            <EuiSpacer size="s" />
+            {ACTIVE_CHECKS.map(({ key, label, help, testSubj }) => (
+              <EuiFormRow key={key} helpText={help}>
+                <EuiSwitch
+                  label={label}
+                  checked={checks[key]}
+                  onChange={(e) => setChoices({ ...choices, [key]: e.target.checked })}
+                  disabled={running}
+                  data-test-subj={testSubj}
+                />
+              </EuiFormRow>
+            ))}
             <EuiSpacer size="m" />
             <EuiButton fill iconType="play" onClick={run} isLoading={running} data-test-subj="vmRunScan">
               {running ? 'Scanning…' : 'Run scan'}

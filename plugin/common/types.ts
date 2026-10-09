@@ -160,6 +160,11 @@ export type DeviceNode = GraphNodeBase & {
   port_status_note?: string;
   // An access point: how many Wi-Fi clients it reported.
   wifi_clients?: number;
+  // A host without an agent that answered SNMP and turned out to forward
+  // traffic, crawled as a device: it still has no agent.
+  unmanaged?: boolean;
+  snmp?: boolean;
+  sys_descr?: string | null;
   // Configuration checks; absent when the device was not polled or not checked.
   config_checks?: ConfigCheck[];
   config_findings?: ConfigFinding[];
@@ -179,6 +184,25 @@ export type EndpointNode = GraphNodeBase & {
   wifi?: WifiInfo;
   // The VLAN its switch learned it on.
   vlan?: number;
+  // Hosts (backend/vulnmapper/hosts.py); absent in older graphs.
+  unmanaged?: boolean;                // true: no Wazuh agent reports from it
+  mac_type?: 'global' | 'local';      // local: randomised or virtual, no manufacturer
+  mac_vendor?: string | null;         // IEEE registry organisation for a global MAC
+  name_source?: 'dns' | 'snmp';       // where hostname came from when not from Wazuh
+  // It answered the optional SNMP question: what it reported, and, with a
+  // known software family, the same CVE lookup as a device.
+  snmp?: boolean;
+  sys_descr?: string | null;
+  software_family?: string;
+  cve_lookup?: CveLookup;
+};
+
+// metadata.coverage: how many hosts a Wazuh agent reports from.
+export type Coverage = {
+  hosts: number;
+  managed: number;
+  unmanaged: number;
+  managed_share: number | null;
 };
 
 export type WifiInfo = { ssid: string | null; access_point: string; radio: string | null };
@@ -213,6 +237,10 @@ export type Metadata = {
   warnings?: GraphWarning[];
   attack_path_sources?: string[];
   checklist?: ChecklistMeta;
+  coverage?: Coverage;
+  // the optional SNMP question to unmanaged hosts, when it ran
+  snmp_question?: { asked: number; answered: number; forwarding: number; cap: number; cap_reached: boolean };
+  name_lookup?: { asked: number; named: number; budget_reached: boolean };
   counts?: {
     nodes: number;
     endpoints: number;
@@ -240,8 +268,16 @@ export type ScanState = {
   message: string | null;
   startedAt: string | null;
   finishedAt: string | null;
-  // The server's defaults for the scan form (vulnmapper.checkDefaultCommunities).
-  defaults?: { checkDefaultCommunities: boolean };
+  // The server's defaults for the scan form's active checks.
+  defaults?: ActiveChecks;
+};
+
+// The scan's optional active checks, each off unless the owner turns it on
+// (config vulnmapper.<key>; the scan form's choice wins per scan).
+export type ActiveChecks = {
+  checkDefaultCommunities: boolean; // --check-default-communities
+  checkManagementPorts: boolean;    // --check-management-ports
+  probeUnmanagedSnmp: boolean;      // --probe-unmanaged-snmp
 };
 
 // Liveness (GET /api/vulnmapper/liveness): per node_id, whether the node still

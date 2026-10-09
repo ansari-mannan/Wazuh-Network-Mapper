@@ -6,8 +6,13 @@ describe('scanArgs', () => {
   });
 
   it('passes the scan form’s choices as flags', () => {
-    expect(scanArgs('/tmp/v.json', { checkDefaultCommunities: true })).toContain('--check-default-communities');
-    expect(scanArgs('/tmp/v.json', { deviceCves: false, checkDefaultCommunities: false })).toEqual([
+    expect(scanArgs('/tmp/v.json', { checks: { checkDefaultCommunities: true } })).toContain(
+      '--check-default-communities'
+    );
+    expect(
+      scanArgs('/tmp/v.json', { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(4)
+    ).toEqual(['--check-management-ports', '--probe-unmanaged-snmp']);
+    expect(scanArgs('/tmp/v.json', { deviceCves: false, checks: { checkDefaultCommunities: false } })).toEqual([
       '-m',
       'vulnmapper',
       '--vulns-out',

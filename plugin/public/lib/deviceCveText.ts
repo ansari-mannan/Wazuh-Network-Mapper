@@ -38,7 +38,8 @@ export function potentialText(l: CveLookup): string {
 
 /** One sentence on why a device is Unscored; empty when it is scored. */
 export function unscoredReason(node: { kind: string; pollable?: boolean; cve_lookup?: CveLookup | null }): string {
-  if (node.kind !== 'device') return '';
+  // a host has a lookup only when it answered SNMP (vulnmapper.hosts)
+  if (node.kind !== 'device' && !node.cve_lookup) return '';
   const l = node.cve_lookup;
   if (!l) return 'This graph has no CVE lookup for devices; the next scan adds one.';
   switch (l.status) {
