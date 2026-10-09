@@ -307,6 +307,37 @@ class SnmpClient:
         auth = CommunityData(f"{cred.community}@{vlan}", mpModel=1)
         return await self._get_with_auth(auth, ip, list(oids))
 
+    # Published factory community names. Only these may ever be named in output.
+    DEFAULT_COMMUNITY_NAMES = ("public", "private")
+
+    def credential_summary(self, ip: str) -> dict:
+        """What may be said about ``ip``'s working credential, and nothing more.
+
+        ``version`` is "v2c" or "v3" (None when nothing resolved);
+        ``default_name`` is "public" or "private" when the working community is
+        literally one of those published defaults, else None. The community
+        itself never leaves this object.
+        """
+        cred = self._resolved.get(ip)
+        if cred is None:
+            return {"version": None, "default_name": None}
+        name = cred.community if cred.version != "v3" else None
+        return {"version": cred.version,
+                "default_name": name if name in self.DEFAULT_COMMUNITY_NAMES else None}
+
+    async def answers_to_community(self, ip: str, community: str, oid: str = OID_SYS_NAME,
+                                   timeout: float = 1.0) -> bool:
+        """Whether ``ip`` answers one read-only GET of ``oid`` with ``community``.
+
+        SNMPv2c, one attempt (no retry), short timeout. Used only for the
+        opt-in factory-default probe; never a SET.
+        """
+        transport = await UdpTransportTarget.create((ip, self._port), timeout=timeout, retries=0)
+        error_indication, error_status, _idx, var_binds = await get_cmd(
+            self._engine, CommunityData(community, mpModel=1), transport, self._context,
+            ObjectType(ObjectIdentity(oid)))
+        return not error_indication and not error_status and bool(var_binds)
+
     def is_v2c(self, ip: str) -> bool:
         """Whether ``ip``'s resolved credential is SNMPv2c (community-context capable)."""
         cred = self._resolved.get(ip)

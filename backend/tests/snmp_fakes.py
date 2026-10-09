@@ -32,14 +32,30 @@ class FakeSnmpClient:
     An IP with no rows does not answer (resolve_credential -> None). ``vlan_rows``
     maps ``(ip, vlan)`` to rows only visible in that community@vlan context.
     ``v2c`` lists IPs whose credential is SNMPv2c (default: all answering IPs).
+    ``default_name`` maps an IP to the factory name its working community is
+    ("public" / "private"); ``probe_answers`` maps an IP to the factory names it
+    answers when probed.
     """
 
-    def __init__(self, devices, vlan_rows=None, v2c=None):
+    def __init__(self, devices, vlan_rows=None, v2c=None, default_name=None,
+                 probe_answers=None):
         self.devices = {ip: sorted(rows, key=lambda r: _key(r[0])) for ip, rows in devices.items()}
         self.vlan_rows = {k: sorted(v, key=lambda r: _key(r[0]))
                           for k, v in (vlan_rows or {}).items()}
         self.v2c = set(devices) if v2c is None else set(v2c)
+        self.default_name = default_name or {}
+        self.probe_answers = probe_answers or {}
         self.calls = []
+
+    def credential_summary(self, ip):
+        if not self.devices.get(ip):
+            return {"version": None, "default_name": None}
+        return {"version": "v2c" if ip in self.v2c else "v3",
+                "default_name": self.default_name.get(ip)}
+
+    async def answers_to_community(self, ip, community, oid="1.3.6.1.2.1.1.5.0", timeout=1.0):
+        self.calls.append(("probe", ip, community, oid, timeout))
+        return community in self.probe_answers.get(ip, ())
 
     async def resolve_credential(self, ip):
         self.calls.append(("resolve", ip))

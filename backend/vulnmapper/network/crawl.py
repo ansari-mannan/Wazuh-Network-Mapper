@@ -175,6 +175,10 @@ class Device:
     # The software family decided when it was identified ("cisco_ios", ...;
     # vulnmapper.devicecves.families); None when not known.
     software_family: Optional[str] = None
+    # What the configuration checks read (vulnmapper.checklist.tables), only
+    # when the checklist stage is on. Evaluated by the pipeline; it never
+    # reaches the graph.
+    config_data: Optional[dict] = None
 
     def to_node(self) -> dict:
         """Render to the output node schema (field order is intentional).
@@ -210,6 +214,8 @@ class Device:
             node["wifi_clients"] = self.wifi_clients
         if self.software_family is not None:
             node["software_family"] = self.software_family
+        if self.config_data is not None:
+            node["config_data"] = self.config_data
         return node
 
 
@@ -282,6 +288,10 @@ class Config:
     port: int = DEFAULT_PORT
     pollable_only: bool = False
     output_path: Optional[str] = None
+    # Read the configuration-check tables while polling (vulnmapper.checklist),
+    # and, only if the owner chose it, try the factory community names.
+    checklist: bool = False
+    check_default_communities: bool = False
 
     @property
     def queue_maxsize(self) -> int:
@@ -746,8 +756,11 @@ class Crawler:
     """Owns the shared crawl state and the worker pool."""
 
     def __init__(self, client: SnmpClient, *, concurrency: int, max_nodes: int,
-                 queue_maxsize: int) -> None:
+                 queue_maxsize: int, checklist: bool = False,
+                 check_default_communities: bool = False) -> None:
         self._client = client
+        self._checklist = checklist
+        self._probe_defaults = check_default_communities
         self._concurrency = concurrency
         self._max_nodes = max_nodes
         self._queue: asyncio.Queue = asyncio.Queue(maxsize=queue_maxsize)
@@ -926,6 +939,16 @@ class Crawler:
             chassis_id, fdb_entries, neighbor_ports, uplink_ports, arp, own_macs,
             port_status,
         )
+        if self._checklist:
+            from ..checklist.collect import collect_config
+            try:
+                config = await collect_config(self._client, ip, info.get("vendor"),
+                                              probe=self._probe_defaults)
+            except Exception:  # never lose the device over its checklist data
+                _log_crawler.exception("configuration-check tables failed for %s", ip)
+                config = {"failed": True}
+            async with self._lock:
+                self._devices[chassis_id].config_data = config
 
         for nb in neighbors:
             await self._handle_neighbor(chassis_id, nb)
@@ -1186,6 +1209,8 @@ async def run(cfg: Config) -> dict:
         concurrency=cfg.concurrency,
         max_nodes=cfg.max_nodes,
         queue_maxsize=cfg.queue_maxsize,
+        checklist=cfg.checklist,
+        check_default_communities=cfg.check_default_communities,
     )
     await crawler.seed(seeds)
     devices, links = await crawler.run()
