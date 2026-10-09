@@ -140,6 +140,12 @@ describe('evidenceLines', () => {
         down_recently_not_counted: 2,
       })[2]
     ).toBe('2 ports lost their link later and are not counted: it may be a computer that is switched off.');
+    expect(
+      evidenceLines('spare-ports-in-used-vlan', { ports: [], total: 19, enabled: 18, shut_down: 1, unused_vlans: [50] })
+    ).toContain('Taken for unused (parking) VLANs: 50.');
+    expect(
+      evidenceLines('spare-ports-in-used-vlan', { ports: [], total: 48, enabled: 48, shut_down: 0, unused_vlans: [] })
+    ).toContain('No VLAN on this switch was taken for an unused (parking) VLAN.');
   });
 
   it('tells a port found by the connection test from a listed one', () => {

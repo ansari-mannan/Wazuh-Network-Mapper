@@ -319,10 +319,17 @@ elsewhere, being a bridge port does.
   port that lost its link later may be a computer that is switched off, so
   it is not counted, only reported (`down_recently_not_counted`). A VLAN is
   in use when an access port in it has a link, when a host anywhere in the
-  graph was learned on it, or when it is VLAN 1; any other VLAN counts as an
-  unused (parking) VLAN. Whether a spare port is shut down does not change
-  the result; the evidence says how many are `enabled` and `shut_down`, and
-  lists `{port, vlan}`. Without the VLAN of each port (on Cisco `vmVlan`,
+  graph was learned on it, when any polled device has a layer-3 interface
+  for it that is up, or when it is VLAN 1. A layer-3 interface is told by
+  its name: a VLAN interface (`Vlan99`, `Vl99`, Comware `Vlan-interface99`)
+  or a routed sub-interface (`GigabitEthernet0.99`, whose number is taken
+  as the VLAN). So a management VLAN that carries the devices' own
+  addresses counts as in use. Only a VLAN that meets none of these is taken
+  for an unused (parking) VLAN, and the evidence lists those
+  (`unused_vlans`), on a pass too, so a reader can see what was assumed.
+  Whether a spare port is shut down does not change the result; the
+  evidence says how many are `enabled` and `shut_down`, and lists
+  `{port, vlan}`. Without the VLAN of each port (on Cisco `vmVlan`,
   elsewhere the PVID) the result is `unknown`. Not read: the rule's second
   step (the parking VLAN kept off every trunk) and its 802.1X exemption.
 - Default VLAN: on Cisco `vmVlan`, elsewhere the 802.1Q PVID of each bridge

@@ -52,6 +52,13 @@ export function evidenceLines(id: string, e: ConfigEvidence | null | undefined):
     out.push(
       `None has had a link since the device started; ${e.enabled} ${e.enabled === 1 ? 'is' : 'are'} enabled, ${shut} shut down.`
     );
+    if (e.unused_vlans) {
+      out.push(
+        e.unused_vlans.length
+          ? `Taken for unused (parking) VLANs: ${e.unused_vlans.join(', ')}.`
+          : 'No VLAN on this switch was taken for an unused (parking) VLAN.'
+      );
+    }
     const recent = e.down_recently_not_counted ?? 0;
     if (recent > 0) {
       out.push(`${count(recent, 'port')} lost ${recent === 1 ? 'its' : 'their'} link later and ${recent === 1 ? 'is' : 'are'} not counted: it may be a computer that is switched off.`);

@@ -20,7 +20,7 @@ import logging
 from collections import Counter
 
 from ..devicecves.families import family_of
-from .evaluate import RESULTS, evaluate_device
+from .evaluate import RESULTS, evaluate_device, l3_vlans, normalise
 
 log = logging.getLogger("vulnmapper.checklist")
 
@@ -43,8 +43,13 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
     findings: Counter = Counter()
     not_collected, failed = [], []
     checked = 0
-    host_vlans = {n["vlan"] for n in graph.get("nodes") or []
-                  if n.get("kind") != KIND_DEVICE and n.get("vlan") is not None}
+    # VLANs in use network-wide: hosts were learned on them, or a polled device
+    # has an up layer-3 interface for them.
+    vlans_in_use = {n["vlan"] for n in graph.get("nodes") or []
+                    if n.get("kind") != KIND_DEVICE and n.get("vlan") is not None}
+    for config in config_by_chassis.values():
+        if config and not config.get("failed"):
+            vlans_in_use |= l3_vlans(normalise(config))
     for node in graph.get("nodes") or []:
         if node.get("kind") != KIND_DEVICE or not node.get("pollable"):
             continue
@@ -54,7 +59,7 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
         elif config.get("failed"):
             failed.append(node["node_id"])
         node.update(evaluate_device(node, config, probe_enabled, family_of(node),
-                                    port_test, host_vlans))
+                                    port_test, vlans_in_use))
         checked += 1
         results.update(node["config_summary"]["results"])
         findings.update(node["config_summary"]["findings"])

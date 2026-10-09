@@ -82,6 +82,7 @@ export type ConfigCheck = {
   title: string;
   result: ConfigResult;
   reason?: string; // for not_applicable, unknown and not_checked
+  unused_vlans?: number[]; // spare-ports-in-used-vlan on a pass: VLANs taken for unused
 };
 
 // A published rule a check points at. severity is the publisher's own
@@ -111,6 +112,7 @@ export type ConfigEvidence = {
   enabled?: number;                   // spare ports: administratively up ...
   shut_down?: number;                 // ... or shut down
   down_recently_not_counted?: number; // spare ports: lost the link after boot, not counted
+  unused_vlans?: number[];            // spare ports: VLANs the check took for unused (parking)
   with_link?: number;       // default VLAN: ports with a device attached (listed first)
   port?: number;            // a TCP port the device listens on
   snmp_version?: string;

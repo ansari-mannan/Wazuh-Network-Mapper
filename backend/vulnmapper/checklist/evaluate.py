@@ -158,13 +158,40 @@ def _vlan_of(config: dict, vendor: Optional[str]) -> dict:
     return {}
 
 
-def _spare_ports(config: dict, ports: list, vendor: Optional[str], host_vlans) -> tuple:
+# Layer-3 interface names that carry a VLAN number, as the captures show them:
+# Cisco "Vlan99" (ifName "Vl99"), Comware "Vlan-interface99", and a routed
+# sub-interface "GigabitEthernet0.99" / "Dot11Radio0.80" (by convention the
+# sub-interface number is the VLAN).
+L3_VLAN_NAMES = (
+    re.compile(r"^(?:vlan-interface|vlan|vl)\s*(\d+)$", re.I),
+    re.compile(r"^[a-z][a-z0-9-]*?\s*[\d/]+\.(\d+)$", re.I),
+)
+
+
+def l3_vlans(config: Optional[dict]) -> set:
+    """VLANs a device has an up layer-3 interface for, from its interface names."""
+    out = set()
+    for x in ((config or {}).get("interfaces") or {}).values():
+        if x["oper"] != t.UP:
+            continue
+        for pattern in L3_VLAN_NAMES:
+            match = pattern.match(str(x["name"]).strip())
+            if match and 1 <= int(match.group(1)) <= 4094:
+                out.add(int(match.group(1)))
+                break
+    return out
+
+
+def _spare_ports(config: dict, ports: list, vendor: Optional[str], vlans_in_use) -> tuple:
     """Spare access ports (no link since the device booted) in a VLAN in use.
 
     A VLAN is in use when one of the device's access ports in it has a link,
-    when a host was learned on it, or when it is VLAN 1. A port that lost its
-    link after boot may be a PC that is switched off: it is not counted, only
-    reported. Whether a spare port is shut down does not change the result.
+    when it is in ``vlans_in_use`` (a host was learned on it, or a polled
+    device has an up layer-3 interface for it), or when it is VLAN 1. Any
+    other VLAN is taken for an unused (parking) VLAN, and the evidence lists
+    them, on a pass too. A port that lost its link after boot may be a PC that
+    is switched off: it is not counted, only reported. Whether a spare port is
+    shut down does not change the result.
     """
     vlan_of = _vlan_of(config, vendor)
     if not vlan_of:
@@ -180,8 +207,9 @@ def _spare_ports(config: dict, ports: list, vendor: Optional[str], host_vlans) -
             spare.append(i)
         else:
             recent += 1
-    in_use = {DEFAULT_VLAN, *(host_vlans or ())}
+    in_use = {DEFAULT_VLAN, *(vlans_in_use or ()), *l3_vlans(config)}
     in_use |= {vlan_of[i] for i in ports if ifs[i]["oper"] == t.UP and vlan_of.get(i)}
+    unused = sorted({vlan_of[i] for i in ports if vlan_of.get(i)} - in_use)
     found = [i for i in spare if vlan_of.get(i) in in_use]
     if found:
         enabled = sum(ifs[i]["admin"] == t.UP for i in found)
@@ -189,12 +217,12 @@ def _spare_ports(config: dict, ports: list, vendor: Optional[str], host_vlans) -
             "ports": [{"port": _name(config, i), "vlan": vlan_of[i]}
                       for i in found[:EVIDENCE_CAP]],
             "total": len(found), "enabled": enabled, "shut_down": len(found) - enabled,
-            "down_recently_not_counted": recent}
+            "down_recently_not_counted": recent, "unused_vlans": unused}
     if any(ifs[i]["oper"] is None for i in ports) or unclear \
             or any(not vlan_of.get(i) for i in spare):
         return UNKNOWN, "port state, time of last change or VLAN was not read for every " \
                         "access port", None
-    return PASS, None, None
+    return PASS, None, {"unused_vlans": unused}
 
 
 def _default_vlan(config: dict, ports: list, vendor: Optional[str]):
@@ -278,12 +306,12 @@ def _finding(check: dict, family: Optional[str], evidence: Optional[dict]) -> di
 
 def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
                     family: Optional[str] = None, port_test: bool = False,
-                    host_vlans=()) -> dict:
+                    vlans_in_use=()) -> dict:
     """``{config_checks, config_findings, config_summary}`` for one polled device.
 
     ``node`` is the graph's device node (role, vendor, uplink_ports); ``config``
-    the crawl's ``config_data`` (None: not collected); ``host_vlans`` the VLANs
-    hosts were learned on anywhere in the graph.
+    the crawl's ``config_data`` (None: not collected); ``vlans_in_use`` the VLANs
+    in use anywhere in the graph (hosts learned on them, up layer-3 interfaces).
     """
     role, vendor = node.get("role"), node.get("vendor")
     config = normalise(config)
@@ -311,7 +339,7 @@ def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
         elif ports is None:
             result, reason, evidence = UNKNOWN, port_reason, None
         elif check["id"] == "spare-ports-in-used-vlan":
-            result, reason, evidence = _spare_ports(config, ports, vendor, host_vlans)
+            result, reason, evidence = _spare_ports(config, ports, vendor, vlans_in_use)
         elif check["id"] == "access-ports-default-vlan":
             result, reason, evidence = _default_vlan(config, ports, vendor)
         elif check["id"] == "bpdu-guard-missing":
@@ -321,6 +349,8 @@ def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
         entry = {"id": check["id"], "title": check["title"], "result": result}
         if result not in (PASS, FAIL) and reason:
             entry["reason"] = reason
+        if result == PASS and evidence:      # what a pass assumed (unused VLANs)
+            entry.update(evidence)
         checks.append(entry)
         if result == FAIL:
             findings.append(_finding(check, family, evidence))
