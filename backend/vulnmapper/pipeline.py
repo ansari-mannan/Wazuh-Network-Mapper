@@ -26,6 +26,7 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
   --check-management-ports
                    on devices that do not list their TCP listeners, open one
                    connection to TCP 23 and 80 and close it (off by default)
+  --no-name-lookup skip the reverse DNS lookup of hosts that have no name
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
 ``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
@@ -104,6 +105,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="on devices that do not list their TCP listeners over SNMP, "
                              "open one connection to TCP 23 (telnet) and 80 (HTTP) and close "
                              "it at once; no data is sent. Off by default.")
+    parser.add_argument("--no-name-lookup", action="store_true",
+                        help="do not ask the system resolver for the reverse DNS name of "
+                             "hosts that have an address and no name.")
     return parser
 
 
@@ -178,12 +182,13 @@ class Pipeline:
 
     A thin object wrapper so the sequence diagram has a single clean lifeline.
     ``nvd_transport`` and ``clock`` replace the NVD HTTP layer and the clock
-    (tests serve saved replies).
+    (tests serve saved replies); ``resolver`` replaces the reverse DNS lookup.
     """
 
-    def __init__(self, nvd_transport=None, clock=None) -> None:
+    def __init__(self, nvd_transport=None, clock=None, resolver=None) -> None:
         self._nvd_transport = nvd_transport
         self._clock = clock
+        self._resolver = resolver
 
     def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
         return _load_endpoints(args, timing, vulns)
@@ -193,6 +198,11 @@ class Pipeline:
 
     def assemble(self, endpoints: list[dict], network_doc: dict) -> dict:
         return assemble(endpoints, network_doc)
+
+    def lookup_names(self, document: dict) -> dict:
+        from .hosts import lookup_names
+
+        return lookup_names(document, **({"resolver": self._resolver} if self._resolver else {}))
 
     def device_cves(self, document: dict, cache_path: Optional[str], budget_s: float):
         from .devicecves.cache import Cache
@@ -247,6 +257,11 @@ class Pipeline:
         assemble_t0 = time.monotonic()
         document = self.assemble(endpoints, network_doc)
         timing["assemble_s"] = time.monotonic() - assemble_t0
+
+        if not args.no_name_lookup:
+            t0 = time.monotonic()
+            document["metadata"]["name_lookup"] = self.lookup_names(document)
+            timing["name_lookup_s"] = time.monotonic() - t0
 
         vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
                                         if args.output else None)

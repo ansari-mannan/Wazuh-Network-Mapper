@@ -31,7 +31,7 @@ def run(argv):
     out = io.StringIO()
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()), \
             unittest.TestCase().assertLogs("vulnmapper.pipeline", "INFO") as logs:
-        code = Pipeline().run(list(argv) + ["--no-device-cves"])
+        code = Pipeline().run(list(argv) + ["--no-device-cves", "--no-name-lookup"])
     return code, out.getvalue(), logs.output
 
 
@@ -104,7 +104,7 @@ class TestVulnsFileRules(unittest.TestCase):
             f.write("previous\n")
         with self.assertRaises(FileNotFoundError), \
                 contextlib.redirect_stderr(io.StringIO()):
-            Pipeline().run(["--scored", SCORED, "--network",
+            Pipeline().run(["--no-name-lookup", "--scored", SCORED, "--network",
                             os.path.join(self.tmp, "missing.json"), "-o", self.graph,
                             "--no-device-cves"])
         with open(self.default) as f:

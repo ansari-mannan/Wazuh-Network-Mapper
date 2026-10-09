@@ -129,7 +129,8 @@ class TestScanFailsCleanly(unittest.TestCase):
                                       side_effect=requests.ConnectionError("refused")), \
                     mock.patch.object(ep_mod.time, "sleep"), \
                     contextlib.redirect_stderr(err), self.assertRaises(SystemExit) as ctx:
-                Pipeline().run(["--no-network", "-o", graph, "--no-device-cves"])
+                Pipeline().run(["--no-network", "-o", graph, "--no-device-cves",
+                                "--no-name-lookup"])
             self.assertNotEqual(ctx.exception.code, 0)
             self.assertIn("did not answer the login", str(ctx.exception.code))
             self.assertEqual(os.listdir(tmp), [])          # no graph, no vulnerabilities file
@@ -151,7 +152,7 @@ class TestScanFailsCleanly(unittest.TestCase):
                     ok, status_code, reason, text = False, 401, "Unauthorized", "no"
 
                 with mock.patch.object(endpoints.requests, "post", return_value=Rejected()):
-                    Pipeline().run(["--no-network", "-o", {graph!r}, "--no-device-cves"])
+                    Pipeline().run(["--no-network", "-o", {graph!r}, "--no-device-cves", "--no-name-lookup"])
                 """)
             env = dict(os.environ, WAZUH_PASS="not-a-real-password", INDEXER_PASS="y",
                        WAZUH_HOST="wazuh.example")

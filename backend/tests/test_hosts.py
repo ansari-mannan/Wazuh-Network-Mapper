@@ -4,11 +4,21 @@ A hand-made network document with one host from each of the four sources a
 host without an agent can come from; nothing touches the network.
 """
 
+import contextlib
+import io
+import json
+import os
+import shutil
+import tempfile
+import threading
+import time
 import unittest
 import unittest.mock
 
+from test_cdp import crawl, lab
 from vulnmapper import hosts
 from vulnmapper.assemble import assemble
+from vulnmapper.pipeline import Pipeline
 
 SWITCH = "00:11:22:33:44:01"
 AP = "00:11:22:33:44:02"
@@ -118,6 +128,106 @@ class TestMacClues(unittest.TestCase):
         self.assertTrue(any(line.startswith("# source: https://standards-oui.ieee.org/")
                             for line in header))
         self.assertTrue(any(line.startswith("# date: ") for line in header))
+
+
+class TestNames(unittest.TestCase):
+    def graph(self):
+        return assemble(agents(), network_doc())
+
+    def test_fills_only_hosts_without_a_name(self):
+        asked = []
+
+        def resolver(ip):
+            asked.append(ip)
+            if ip == "10.0.0.30":
+                raise OSError("no PTR record")        # costs nothing but its time
+            return f"name-{ip}"
+        graph = self.graph()
+        block = hosts.lookup_names(graph, resolver)
+        nodes = {n["node_id"]: n for n in graph["nodes"]}
+        # FDB host (10.0.0.20) and Wi-Fi client (10.0.0.30) had no name; the CDP
+        # host and the agents had one, the LLDP host has no address
+        self.assertEqual(sorted(asked), ["10.0.0.20", "10.0.0.30"])
+        fdb = nodes[f"host:{FDB_HOST}"]
+        self.assertEqual((fdb["hostname"], fdb["name_source"]), ("name-10.0.0.20", "dns"))
+        self.assertNotIn("name_source", nodes[f"host:{WIFI_HOST}"])
+        self.assertEqual(nodes[f"host:{CDP_HOST}"]["hostname"], "printer-1")
+        self.assertNotIn("name_source", nodes["endpoint:001"])
+        self.assertEqual(block, {"asked": 2, "named": 1, "budget_reached": False})
+        edge = next(e for e in graph["edges"] if e["source"] == f"host:{FDB_HOST}")
+        self.assertEqual(edge["source_name"], "name-10.0.0.20")
+
+    def test_a_slow_answer_is_not_waited_for(self):
+        release = threading.Event()
+
+        def slow(ip):
+            release.wait(5)
+            return "late"
+        graph = self.graph()
+        t0 = time.monotonic()
+        block = hosts.lookup_names(graph, slow, timeout_s=0.05)
+        self.assertLess(time.monotonic() - t0, 1.0)
+        release.set()
+        self.assertEqual(block["named"], 0)
+        self.assertFalse(any(n.get("name_source") for n in graph["nodes"]))
+
+    def test_the_budget_stops_further_lookups(self):
+        graph = {"nodes": [{"node_id": f"host:{i}", "kind": "endpoint", "ip": f"10.1.0.{i}",
+                            "hostname": None} for i in range(10)], "edges": []}
+        block = hosts.lookup_names(graph, lambda ip: time.sleep(0.1) or "x",
+                                   timeout_s=0.2, budget_s=0.15, parallel=2)
+        self.assertTrue(block["budget_reached"])
+        self.assertLess(block["asked"], 10)
+
+    def test_defaults(self):
+        self.assertEqual((hosts.LOOKUP_TIMEOUT_S, hosts.LOOKUP_BUDGET_S), (1.0, 5.0))
+
+
+class TestPipeline(unittest.TestCase):
+    """The lab crawl's two Wi-Fi clients have an address and no name."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.network = os.path.join(self.tmp, "network.json")
+        with open(self.network, "w") as f:
+            json.dump(crawl(lab()), f)
+        self.asked = []
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def run_pipeline(self, *extra):
+        def resolver(ip):
+            self.asked.append(ip)
+            return f"pc-{ip.split('.')[-1]}.lab"
+        path = os.path.join(self.tmp, "graph.json")
+        argv = ["--no-endpoints", "--no-device-cves", "--no-checklist",
+                "--network", self.network, "-o", path, *extra]
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(Pipeline(resolver=resolver).run(argv), 0)
+        with open(path) as f:
+            return json.load(f)
+
+    def test_off_asks_nothing(self):
+        graph = self.run_pipeline("--no-name-lookup")
+        self.assertEqual(self.asked, [])
+        self.assertNotIn("name_lookup", graph["metadata"])
+
+    def test_on_adds_only_the_names(self):
+        off = self.run_pipeline("--no-name-lookup")
+        on = self.run_pipeline()
+        self.assertEqual(sorted(self.asked), ["172.20.80.1", "172.20.80.3"])
+        self.assertEqual(on["metadata"]["name_lookup"],
+                         {"asked": 2, "named": 2, "budget_reached": False})
+        self.assertIsInstance(on["metadata"]["timing"]["name_lookup_s"], float)
+        before = {n["node_id"]: n for n in off["nodes"]}
+        for node in on["nodes"]:
+            was = dict(before[node["node_id"]])
+            if node.get("name_source"):
+                self.assertEqual(node["name_source"], "dns")
+                was.update(hostname=node["hostname"], name_source="dns")
+            self.assertEqual(node, was)
+        self.assertEqual(sum(bool(n.get("name_source")) for n in on["nodes"]), 2)
 
 
 if __name__ == "__main__":

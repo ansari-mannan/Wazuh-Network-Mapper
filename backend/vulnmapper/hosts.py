@@ -13,7 +13,12 @@ Passive clues, from data already in the graph (:func:`label`):
               virtual, with no manufacturer)
   mac_vendor  the registry's organisation for a global MAC (None if absent)
 
-risk_score is not touched.
+Clues that ask someone else, run by the pipeline:
+
+  :func:`lookup_names`  reverse DNS through the system resolver (on by
+                        default; it asks the site's DNS server, not the host)
+
+risk_score is not touched by any of these.
 """
 
 from __future__ import annotations
@@ -21,8 +26,11 @@ from __future__ import annotations
 import gzip
 import logging
 import os
+import socket
+import threading
+import time
 from functools import lru_cache
-from typing import Optional
+from typing import Callable, Optional
 
 from .schema import KIND_ENDPOINT, canonical_mac
 
@@ -84,3 +92,66 @@ def label(graph: dict) -> dict:
         "managed_share": round(managed / len(hosts), 3) if hosts else None,
     }
     return graph
+
+
+# --- reverse DNS ---------------------------------------------------------------
+
+LOOKUP_TIMEOUT_S = 1.0
+LOOKUP_BUDGET_S = 5.0
+LOOKUP_PARALLEL = 32
+
+
+def _reverse(ip: str) -> Optional[str]:
+    return socket.gethostbyaddr(ip)[0]
+
+
+def lookup_names(graph: dict, resolver: Callable = _reverse,
+                 timeout_s: float = LOOKUP_TIMEOUT_S, budget_s: float = LOOKUP_BUDGET_S,
+                 parallel: int = LOOKUP_PARALLEL) -> dict:
+    """Fill ``hostname`` (and ``name_source: "dns"``) on hosts that have an
+    address and no name. Returns ``{asked, named, budget_reached}``.
+
+    The system resolver cannot be interrupted, so each lookup runs in a daemon
+    thread and an answer later than ``timeout_s`` is not waited for. Lookups
+    run ``parallel`` at a time until ``budget_s`` is spent.
+    """
+    todo = [n for n in graph.get("nodes") or []
+            if n.get("kind") == KIND_ENDPOINT and n.get("ip") and not n.get("hostname")]
+    names: dict = {}
+    deadline = time.monotonic() + budget_s
+    asked = 0
+
+    def ask(ip):
+        try:
+            names[ip] = resolver(ip)
+        except Exception:      # no PTR record, resolver error: no name
+            pass
+
+    for start in range(0, len(todo), parallel):
+        left = deadline - time.monotonic()
+        if left <= 0:
+            break
+        batch = todo[start:start + parallel]
+        threads = [threading.Thread(target=ask, args=(n["ip"],), daemon=True) for n in batch]
+        for thread in threads:
+            thread.start()
+        asked += len(batch)
+        stop = time.monotonic() + min(timeout_s, left)
+        for thread in threads:
+            thread.join(max(0.0, stop - time.monotonic()))
+    named = 0
+    snapshot = dict(names)       # threads still running cannot change what is used
+    for node in todo:
+        name = snapshot.get(node["ip"])
+        if name and name != node["ip"]:
+            node["hostname"], node["name_source"] = name, "dns"
+            named += 1
+    _rename_edges(graph, {n["node_id"]: n["hostname"] for n in todo if n.get("name_source")})
+    return {"asked": asked, "named": named, "budget_reached": asked < len(todo)}
+
+
+def _rename_edges(graph: dict, names: dict) -> None:
+    for edge in graph.get("edges") or []:
+        for end in ("source", "target"):
+            if edge.get(end) in names:
+                edge[f"{end}_name"] = names[edge[end]]

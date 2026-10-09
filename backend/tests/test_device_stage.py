@@ -169,7 +169,8 @@ class TestPipeline(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def run_pipeline(self, *extra, fake=None):
-        argv = ["--no-endpoints", "--network", self.network, "-o", self.graph_path, *extra]
+        argv = ["--no-endpoints", "--no-name-lookup", "--network", self.network,
+                "-o", self.graph_path, *extra]
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             code = Pipeline(nvd_transport=fake or self.fake, clock=self.clock).run(argv)
         self.assertEqual(code, 0)

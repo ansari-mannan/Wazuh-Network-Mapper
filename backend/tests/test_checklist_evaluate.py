@@ -477,7 +477,7 @@ class TestPipeline(unittest.TestCase):
         shutil.rmtree(self.tmp)
 
     def run_pipeline(self, *extra):
-        argv = ["--no-endpoints", "--no-device-cves", "--network", self.network,
+        argv = ["--no-endpoints", "--no-device-cves", "--no-name-lookup", "--network", self.network,
                 "-o", self.graph_path, *extra]
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(Pipeline().run(argv), 0)
