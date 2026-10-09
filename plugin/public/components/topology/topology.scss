@@ -85,6 +85,11 @@
   margin-top: $euiSizeXS;
 }
 
+// Configuration checks: evidence and the quiet results as tight lines.
+.euiText.vmConfigLines p {
+  margin-bottom: 0;
+}
+
 .vmFields .euiDescriptionList__description {
   overflow-wrap: anywhere;
 }

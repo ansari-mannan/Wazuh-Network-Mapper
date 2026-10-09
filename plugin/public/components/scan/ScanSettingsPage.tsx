@@ -11,6 +11,7 @@ import {
   EuiLoadingSpinner,
   EuiPanel,
   EuiSpacer,
+  EuiSwitch,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
@@ -101,10 +102,14 @@ export function ScanSettingsPage() {
   // The community string lives only in this component's state: it is never
   // written to browser storage and is sent once, with the scan request.
   const [community, setCommunity] = useState('');
+  // Starts from the server's default (vulnmapper.checkDefaultCommunities, off)
+  // until the user flips it.
+  const [probeChoice, setProbeChoice] = useState<boolean | null>(null);
+  const probe = probeChoice ?? Boolean(scan?.defaults?.checkDefaultCommunities);
   const running = scan?.status === 'running';
 
   const run = () => {
-    if (!running) start(community);
+    if (!running) start(community, { checkDefaultCommunities: probe });
   };
 
   return (
@@ -130,6 +135,17 @@ export function ScanSettingsPage() {
                 autoComplete="new-password"
                 disabled={running}
                 data-test-subj="vmCommunity"
+              />
+            </EuiFormRow>
+            <EuiFormRow
+              helpText="Each device gets two extra read-only SNMP requests with these names; the network may log them as failed logins."
+            >
+              <EuiSwitch
+                label="Also test factory-default SNMP names (public, private)"
+                checked={probe}
+                onChange={(e) => setProbeChoice(e.target.checked)}
+                disabled={running}
+                data-test-subj="vmCheckDefaultCommunities"
               />
             </EuiFormRow>
             <EuiSpacer size="m" />

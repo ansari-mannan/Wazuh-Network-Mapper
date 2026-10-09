@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';
-import { LivenessResponse } from '../../common';
+import { LivenessResponse, ScanState } from '../../common';
 import { VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
@@ -10,6 +10,12 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
   const notConfigured = (key: string) => ({
     statusCode: 500,
     body: { message: `vulnmapper.${key} is not set in opensearch_dashboards.yml` },
+  });
+
+  // The scan state, with the defaults the scan form starts from.
+  const scanBody = (): ScanState => ({
+    ...getScan(),
+    defaults: { checkDefaultCommunities: config.checkDefaultCommunities },
   });
 
   // The graph is read fresh from disk on every request so the file the scanner
@@ -51,7 +57,10 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
       path: '/api/vulnmapper/scan',
       validate: {
         body: schema.nullable(
-          schema.object({ community: schema.maybe(schema.string({ maxLength: 256 })) })
+          schema.object({
+            community: schema.maybe(schema.string({ maxLength: 256 })),
+            checkDefaultCommunities: schema.maybe(schema.boolean()),
+          })
         ),
       },
     },
@@ -61,6 +70,8 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
       if (!graphPath) return response.customError(notConfigured('graphPath'));
       const started = startScan({
         deviceCves: config.deviceCves,
+        // the form's choice; the configured default when it sends none
+        checkDefaultCommunities: request.body?.checkDefaultCommunities ?? config.checkDefaultCommunities,
         pythonBin,
         backendDir,
         graphPath,
@@ -73,13 +84,13 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
           body: { message: 'a scan is already running' },
         });
       }
-      return response.accepted({ body: getScan() });
+      return response.accepted({ body: scanBody() });
     }
   );
 
   router.get(
     { path: '/api/vulnmapper/scan/status', validate: false },
-    async (context, request, response) => response.ok({ body: getScan() })
+    async (context, request, response) => response.ok({ body: scanBody() })
   );
 
   // Liveness state for the UI: { enabled, intervalSeconds, checkedAt, nodes,

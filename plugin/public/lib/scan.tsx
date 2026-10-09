@@ -11,7 +11,7 @@ const POLL_MS = 1500;
 interface ScanContextValue {
   scan: ScanState | null;
   /** start a scan; the community is sent once with this request only */
-  start: (community: string) => Promise<void>;
+  start: (community: string, options?: { checkDefaultCommunities?: boolean }) => Promise<void>;
 }
 
 const ScanContext = createContext<ScanContextValue | null>(null);
@@ -58,9 +58,14 @@ export function ScanProvider({ children }: { children: ReactNode }) {
   }, [scan?.status, fetchStatus]);
 
   const start = useCallback(
-    async (community: string) => {
+    async (community: string, options: { checkDefaultCommunities?: boolean } = {}) => {
       try {
-        const body = community ? { community } : {};
+        const body = {
+          ...(community ? { community } : {}),
+          ...(options.checkDefaultCommunities !== undefined
+            ? { checkDefaultCommunities: options.checkDefaultCommunities }
+            : {}),
+        };
         setScan(await http.post<ScanState>('/api/vulnmapper/scan', { body: JSON.stringify(body) }));
       } catch (e) {
         notifications.toasts.addDanger({

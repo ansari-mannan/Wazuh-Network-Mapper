@@ -21,12 +21,13 @@ import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
 import { hasDeviceFindings, potentialText, staleText, unscoredReason } from '../../lib/deviceCveText';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
+import { ConfigChecks } from './ConfigChecks';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
 
 // Ported from frontend/risk-module/ui/topology/DeviceDetail.tsx to an OUI
 // flyout: identity, risk and CVE list (endpoints from Wazuh, devices from NVD),
-// port grid for devices.
+// configuration checks and port grid for devices.
 
 const EMPTY = '—';
 
@@ -326,6 +327,9 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
 
         {node.kind === 'device' && (
           <>
+            {(!isDevice || deviceLookedUp) && <EuiSpacer size="m" />}
+            <ConfigChecks node={node} meta={graph?.metadata} />
+            <EuiSpacer size="m" />
             <Section title="Ports" count={ports.length}>
               {ports.length === 0 ? (
                 <EuiText size="s" color="subdued">

@@ -24,6 +24,13 @@ describe('liveness config', () => {
   });
 });
 
+describe('default-community probe config', () => {
+  it('is off unless the owner turns it on', () => {
+    expect(configSchema.validate({}).checkDefaultCommunities).toBe(false);
+    expect(configSchema.validate({ checkDefaultCommunities: true }).checkDefaultCommunities).toBe(true);
+  });
+});
+
 describe('device CVE config', () => {
   it('looks devices up in NVD by default', () => {
     expect(configSchema.validate({}).deviceCves).toBe(true);

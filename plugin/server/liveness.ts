@@ -4,7 +4,7 @@ import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { VulnmapperConfig } from './config';
 import { createAutoRescan } from './autoRescan';
-import { getLastCommunity, getScan, startScan } from './scan';
+import { getLastCheckDefaultCommunities, getLastCommunity, getScan, startScan } from './scan';
 
 // The background liveness check: every intervalSeconds, run
 // `python -m vulnmapper.liveness` over the current graph and save its state
@@ -117,7 +117,9 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
     // The manual-scan path, with the last community given to a scan (if any).
     startScan: () =>
       startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(),
-        deviceCves: config.deviceCves, logger }),
+        deviceCves: config.deviceCves,
+        checkDefaultCommunities: getLastCheckDefaultCommunities() ?? config.checkDefaultCommunities,
+        logger }),
     logger,
   });
   const tick = () => {

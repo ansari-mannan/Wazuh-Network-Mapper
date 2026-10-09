@@ -13,6 +13,9 @@ import {
 import { GraphResponse } from '../../../common';
 import { deviceStats, endpointStats, riskStats, Slice } from '../../lib/stats';
 import { plural } from '../../lib/deviceCveText';
+import { CONFIG_SEVERITIES, configFindingCounts, severityLabel } from '../../lib/checklistText';
+import { RISK_META } from '../../lib/risk';
+import { configSeverityColor } from '../topology/ConfigChecks';
 import { Donut } from './Donut';
 
 function SummaryPanel({ title, children }: { title: string; children: React.ReactNode }) {
@@ -52,6 +55,51 @@ function DonutWithLegend({ slices, caption }: { slices: Slice[]; caption: string
         )}
       </EuiFlexItem>
     </EuiFlexGroup>
+  );
+}
+
+// Failed configuration checks by published severity; they do not change the
+// risk levels counted beside them.
+function ConfigPanel({ graph }: { graph: GraphResponse }) {
+  const config = configFindingCounts(graph.nodes);
+  const source = graph.metadata?.checklist?.source;
+  return (
+    <SummaryPanel title="Device configuration">
+      {config.devices === 0 ? (
+        <EuiText size="s" color="subdued" data-test-subj="vmConfigOverviewNone">
+          <p>No configuration checks in the current graph; the next scan adds them.</p>
+        </EuiText>
+      ) : (
+        <>
+          <EuiFlexGrid columns={2} gutterSize="m" data-test-subj="vmConfigOverview">
+            {CONFIG_SEVERITIES.map((k) => {
+              const color = configSeverityColor(k === 'advisory' ? null : k);
+              return (
+                <EuiFlexItem key={k}>
+                  <div className="vmRiskCount" style={{ borderColor: color === 'hollow' ? RISK_META.unscored.color : color }}>
+                    <EuiStat
+                      title={config.counts[k]}
+                      description={severityLabel(k === 'advisory' ? null : k)}
+                      titleSize="m"
+                      titleColor={color === 'hollow' ? 'default' : color}
+                      reverse
+                    />
+                  </div>
+                </EuiFlexItem>
+              );
+            })}
+          </EuiFlexGrid>
+          <EuiSpacer size="s" />
+          <EuiText size="xs" color="subdued" data-test-subj="vmConfigNote">
+            <p>
+              {plural(config.total, 'failed check')} on {config.withFindings} of{' '}
+              {plural(config.devices, 'checked device')}
+              {source && source !== 'scan' ? ` (from ${source})` : ''}. Advisory: no published severity.
+            </p>
+          </EuiText>
+        </>
+      )}
+    </SummaryPanel>
   );
 }
 
@@ -107,6 +155,9 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
             {risk.devices.scored > 0 && <p>Device findings are potential: matched by software version.</p>}
           </EuiText>
         </SummaryPanel>
+      </EuiFlexItem>
+      <EuiFlexItem>
+        <ConfigPanel graph={graph} />
       </EuiFlexItem>
     </EuiFlexGroup>
   );

@@ -10,6 +10,9 @@ let scan: ScanState = { status: 'idle', message: null, startedAt: null, finished
 // The last community a scan was started with, for the liveness pass's SNMP
 // probes. Memory only: never logged, written to disk or placed in argv.
 let lastCommunity: string | undefined;
+// The last scan's choice of the default-community probe, so an automatic rescan
+// does not silently change it.
+let lastCheckDefaultCommunities: boolean | undefined;
 
 export function getScan(): ScanState {
   return scan;
@@ -19,6 +22,10 @@ export function getLastCommunity(): string | undefined {
   return lastCommunity;
 }
 
+export function getLastCheckDefaultCommunities(): boolean | undefined {
+  return lastCheckDefaultCommunities;
+}
+
 interface ScanOptions {
   pythonBin: string;
   backendDir: string;
@@ -26,6 +33,8 @@ interface ScanOptions {
   community?: string;
   // false: the scanner skips the device CVE stage (--no-device-cves)
   deviceCves?: boolean;
+  // true: also try the factory SNMP names public and private (--check-default-communities)
+  checkDefaultCommunities?: boolean;
   logger: Logger;
 }
 
@@ -37,6 +46,17 @@ function failureMessage(stderr: string, code: number | null, community?: string)
   let msg = lines.length ? lines[lines.length - 1] : `scanner exited with code ${code}`;
   if (community) msg = msg.split(community).join('***');
   return msg;
+}
+
+/** The scanner's arguments. Never a credential: those go through the environment. */
+export function scanArgs(
+  vulnsOut: string,
+  { deviceCves = true, checkDefaultCommunities = false }: { deviceCves?: boolean; checkDefaultCommunities?: boolean }
+): string[] {
+  const args = ['-m', 'vulnmapper', '--vulns-out', vulnsOut];
+  if (!deviceCves) args.push('--no-device-cves');
+  if (checkDefaultCommunities) args.push('--check-default-communities');
+  return args;
 }
 
 function finish(status: ScanState['status'], message: string) {
@@ -52,12 +72,21 @@ function finish(status: ScanState['status'], message: string) {
  * which is moved into place only after the graph has been saved and deleted if
  * the scan or the save fails, so the two files always come from the same scan.
  */
-export function startScan({ pythonBin, backendDir, graphPath, community, deviceCves = true, logger }: ScanOptions) {
+export function startScan({
+  pythonBin,
+  backendDir,
+  graphPath,
+  community,
+  deviceCves = true,
+  checkDefaultCommunities = false,
+  logger,
+}: ScanOptions) {
   if (scan.status === 'running') return false;
   scan = { status: 'running', message: null, startedAt: new Date().toISOString(), finishedAt: null };
   // A scan started without one falls back to the environment; keep the last
   // community that was given rather than forgetting it.
   if (community) lastCommunity = community;
+  lastCheckDefaultCommunities = checkDefaultCommunities;
 
   // The community goes to the scanner through the environment, never argv (argv
   // is visible to every user via ps). It is never logged. With no community the
@@ -71,8 +100,7 @@ export function startScan({ pythonBin, backendDir, graphPath, community, deviceC
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
   // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
   // environment like the other credentials.
-  const args = ['-m', 'vulnmapper', '--vulns-out', vulnsTmp];
-  if (!deviceCves) args.push('--no-device-cves');
+  const args = scanArgs(vulnsTmp, { deviceCves, checkDefaultCommunities });
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];

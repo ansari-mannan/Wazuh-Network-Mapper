@@ -67,6 +67,82 @@ export type CveLookup = {
   total: number | null;     // distinct CVEs, when status is ok
 };
 
+// Device configuration checks (backend/vulnmapper/checklist), one result per
+// check:
+//   pass            the data was read and the device complies
+//   fail            the data was read and the device does not comply
+//   not_applicable  not for this kind of device, or no data source for its vendor
+//   unknown         the check applies but the data could not be read
+//   not_checked     the owner did not enable it (the default-community probe)
+// Absent on devices that were not polled and in graphs written before the checks.
+export type ConfigResult = 'pass' | 'fail' | 'not_applicable' | 'unknown' | 'not_checked';
+
+export type ConfigCheck = {
+  id: string;
+  title: string;
+  result: ConfigResult;
+  reason?: string; // for not_applicable, unknown and not_checked
+};
+
+// A published rule a check points at. severity is the publisher's own
+// (DISA CAT I/II/III = high/medium/low); relation "related" means the rule
+// covers the subject but its condition is not exactly what the check tests.
+export type ConfigReference = {
+  source: string;            // "DISA", "NVD"
+  document: string;          // "Cisco IOS Switch L2S STIG"
+  release: string | null;
+  rule_id: string;           // "V-220630", "CVE-1999-0517"
+  stig_id: string | null;
+  srg_id: string | null;
+  title: string;
+  url: string;
+  severity: string | null;
+  category: string | null;   // "CAT II"
+  cvss?: { version: string; score: number; vector: string; source: string } | null;
+  cci: string | null;
+  nist: string | null;
+  relation: 'requires' | 'related';
+};
+
+// What a failed check found. Port lists hold at most 20 names; total is the full count.
+export type ConfigEvidence = {
+  ports?: string[];
+  total?: number;
+  down_since_boot?: number; // enabled, no link: down since the device started
+  down_later?: number;      // ... or went down later
+  with_link?: number;       // default VLAN: ports with a device attached (listed first)
+  port?: number;            // a TCP port the device listens on
+  snmp_version?: string;
+  communities?: string[];   // factory names that answered
+  found_by?: string;
+};
+
+export type ConfigFinding = {
+  id: string;
+  title: string;
+  severity: 'high' | 'medium' | 'low' | null; // null: no published severity ("Advisory")
+  why: string;
+  remediation: string;
+  references: ConfigReference[];
+  cwe: string | null;
+  evidence: ConfigEvidence | null;
+};
+
+export type ConfigSummary = {
+  checks: number;
+  results: Record<ConfigResult, number>;
+  findings: { high: number; medium: number; low: number; advisory: number };
+};
+
+// metadata.checklist
+export type ChecklistMeta = {
+  devices_checked: number;
+  results: Record<ConfigResult, number>;
+  findings: { high: number; medium: number; low: number; advisory: number };
+  probe_enabled: boolean;
+  source: string; // "scan", or where the data came from ("captures 2026-10-08")
+};
+
 export type DeviceNode = GraphNodeBase & {
   kind: "device";
   // Device CVEs (potential: matched by software version). Absent in older graphs.
@@ -82,6 +158,10 @@ export type DeviceNode = GraphNodeBase & {
   port_status_note?: string;
   // An access point: how many Wi-Fi clients it reported.
   wifi_clients?: number;
+  // Configuration checks; absent when the device was not polled or not checked.
+  config_checks?: ConfigCheck[];
+  config_findings?: ConfigFinding[];
+  config_summary?: ConfigSummary;
 };
 
 export type EndpointNode = GraphNodeBase & {
@@ -130,6 +210,7 @@ export type Metadata = {
   seed?: string | null;
   warnings?: GraphWarning[];
   attack_path_sources?: string[];
+  checklist?: ChecklistMeta;
   counts?: {
     nodes: number;
     endpoints: number;
@@ -157,6 +238,8 @@ export type ScanState = {
   message: string | null;
   startedAt: string | null;
   finishedAt: string | null;
+  // The server's defaults for the scan form (vulnmapper.checkDefaultCommunities).
+  defaults?: { checkDefaultCommunities: boolean };
 };
 
 // Liveness (GET /api/vulnmapper/liveness): per node_id, whether the node still

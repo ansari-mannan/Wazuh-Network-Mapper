@@ -6,6 +6,12 @@ import { schema, TypeOf } from '@osd/config-schema';
 //   vulnmapper.pythonBin   Python interpreter used to run the scanner
 //   vulnmapper.deviceCves  look network devices' software up in NVD during a
 //                          scan (default true; false passes --no-device-cves)
+//   vulnmapper.checkDefaultCommunities  the scan form's switch "Also test
+//                          factory-default SNMP names (public, private)" starts
+//                          in this position (default false). On, a scan passes
+//                          --check-default-communities: two read-only SNMP
+//                          requests per device, which the network may log as
+//                          failed logins. The form's choice wins per scan.
 //   vulnmapper.liveness.*  the background liveness check (off by default):
 //     enabled, intervalSeconds (min 10), missThreshold (min 1),
 //     agentMaxAgeSeconds (oldest Wazuh agent check-in that counts, default
@@ -20,6 +26,7 @@ export const configSchema = schema.object({
   graphPath: schema.maybe(schema.string()),
   pythonBin: schema.string({ defaultValue: 'python3' }),
   deviceCves: schema.boolean({ defaultValue: true }),
+  checkDefaultCommunities: schema.boolean({ defaultValue: false }),
   liveness: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
     intervalSeconds: schema.number({ defaultValue: 10, min: 10 }),
