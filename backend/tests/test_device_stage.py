@@ -181,7 +181,7 @@ class TestPipeline(unittest.TestCase):
             return json.load(f)
 
     def test_stage_skipped_gives_todays_document(self):
-        graph = self.run_pipeline("--no-device-cves")
+        graph = self.run_pipeline("--no-device-cves", "--no-checklist")
         with open(self.network) as f:
             today = assemble([], json.load(f))
         self.assertEqual(graph["nodes"], today["nodes"])

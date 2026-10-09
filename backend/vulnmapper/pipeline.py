@@ -1,4 +1,5 @@
-"""Top-level run: collect -> score -> crawl -> assemble -> device CVEs -> one graph.
+"""Top-level run: collect -> score -> crawl -> assemble -> device CVEs ->
+configuration checks -> one graph.
 
     python -m vulnmapper --community <community> > graph.json
 
@@ -18,6 +19,10 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
   --no-device-cves skip the device vulnerability stage (NVD lookups)
   --nvd-cache PATH where NVD answers are kept; default nvd-cache.json beside
                    the vulnerabilities file (or beside -o)
+  --no-checklist   skip the configuration checks (no extra SNMP reads)
+  --check-default-communities
+                   also try the factory SNMP names public and private (two
+                   read-only requests per device; off by default)
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
 ``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
@@ -85,6 +90,13 @@ def build_parser() -> argparse.ArgumentParser:
                              "vulnerabilities file, or beside -o).")
     parser.add_argument("--nvd-budget", type=float, default=None, metavar="SECONDS",
                         help="time budget for the NVD lookups of one scan (default 180).")
+    parser.add_argument("--no-checklist", action="store_true",
+                        help="skip the device configuration checks (no extra SNMP reads); "
+                             "device nodes are emitted as before.")
+    parser.add_argument("--check-default-communities", action="store_true",
+                        help="also test whether devices answer the factory SNMP names "
+                             "public and private (two read-only requests per device; the "
+                             "network may log them as failed logins). Off by default.")
     return parser
 
 
@@ -142,6 +154,8 @@ def _load_network(args, timing: dict) -> dict:
     cfg = Config(
         credentials=load_credentials(args.community),
         seeds=list(args.seed or []),
+        checklist=not args.no_checklist,
+        check_default_communities=args.check_default_communities and not args.no_checklist,
     )
     log.info("running the live SNMP/LLDP crawl ...")
     t0 = time.monotonic()
@@ -180,6 +194,11 @@ class Pipeline:
         clock = self._clock or SystemClock()
         client = NvdClient(transport=self._nvd_transport, clock=clock, budget_s=budget_s)
         return run_stage(document, client, Cache(cache_path, clock))
+
+    def checklist(self, document: dict, network_doc: dict, probe_enabled: bool):
+        from .checklist.stage import run_stage
+
+        return run_stage(document, network_doc, probe_enabled)
 
     def emit(self, document: dict, output_path: Optional[str]) -> None:
         text = json.dumps(document, indent=2)
@@ -238,6 +257,14 @@ class Pipeline:
             for rows in stage.rows.values():
                 merge_catalogue(vulns["cves"], rows)
             device_entries = stage.entries
+
+        if not args.no_checklist:
+            log.info("evaluating device configuration checks ...")
+            t0 = time.monotonic()
+            checks = self.checklist(document, network_doc, args.check_default_communities)
+            timing["checklist_s"] = time.monotonic() - t0
+            document["metadata"]["checklist"] = checks.block
+            document["metadata"]["warnings"].extend(checks.warnings)
 
         finished_at = datetime.now(timezone.utc)
         timing["finished_at"] = finished_at.isoformat()
