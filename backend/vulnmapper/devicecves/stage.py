@@ -1,5 +1,8 @@
 """The device vulnerability stage: CVEs and a base score for every network device.
 
+A host without an agent that answered the optional SNMP question with a
+software family the lookup knows (vulnmapper.hosts) is looked up the same way.
+
 Works on an assembled graph's device nodes, so it runs the same after a live
 crawl, after ``--network PATH`` and in the refresh command
 (``python -m vulnmapper.devicecves``). Each device gets the fields hosts
@@ -99,7 +102,9 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
     by_status: Counter = Counter()
     unreachable, stale, budget, unidentified = [], [], [], []
     from_cache = 0
-    devices = [n for n in graph.get("nodes") or [] if n.get("kind") == KIND_DEVICE]
+    # A host that answered SNMP with a software family is looked up the same way.
+    devices = [n for n in graph.get("nodes") or [] if n.get("kind") == KIND_DEVICE
+               or (n.get("snmp") and n.get("software_family"))]
     for node in devices:
         result = lookup(families.identify(node), client, cache)
         rows = apply_result(node, result)
@@ -116,7 +121,7 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
         if rows is not None:
             out.rows[nid] = rows
         out.entries[nid] = {
-            "kind": KIND_DEVICE,
+            "kind": node["kind"],
             "hostname": node.get("hostname"),
             "agent_id": None,
             "cve_lookup": node["cve_lookup"],

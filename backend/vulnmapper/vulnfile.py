@@ -20,7 +20,9 @@ is stored once and each entry lists slim findings that point at it::
 Keys of ``hosts`` are the graph's ``node_id`` values; endpoints (Wazuh agents)
 and network devices share the map so a page can list them together, and
 ``kind`` tells them apart. ``counts.hosts`` counts the endpoint entries and
-``counts.devices`` the device entries. A device's findings come from NVD
+``counts.devices`` the device entries. A host without an agent that answered
+SNMP is looked up like a device: its entry has the device shape and kind
+"endpoint". A device's findings come from NVD
 (vulnmapper.devicecves): the package is the product label ("Cisco IOS
 12.2(55)SE12"), the version is the firmware and ``detected_at`` is when NVD was
 asked. ``cves`` takes NVD's text for CVEs Wazuh did not report; when both know
@@ -73,18 +75,18 @@ def build_document(endpoints: list[dict], cves: Optional[dict], scan_time: str,
             "agent_id": agent_id,
             "findings": findings,
         }
-    n_hosts = len(hosts)
     for node_id, entry in (devices or {}).items():
         findings = entry.get("findings")
         if findings is not None:
             n_findings += len(findings)
             used.update(f["cve"] for f in findings if f.get("cve"))
         hosts[node_id] = entry
+    n_devices = sum(e["kind"] == "device" for e in hosts.values())
     section = {cve: catalogue[cve] for cve in sorted(used) if cve in catalogue}
     return {
         "metadata": {
             "scan_time": scan_time,
-            "counts": {"hosts": n_hosts, "devices": len(hosts) - n_hosts,
+            "counts": {"hosts": len(hosts) - n_devices, "devices": n_devices,
                        "cves": len(section), "findings": n_findings},
         },
         "cves": section,

@@ -17,12 +17,16 @@ Clues that ask someone else, run by the pipeline:
 
   :func:`lookup_names`  reverse DNS through the system resolver (on by
                         default; it asks the site's DNS server, not the host)
+  :func:`ask_hosts`     one SNMP read of each unmanaged host's system group
+                        with the owner's credentials (off by default: it sends
+                        the credential to machines nobody has vouched for)
 
 risk_score is not touched by any of these.
 """
 
 from __future__ import annotations
 
+import asyncio
 import gzip
 import logging
 import os
@@ -32,7 +36,7 @@ import time
 from functools import lru_cache
 from typing import Callable, Optional
 
-from .schema import KIND_ENDPOINT, canonical_mac
+from .schema import KIND_DEVICE, KIND_ENDPOINT, canonical_mac
 
 log = logging.getLogger("vulnmapper.hosts")
 
@@ -155,3 +159,65 @@ def _rename_edges(graph: dict, names: dict) -> None:
         for end in ("source", "target"):
             if edge.get(end) in names:
                 edge[f"{end}_name"] = names[edge[end]]
+
+
+# --- the optional SNMP question ---------------------------------------------------
+
+QUESTION_CAP = 256
+QUESTION_PARALLEL = 32
+
+
+def question_targets(graph: dict, cap: int = QUESTION_CAP) -> tuple:
+    """``(hosts to ask, cap reached)``: unmanaged hosts with an address."""
+    hosts = [n for n in graph.get("nodes") or []
+             if n.get("kind") == KIND_ENDPOINT and n.get("unmanaged") and n.get("ip")]
+    return hosts[:cap], len(hosts) > cap
+
+
+async def _ask_one(client, ip: str) -> Optional[dict]:
+    """The host's identity, and whether it forwards traffic; None when silent."""
+    from .network import parse
+    from .network.crawl import fetch
+
+    if await client.resolve_credential(ip) is None:
+        return None
+    info = await fetch(client, ip)
+    if info is None:
+        return None
+    # One row of any neighbour or forwarding table makes it a device.
+    for base in (parse.LLDP_REM_BASE, parse.CDP_CACHE_BASE,
+                 parse.DOT1Q_FDB_PORT_BASE, parse.DOT1D_FDB_PORT_BASE):
+        if await client.walk(ip, base, max_rows=1):
+            info["forwards"] = True
+            break
+    else:
+        info["forwards"] = False
+    return info
+
+
+async def ask_hosts(client, ips: list, parallel: int = QUESTION_PARALLEL) -> dict:
+    """``{ip: identity or None}``: each host asked once, ``parallel`` at a time."""
+    gate = asyncio.Semaphore(parallel)
+
+    async def one(ip):
+        async with gate:
+            try:
+                return ip, await _ask_one(client, ip)
+            except Exception:          # a host that misbehaves simply did not answer
+                log.exception("SNMP question to %s failed", ip)
+                return ip, None
+    return dict(await asyncio.gather(*(one(ip) for ip in ips)))
+
+
+def apply_answer(node: dict, info: dict) -> None:
+    """What an answering host said about itself, on its graph node."""
+    node["snmp"] = True
+    if not node.get("hostname") and info.get("hostname"):
+        node["hostname"], node["name_source"] = info["hostname"], "snmp"
+    node["sys_descr"] = info.get("sys_descr")
+    if node.get("kind") != KIND_DEVICE and info.get("vendor") not in (None, "unknown vendor"):
+        node["vendor"] = info["vendor"]
+        node["model"] = info.get("model")
+        node["firmware"] = info.get("firmware")
+    if info.get("software_family"):
+        node["software_family"] = info["software_family"]

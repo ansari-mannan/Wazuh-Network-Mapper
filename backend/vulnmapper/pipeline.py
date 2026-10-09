@@ -27,6 +27,10 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
                    on devices that do not list their TCP listeners, open one
                    connection to TCP 23 and 80 and close it (off by default)
   --no-name-lookup skip the reverse DNS lookup of hosts that have no name
+  --probe-unmanaged-snmp
+                   ask each host without an agent (at most 256) for its SNMP
+                   system group with the scan's own credentials; this sends
+                   them to machines nobody has vouched for (off by default)
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
 ``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
@@ -108,6 +112,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-name-lookup", action="store_true",
                         help="do not ask the system resolver for the reverse DNS name of "
                              "hosts that have an address and no name.")
+    parser.add_argument("--probe-unmanaged-snmp", action="store_true",
+                        help="ask each host without a Wazuh agent (at most 256) for its SNMP "
+                             "system group with the scan's own credentials, never the factory "
+                             "names. This sends the credentials to machines nobody has "
+                             "verified. Off by default.")
     return parser
 
 
@@ -176,19 +185,31 @@ def _load_network(args, timing: dict) -> dict:
     return doc
 
 
+def _port_connect(args):
+    """The connection test's connector when it is on, else None."""
+    if not args.check_management_ports or args.no_checklist:
+        return None
+    from .checklist.collect import tcp_connect
+
+    return tcp_connect
+
+
 class Pipeline:
     """The top-level orchestrator: collect -> score -> crawl -> assemble ->
     device CVEs -> emit.
 
     A thin object wrapper so the sequence diagram has a single clean lifeline.
     ``nvd_transport`` and ``clock`` replace the NVD HTTP layer and the clock
-    (tests serve saved replies); ``resolver`` replaces the reverse DNS lookup.
+    (tests serve saved replies); ``resolver`` replaces the reverse DNS lookup and
+    ``snmp_client`` the SNMP client of the question to unmanaged hosts.
     """
 
-    def __init__(self, nvd_transport=None, clock=None, resolver=None) -> None:
+    def __init__(self, nvd_transport=None, clock=None, resolver=None,
+                 snmp_client=None) -> None:
         self._nvd_transport = nvd_transport
         self._clock = clock
         self._resolver = resolver
+        self._snmp_client = snmp_client
 
     def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
         return _load_endpoints(args, timing, vulns)
@@ -198,6 +219,63 @@ class Pipeline:
 
     def assemble(self, endpoints: list[dict], network_doc: dict) -> dict:
         return assemble(endpoints, network_doc)
+
+    def question_unmanaged(self, args, endpoints: list, document: dict, network_doc: dict):
+        """Ask unmanaged hosts over SNMP; ``(document, network_doc, block, warnings)``.
+
+        A host that forwards traffic is crawled as a device from its address
+        and the graph assembled again; any other host that answers keeps its
+        node and gains what it reported.
+        """
+        import asyncio
+
+        from .hosts import QUESTION_CAP, apply_answer, ask_hosts, question_targets
+        from .network.crawl import crawl_more, load_credentials, merge_documents
+
+        warnings: list = []
+        client = self._snmp_client
+        if client is None:
+            from .network.snmp import SnmpClient
+
+            credentials = load_credentials(args.community)
+            if not credentials:
+                log.warning("no SNMP credentials; unmanaged hosts were not asked")
+                return document, network_doc, {"asked": 0, "answered": 0,
+                                               "cap": QUESTION_CAP, "cap_reached": False}, []
+            # one attempt, short timeout: a silent host costs about a second
+            client = SnmpClient(credentials, timeout=1.0, retries=0)
+        targets, capped = question_targets(document, QUESTION_CAP)
+        if capped:
+            log.warning("more than %d unmanaged hosts; only the first %d were asked",
+                        QUESTION_CAP, QUESTION_CAP)
+            warnings.append({"type": "snmp_question_cap_reached", "cap": QUESTION_CAP})
+        answers = asyncio.run(ask_hosts(client, [n["ip"] for n in targets]))
+        by_node = {n["node_id"]: answers.get(n["ip"]) for n in targets}
+        forwarding = sorted({n["ip"] for n in targets
+                             if (by_node[n["node_id"]] or {}).get("forwards")})
+        new_devices: set = set()
+        if forwarding:
+            log.info("%d unmanaged host(s) forward traffic; crawling them as devices",
+                     len(forwarding))
+            extra = asyncio.run(crawl_more(
+                client, forwarding, network_doc, checklist=not args.no_checklist,
+                check_default_communities=args.check_default_communities and not args.no_checklist,
+                port_connect=_port_connect(args)))
+            network_doc = merge_documents(network_doc, extra)
+            new_devices = {n["chassis_id"] for n in extra["nodes"] if n.get("pollable")}
+            document = self.assemble(endpoints, network_doc)
+        info_by_ip = {ip: info for ip, info in answers.items() if info}
+        for node in document["nodes"]:
+            if node["kind"] == "device" and node.get("chassis_id") in new_devices:
+                node["unmanaged"] = True            # still no agent
+                apply_answer(node, info_by_ip.get(node.get("ip")) or {})
+            elif by_node.get(node["node_id"]) and not by_node[node["node_id"]]["forwards"]:
+                apply_answer(node, by_node[node["node_id"]])
+        block = {"asked": len(targets), "answered": len(info_by_ip),
+                 "forwarding": len(forwarding), "cap": QUESTION_CAP, "cap_reached": capped}
+        log.info("SNMP question: %d unmanaged host(s) asked, %d answered",
+                 block["asked"], block["answered"])
+        return document, network_doc, block, warnings
 
     def lookup_names(self, document: dict) -> dict:
         from .hosts import lookup_names
@@ -257,6 +335,14 @@ class Pipeline:
         assemble_t0 = time.monotonic()
         document = self.assemble(endpoints, network_doc)
         timing["assemble_s"] = time.monotonic() - assemble_t0
+
+        if args.probe_unmanaged_snmp:
+            t0 = time.monotonic()
+            document, network_doc, block, question_warnings = self.question_unmanaged(
+                args, endpoints, document, network_doc)
+            timing["snmp_question_s"] = time.monotonic() - t0
+            document["metadata"]["snmp_question"] = block
+            document["metadata"]["warnings"].extend(question_warnings)
 
         if not args.no_name_lookup:
             t0 = time.monotonic()

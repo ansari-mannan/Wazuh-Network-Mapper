@@ -815,6 +815,23 @@ class Crawler:
         self._queue.put_nowait((ip, chassis_id, via))
         return True
 
+    def know(self, nodes: list[dict]) -> None:
+        """Treat the devices of an earlier crawl's document as already seen.
+
+        A crawl from new seeds then links to them by their chassis id instead
+        of polling them again.
+        """
+        for node in nodes:
+            cid = node.get("chassis_id")
+            if not cid:
+                continue
+            self._seen.add(cid)
+            if node.get("ip"):
+                self._enqueued_ips.add(node["ip"])
+                self._cid_by_ip.setdefault(node["ip"], cid)
+            if node.get("hostname"):
+                self._cid_by_name.setdefault(_name_key(node["hostname"]), cid)
+
     async def seed(self, ips: list[str]) -> int:
         """Enqueue the initial seed IPs. Returns how many were queued."""
         queued = 0
@@ -1222,6 +1239,37 @@ async def run(cfg: Config) -> dict:
     await crawler.seed(seeds)
     devices, links = await crawler.run()
     return build_document(devices, links, pollable_only=cfg.pollable_only)
+
+
+async def crawl_more(client, seeds: list[str], known: dict, **crawler_kw) -> dict:
+    """Crawl from ``seeds`` without polling again what ``known`` (an earlier
+    network document) already holds; merge the result with
+    :func:`merge_documents`."""
+    crawler = Crawler(client, concurrency=DEFAULT_CONCURRENCY, max_nodes=DEFAULT_MAX_NODES,
+                      queue_maxsize=DEFAULT_MAX_NODES, **crawler_kw)
+    crawler.know(known.get("nodes") or [])
+    await crawler.seed(seeds)
+    devices, links = await crawler.run()
+    return build_document(devices, links)
+
+
+def merge_documents(base: dict, extra: dict) -> dict:
+    """``base`` with the devices and links ``extra`` adds.
+
+    A device in both keeps its ``base`` node unless only ``extra`` polled it
+    (``base`` knew it from a neighbour's table). A link already in ``base``
+    keeps its ``base`` edge.
+    """
+    nodes = {n["chassis_id"]: n for n in base.get("nodes") or []}
+    for node in extra.get("nodes") or []:
+        old = nodes.get(node["chassis_id"])
+        if old is None or (node.get("pollable") and not old.get("pollable")):
+            nodes[node["chassis_id"]] = node
+    pair = lambda e: frozenset((e["source_chassis_id"], e["target_chassis_id"]))  # noqa: E731
+    linked = {pair(e) for e in base.get("edges") or []}
+    edges = list(base.get("edges") or []) + [e for e in extra.get("edges") or []
+                                             if pair(e) not in linked]
+    return dict(base, nodes=list(nodes.values()), edges=edges)
 
 
 def crawl_document(cfg: Config) -> dict:

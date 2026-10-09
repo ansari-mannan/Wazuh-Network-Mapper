@@ -15,7 +15,10 @@ import time
 import unittest
 import unittest.mock
 
-from test_cdp import crawl, lab
+from snmp_fakes import FakeSnmpClient, load_rows
+from test_cdp import L2_CID, crawl, lab
+from test_device_stage import lab_nvd
+from test_nvd import FakeClock
 from vulnmapper import hosts
 from vulnmapper.assemble import assemble
 from vulnmapper.pipeline import Pipeline
@@ -201,8 +204,8 @@ class TestPipeline(unittest.TestCase):
             self.asked.append(ip)
             return f"pc-{ip.split('.')[-1]}.lab"
         path = os.path.join(self.tmp, "graph.json")
-        argv = ["--no-endpoints", "--no-device-cves", "--no-checklist",
-                "--network", self.network, "-o", path, *extra]
+        argv = ["--no-endpoints", "--no-device-cves", "--network", self.network, "-o", path,
+                *extra]
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(Pipeline(resolver=resolver).run(argv), 0)
         with open(path) as f:
@@ -212,6 +215,31 @@ class TestPipeline(unittest.TestCase):
         graph = self.run_pipeline("--no-name-lookup")
         self.assertEqual(self.asked, [])
         self.assertNotIn("name_lookup", graph["metadata"])
+
+    def test_options_off_give_todays_document_plus_the_additions(self):
+        """Against the output of 13e6ebd (main before this work) on the same crawl."""
+        from snmp_fakes import FIXTURES
+        with open(os.path.join(FIXTURES, "pipeline_lab_13e6ebd.json")) as f:
+            today = json.load(f)
+        graph = self.run_pipeline("--no-name-lookup")
+        self.assertEqual(graph["edges"], today["edges"])
+        self.assertEqual(len(graph["nodes"]), len(today["nodes"]))
+        replaced = {"ports-enabled-unused", "spare-ports-in-used-vlan"}    # Part 2
+        for node, was in zip(graph["nodes"], today["nodes"]):
+            self.assertEqual("unmanaged" in node, node["kind"] == "endpoint")
+            node = {k: v for k, v in node.items() if k not in ("unmanaged", "mac_type",
+                                                                 "mac_vendor")}
+            for n in (node, was):
+                if "config_checks" in n:
+                    n["config_checks"] = [c for c in n["config_checks"] if c["id"] not in replaced]
+            self.assertEqual(node, was)
+        meta = dict(graph["metadata"])
+        for key in ("scan_time", "timing", "network_scan_time"):
+            meta.pop(key)
+        self.assertEqual(meta.pop("coverage"), {"hosts": 2, "managed": 0, "unmanaged": 2,
+                                                "managed_share": 0.0})
+        self.assertIs(meta["checklist"].pop("port_test_enabled"), False)
+        self.assertEqual(meta, today["metadata"])
 
     def test_on_adds_only_the_names(self):
         off = self.run_pipeline("--no-name-lookup")
@@ -228,6 +256,128 @@ class TestPipeline(unittest.TestCase):
                 was.update(hostname=node["hostname"], name_source="dns")
             self.assertEqual(node, was)
         self.assertEqual(sum(bool(n.get("name_source")) for n in on["nodes"]), 2)
+
+
+SILENT = ("00:50:56:bb:00:01", "10.0.0.60")
+ANSWERS = ("00:50:56:bb:00:02", "10.0.0.50")
+FORWARDS = (L2_CID, "172.20.10.100")        # the lab's L2 switch, seen as a host
+SYSTEM_AND_INVENTORY = ("1.3.6.1.2.1.1.", "1.3.6.1.2.1.47.")
+
+
+class TestSnmpQuestion(unittest.TestCase):
+    """Three unmanaged hosts on one switch: silent, answering, forwarding."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.network = os.path.join(self.tmp, "network.json")
+        hosts_ = (SILENT, ANSWERS, FORWARDS)
+        switch = {"chassis_id": SWITCH, "ip": "10.0.0.1", "hostname": "core", "status": "online",
+                  "pollable": True, "lldp_cap_enabled": "0x2800",
+                  "fdb": [{"mac": mac, "port": f"Fa0/{i + 2}", "vlan": 10}
+                          for i, (mac, _ip) in enumerate(hosts_)],
+                  "arp": {mac: ip for mac, ip in hosts_}}
+        with open(self.network, "w") as f:
+            json.dump({"nodes": [switch], "edges": []}, f)
+        l2 = load_rows("cisco_l2_switch.snmp")
+        # a machine that answers SNMP but has no neighbour or forwarding table
+        system = [r for r in l2 if r[0].startswith(SYSTEM_AND_INVENTORY)]
+        self.client = FakeSnmpClient({ANSWERS[1]: system, FORWARDS[1]: l2})
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def run_pipeline(self, *extra):
+        path = os.path.join(self.tmp, "graph.json")
+        argv = ["--no-endpoints", "--no-name-lookup", "--no-checklist",
+                "--network", self.network, "-o", path, *extra]
+        clock = FakeClock()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            code = Pipeline(nvd_transport=lab_nvd(clock), clock=clock,
+                            snmp_client=self.client).run(argv)
+        self.assertEqual(code, 0)
+        with open(path) as f:
+            graph = json.load(f)
+        return graph, {n["node_id"]: n for n in graph["nodes"]}
+
+    def test_off_makes_no_request(self):
+        graph, _ = self.run_pipeline()
+        self.assertEqual(self.client.calls, [])
+        self.assertNotIn("snmp_question", graph["metadata"])
+
+    def test_each_unmanaged_host_asked_once_never_a_default_name(self):
+        graph, _ = self.run_pipeline("--probe-unmanaged-snmp")
+        resolves = [c[1] for c in self.client.calls if c[0] == "resolve"]
+        for _mac, ip in (SILENT, ANSWERS):
+            self.assertEqual(resolves.count(ip), 1, ip)
+        self.assertNotIn("probe", {c[0] for c in self.client.calls})
+        self.assertEqual(graph["metadata"]["snmp_question"],
+                         {"asked": 3, "answered": 2, "forwarding": 1, "cap": 256,
+                          "cap_reached": False})
+
+    def test_an_answering_host_gains_identity_and_cves(self):
+        _, nodes = self.run_pipeline("--probe-unmanaged-snmp")
+        host = nodes[f"host:{ANSWERS[0]}"]
+        self.assertEqual(host["kind"], "endpoint")
+        self.assertTrue(host["snmp"] and host["unmanaged"])
+        self.assertEqual((host["hostname"], host["name_source"]), ("L2-Switch", "snmp"))
+        self.assertIn("Cisco IOS Software", host["sys_descr"])
+        self.assertEqual((host["vendor"], host["firmware"], host["software_family"]),
+                         ("Cisco", "12.2(58)SE2", "cisco_ios"))
+        # the device CVE stage, as for a device
+        self.assertEqual(host["cve_lookup"]["status"], "ok")
+        self.assertEqual(host["max_cvss"], 9.8)
+        self.assertIsNotNone(host["risk_score"])
+        self.assertEqual(host["cve_summary"]["total"], 2)
+
+    def test_a_forwarding_host_joins_the_crawl(self):
+        graph, nodes = self.run_pipeline("--probe-unmanaged-snmp")
+        self.assertNotIn(f"host:{FORWARDS[0]}", nodes)
+        device = nodes[f"device:{L2_CID}"]
+        self.assertTrue(device["pollable"])
+        self.assertEqual(device["hostname"], "L2-Switch")
+        self.assertTrue(device["unmanaged"] and device["snmp"])
+        self.assertEqual(device["cve_lookup"]["status"], "ok")
+        # a device, so no longer counted as a host
+        self.assertEqual(graph["metadata"]["coverage"]["hosts"], 2)
+
+    def test_a_silent_host_is_unchanged(self):
+        before, _ = self.run_pipeline()
+        _, after = self.run_pipeline("--probe-unmanaged-snmp")
+        was = {n["node_id"]: n for n in before["nodes"]}[f"host:{SILENT[0]}"]
+        self.assertEqual(after[f"host:{SILENT[0]}"], was)
+        self.assertNotIn("snmp", was)
+
+    def test_the_cap(self):
+        graph = {"nodes": [{"node_id": f"host:{i}", "kind": "endpoint", "unmanaged": True,
+                            "ip": f"10.1.0.{i}"} for i in range(5)]
+                 + [{"node_id": "endpoint:1", "kind": "endpoint", "unmanaged": False,
+                     "ip": "10.1.1.1"}, {"node_id": "host:x", "kind": "endpoint",
+                                         "unmanaged": True, "ip": None}]}
+        targets, capped = hosts.question_targets(graph, cap=3)
+        self.assertEqual([n["node_id"] for n in targets], ["host:0", "host:1", "host:2"])
+        self.assertTrue(capped)
+        self.assertEqual(hosts.question_targets(graph)[1], False)
+        self.assertEqual(hosts.QUESTION_CAP, 256)
+
+    def test_the_owners_credentials_one_attempt(self):
+        made = []
+
+        class Recorder(FakeSnmpClient):
+            def __init__(self, credentials, **kw):
+                made.append((credentials, kw))
+                super().__init__({})
+        clean = {k: v for k, v in os.environ.items() if not k.startswith("SNMP_")}
+        with unittest.mock.patch("vulnmapper.network.snmp.SnmpClient", Recorder), \
+                unittest.mock.patch.dict(os.environ, clean, clear=True):
+            path = os.path.join(self.tmp, "g.json")
+            with contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                Pipeline().run(["--no-endpoints", "--no-name-lookup", "--no-checklist",
+                                "--no-device-cves", "--network", self.network, "-o", path,
+                                "--probe-unmanaged-snmp", "--community", "site-secret"])
+        (credentials, kw), = made
+        self.assertEqual([c.community for c in credentials], ["site-secret"])
+        self.assertEqual(kw, {"timeout": 1.0, "retries": 0})
 
 
 if __name__ == "__main__":
