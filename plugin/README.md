@@ -5,12 +5,14 @@ by the Python scanner in `../backend`. It appears in the dashboard's left menu
 as **Network Topology Mapper** and has:
 
 - **Overview**: network devices by type, endpoints by status, endpoints and
-  devices by risk level, and cards for every page.
+  devices by risk level, failed device configuration checks by severity, and
+  cards for every page.
 - **Topology map**: the graph, with draggable nodes, reload and reset, and a
   detail flyout for each device or endpoint. A link between two devices shows
   each device's port next to that device; a host link shows the switch port.
-- **Scan settings**: run a scan with an SNMP community string, follow its
-  status, and see where the current graph came from.
+- **Scan settings**: run a scan with an SNMP community string (and,
+  optionally, a test of the factory-default SNMP names), follow its status,
+  and see where the current graph came from.
 - Vulnerabilities, Attack paths and Recommendations: shown as "Coming soon".
 
 The server side reads the graph file and runs the scanner; the scanner itself
@@ -48,6 +50,7 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.graphPath` | graph JSON the scanner output is written to and the UI reads |
 | `vulnmapper.pythonBin` | Python interpreter for the scanner (default `python3`) |
 | `vulnmapper.deviceCves` | look network devices' software up in NVD during a scan (default `true`; `false` starts scans with `--no-device-cves`) |
+| `vulnmapper.checkDefaultCommunities` | where the Scan settings switch "Also test factory-default SNMP names (public, private)" starts (default `false`); the switch's position is what a scan uses |
 
 `backendDir` and `graphPath` have no default; until they are set, the API
 returns an error saying which key is missing.
@@ -75,6 +78,35 @@ with a successful lookup shows its score, a real 0.0 included; anything else
 is Unscored. A graph written before device lookups behaves as before (a device
 is Unscored unless it carries CVE data). The overview's "Risk level" panel
 counts endpoints and devices together.
+
+## Configuration checks
+
+Each polled device is checked against a short list of configuration rules
+over SNMP (see "Configuration checks" in `../backend/README.md`). The detail
+flyout shows a **Configuration checks** section below the vulnerabilities:
+
+- a summary line, e.g. "5 of 8 checks failed (3 medium, 2 advisory); 2
+  unknown, 1 not checked.";
+- each failed check: its title, a severity badge (the severity the publishing
+  body gave, or "Advisory" when none did), why it matters, the evidence
+  ("22 ports: Fa1/0/3, Fa1/0/4, Fa1/0/5 and 19 more."), the fix, and its
+  references as links ("DISA STIG V-220630, CAT II", "Related: ..." when the
+  rule is related rather than exact);
+- the checks that could not be decided (unknown, not checked), one quiet line
+  each with the reason.
+
+A device without checks says why: it was never polled, the graph predates the
+checks, or the graph's checks came from captures that did not include it.
+Configuration findings do not change the risk colour or score. The overview's
+"Device configuration" panel counts the failed checks of every checked device
+by severity.
+
+**Default SNMP names.** Scan settings has a switch, off by default, "Also test
+factory-default SNMP names (public, private)". On, the scan is started with
+`--check-default-communities`: each device gets two extra read-only SNMP
+requests with those names, which the network may log as failed logins.
+`vulnmapper.checkDefaultCommunities` sets where the switch starts; an
+automatic rescan keeps the choice of the last scan.
 
 ## Development setup
 
@@ -114,8 +146,8 @@ dashboard's own jest, from the dashboard folder:
 | Route | Purpose |
 |---|---|
 | `GET /api/vulnmapper/graph` | the current graph; file time in the `x-vulnmapper-graph-mtime` header |
-| `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string }`; 409 if one is running |
-| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message |
+| `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string, "checkDefaultCommunities"?: boolean }` (the latter defaults to `vulnmapper.checkDefaultCommunities`); 409 if one is running |
+| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, and `defaults: { checkDefaultCommunities }` for the scan form |
 | `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The

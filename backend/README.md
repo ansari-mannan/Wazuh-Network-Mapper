@@ -10,7 +10,10 @@ device, and merges both into one graph document with `nodes`, `edges` and
 - `vulnmapper/`: the scanner package (`python -m vulnmapper`).
 - `tests/`: unit tests, golden files and fixtures.
 - `scripts/`: maintenance scripts (`_freeze_golden.py` refreshes the golden
-  files; `verify_comware.py` checks an HP Comware switch over SNMP).
+  files; `verify_comware.py` checks an HP Comware switch over SNMP;
+  `captures.py` turns raw SNMP captures into test fixtures;
+  `checklist_sample_graph.py` puts configuration checks from captures into a
+  graph).
 - `requirements.txt`: third-party packages.
 
 ## Install
@@ -39,6 +42,8 @@ Useful options:
 - `--vulns-out PATH`: where to write `vulnerabilities.json` (see below).
 - `--no-device-cves`, `--nvd-cache PATH`, `--nvd-budget SECONDS`: the device
   CVE stage (see "Device CVEs").
+- `--no-checklist`, `--check-default-communities`: the configuration checks
+  (see "Configuration checks").
 - `--help`: list every option.
 
 ## Output
@@ -253,6 +258,96 @@ fields and updates the device entries of `vulnerabilities.json` beside it. It
 needs no SNMP and no Wazuh. For a graph written before software families were
 recorded, the family is inferred only when unambiguous (a classic IOS version
 string, a FortiGate, the Comware version format).
+
+### Configuration checks
+
+Each polled device is checked against a short list of configuration rules,
+from SNMP data it already offers: column walks and GETs with the crawl's own
+credential, never a write, a login or a port scan. The stage runs after the
+device CVEs; `--no-checklist` skips it and its SNMP reads, and the document is
+then written exactly as before.
+
+**Only published severities.** Every check points at a rule published by a
+recognised body, and its severity is the one that body gave (DISA CAT I, II,
+III = high, medium, low; NVD's own CVSS for the CVE). A check that no body
+rates has severity null and is shown as "Advisory". Cisco IOS devices get the
+Cisco STIG rule, other devices the generic Security Requirements Guide (SRG)
+rule it derives from. "Related" means the rule covers the subject but its
+condition is not exactly what the check tests.
+
+| Check | Applies to | Severity | References (Cisco IOS / others) |
+|---|---|---|---|
+| `mgmt-telnet-enabled` | every device | high | STIG V-220608 / SRG V-202118, CAT I; CWE-319 |
+| `mgmt-http-enabled` | every device | high | STIG V-220586 / SRG V-202049, CAT I; CWE-319 |
+| `snmp-no-auth` | every device | medium | STIG V-220604, V-220605 / SRG V-202111, CAT II; CWE-319 |
+| `snmp-default-community` | every device | high | NVD CVE-1999-0517 (CVSS 2.0 7.5); CWE-1392 |
+| `ports-enabled-unused` | switches | Advisory | related: STIG V-220641 / SRG V-206666, CAT II |
+| `access-ports-default-vlan` | switches | medium | STIG V-220642 / SRG V-206667, CAT II |
+| `bpdu-guard-missing` | Cisco switches | medium | STIG V-220630 / SRG V-206655, CAT II |
+| `port-security-disabled` | Cisco switches | Advisory | related: STIG V-220623, CAT I (asks for 802.1X) |
+
+STIG rules are from the Cisco IOS Switch NDM STIG V3R9 and L2S STIG V3R3, SRG
+rules from the NDM SRG V5R5 and L2S SRG V3R4; each reference carries its
+document, release, STIG and SRG ids, CCI, NIST control and a link
+(`vulnmapper/checklist/catalogue.py`). Not covered yet: root and loop guard,
+trunk and native VLAN settings, 802.1X, and software past its support date.
+
+**Results.** Each check ends in one of `pass`, `fail`, `not_applicable` (not
+for this kind of device, or no data source for its vendor), `unknown` (it
+applies but the data could not be read) or `not_checked` (the
+default-community probe was not enabled). Missing data is never a pass.
+
+**Access ports.** One definition serves every port check: a physical Ethernet
+port that is a switch port and not an uplink. On Cisco, the VLAN membership
+table decides "switch port" (it lists access ports and leaves trunks out);
+elsewhere, being a bridge port does.
+
+**What each check reads.**
+
+- Telnet and HTTP: the TCP connection and listener tables. A device that lists
+  no TCP socket at all over SNMP (the lab's Cisco switches) gives `unknown`.
+- SNMP without authentication: the version of the credential that worked.
+- Unused ports: `ifAdminStatus` up and `ifOperStatus` without link. A port with
+  no link may belong to a computer that is switched off, so the evidence says
+  how many have had no link since the device started (`ifLastChange` within
+  5 minutes of boot) and how many lost it later.
+- Default VLAN: on Cisco `vmVlan`, elsewhere the 802.1Q PVID of each bridge
+  port. Ports with a device attached are listed first.
+- BPDU guard: CISCO-STP-EXTENSIONS-MIB, per port and global, following the
+  MIB's rule for ports left at "default".
+- Port security: CISCO-PORT-SECURITY-MIB, global switch and per port.
+
+**Requests per device.** 10 for every device (1 GET and 9 column walks; one
+more walk when `ifName` is empty and `ifDescr` is read instead), 15 for a
+Cisco device; each walk is one or more GETBULKs. A table the device does not
+answer costs one request. Only when BPDU guard differs between ports does a
+Cisco switch need one more walk per access VLAN, to map its bridge ports to
+interfaces. On the lab's captures that is 11 walks and GETs for the HP switch
+and 16 for each Cisco device, on top of the crawl's own.
+
+**Default community names.** `--check-default-communities` (off by default)
+also sends each device two read-only SNMPv2c GETs of `sysName`, one with
+`public` and one with `private`, with a 1 second timeout and no retry; the
+network may log them as failed logins. Off, the check is `not_checked` with
+the reason "probe not enabled", except when the scan's own credential is one
+of these names, which is reported without a probe.
+
+**On each polled device node:** `config_checks` (one `{id, title, result,
+reason}` per check), `config_findings` (one per failed check: `id`, `title`,
+`severity`, `why`, `remediation`, `references`, `cwe`, `evidence`; port lists
+hold at most 20 names plus `total`) and `config_summary` (`checks`, `results`
+by result, `findings` by `high`, `medium`, `low`, `advisory`). A device that
+was not polled gets none of them. `risk_score` and the base score are not
+touched. `metadata.checklist` counts the devices checked, the results and the
+findings, and says whether the probe was on and where the data came from
+(`source`: `scan`). Warnings: `checklist_data_missing` and
+`checklist_unreadable`, with node ids. `metadata.timing.checklist_s` is the
+stage's duration.
+
+**From captures.** `scripts/checklist_sample_graph.py` evaluates raw SNMP
+captures (`snmpwalk -On` output) of devices already in a graph and writes the
+results onto them, with `metadata.checklist.source` set to say so. It contacts
+no device.
 
 ## Liveness
 
