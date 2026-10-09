@@ -80,7 +80,9 @@
       "stale": false,
       "top_cves": [],
       "cve_summary": null,
-      "unmanaged": false
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc."
     },
     {
       "node_id": "endpoint:010",
@@ -104,7 +106,9 @@
       "top_cves": [],
       "cve_summary": null,
       "vlan": 20,
-      "unmanaged": false
+      "unmanaged": false,
+      "mac_type": "local",
+      "mac_vendor": null
     },
     {
       "node_id": "endpoint:003",

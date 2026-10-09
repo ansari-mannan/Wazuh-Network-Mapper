@@ -5,7 +5,9 @@ host without an agent can come from; nothing touches the network.
 """
 
 import unittest
+import unittest.mock
 
+from vulnmapper import hosts
 from vulnmapper.assemble import assemble
 
 SWITCH = "00:11:22:33:44:01"
@@ -41,7 +43,7 @@ def agents():
     return [{"agent_id": "000", "hostname": "wazuh", "ip": "10.0.0.5", "status": "active",
              "is_wazuh_server": True, "risk_score": 0.0},
             {"agent_id": "001", "hostname": "pc-1", "ip": "10.0.0.9", "mac": AGENT_MAC,
-             "status": "active", "risk_score": 4.0},
+             "vendor": "Microsoft", "status": "active", "risk_score": 4.0},
             {"agent_id": "002", "hostname": "pc-2", "ip": "10.0.0.10", "status": "disconnected",
              "risk_score": 2.0}]
 
@@ -77,6 +79,45 @@ class TestUnmanaged(unittest.TestCase):
         graph = assemble([], {"nodes": [], "edges": []})
         self.assertEqual(graph["metadata"]["coverage"],
                          {"hosts": 0, "managed": 0, "unmanaged": 0, "managed_share": None})
+
+
+class TestMacClues(unittest.TestCase):
+    def test_manufacturer_from_the_registry(self):
+        self.assertEqual(hosts.manufacturer("00:50:56:aa:00:01"), "VMware, Inc.")
+        self.assertEqual(hosts.manufacturer("E4-A7-A0-25-CE-AC"), "Intel Corporate")
+        self.assertIsNone(hosts.manufacturer("not a mac"))
+
+    def test_longest_block_wins_and_the_authority_is_not_a_maker(self):
+        registry = {"70b3d5": hosts.REGISTRY_AUTHORITY, "70b3d5123": "Small Maker"}
+        with unittest.mock.patch.object(hosts, "_registry", lambda: registry):
+            self.assertEqual(hosts.manufacturer("70:b3:d5:12:34:56"), "Small Maker")
+            self.assertIsNone(hosts.manufacturer("70:b3:d5:99:99:99"))
+
+    def test_locally_administered_addresses_have_no_manufacturer(self):
+        # a phone's randomised Wi-Fi address, and a QEMU/KVM virtual machine's
+        for mac in ("7a:bd:06:18:06:2c", "52:54:00:12:34:56"):
+            self.assertEqual(hosts.mac_type(mac), "local", mac)
+            self.assertIsNone(hosts.manufacturer(mac), mac)
+        self.assertEqual(hosts.mac_type("00:50:56:aa:00:01"), "global")
+
+    def test_on_every_host_with_a_mac_and_vendor_untouched(self):
+        nodes = {n["node_id"]: n for n in assemble(agents(), network_doc())["nodes"]}
+        fdb = nodes[f"host:{FDB_HOST}"]
+        self.assertEqual((fdb["mac_type"], fdb["mac_vendor"]), ("global", "VMware, Inc."))
+        wifi = nodes[f"host:{WIFI_HOST}"]
+        self.assertEqual((wifi["mac_type"], wifi["mac_vendor"]), ("local", None))
+        agent = nodes["endpoint:001"]                   # managed hosts get it too
+        self.assertEqual((agent["vendor"], agent["mac_vendor"]), ("Microsoft", "VMware, Inc."))
+        self.assertNotIn("mac_type", nodes["endpoint:000"])   # no MAC: no clue
+        self.assertNotIn("mac_vendor", nodes[f"device:{SWITCH}"])
+
+    def test_registry_records_its_source_and_date(self):
+        import gzip
+        with gzip.open(hosts.REGISTRY, "rt", encoding="utf-8") as fh:
+            header = [line for line in fh.read(2000).splitlines() if line.startswith("#")]
+        self.assertTrue(any(line.startswith("# source: https://standards-oui.ieee.org/")
+                            for line in header))
+        self.assertTrue(any(line.startswith("# date: ") for line in header))
 
 
 if __name__ == "__main__":
