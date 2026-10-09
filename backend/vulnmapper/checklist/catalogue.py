@@ -19,7 +19,7 @@ tests.
 
 Every rule id, title, severity and CCI below was read on 10 October 2026 from
 the rule records of those releases (cyber.trackr.live, which republishes
-DISA's XCCDF; the urls point there). NIST SP 800-53 Rev. 5 controls come from
+DISA's XCCDF); the urls point to the same rules on stigviewer.com. NIST SP 800-53 Rev. 5 controls come from
 DISA's CCI list (U_CCI_List, 2025-01-23). CWE ids were checked on
 cwe.mitre.org, and only ids MITRE allows for mapping are used.
 
@@ -38,13 +38,18 @@ SEVERITIES = ("high", "medium", "low")
 ROLES_ANY = "any"
 SWITCH_ROLES = ("l2-switch", "l3-switch")
 
-_TRACKR = "https://cyber.trackr.live/stig"
-NDM_STIG = ("Cisco IOS Switch NDM STIG", "V3R9 (2026-09-01)", f"{_TRACKR}/Cisco_IOS_Switch_NDM/3/9")
-L2S_STIG = ("Cisco IOS Switch L2S STIG", "V3R3 (2026-09-01)", f"{_TRACKR}/Cisco_IOS_Switch_L2S/3/3")
+# Rule pages on stigviewer.com, each checked in a browser to show the same rule
+# id and severity (cyber.trackr.live's rule pages answer "Not Found"). Its
+# Cisco pages are from the 2026-06-05 (NDM) and 2026-05-01 (L2S) releases.
+_VIEWER = "https://www.stigviewer.com/stigs"
+NDM_STIG = ("Cisco IOS Switch NDM STIG", "V3R9 (2026-09-01)",
+            f"{_VIEWER}/cisco_ios_switch_ndm/2026-06-05/finding")
+L2S_STIG = ("Cisco IOS Switch L2S STIG", "V3R3 (2026-09-01)",
+            f"{_VIEWER}/cisco_ios_switch_l2s/2026-05-01/finding")
 NDM_SRG = ("Network Device Management SRG", "V5R5 (2026-05-23)",
-           f"{_TRACKR}/Network_Device_Management_Security_Requirements_Guide/5/5")
+           f"{_VIEWER}/network_device_management_security_requirements_guide/2026-05-23/finding")
 L2S_SRG = ("Layer 2 Switch SRG", "V3R4 (2026-02-12)",
-           f"{_TRACKR}/Layer_2_Switch_Security_Requirements_Guide/3/4")
+           f"{_VIEWER}/layer_2_switch_security_requirements_guide/2026-02-12/finding")
 
 _CATEGORY = {"high": "CAT I", "medium": "CAT II", "low": "CAT III"}
 
