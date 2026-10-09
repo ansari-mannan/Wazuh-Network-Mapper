@@ -14,10 +14,15 @@ Requests per device (each walk is one or more GETBULKs):
                  + one walk per access VLAN, only when BPDU guard differs
                  between ports (to map Cisco bridge ports to interfaces)
   probe (opt-in) + 2 GETs with the factory names, no retry
+
+The connection test (opt-in) runs only on a device that does not list its TCP
+listeners: one TCP connection to port 23 and one to port 80, closed as soon
+as it is accepted. No data is sent and no login is tried.
 """
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from . import tables as t
@@ -26,6 +31,28 @@ log = logging.getLogger("vulnmapper.checklist")
 
 PROBE_NAMES = ("public", "private")
 PROBE_TIMEOUT_S = 1.0
+
+MANAGEMENT_PORTS = (23, 80)
+CONNECT_TIMEOUT_S = 1.0
+ACCEPTED, REFUSED, NO_ANSWER = "accepted", "refused", "no_answer"
+
+
+async def tcp_connect(ip: str, port: int, timeout: float = CONNECT_TIMEOUT_S) -> str:
+    """Open one TCP connection and close it at once; nothing is sent."""
+    try:
+        _reader, writer = await asyncio.wait_for(asyncio.open_connection(ip, port), timeout)
+    except ConnectionRefusedError:
+        return REFUSED
+    except (OSError, asyncio.TimeoutError):   # filtered, unreachable: proves nothing
+        return NO_ANSWER
+    writer.close()
+    return ACCEPTED
+
+
+async def connection_test(ip: str, connect=tcp_connect) -> dict:
+    """``{port: accepted | refused | no_answer}``, one attempt per port."""
+    outcomes = await asyncio.gather(*(connect(ip, port) for port in MANAGEMENT_PORTS))
+    return dict(zip(MANAGEMENT_PORTS, outcomes))
 
 
 async def probe_default_communities(client, ip: str) -> dict:
@@ -49,8 +76,13 @@ async def _bridge_port_ifindex(client, ip: str, vlans) -> dict:
     return out
 
 
-async def collect_config(client, ip: str, vendor, probe: bool = False) -> dict:
-    """The parsed ``config_data`` for one polled device (see tables.py)."""
+async def collect_config(client, ip: str, vendor, probe: bool = False,
+                         connect=None) -> dict:
+    """The parsed ``config_data`` for one polled device (see tables.py).
+
+    ``connect`` (the connection test's connector, None when it is off) is used
+    only when the device does not list its TCP listeners.
+    """
     walk = lambda base: client.walk(ip, base)   # noqa: E731
     data: dict = {"snmp": client.credential_summary(ip),
                   "probe": await probe_default_communities(client, ip) if probe else None}
@@ -58,6 +90,8 @@ async def collect_config(client, ip: str, vendor, probe: bool = False) -> dict:
     scalars = await client.get_many(ip, [t.SYS_UPTIME]) or {}
     data["uptime"] = t.as_int(scalars.get(t.SYS_UPTIME))
     data["tcp"] = t.parse_tcp(await walk(t.TCP_CONN_STATE), await walk(t.TCP_LISTENER_PROCESS))
+    if connect is not None and not data["tcp"]["read"]:
+        data["connect"] = await connection_test(ip, connect)
 
     names = await walk(t.IF_NAME)
     descr = [] if names else await walk(t.IF_DESCR)

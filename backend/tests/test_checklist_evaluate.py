@@ -186,6 +186,25 @@ class TestChecks(unittest.TestCase):
                              "unknown")
             self.assertEqual(self.check(check_id, config(tcp=None))[0], "unknown")
 
+    def test_connection_test_outcomes(self):
+        silent = {"read": False, "ports": []}
+        for check_id, port in (("mgmt-telnet-enabled", 23), ("mgmt-http-enabled", 80)):
+            self.assertEqual(
+                self.check(check_id, config(tcp=silent, connect={port: "accepted"})),
+                ("fail", None, {"port": port,
+                                "found_by": "the port answered a connection test"}))
+            self.assertEqual(self.check(check_id, config(tcp=silent,
+                                                         connect={port: "refused"}))[0], "pass")
+            self.assertEqual(self.check(check_id, config(tcp=silent, connect={port: "no_answer"})),
+                             ("unknown", "no answer from the scanner's position", None))
+            self.assertIn("connection test is not enabled", self.check(check_id, config(tcp=silent))[1])
+            # a device that lists its listeners is judged by the list alone
+            self.assertEqual(self.check(check_id, config(connect={port: "accepted"}))[0], "pass")
+        # read back from JSON, the port numbers are strings
+        cfg = json.loads(json.dumps(config(tcp=silent, connect={23: "accepted", 80: "refused"})))
+        self.assertEqual(results(evaluate_device(switch(), cfg, False, "cisco_ios"))
+                         ["mgmt-telnet-enabled"], "fail")
+
     def test_snmp_without_authentication(self):
         self.assertEqual(self.check("snmp-no-auth", config())[0], "pass")
         self.assertEqual(self.check("snmp-no-auth", config(snmp={"version": "v2c"})),
@@ -446,9 +465,19 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(meta, meta_before)
         self.assertIsInstance(after["metadata"]["timing"]["checklist_s"], float)
         self.assertEqual(set(after["metadata"]["checklist"]),
-                         {"devices_checked", "results", "findings", "probe_enabled", "source"})
+                         {"devices_checked", "results", "findings", "probe_enabled",
+                          "port_test_enabled", "source"})
+        self.assertFalse(after["metadata"]["checklist"]["port_test_enabled"])
         self.assertEqual(after["metadata"]["checklist"]["devices_checked"], checked)
         self.assertFalse(after["metadata"]["checklist"]["probe_enabled"])
+
+    def test_connection_test_flag_is_recorded(self):
+        graph = self.run_pipeline("--check-management-ports")
+        self.assertTrue(graph["metadata"]["checklist"]["port_test_enabled"])
+        l3 = next(n for n in graph["nodes"] if n["node_id"] == f"device:{L3_CID}")
+        telnet = next(c for c in l3["config_checks"] if c["id"] == "mgmt-telnet-enabled")
+        # a --network file from a scan without the test: says so, never a pass
+        self.assertIn("results were not collected", telnet["reason"])
 
     def test_raw_tables_stay_off_the_graph(self):
         graph = self.run_pipeline()

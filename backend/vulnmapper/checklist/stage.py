@@ -34,7 +34,7 @@ class StageResult:
 
 
 def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
-              source: str = "scan") -> StageResult:
+              source: str = "scan", port_test: bool = False) -> StageResult:
     """Evaluate the checks for every polled device node of ``graph`` in place."""
     out = StageResult()
     config_by_chassis = {n.get("chassis_id"): n.get("config_data")
@@ -51,7 +51,8 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
             not_collected.append(node["node_id"])
         elif config.get("failed"):
             failed.append(node["node_id"])
-        node.update(evaluate_device(node, config, probe_enabled, family_of(node)))
+        node.update(evaluate_device(node, config, probe_enabled, family_of(node),
+                                    port_test))
         checked += 1
         results.update(node["config_summary"]["results"])
         findings.update(node["config_summary"]["findings"])
@@ -65,6 +66,7 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
         "results": {r: results.get(r, 0) for r in RESULTS},
         "findings": {s: findings.get(s, 0) for s in ("high", "medium", "low", "advisory")},
         "probe_enabled": probe_enabled,
+        "port_test_enabled": port_test,
         "source": source,
     }
     log.info("configuration checks: %d device(s), findings %s", checked, out.block["findings"])

@@ -292,6 +292,8 @@ class Config:
     # and, only if the owner chose it, try the factory community names.
     checklist: bool = False
     check_default_communities: bool = False
+    # Connect to TCP 23 and 80 on devices that do not list their listeners.
+    check_management_ports: bool = False
 
     @property
     def queue_maxsize(self) -> int:
@@ -757,10 +759,12 @@ class Crawler:
 
     def __init__(self, client: SnmpClient, *, concurrency: int, max_nodes: int,
                  queue_maxsize: int, checklist: bool = False,
-                 check_default_communities: bool = False) -> None:
+                 check_default_communities: bool = False, port_connect=None) -> None:
         self._client = client
         self._checklist = checklist
         self._probe_defaults = check_default_communities
+        # The connection test's connector (collect.tcp_connect); None when off.
+        self._port_connect = port_connect
         self._concurrency = concurrency
         self._max_nodes = max_nodes
         self._queue: asyncio.Queue = asyncio.Queue(maxsize=queue_maxsize)
@@ -943,7 +947,8 @@ class Crawler:
             from ..checklist.collect import collect_config
             try:
                 config = await collect_config(self._client, ip, info.get("vendor"),
-                                              probe=self._probe_defaults)
+                                              probe=self._probe_defaults,
+                                              connect=self._port_connect)
             except Exception:  # never lose the device over its checklist data
                 _log_crawler.exception("configuration-check tables failed for %s", ip)
                 config = {"failed": True}
@@ -1204,6 +1209,7 @@ async def run(cfg: Config) -> dict:
     client = SnmpClient(
         cfg.credentials, port=cfg.port, timeout=cfg.timeout, retries=cfg.retries
     )
+    from ..checklist.collect import tcp_connect
     crawler = Crawler(
         client,
         concurrency=cfg.concurrency,
@@ -1211,6 +1217,7 @@ async def run(cfg: Config) -> dict:
         queue_maxsize=cfg.queue_maxsize,
         checklist=cfg.checklist,
         check_default_communities=cfg.check_default_communities,
+        port_connect=tcp_connect if cfg.check_management_ports else None,
     )
     await crawler.seed(seeds)
     devices, links = await crawler.run()

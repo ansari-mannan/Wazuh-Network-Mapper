@@ -23,6 +23,9 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
   --check-default-communities
                    also try the factory SNMP names public and private (two
                    read-only requests per device; off by default)
+  --check-management-ports
+                   on devices that do not list their TCP listeners, open one
+                   connection to TCP 23 and 80 and close it (off by default)
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
 ``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
@@ -97,6 +100,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="also test whether devices answer the factory SNMP names "
                              "public and private (two read-only requests per device; the "
                              "network may log them as failed logins). Off by default.")
+    parser.add_argument("--check-management-ports", action="store_true",
+                        help="on devices that do not list their TCP listeners over SNMP, "
+                             "open one connection to TCP 23 (telnet) and 80 (HTTP) and close "
+                             "it at once; no data is sent. Off by default.")
     return parser
 
 
@@ -156,6 +163,7 @@ def _load_network(args, timing: dict) -> dict:
         seeds=list(args.seed or []),
         checklist=not args.no_checklist,
         check_default_communities=args.check_default_communities and not args.no_checklist,
+        check_management_ports=args.check_management_ports and not args.no_checklist,
     )
     log.info("running the live SNMP/LLDP crawl ...")
     t0 = time.monotonic()
@@ -195,10 +203,11 @@ class Pipeline:
         client = NvdClient(transport=self._nvd_transport, clock=clock, budget_s=budget_s)
         return run_stage(document, client, Cache(cache_path, clock))
 
-    def checklist(self, document: dict, network_doc: dict, probe_enabled: bool):
+    def checklist(self, document: dict, network_doc: dict, probe_enabled: bool,
+                  port_test: bool = False):
         from .checklist.stage import run_stage
 
-        return run_stage(document, network_doc, probe_enabled)
+        return run_stage(document, network_doc, probe_enabled, port_test=port_test)
 
     def emit(self, document: dict, output_path: Optional[str]) -> None:
         text = json.dumps(document, indent=2)
@@ -261,7 +270,8 @@ class Pipeline:
         if not args.no_checklist:
             log.info("evaluating device configuration checks ...")
             t0 = time.monotonic()
-            checks = self.checklist(document, network_doc, args.check_default_communities)
+            checks = self.checklist(document, network_doc, args.check_default_communities,
+                                    args.check_management_ports)
             timing["checklist_s"] = time.monotonic() - t0
             document["metadata"]["checklist"] = checks.block
             document["metadata"]["warnings"].extend(checks.warnings)

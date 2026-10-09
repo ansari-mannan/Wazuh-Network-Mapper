@@ -7,9 +7,11 @@ recorded, so the cost per device and the probe's behaviour are asserted.
 import asyncio
 import unittest
 from collections import Counter
+from unittest import mock
 
 from snmp_fakes import FakeSnmpClient, load_rows
 from vulnmapper.checklist import tables as t
+from vulnmapper.checklist import collect as c
 from vulnmapper.checklist.collect import collect_config
 from vulnmapper.network import parse
 from vulnmapper.network.crawl import Crawler, build_document
@@ -125,6 +127,76 @@ class TestCrawl(unittest.TestCase):
         self.assertEqual(doc["nodes"][0]["config_data"]["probe"],
                          {"public": False, "private": False})
         self.assertEqual(kinds(client)["probe"], 2)
+
+
+    def test_connection_test_only_when_chosen(self):
+        calls = []
+
+        async def connect(ip, port):
+            calls.append((ip, port))
+            return c.REFUSED
+        doc, _ = self.crawl(checklist=True)
+        self.assertNotIn("connect", doc["nodes"][0]["config_data"])
+        self.assertEqual(calls, [])
+        doc, _ = self.crawl(checklist=True, port_connect=connect)
+        self.assertEqual(doc["nodes"][0]["config_data"]["connect"],
+                         {23: c.REFUSED, 80: c.REFUSED})
+        self.assertEqual(sorted(calls), [(self.L3, 23), (self.L3, 80)])
+
+
+class TestConnectionTest(unittest.TestCase):
+    """The optional TCP 23/80 test, with the connector or the socket layer faked."""
+
+    def run_collect(self, name, vendor):
+        calls = []
+
+        async def connect(ip, port):
+            calls.append((ip, port))
+            return c.ACCEPTED
+        client = FakeSnmpClient({IP: load_rows(f"checklist_{name}.snmp")})
+        return asyncio.run(collect_config(client, IP, vendor, connect=connect)), calls
+
+    def test_only_devices_without_listener_data(self):
+        data, calls = self.run_collect("hp", "HP")         # lists its listeners
+        self.assertNotIn("connect", data)
+        self.assertEqual(calls, [])
+        data, calls = self.run_collect("l3", "Cisco")       # does not
+        self.assertEqual(data["connect"], {23: c.ACCEPTED, 80: c.ACCEPTED})
+        self.assertEqual(sorted(calls), [(IP, 23), (IP, 80)])
+
+    def test_outcomes_and_nothing_is_sent(self):
+        class Writer:
+            def __init__(self):
+                self.closed, self.written = False, []
+
+            def write(self, data):
+                self.written.append(data)
+
+            def close(self):
+                self.closed = True
+        writer = Writer()
+
+        def opener(outcome):
+            async def open_connection(ip, port):
+                if isinstance(outcome, BaseException):
+                    raise outcome
+                return object(), writer
+            return open_connection
+        for outcome, expected in ((None, c.ACCEPTED), (ConnectionRefusedError(), c.REFUSED),
+                                  (asyncio.TimeoutError(), c.NO_ANSWER),
+                                  (OSError("unreachable"), c.NO_ANSWER)):
+            with mock.patch.object(c.asyncio, "open_connection", opener(outcome)):
+                self.assertEqual(asyncio.run(c.tcp_connect(IP, 23)), expected)
+        self.assertTrue(writer.closed)
+        self.assertEqual(writer.written, [])
+
+    def test_timeout_is_about_a_second(self):
+        async def never(ip, port):
+            await asyncio.sleep(3600)
+        with mock.patch.object(c.asyncio, "open_connection", never), \
+                mock.patch.object(c, "CONNECT_TIMEOUT_S", 0.01):
+            self.assertEqual(asyncio.run(c.tcp_connect(IP, 80, 0.01)), c.NO_ANSWER)
+        self.assertEqual(c.CONNECT_TIMEOUT_S, 1.0)
 
 
 if __name__ == "__main__":

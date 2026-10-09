@@ -60,7 +60,7 @@ def normalise(config: Optional[dict]) -> Optional[dict]:
         return config
     c = dict(config)
     c["interfaces"] = _intkeys(c.get("interfaces"))
-    for key in ("bridge_ports", "pvid", "vm_vlan"):
+    for key in ("bridge_ports", "pvid", "vm_vlan", "connect"):
         c[key] = _intkeys(c.get(key))
     if c.get("port_security"):
         c["port_security"] = dict(c["port_security"], ports=_intkeys(c["port_security"]["ports"]))
@@ -104,12 +104,21 @@ def _name(config: dict, if_index: int) -> str:
 # --- the checks -----------------------------------------------------------------
 # Each returns (result, reason, evidence).
 
-def _tcp_port(config: dict, port: int):
+def _tcp_port(config: dict, port: int, port_test: bool):
     tcp = config.get("tcp")
     if tcp is None:
         return UNKNOWN, "the TCP tables were not read", None
     if not tcp["read"]:
-        return UNKNOWN, "the device does not list its TCP listeners over SNMP", None
+        outcome = (config.get("connect") or {}).get(port)
+        if outcome == "accepted":
+            return FAIL, None, {"port": port, "found_by": "the port answered a connection test"}
+        if outcome == "refused":
+            return PASS, None, None
+        if outcome == "no_answer":
+            return UNKNOWN, "no answer from the scanner's position", None
+        return UNKNOWN, ("the device does not list its TCP listeners over SNMP, and the "
+                         + ("connection test results were not collected" if port_test
+                            else "connection test is not enabled")), None
     if port in tcp["ports"]:
         return FAIL, None, {"port": port}
     return PASS, None, None
@@ -247,7 +256,7 @@ def _finding(check: dict, family: Optional[str], evidence: Optional[dict]) -> di
 
 
 def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
-                    family: Optional[str] = None) -> dict:
+                    family: Optional[str] = None, port_test: bool = False) -> dict:
     """``{config_checks, config_findings, config_summary}`` for one polled device.
 
     ``node`` is the graph's device node (role, vendor, uplink_ports); ``config``
@@ -269,9 +278,9 @@ def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
         elif missing:
             result, reason, evidence = UNKNOWN, missing, None
         elif check["id"] == "mgmt-telnet-enabled":
-            result, reason, evidence = _tcp_port(config, 23)
+            result, reason, evidence = _tcp_port(config, 23, port_test)
         elif check["id"] == "mgmt-http-enabled":
-            result, reason, evidence = _tcp_port(config, 80)
+            result, reason, evidence = _tcp_port(config, 80, port_test)
         elif check["id"] == "snmp-no-auth":
             result, reason, evidence = _snmp_no_auth(config)
         elif check["id"] == "snmp-default-community":
