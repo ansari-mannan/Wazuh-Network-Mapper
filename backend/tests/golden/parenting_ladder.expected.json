@@ -79,7 +79,8 @@
       "agent_id": "004",
       "stale": false,
       "top_cves": [],
-      "cve_summary": null
+      "cve_summary": null,
+      "unmanaged": false
     },
     {
       "node_id": "endpoint:010",
@@ -102,7 +103,8 @@
       "stale": false,
       "top_cves": [],
       "cve_summary": null,
-      "vlan": 20
+      "vlan": 20,
+      "unmanaged": false
     },
     {
       "node_id": "endpoint:003",
@@ -124,7 +126,8 @@
       "agent_id": "003",
       "stale": false,
       "top_cves": [],
-      "cve_summary": null
+      "cve_summary": null,
+      "unmanaged": false
     },
     {
       "node_id": "endpoint:007",
@@ -146,7 +149,8 @@
       "agent_id": "007",
       "stale": false,
       "top_cves": [],
-      "cve_summary": null
+      "cve_summary": null,
+      "unmanaged": false
     }
   ],
   "edges": [
@@ -215,6 +219,12 @@
         "reason": "host_offline_no_l2_evidence"
       }
     ],
-    "unreachable_boundaries": []
+    "unreachable_boundaries": [],
+    "coverage": {
+      "hosts": 4,
+      "managed": 4,
+      "unmanaged": 0,
+      "managed_share": 1.0
+    }
   }
 }

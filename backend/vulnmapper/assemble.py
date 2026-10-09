@@ -44,6 +44,7 @@ from .schema import (
     format_mac,
     host_node_id,
 )
+from .hosts import label
 from .network.roles import decode_capabilities, derive_role
 
 
@@ -869,5 +870,6 @@ class GraphAssembler:
 
 
 def assemble(endpoints: list[dict], network_doc: dict) -> dict:
-    """Build the unified graph document from endpoints + the network document."""
-    return GraphAssembler(endpoints, network_doc).build()
+    """Build the unified graph document from endpoints + the network document,
+    with every host labelled managed or unmanaged (:mod:`vulnmapper.hosts`)."""
+    return label(GraphAssembler(endpoints, network_doc).build())
