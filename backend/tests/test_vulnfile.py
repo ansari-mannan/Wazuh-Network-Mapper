@@ -31,7 +31,7 @@ def run(argv):
     out = io.StringIO()
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()), \
             unittest.TestCase().assertLogs("vulnmapper.pipeline", "INFO") as logs:
-        code = Pipeline().run(list(argv) + ["--no-device-cves", "--no-name-lookup"])
+        code = Pipeline().run(list(argv) + ["--no-device-cves", "--no-cve-vectors", "--no-name-lookup"])
     return code, out.getvalue(), logs.output
 
 
@@ -106,7 +106,7 @@ class TestVulnsFileRules(unittest.TestCase):
                 contextlib.redirect_stderr(io.StringIO()):
             Pipeline().run(["--no-name-lookup", "--scored", SCORED, "--network",
                             os.path.join(self.tmp, "missing.json"), "-o", self.graph,
-                            "--no-device-cves"])
+                            "--no-device-cves", "--no-cve-vectors"])
         with open(self.default) as f:
             self.assertEqual(f.read(), "previous\n")    # untouched
         self.assertEqual(sorted(os.listdir(self.tmp)), ["vulnerabilities.json"])

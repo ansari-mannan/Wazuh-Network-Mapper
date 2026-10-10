@@ -1,5 +1,5 @@
 """Top-level run: collect -> score -> crawl -> assemble -> device CVEs ->
-configuration checks -> one graph.
+CVE vectors -> configuration checks -> one graph.
 
     python -m vulnmapper --community <community> > graph.json
 
@@ -17,8 +17,11 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
   --vulns-out PATH every CVE finding (vulnerabilities.json); defaults to the
                    folder of -o, skipped when the graph goes to stdout
   --no-device-cves skip the device vulnerability stage (NVD lookups)
+  --no-cve-vectors skip the CVE vector stage (each asset's most easily reached
+                   CVE; NVD lookups by CVE id)
   --nvd-cache PATH where NVD answers are kept; default nvd-cache.json beside
-                   the vulnerabilities file (or beside -o)
+                   the vulnerabilities file (or beside -o); both NVD stages
+                   share it, and share one time budget (--nvd-budget)
   --no-checklist   skip the configuration checks (no extra SNMP reads)
   --check-default-communities
                    also try the factory SNMP names public and private (two
@@ -93,6 +96,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-device-cves", action="store_true",
                         help="skip the device vulnerability stage (no NVD lookups); "
                              "device nodes are emitted as before.")
+    parser.add_argument("--no-cve-vectors", action="store_true",
+                        help="skip the CVE vector stage (NVD lookups by CVE id); nodes, "
+                             "top_cves and the CVE catalogue are emitted as before.")
     parser.add_argument("--nvd-cache", metavar="PATH",
                         help="NVD answer cache (default: nvd-cache.json beside the "
                              "vulnerabilities file, or beside -o).")
@@ -210,6 +216,7 @@ class Pipeline:
         self._clock = clock
         self._resolver = resolver
         self._snmp_client = snmp_client
+        self._nvd = None
 
     def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
         return _load_endpoints(args, timing, vulns)
@@ -282,14 +289,28 @@ class Pipeline:
 
         return lookup_names(document, **({"resolver": self._resolver} if self._resolver else {}))
 
+    def nvd(self, cache_path: Optional[str], budget_s: float) -> tuple:
+        """The run's ``(client, cache)``, shared by both NVD stages: one request
+        spacing and one time budget for the scan."""
+        if self._nvd is None:
+            from .devicecves.cache import Cache
+            from .devicecves.nvd import NvdClient, SystemClock
+
+            clock = self._clock or SystemClock()
+            self._nvd = (NvdClient(transport=self._nvd_transport, clock=clock, budget_s=budget_s),
+                         Cache(cache_path, clock))
+        return self._nvd
+
     def device_cves(self, document: dict, cache_path: Optional[str], budget_s: float):
-        from .devicecves.cache import Cache
-        from .devicecves.nvd import NvdClient, SystemClock
         from .devicecves.stage import run_stage
 
-        clock = self._clock or SystemClock()
-        client = NvdClient(transport=self._nvd_transport, clock=clock, budget_s=budget_s)
-        return run_stage(document, client, Cache(cache_path, clock))
+        return run_stage(document, *self.nvd(cache_path, budget_s))
+
+    def cve_vectors(self, document: dict, hosts: dict, catalogue: dict,
+                    cache_path: Optional[str], budget_s: float):
+        from .devicecves.vectors import run_stage
+
+        return run_stage(document, hosts, catalogue, *self.nvd(cache_path, budget_s))
 
     def checklist(self, document: dict, network_doc: dict, probe_enabled: bool,
                   port_test: bool = False):
@@ -352,14 +373,19 @@ class Pipeline:
         vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
                                         if args.output else None)
         device_entries: dict = {}
-        if not args.no_device_cves:
+        self._nvd = None
+        if not (args.no_device_cves and args.no_cve_vectors):
             from .devicecves.cache import default_path as cache_beside
-            from .devicecves.stage import DEFAULT_BUDGET_S, merge_catalogue
+            from .devicecves.stage import DEFAULT_BUDGET_S
 
             cache_path = args.nvd_cache or (cache_beside(vulns_path) if vulns_path else None)
+            budget_s = args.nvd_budget or DEFAULT_BUDGET_S
+        if not args.no_device_cves:
+            from .devicecves.stage import merge_catalogue
+
             log.info("looking up device CVEs in NVD ...")
             t0 = time.monotonic()
-            stage = self.device_cves(document, cache_path, args.nvd_budget or DEFAULT_BUDGET_S)
+            stage = self.device_cves(document, cache_path, budget_s)
             timing["device_cves_s"] = time.monotonic() - t0
             document["metadata"]["device_cves"] = stage.block
             document["metadata"]["warnings"].extend(stage.warnings)
@@ -367,6 +393,17 @@ class Pipeline:
             for rows in stage.rows.values():
                 merge_catalogue(vulns["cves"], rows)
             device_entries = stage.entries
+
+        if not args.no_cve_vectors:
+            log.info("looking up CVE vectors in NVD ...")
+            t0 = time.monotonic()
+            vulns["cves"] = dict(vulns["cves"] or {})
+            hosts = vulnfile.build_document(endpoints, vulns["cves"], None,
+                                            devices=device_entries)["hosts"]
+            stage = self.cve_vectors(document, hosts, vulns["cves"], cache_path, budget_s)
+            timing["cve_vectors_s"] = time.monotonic() - t0
+            document["metadata"]["cve_vectors"] = stage.block
+            document["metadata"]["warnings"].extend(stage.warnings)
 
         if not args.no_checklist:
             log.info("evaluating device configuration checks ...")

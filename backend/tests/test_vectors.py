@@ -12,12 +12,16 @@ import shutil
 import tempfile
 import unittest
 
+from test_cdp import crawl, lab
+from test_device_stage import lab_nvd
 from test_nvd import IOS_CPE, FakeClock, FakeNvd, ios_cves, vector
 from vulnmapper.devicecves import nvd, vectors
 from vulnmapper.devicecves.cache import Cache, trim_cve
 from vulnmapper.devicecves.lookup import Unanswered
+from vulnmapper.pipeline import Pipeline
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+FIXTURES = os.path.join(HERE, "fixtures")
 FOUR = set(nvd.VECTOR_FIELDS)
 
 
@@ -212,6 +216,69 @@ class TestStage(unittest.TestCase):
         out, _ = self.stage({"nodes": [node]}, fake, cache=cache)
         self.assertEqual(fake.calls, [])
         self.assertEqual(out["device:l3"]["cve"], "CVE-2006-4950")
+
+
+class TestPipeline(unittest.TestCase):
+    """Offline endpoints with findings, the lab crawl and its devices' NVD answers."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.network = os.path.join(self.tmp, "network.json")
+        with open(self.network, "w") as f:
+            json.dump(crawl(lab()), f)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def run_pipeline(self, *extra):
+        clock = FakeClock()
+        self.fake = lab_nvd(clock)
+        with contextlib.suppress(FileNotFoundError):       # each run starts cold
+            os.unlink(os.path.join(self.tmp, "nvd-cache.json"))
+        argv = ["--scored", os.path.join(FIXTURES, "offline_scored.json"), "--network",
+                self.network, "--no-name-lookup", "-o", os.path.join(self.tmp, "graph.json"), *extra]
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(Pipeline(nvd_transport=self.fake, clock=clock).run(argv), 0)
+        out = {}
+        for name in ("graph", "vulnerabilities"):
+            with open(os.path.join(self.tmp, f"{name}.json")) as f:
+                out[name] = json.load(f)
+        return out
+
+    def test_stage_off_gives_todays_documents(self):
+        """Against the output of main at 8961af5 (before this stage) on the same inputs."""
+        with open(os.path.join(FIXTURES, "pipeline_main_8961af5.json")) as f:
+            today = json.load(f)
+        out = self.run_pipeline("--no-cve-vectors")
+        timing = out["graph"]["metadata"].pop("timing")
+        self.assertNotIn("cve_vectors_s", timing)
+        for key in ("scan_time", "network_scan_time"):
+            out["graph"]["metadata"].pop(key)
+        out["vulnerabilities"]["metadata"].pop("scan_time")
+        self.assertEqual(out, today)
+
+    def test_stage_on_adds_only_its_fields(self):
+        off = self.run_pipeline("--no-cve-vectors")
+        on = self.run_pipeline()
+        meta = on["graph"]["metadata"]
+        self.assertIsInstance(meta["timing"].pop("cve_vectors_s"), float)
+        self.assertEqual(meta.pop("cve_vectors")["assets"], 11)
+        found = 0
+        for node in on["graph"]["nodes"]:
+            summary = node.pop(vectors.FIELD)
+            found += bool(summary and summary["status"] == "found")
+            for row in node.get("top_cves") or []:
+                for k in FOUR:
+                    row.pop(k, None)
+        for entry in on["vulnerabilities"]["cves"].values():
+            for k in FOUR:
+                entry.pop(k, None)
+        for doc in (on, off):
+            for key in ("scan_time", "network_scan_time", "timing"):
+                doc["graph"]["metadata"].pop(key)
+            doc["vulnerabilities"]["metadata"].pop("scan_time")
+        self.assertEqual(on, off)
+        self.assertEqual(found, 1)                       # the L3 switch: CVE-2006-4950
 
 
 class TestRefresh(unittest.TestCase):

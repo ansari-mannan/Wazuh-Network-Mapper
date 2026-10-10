@@ -174,7 +174,7 @@ class TestWazuhServerSkipped(unittest.TestCase):
                 contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             with self.assertLogs("vulnmapper.pipeline", "INFO"):
                 Pipeline().run(["--no-network", "--no-name-lookup", "-o", os.path.join(tmp, "g.json"),
-                                "--no-device-cves"])
+                                "--no-device-cves", "--no-cve-vectors"])
             with open(os.path.join(tmp, "g.json")) as f:
                 graph = json.load(f)
         self.assertNotIn("endpoint:000", {n["node_id"] for n in graph["nodes"]})

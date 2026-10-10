@@ -182,7 +182,7 @@ class TestPipeline(unittest.TestCase):
             return json.load(f)
 
     def test_stage_skipped_gives_todays_document(self):
-        graph = self.run_pipeline("--no-device-cves", "--no-checklist")
+        graph = self.run_pipeline("--no-device-cves", "--no-checklist", "--no-cve-vectors")
         with open(self.network) as f:
             today = assemble([], json.load(f))
         self.assertEqual(graph["nodes"], today["nodes"])
@@ -195,8 +195,9 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(vulns["metadata"]["counts"]["devices"], 0)
 
     def test_stage_on_adds_exactly_the_documented_fields(self):
-        before = {n["node_id"]: n for n in self.run_pipeline("--no-device-cves")["nodes"]}
-        graph = self.run_pipeline()
+        before = {n["node_id"]: n for n in self.run_pipeline("--no-device-cves",
+                                                             "--no-cve-vectors")["nodes"]}
+        graph = self.run_pipeline("--no-cve-vectors")
         after = {n["node_id"]: n for n in graph["nodes"]}
         self.assertEqual(set(after), set(before))
         for nid, node in after.items():

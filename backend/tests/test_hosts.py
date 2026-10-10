@@ -204,7 +204,7 @@ class TestPipeline(unittest.TestCase):
             self.asked.append(ip)
             return f"pc-{ip.split('.')[-1]}.lab"
         path = os.path.join(self.tmp, "graph.json")
-        argv = ["--no-endpoints", "--no-device-cves", "--network", self.network, "-o", path,
+        argv = ["--no-endpoints", "--no-device-cves", "--no-cve-vectors", "--network", self.network, "-o", path,
                 *extra]
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(Pipeline(resolver=resolver).run(argv), 0)
@@ -373,7 +373,7 @@ class TestSnmpQuestion(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()), \
                     contextlib.redirect_stderr(io.StringIO()):
                 Pipeline().run(["--no-endpoints", "--no-name-lookup", "--no-checklist",
-                                "--no-device-cves", "--network", self.network, "-o", path,
+                                "--no-device-cves", "--no-cve-vectors", "--network", self.network, "-o", path,
                                 "--probe-unmanaged-snmp", "--community", "site-secret"])
         (credentials, kw), = made
         self.assertEqual([c.community for c in credentials], ["site-secret"])
