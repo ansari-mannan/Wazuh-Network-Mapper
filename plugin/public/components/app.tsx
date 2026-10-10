@@ -7,18 +7,21 @@ import { PageDef, PAGES } from '../pages';
 import { GraphProvider } from '../lib/graph';
 import { ScanProvider } from '../lib/scan';
 import { LivenessProvider } from '../lib/liveness';
+import { AttackPathsProvider } from '../lib/attackPathsData';
 import { Services, ServicesProvider, useServices } from '../lib/services';
 import { Overview } from './overview/Overview';
 import { InnerPage } from './layout/InnerPage';
 import { ComingSoon } from './layout/ComingSoon';
 import { TopologyPage } from './topology/TopologyPage';
 import { ScanSettingsPage } from './scan/ScanSettingsPage';
+import { AttackPathsPage } from './attackpaths/AttackPathsPage';
 
 // Page bodies by page id. A page without an entry here (or not `available` in
 // PAGES) renders the "coming soon" empty state.
 const PAGE_COMPONENTS: Record<string, ComponentType> = {
   topology: TopologyPage,
   scan: ScanSettingsPage,
+  'attack-paths': AttackPathsPage,
 };
 
 function useBreadcrumbs(page?: PageDef) {
@@ -54,18 +57,20 @@ export const VulnmapperApp = ({ services }: { services: Services }) => (
       <GraphProvider>
         <ScanProvider>
           <LivenessProvider>
-            <Router history={services.history}>
-              <Switch>
-                {PAGES.map((page) => (
-                  <Route key={page.id} path={`/${page.id}`} exact>
-                    <PageRoute page={page} />
+            <AttackPathsProvider>
+              <Router history={services.history}>
+                <Switch>
+                  {PAGES.map((page) => (
+                    <Route key={page.id} path={`/${page.id}`} exact>
+                      <PageRoute page={page} />
+                    </Route>
+                  ))}
+                  <Route>
+                    <OverviewRoute />
                   </Route>
-                ))}
-                <Route>
-                  <OverviewRoute />
-                </Route>
-              </Switch>
-            </Router>
+                </Switch>
+              </Router>
+            </AttackPathsProvider>
           </LivenessProvider>
         </ScanProvider>
       </GraphProvider>

@@ -48,7 +48,7 @@ export const PAGES: PageDef[] = [
     description: 'Routes an attacker could take from exposed hosts across the network.',
     icon: 'branch',
     group: 'risk',
-    available: false,
+    available: true,
   },
   {
     id: 'recommendations',

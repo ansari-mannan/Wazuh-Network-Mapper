@@ -1,0 +1,37 @@
+/* Attack-paths page: ranked route tiles and the vertical step chain. Colours
+ * come from the OUI theme variables, so light/dark follow automatically. */
+
+.vmRouteTile {
+  cursor: pointer;
+  transition: box-shadow 0.12s, transform 0.12s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba($euiShadowColor, 0.18);
+    transform: translateY(-1px);
+  }
+}
+.vmRouteTile--selected {
+  box-shadow: 0 0 0 2px rgba($euiColorPrimary, 0.55);
+}
+
+/* the down connector between takeover steps */
+.vmChainConnector {
+  display: grid;
+  place-items: center;
+  color: $euiColorMediumShade;
+  height: $euiSizeL;
+}
+
+/* a transit step: lighter than a takeover panel */
+.vmTransit {
+  color: $euiTextSubduedColor;
+  border-left: 2px dashed $euiBorderColor;
+  margin-left: $euiSizeM;
+  padding: $euiSizeXS 0 $euiSizeXS $euiSizeM;
+  font-size: $euiFontSizeXS;
+}
+
+/* keep the two columns from forcing a horizontal scroll in a narrow panel */
+.vmAttackPaths .euiFlexItem {
+  min-width: 0;
+}
