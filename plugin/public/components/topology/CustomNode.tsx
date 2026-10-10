@@ -1,9 +1,11 @@
 import React from 'react';
+import { EuiBadge } from '@elastic/eui';
 import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';
 import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
 import { isOffline, riskBorder, riskLabel, statusDot } from './nodeStyle';
-import { nodeRiskScore } from '../../lib/risk';
+import { nodeRiskScore, RISK_META } from '../../lib/risk';
+import { findingsBadge, findingsBadgeText } from '../../lib/findingsBadge';
 import { useLiveness } from '../../lib/liveness';
 
 // A React Flow node whose `data` payload is a real graph node.
@@ -25,6 +27,7 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
   const border = riskBorder(risk);
   const dimmed = data.stale || isOffline(data.status, liveness);
   const label = data.hostname || data.ip || data.node_id;
+  const findings = findingsBadge(data);
 
   return (
     // The unmanaged label sits beside the node, not in it, so an offline node's
@@ -44,6 +47,11 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
         <Icon className="node__icon" size={26} strokeWidth={1.5} />
         <div className="node__label">{label}</div>
         {data.role && <div className="node__role">{data.role}</div>}
+        {findings && (
+          <span className="node__findings" title={`${findingsBadgeText(findings)}-severity configuration finding(s)`}>
+            <EuiBadge color={RISK_META[findings.severity].color}>{findingsBadgeText(findings)}</EuiBadge>
+          </span>
+        )}
         <Handle type="source" position={Position.Bottom} className="handle" />
       </div>
       {data.unmanaged && (

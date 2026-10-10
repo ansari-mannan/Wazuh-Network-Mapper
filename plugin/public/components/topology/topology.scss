@@ -80,6 +80,16 @@
   .react-flow__node.vmDim {
     opacity: 0.18;
   }
+
+  // worst configuration-finding severity, so a device with no CVE score but a
+  // finding (e.g. open telnet) is not read as clean. The badge (lib/risk colour)
+  // sits on the node's lower edge; EuiBadge picks its own readable text colour.
+  .node__findings {
+    position: absolute;
+    bottom: -10px;
+    right: 8px;
+    pointer-events: none;
+  }
 }
 
 // ---- device detail flyout -------------------------------------------------
