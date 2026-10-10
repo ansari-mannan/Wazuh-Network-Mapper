@@ -179,6 +179,11 @@ class NvdClient:
         return [v.get("cve") or {} for v in
                 self._paged(CVES_URL, params + [("noRejected", None)], "vulnerabilities")]
 
+    def cve_by_id(self, cve_id: str) -> Optional[dict]:
+        """One CVE record by its id (``cveId``), or None when NVD has no such CVE."""
+        found = self._get(CVES_URL, [("cveId", cve_id)]).get("vulnerabilities") or []
+        return (found[0].get("cve") or None) if found else None
+
     def cves_for_keyword(self, query: str) -> list:
         return [v.get("cve") or {} for v in self._paged(
             CVES_URL, [("keywordSearch", query), ("noRejected", None)], "vulnerabilities")]

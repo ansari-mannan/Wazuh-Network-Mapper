@@ -14,7 +14,7 @@ from urllib.parse import parse_qsl, urlsplit
 
 from vulnmapper.devicecves import families, nvd
 from vulnmapper.devicecves.cache import Cache
-from vulnmapper.devicecves.lookup import lookup
+from vulnmapper.devicecves.lookup import Unanswered, lookup, lookup_cve
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 NVD_DIR = os.path.join(HERE, "fixtures", "nvd")
@@ -91,7 +91,8 @@ class FakeNvd:
             items = self.dictionary.get(params["cpeMatchString"], [])
             key = "products"
         else:
-            items = self.cves.get(params.get("cpeName") or params.get("keywordSearch"), [])
+            items = self.cves.get(params.get("cpeName") or params.get("keywordSearch")
+                                  or params.get("cveId"), [])
             key = "vulnerabilities"
         page = items[start:start + size]
         return 200, {"resultsPerPage": len(page), "startIndex": start,
@@ -457,6 +458,46 @@ class TestUnidentified(Base):
         fake = self.nvd()
         result, client = self.run_lookup(fake, ident={"match": "unidentified", "product": None})
         self.assertEqual((result.status, client.requests), ("unidentified", 0))
+
+
+class TestLookupById(Base):
+    def client(self, fake, budget=180.0):
+        return nvd.NvdClient(transport=fake, clock=self.clock, api_key="", budget_s=budget,
+                             use_env_key=False)
+
+    def test_asks_by_id_and_caches_the_trimmed_record(self):
+        fake = self.nvd(cves={"CVE-2006-4950": [v for v in ios_cves()
+                                                if v["cve"]["id"] == "CVE-2006-4950"]})
+        cache = Cache(self.path, self.clock)
+        rec = lookup_cve("CVE-2006-4950", self.client(fake), cache)
+        self.assertEqual(rec["id"], "CVE-2006-4950")
+        self.assertIn("cvssMetricV2", rec["metrics"])
+        self.assertEqual(fake.calls[0]["params"], {"cveId": "CVE-2006-4950"})
+        cache.save()
+        warm = self.nvd()
+        again = lookup_cve("CVE-2006-4950", self.client(warm), Cache(self.path, self.clock))
+        self.assertEqual((again, warm.calls), (rec, []))
+
+    def test_unknown_id_is_none_and_cached_for_a_day(self):
+        cache = Cache(self.path, self.clock)
+        fake = self.nvd()
+        self.assertIsNone(lookup_cve("CVE-2099-0001", self.client(fake), cache))
+        self.assertIsNone(lookup_cve("CVE-2099-0001", self.client(fake), cache))
+        self.assertEqual(len(fake.calls), 1)
+        self.clock.advance(days=1)
+        lookup_cve("CVE-2099-0001", self.client(fake), cache)
+        self.assertEqual(len(fake.calls), 2)
+
+    def test_spacing_and_budget(self):
+        fake = self.nvd()
+        client = self.client(fake, budget=10.0)
+        cache = Cache(None, self.clock)
+        lookup_cve("CVE-2099-0001", client, cache)
+        lookup_cve("CVE-2099-0002", client, cache)       # waits the 6 s spacing
+        self.assertEqual(self.clock.sleeps, [6.0])
+        with self.assertRaises(Unanswered) as e:          # the next 6 s does not fit
+            lookup_cve("CVE-2099-0003", client, cache)
+        self.assertEqual((e.exception.reason, len(fake.calls)), ("budget", 2))
 
 
 if __name__ == "__main__":

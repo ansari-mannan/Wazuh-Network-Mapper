@@ -46,7 +46,7 @@ class Lookup:
     queries: list = field(default_factory=list)
 
 
-class _Unanswered(Exception):
+class Unanswered(Exception):
     def __init__(self, reason: str):
         self.reason = reason
 
@@ -65,7 +65,7 @@ def _answer(cache: Cache, key: str, fetch, found_of, result: Lookup) -> dict:
         if entry is not None:            # an old answer beats no answer
             result.stale = True
             return entry
-        raise _Unanswered("budget" if isinstance(e, NvdBudgetExceeded) else "unreachable")
+        raise Unanswered("budget" if isinstance(e, NvdBudgetExceeded) else "unreachable")
     return cache.put(key, found=found_of(data), data=data)
 
 
@@ -103,7 +103,7 @@ def lookup(ident: dict, client: NvdClient, cache: Cache) -> Lookup:
                              bool, result)
             cves = [c for c in answer["data"] if keyword_accepts(
                 c, vendors=kw["vendors"], line=kw["line"], version=kw["version"])]
-    except _Unanswered as e:
+    except Unanswered as e:
         result.status, result.reason = STATUS_UNAVAILABLE, e.reason
         return result
     except NvdInvalidQuery:
@@ -115,3 +115,19 @@ def lookup(ident: dict, client: NvdClient, cache: Cache) -> Lookup:
     result.rows = [parse_cve(c, package=package, version=version, detected_at=answer["fetched_at"])
                    for c in cves if not is_rejected(c)]
     return result
+
+
+def lookup_cve(cve_id: str, client: NvdClient, cache: Cache) -> Optional[dict]:
+    """One CVE's trimmed NVD record by id, through the cache; None when NVD has
+    no such CVE. Raises :class:`Unanswered` when NVD cannot be asked (or the
+    budget is spent) and nothing is cached."""
+    def fetch():
+        cve = client.cve_by_id(cve_id)
+        return trim_cve(cve) if cve else None
+
+    key = f"cve:{cve_id}"
+    try:
+        answer = _answer(cache, key, fetch, bool, Lookup(status=STATUS_OK))
+    except NvdInvalidQuery:              # an id NVD calls malformed is no CVE it knows
+        return cache.put(key, found=False, data=None)["data"]
+    return answer["data"]
