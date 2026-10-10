@@ -1,6 +1,9 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
   EuiBadge,
+  EuiButtonEmpty,
+  EuiButtonGroup,
+  EuiCallOut,
   EuiDescriptionList,
   EuiFlexGroup,
   EuiFlexItem,
@@ -14,8 +17,11 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { CveSummary, GraphNode, NodeLiveness } from '../../../common';
+import { CveSummary, GraphNode, Importance, NodeLiveness } from '../../../common';
 import { useGraph } from '../../lib/graph';
+import { useAttackPaths } from '../../lib/attackPathsData';
+import { useServices } from '../../lib/services';
+import { IMPORTANCE_META } from '../../lib/attackPaths';
 import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
@@ -109,6 +115,78 @@ function RiskSummary({ score, summary }: { score: number | null; summary: CveSum
           );
         })}
       </EuiFlexGroup>
+    </Section>
+  );
+}
+
+const IMPORTANCE_LEVELS: Importance[] = ['low', 'moderate', 'high'];
+const IMPORTANCE_SHORT: Record<Importance, string> = { low: 'Low', moderate: 'Moderate', high: 'High' };
+
+// Mark this asset as one to protect: the owner picks its FIPS 199 importance (or
+// unmarks it). Saving runs the recompute on the server, then re-reads the paths.
+function ProtectControl({ nodeId }: { nodeId: string }) {
+  const { doc, reload } = useAttackPaths();
+  const { http } = useServices();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const current = doc?.targets.find((t) => t.id === nodeId)?.importance ?? null;
+
+  const save = async (importance: Importance | null) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await http.post('/api/vulnmapper/targets', { body: JSON.stringify({ id: nodeId, importance }) });
+      await reload();
+    } catch (e) {
+      setError(e.body?.message || e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Section title="Protect this asset">
+      <EuiText size="xs" color="subdued">
+        <p>
+          Mark this asset's importance (FIPS 199) to see the routes that could reach it on the
+          Attack paths page.
+        </p>
+      </EuiText>
+      <EuiSpacer size="s" />
+      <EuiFlexGroup gutterSize="s" alignItems="center" responsive={false} wrap>
+        <EuiFlexItem grow={false}>
+          <EuiButtonGroup
+            legend="Importance"
+            isDisabled={busy}
+            idSelected={current || ''}
+            onChange={(id: string) => save(id as Importance)}
+            options={IMPORTANCE_LEVELS.map((l) => ({
+              id: l,
+              label: IMPORTANCE_SHORT[l],
+              'data-test-subj': `vmProtect-${l}`,
+            }))}
+            data-test-subj="vmProtect"
+          />
+        </EuiFlexItem>
+        {current && (
+          <EuiFlexItem grow={false}>
+            <EuiButtonEmpty size="s" iconType="cross" isDisabled={busy} onClick={() => save(null)} data-test-subj="vmUnprotect">
+              Unmark
+            </EuiButtonEmpty>
+          </EuiFlexItem>
+        )}
+        {current && (
+          <EuiFlexItem grow={false}>
+            <EuiBadge color={IMPORTANCE_META[current].color}>{IMPORTANCE_META[current].label}</EuiBadge>
+          </EuiFlexItem>
+        )}
+      </EuiFlexGroup>
+      {error && (
+        <>
+          <EuiSpacer size="s" />
+          <EuiCallOut color="danger" size="s" iconType="alert" title={error} />
+        </>
+      )}
     </Section>
   );
 }
@@ -236,6 +314,8 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
         )}
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
+        <ProtectControl nodeId={node.node_id} />
+        <EuiSpacer size="m" />
         <Section title="Identity">
           <EuiDescriptionList
             type="column"

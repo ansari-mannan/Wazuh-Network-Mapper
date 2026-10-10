@@ -196,6 +196,7 @@ dashboard's own jest, from the dashboard folder:
 | `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp }` for the scan form |
 | `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 | `GET /api/vulnmapper/attack-paths` | the computed `attack_paths.json` read from beside the graph; a missing file is returned as `{ metadata: { state: "absent" }, ... }` rather than an error |
+| `POST /api/vulnmapper/targets` | mark, re-rate or unmark one protected asset; body `{ "id": string, "importance": "high" \| "moderate" \| "low" \| null }` (null unmarks); updates `targets.json` beside the graph and runs `<pythonBin> -m vulnmapper.attackpaths --graph <graphPath>` to recompute |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so

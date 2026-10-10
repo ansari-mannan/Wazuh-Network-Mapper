@@ -5,7 +5,7 @@ import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
-import { attackPathsFilePath } from '../targets';
+import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath } from '../targets';
 
 export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
   const notConfigured = (key: string) => ({
@@ -76,6 +76,55 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
           body: { message: `attack_paths.json is not valid JSON: ${(err as Error).message}` },
         });
       }
+    }
+  );
+
+  // Mark, re-rate or unmark one protected asset (targets.json beside the graph),
+  // then recompute attack_paths.json with the engine. importance null unmarks.
+  // No credential is passed; marking needs no network scan, so this is quick.
+  router.post(
+    {
+      path: '/api/vulnmapper/targets',
+      validate: {
+        body: schema.object({
+          id: schema.string({ minLength: 1, maxLength: 512 }),
+          importance: schema.nullable(
+            schema.oneOf([schema.literal('high'), schema.literal('moderate'), schema.literal('low')])
+          ),
+        }),
+      },
+    },
+    async (context, request, response) => {
+      const { backendDir, graphPath, pythonBin } = config;
+      if (!backendDir) return response.customError(notConfigured('backendDir'));
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      const file = targetsFilePath(graphPath);
+      let current = {};
+      try {
+        current = JSON.parse(await fs.readFile(file, 'utf-8'));
+      } catch {
+        // no targets file yet: start from nothing
+      }
+      const next = applyTarget(current, request.body.id, request.body.importance);
+      try {
+        const tmp = `${file}.tmp-${process.pid}`;
+        await fs.writeFile(tmp, JSON.stringify(next, null, 2));
+        await fs.rename(tmp, file);
+      } catch (e) {
+        return response.customError({
+          statusCode: 500,
+          body: { message: `could not save targets: ${(e as Error).message}` },
+        });
+      }
+      try {
+        await recomputeAttackPaths({ pythonBin, backendDir, graphPath, logger });
+      } catch (e) {
+        return response.customError({
+          statusCode: 500,
+          body: { message: `targets saved, but the recompute failed: ${(e as Error).message}` },
+        });
+      }
+      return response.ok({ body: { targets: next } });
     }
   );
 
