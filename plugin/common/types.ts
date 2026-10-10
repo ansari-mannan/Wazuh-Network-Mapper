@@ -317,3 +317,107 @@ export type LivenessResponse = {
   /** the graph file's modified time (ISO), null if there is none */
   graphMtime: string | null;
 };
+
+// --- Attack paths (data/attack_paths.json, backend/vulnmapper/attackpaths.py) ---
+// The exact shape of the committed file; no field is invented.
+
+// FIPS 199 impact of losing a target.
+export type Importance = 'high' | 'moderate' | 'low';
+
+export type AttackStartKind = 'managed_host' | 'unmanaged_host' | 'spare_ports';
+
+export type AttackSource = { title: string; url: string };
+
+// A device finding shown as context on a step (it adds no step of its own).
+// severity null = no published severity ("Advisory").
+export type AttackFinding = { id: string; title: string; severity: 'high' | 'medium' | 'low' | null };
+
+// One step along a route. A takeover step (weakness or misconfiguration) reaches
+// `to`; a transit step only crosses a router into the target's VLAN.
+export type AttackStep = {
+  kind: 'weakness' | 'misconfiguration' | 'transit';
+  from: string;
+  to: string;
+  value: number;
+  source?: AttackSource;
+  // weakness
+  cve?: string;
+  attack_vector?: string;
+  attack_complexity?: string;
+  // misconfiguration
+  check?: string;
+  title?: string;
+  access_complexity?: string;
+  // transit
+  through?: string;
+  note?: string;
+  // takeover steps carry the reached asset's base score and its other findings
+  destination_base_score?: number | null;
+  context_findings?: AttackFinding[];
+};
+
+export type AttackRoute = {
+  target: string;
+  start: string;
+  start_kind: AttackStartKind;
+  steps: AttackStep[];
+  likelihood: number;
+  highest_base_score: number;
+  crosses_router: boolean;
+  narrative: string;
+  rank: number;
+  importance: Importance;
+};
+
+export type AttackTarget = {
+  id: string;
+  importance: Importance;
+  note: string | null;
+  present: boolean;
+  label?: string;
+  routes?: AttackRoute[];
+  reason?: string; // present false: why the id is missing from the graph
+};
+
+export type AttackStartingPoint = {
+  id: string;
+  kind: AttackStartKind;
+  vlans: number[];
+  switch?: string;
+  ports?: string[];
+  listed_ports?: number;
+  spare_ports_on_switch?: number;
+  list_truncated?: boolean;
+};
+
+export type AttackAsset = {
+  id: string;
+  kind: string;
+  label: string;
+  dependants: number;
+  verified: boolean;
+  routes_through: number;
+};
+
+export type AttackPathsMetadata = {
+  // 'ok' | 'no_targets' from the engine; 'absent' is the route's synthetic
+  // state when the file has not been computed yet. The rest are present only
+  // for a real file.
+  state: 'ok' | 'no_targets' | 'absent';
+  computed_at?: string;
+  source_scan?: string | null;
+  keep_per_target?: number;
+  counts?: Record<string, number>;
+  sources?: AttackSource[];
+  reachability?: string[];
+  limits?: string[];
+  most_shared_asset?: string | null;
+};
+
+export type AttackPathsDoc = {
+  metadata: AttackPathsMetadata;
+  targets: AttackTarget[];
+  starting_points: AttackStartingPoint[];
+  per_asset: AttackAsset[];
+  not_placed: Array<{ id: string; reason: string }>;
+};

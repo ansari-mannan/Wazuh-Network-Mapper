@@ -5,6 +5,7 @@ import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
+import { attackPathsFilePath } from '../targets';
 
 export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
   const notConfigured = (key: string) => ({
@@ -47,6 +48,32 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
         return response.customError({
           statusCode: 500,
           body: { message: `graph.json is not valid JSON: ${(err as Error).message}` },
+        });
+      }
+    }
+  );
+
+  // The attack-paths document, read fresh from disk beside the graph (like the
+  // graph route). A missing file is "not computed yet", returned as a small doc
+  // with metadata.state 'absent' rather than an error, so the UI can offer a scan.
+  router.get(
+    { path: '/api/vulnmapper/attack-paths', validate: false },
+    async (context, request, response) => {
+      const { graphPath } = config;
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      const file = attackPathsFilePath(graphPath);
+      let data: string;
+      try {
+        data = await fs.readFile(file, 'utf-8');
+      } catch {
+        return response.ok({ body: { metadata: { state: 'absent' }, targets: [], starting_points: [], per_asset: [], not_placed: [] } });
+      }
+      try {
+        return response.ok({ body: JSON.parse(data) });
+      } catch (err) {
+        return response.customError({
+          statusCode: 500,
+          body: { message: `attack_paths.json is not valid JSON: ${(err as Error).message}` },
         });
       }
     }
