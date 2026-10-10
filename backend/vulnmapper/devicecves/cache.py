@@ -14,7 +14,9 @@ request at all.
   * A corrupt or unreadable file is ignored and rebuilt; it never stops a scan.
 
 The file is written atomically (temp file and rename, as vulnerabilities.json
-is). Each CVE is stored trimmed to what the stage reads.
+is). Each CVE is stored trimmed to what the stage reads. The trim keeps every
+CVSS metric whole, vector included, so entries written before the vector
+fields were parsed (vulnmapper.devicecves.vectors) serve them as they are.
 """
 
 from __future__ import annotations

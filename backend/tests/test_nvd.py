@@ -156,7 +156,8 @@ class TestParsing(unittest.TestCase):
     def test_row_shape_matches_hosts(self):
         r = self.row(metric("3.1", 9.8, severity="CRITICAL"))
         self.assertEqual(set(r), {"cve", "cvss", "cvss_version", "severity", "package", "version",
-                                  "description", "reference", "published_at", "detected_at"})
+                                  "description", "reference", "published_at", "detected_at",
+                                  *nvd.VECTOR_KEYS})
         self.assertEqual((r["description"], r["reference"], r["published_at"], r["severity"]),
                          ("An issue.", "https://example.invalid/a", "2020-01-02T03:04:05.000Z",
                           "Critical"))
@@ -167,6 +168,77 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(len(rows), 8)
         self.assertEqual(rows[3]["cve"], "CVE-2006-4950")
         self.assertEqual((rows[3]["cvss"], rows[3]["cvss_version"]), (10.0, "2.0"))
+
+
+def vector(cve_id, version, score, vector_string, **data):
+    """A record with one Primary metric carrying exploitability fields."""
+    key, entry = metric(version, score)
+    entry["cvssData"]["vectorString"] = vector_string
+    entry["cvssData"].update({k: v for k, v in data.items() if k != "ui_required"})
+    if "ui_required" in data:
+        entry["userInteractionRequired"] = data["ui_required"]
+    return record(cve_id, (key, entry))
+
+
+class TestVectorFields(unittest.TestCase):
+    def fields(self, rec):
+        r = nvd.parse_cve(rec["cve"], package=None, version=None, detected_at=None)
+        return {k: r[k] for k in nvd.VECTOR_KEYS}
+
+    def test_v31(self):
+        self.assertEqual(self.fields(vector(
+            "CVE-1", "3.1", 8.8, "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            attackVector="ADJACENT_NETWORK", attackComplexity="LOW", privilegesRequired="NONE",
+            userInteraction="NONE")), {
+            "attack_vector": "ADJACENT", "attack_complexity": "LOW", "privileges_required": "NONE",
+            "user_interaction": "NONE",
+            "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+            "cvss_vector_version": "3.1"})
+
+    def test_v4(self):
+        f = self.fields(vector(
+            "CVE-1", "4.0", 7.1, "CVSS:4.0/AV:A/AC:L/AT:N/PR:L/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+            attackVector="ADJACENT", attackComplexity="LOW", attackRequirements="NONE",
+            privilegesRequired="LOW", userInteraction="PASSIVE"))
+        self.assertEqual((f["attack_vector"], f["attack_complexity"], f["privileges_required"],
+                          f["user_interaction"], f["cvss_vector_version"]),
+                         ("ADJACENT", "LOW", "LOW", "PASSIVE", "4.0"))
+
+    def test_v2_mapping(self):
+        f = self.fields(vector("CVE-1", "2.0", 6.8, "AV:N/AC:M/Au:S/C:P/I:P/A:P",
+                               accessVector="NETWORK", accessComplexity="MEDIUM",
+                               authentication="SINGLE", ui_required=True))
+        self.assertEqual((f["attack_vector"], f["attack_complexity"], f["privileges_required"],
+                          f["user_interaction"], f["cvss_vector"], f["cvss_vector_version"]),
+                         ("NETWORK", "MEDIUM", "LOW", "REQUIRED", "AV:N/AC:M/Au:S/C:P/I:P/A:P", "2.0"))
+        f = self.fields(vector("CVE-1", "2.0", 4.6, "AV:A/AC:H/Au:M/C:P/I:N/A:N",
+                               accessVector="ADJACENT_NETWORK", accessComplexity="HIGH",
+                               authentication="MULTIPLE"))
+        self.assertEqual((f["attack_vector"], f["attack_complexity"], f["privileges_required"],
+                          f["user_interaction"]), ("ADJACENT", "HIGH", "HIGH", None))
+
+    def test_same_metric_as_the_score(self):
+        rec = vector("CVE-1", "3.1", 9.8, "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                     attackVector="NETWORK", attackComplexity="LOW", privilegesRequired="NONE",
+                     userInteraction="NONE")
+        key, v2 = metric("2.0", 10.0)
+        v2["cvssData"].update(vectorString="AV:L/AC:L/Au:N/C:C/I:C/A:C", accessVector="LOCAL")
+        rec["cve"]["metrics"][key] = [v2]
+        r = nvd.parse_cve(rec["cve"], package=None, version=None, detected_at=None)
+        self.assertEqual((r["cvss"], r["attack_vector"], r["cvss_vector_version"]),
+                         (9.8, "NETWORK", "3.1"))
+
+    def test_no_metric(self):
+        self.assertEqual(set(self.fields(record("CVE-1"))[k] for k in nvd.VECTOR_KEYS), {None})
+
+    def test_saved_replies(self):
+        ios = {v["cve"]["id"]: v["cve"] for v in ios_cves()}
+        f = nvd.vector_fields(ios["CVE-2006-4950"]["metrics"])
+        self.assertEqual((f["attack_vector"], f["attack_complexity"], f["privileges_required"],
+                          f["user_interaction"]), ("NETWORK", "LOW", "NONE", "NONE"))
+        forti = saved("cves_cpe_fortios_6.0.16.json")["vulnerabilities"][0]["cve"]
+        self.assertEqual(nvd.vector_fields(forti["metrics"])["cvss_vector"],
+                         "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N")
 
 
 class Base(unittest.TestCase):

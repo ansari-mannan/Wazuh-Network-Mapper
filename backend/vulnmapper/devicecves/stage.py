@@ -39,7 +39,7 @@ from ..endpoints import catalogue_entry, distinct_cves, enrich_agent, slim_findi
 from . import families
 from .cache import Cache
 from .lookup import STATUS_OK, STATUS_UNAVAILABLE, STATUS_UNIDENTIFIED, Lookup, lookup
-from .nvd import NvdClient
+from .nvd import VECTOR_KEYS, NvdClient
 
 log = logging.getLogger("vulnmapper.devicecves")
 
@@ -69,7 +69,9 @@ def apply_result(node: dict, result: Lookup) -> Optional[list]:
     enriched = enrich_agent({}, scored)
     node["risk_score"] = enriched["risk_score"]
     node["max_cvss"] = enriched["max_cvss"]
-    node["top_cves"] = enriched["top_cves"]
+    # the vector fields go on only through the vectors stage (vectors.py)
+    node["top_cves"] = [{k: v for k, v in r.items() if k not in VECTOR_KEYS}
+                        for r in enriched["top_cves"]]
     node["cve_summary"] = enriched["cve_summary"]
     node["cve_lookup"] = _lookup_object(result, rows)
     return rows

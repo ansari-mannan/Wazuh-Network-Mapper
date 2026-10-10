@@ -194,20 +194,69 @@ _METRIC_ORDER = (("cvssMetricV31", "3.1"), ("cvssMetricV30", "3.0"),
                  ("cvssMetricV40", "4.0"), ("cvssMetricV2", "2.0"))
 
 
-def best_score(metrics: dict) -> tuple:
-    """``(cvss, cvss_version, severity)`` of the preferred metric, or Nones."""
+def _best_metric(metrics: dict) -> tuple:
+    """``(entry, version)`` of the preferred scored metric, or ``(None, None)``."""
     for key, version in _METRIC_ORDER:
         entries = [e for e in (metrics or {}).get(key) or [] if isinstance(e, dict)]
         entries.sort(key=lambda e: 0 if e.get("type") == "Primary" else 1)
         for e in entries:
             data = e.get("cvssData") or {}
-            score = data.get("baseScore")
-            if score is None:
-                continue
-            severity = data.get("baseSeverity") or e.get("baseSeverity")
-            return float(score), data.get("version") or version, \
-                (severity.capitalize() if isinstance(severity, str) else None)
-    return None, None, None
+            if data.get("baseScore") is not None:
+                return e, data.get("version") or version
+    return None, None
+
+
+def best_score(metrics: dict) -> tuple:
+    """``(cvss, cvss_version, severity)`` of the preferred metric, or Nones."""
+    e, version = _best_metric(metrics)
+    if e is None:
+        return None, None, None
+    data = e["cvssData"]
+    severity = data.get("baseSeverity") or e.get("baseSeverity")
+    return float(data["baseScore"]), version, \
+        (severity.capitalize() if isinstance(severity, str) else None)
+
+
+# The four exploitability fields, plus the vector they came from.
+VECTOR_FIELDS = ("attack_vector", "attack_complexity", "privileges_required", "user_interaction")
+VECTOR_KEYS = VECTOR_FIELDS + ("cvss_vector", "cvss_vector_version")
+
+# CVSS v3 says ADJACENT_NETWORK where v4 says ADJACENT; both are stored as ADJACENT.
+_ATTACK_VECTOR = {"ADJACENT_NETWORK": "ADJACENT"}
+# CVSS v2 has no privileges metric; Authentication is the nearest: no login
+# needed (NONE) -> NONE, one login (SINGLE) -> LOW, two or more (MULTIPLE) -> HIGH.
+_V2_AUTHENTICATION = {"NONE": "NONE", "SINGLE": "LOW", "MULTIPLE": "HIGH"}
+
+
+def vector_fields(metrics: dict) -> dict:
+    """The exploitability fields of the metric :func:`best_score` scores from.
+
+    Values are NVD's upper-case names. A CVSS v2 metric maps onto the same fields:
+
+      accessVector  NETWORK / ADJACENT_NETWORK / LOCAL -> attack_vector NETWORK / ADJACENT / LOCAL
+      accessComplexity LOW / MEDIUM / HIGH            -> attack_complexity, as is (v3 has no
+                                                         MEDIUM; it ranks between LOW and HIGH)
+      authentication NONE / SINGLE / MULTIPLE         -> privileges_required NONE / LOW / HIGH
+      userInteractionRequired (NVD's flag beside the  -> user_interaction REQUIRED / NONE;
+      v2 vector, not part of it)                         null when NVD leaves it out
+    """
+    e, version = _best_metric(metrics)
+    if e is None:
+        return dict.fromkeys(VECTOR_KEYS)
+    data = e["cvssData"]
+    if version.startswith("2"):
+        ui = e.get("userInteractionRequired")
+        fields = (data.get("accessVector"), data.get("accessComplexity"),
+                  _V2_AUTHENTICATION.get(data.get("authentication")),
+                  None if ui is None else ("REQUIRED" if ui else "NONE"))
+    else:
+        fields = (data.get("attackVector"), data.get("attackComplexity"),
+                  data.get("privilegesRequired"), data.get("userInteraction"))
+    out = dict(zip(VECTOR_FIELDS, fields))
+    out["attack_vector"] = _ATTACK_VECTOR.get(out["attack_vector"], out["attack_vector"])
+    out["cvss_vector"] = data.get("vectorString")
+    out["cvss_vector_version"] = version
+    return out
 
 
 def _iso(ts: Optional[str]) -> Optional[str]:
@@ -236,6 +285,7 @@ def parse_cve(cve: dict, *, package: Optional[str], version: Optional[str],
         "reference": reference,
         "published_at": _iso(cve.get("published")),
         "detected_at": detected_at,
+        **vector_fields(cve.get("metrics") or {}),
     }
 
 
