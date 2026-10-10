@@ -125,6 +125,11 @@ interface TopologyViewProps {
    * whenever the caller builds a new array.
    */
   hiddenKey?: string;
+  /**
+   * node_ids of one route to spotlight (comma-separated), from Attack paths
+   * "Show on map". When set, every other node and edge is dimmed.
+   */
+  highlightKey?: string;
 }
 
 // The graph without the hidden nodes and any edge that touches one.
@@ -139,7 +144,11 @@ function withoutHidden(graph: GraphResponse, hiddenKey: string): GraphResponse {
 }
 
 export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
-  ({ graph, onSelect, selectedId, hiddenKey = '' }, ref) => {
+  ({ graph, onSelect, selectedId, hiddenKey = '', highlightKey = '' }, ref) => {
+    const highlight = useMemo(
+      () => (highlightKey ? new Set(highlightKey.split(',')) : null),
+      [highlightKey]
+    );
     const { layoutNodes, edges } = useMemo(() => {
       // layoutGraph is the pure layout-prep module: it computes positions/ranks
       // from the real edges and returns the edges to draw (incl. dashed "inferred"
@@ -232,11 +241,25 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       return <div className="empty">The graph is empty (0 nodes).</div>;
     }
 
+    // Spotlight one route: fade the nodes and edges that are not on it.
+    const displayNodes = nodes.map((n) => {
+      const sel = n.id === selectedId;
+      const className = highlight && !highlight.has(n.id) ? 'vmDim' : '';
+      return n.selected === sel && (n.className || '') === className ? n : { ...n, selected: sel, className };
+    });
+    const displayEdges = highlight
+      ? edges.map((e) =>
+          highlight.has(e.source) && highlight.has(e.target)
+            ? e
+            : { ...e, style: { ...e.style, opacity: 0.12 } }
+        )
+      : edges;
+
     return (
       <div className="canvas">
         <ReactFlow
-          nodes={nodes.map((n) => (n.selected === (n.id === selectedId) ? n : { ...n, selected: n.id === selectedId }))}
-          edges={edges}
+          nodes={displayNodes}
+          edges={displayEdges}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           onNodesChange={handleNodesChange}

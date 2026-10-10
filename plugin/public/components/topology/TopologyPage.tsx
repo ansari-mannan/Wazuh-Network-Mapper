@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   EuiButton,
   EuiCallOut,
@@ -17,6 +18,7 @@ import {
 import { GraphNode, GraphResponse, LivenessResponse } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { useLiveness } from '../../lib/liveness';
+import { useServices } from '../../lib/services';
 import { livenessMethod } from '../../lib/livenessText';
 import { TopologyView, TopologyViewHandle } from './TopologyView';
 import { DeviceDetail, formatSeen } from './DeviceDetail';
@@ -100,6 +102,9 @@ function InactivePanel({ hosts, liveness, onSelect }: {
 export function TopologyPage() {
   const { graph, loading, error, reload } = useGraph();
   const { liveness } = useLiveness();
+  const { history } = useServices();
+  const location = useLocation();
+  const highlightKey = new URLSearchParams(location.search).get('highlight') || '';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hideInactive, setHideInactive] = useState(true);
   const view = useRef<TopologyViewHandle>(null);
@@ -153,6 +158,18 @@ export function TopologyPage() {
             />
           </EuiFlexItem>
         )}
+        {highlightKey && (
+          <EuiFlexItem grow={false}>
+            <EuiButton
+              size="s"
+              iconType="cross"
+              onClick={() => history.push('/topology')}
+              data-test-subj="vmClearHighlight"
+            >
+              Clear highlight
+            </EuiButton>
+          </EuiFlexItem>
+        )}
         <EuiFlexItem>
           {graph && (
             <EuiText size="s" color="subdued" data-test-subj="vmCounts">
@@ -166,7 +183,7 @@ export function TopologyPage() {
       <div ref={ref} style={{ height }}>
         {graph && !livenessOn ? (
           <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '100%' }}>
-            <TopologyView ref={view} graph={graph} selectedId={selectedId} onSelect={setSelectedId} />
+            <TopologyView ref={view} graph={graph} selectedId={selectedId} onSelect={setSelectedId} highlightKey={highlightKey} />
           </EuiPanel>
         ) : graph ? (
           // Liveness on: the canvas, plus the hidden hosts beside it.
@@ -179,6 +196,7 @@ export function TopologyPage() {
                   selectedId={selectedId}
                   onSelect={setSelectedId}
                   hiddenKey={hiddenKey}
+                  highlightKey={highlightKey}
                 />
               </EuiPanel>
             </EuiFlexItem>

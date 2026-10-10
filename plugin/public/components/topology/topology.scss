@@ -75,6 +75,11 @@
   .react-flow__node.selected .node {
     box-shadow: 0 0 0 3px rgba($euiColorPrimary, 0.45), var(--vm-shadow);
   }
+
+  // showing one route (Attack paths "Show on map"): nodes off the route fade back
+  .react-flow__node.vmDim {
+    opacity: 0.18;
+  }
 }
 
 // ---- device detail flyout -------------------------------------------------
