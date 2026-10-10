@@ -438,6 +438,92 @@ captures (`snmpwalk -On` output) of devices already in a graph and writes the
 results onto them, with `metadata.checklist.source` set to say so. It contacts
 no device.
 
+### Attack paths
+
+The exposure-path stage answers one question: if one place on the network were
+already in an attacker's hands, which of the owner's important assets could be
+reached, and how easily? It reads only the graph (and `vulnerabilities.json` and
+`targets.json` when present), never the network, and writes `attack_paths.json`
+beside the graph. The graph gains no fields.
+
+**Starting points** (the tool picks them): a managed host with at least one CVE,
+assumed compromised by some means outside the tool's view; an unmanaged host,
+state unknown; and a group of spare ports in a VLAN in use (one per switch and
+VLAN, from the spare-port finding, using its listed ports and reporting the
+counts). A starting point that is the target itself is skipped.
+
+**Reachability** is decided offline. Assets in the same VLAN reach each other
+directly. Assets in different VLANs reach each other only through a device whose
+role is `router` or `l3-switch` and that has an up layer-3 interface in both
+VLANs; the lowest-id qualifying router is used and named. A device's routed
+VLANs are derived from its interface names (the same `l3_vlans` the checklist
+uses, read from `port_status`), so merely having an interface in a VLAN does not
+make a device route. A host sits in its `vlan`; a Wi-Fi client sits in the VLAN
+of the single up sub-interface on its radio, and is left out (and reported) if
+the radio has several; a device sits in every VLAN it has an up layer-3
+interface for. An asset with no known VLAN is "not placed", with the reason, and
+is never guessed.
+
+**Step kinds and values** (the only numbers; NIST IR 7788, with the
+misconfiguration mapping taken from the catalogue's CCSS / CVSS v2 ratings):
+
+| kind | value | from |
+| --- | --- | --- |
+| transit through a router | 1 | a network-access step is not a real step (NIST IR 7788) |
+| weakness step | 0.9 / 0.6 / 0.2 | the CVE's attack complexity (LOW / MEDIUM / HIGH) |
+| misconfiguration step | 0.9 / 0.6 / 0.2 | the finding's exposure rating in the catalogue |
+
+A route's likelihood is the product of its step values.
+
+**Which CVE gives a weakness step** is decided from the four stored CVSS fields,
+not the version label: attack vector Network (any reachable asset) or Adjacent
+(same VLAN only); Local and Physical never; privileges required None and user
+interaction None (a v2 CVE's Authentication None maps to that). Per asset and
+per scope (same VLAN, or across a router) the easiest qualifying CVE is chosen:
+highest step value, ties to the higher score. The four misconfiguration findings
+(`snmp-default-community`, `mgmt-telnet-enabled`, `mgmt-http-enabled`,
+`snmp-no-auth`) give a step only from the same VLAN as one of the device's
+layer-3 interfaces; the other findings add no step and are attached as context.
+An asset with no qualifying CVE and no usable misconfiguration ends no route and
+is no stepping stone.
+
+**Targets** are listed in `targets.json` beside the graph (git-ignored;
+`targets.example.json` is the template): `{ "<node_id>": { "importance":
+"high|moderate|low", "note": "..." } }`, the FIPS 199 impact levels and no other
+scale. A target id not in the graph is reported missing; no targets gives zero
+routes and the state `no_targets`. For each target+start pair the single
+highest-likelihood route is found with NetworkX (Dijkstra on the negative log of
+the step values). A target's routes are ordered — never blended — by importance,
+then likelihood, then the highest base score on the route, then fewer steps,
+then the start id and the ids along the route; up to ten are kept per target
+(configurable).
+
+**Dependants** are counted per asset to order a browse list only, never the
+routes: a switch counts the hosts attached to it (`parent_id`); a router also
+counts hosts in the VLANs it routes; a host counts none.
+
+**Files and flags.** The stage runs after the configuration checks with
+`--no-attack-paths` to skip it, `--targets PATH` for the targets file and
+`--paths-out PATH` for the output; its duration is `metadata.timing.attack_paths_s`.
+Recompute an existing graph without a rescan:
+
+```
+python -m vulnmapper.attackpaths --graph data/graph.json
+```
+
+which reads the graph, `targets.json` and `vulnerabilities.json` if present,
+rewrites `attack_paths.json`, changes neither input and makes no network call.
+
+**Limits.** Firewall and access-control rules are not read, so a route that
+crosses a router shows only that the two VLANs are routed. Attacks that need an
+account or a user action are not modelled. CVSS v4 Attack Requirements cannot be
+read (no vector string is stored), so a v4 CVE is judged on its other fields and
+kept, not discarded. The NIST IR 7788 mapping is coarse (three values), so many
+routes tie, and it is applied beyond the CVSS version it was written for. Only
+the single highest-likelihood route is kept per target and start. Spare-port
+lists are truncated by the checklist. Assets with no known VLAN are left out. An
+unverified asset is shown as unverified, not as safe.
+
 ### Unmanaged hosts
 
 A host is an endpoint-kind node. A host with a Wazuh agent is managed, whether
