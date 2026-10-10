@@ -1,0 +1,1885 @@
+{
+  "graph": {
+    "nodes": [
+      {
+        "node_id": "device:00:23:ac:e5:74:00",
+        "kind": "device",
+        "ip": "172.20.20.254",
+        "hostname": "L3-Switch",
+        "vendor": "Cisco",
+        "model": "C3750",
+        "firmware": "12.2(55)SE12",
+        "serial": null,
+        "mac": "00:23:ac:e5:74:00",
+        "discovery_method": "snmp_lldp",
+        "status": "online",
+        "role": "l3-switch",
+        "risk_score": 8.0,
+        "max_cvss": 10.0,
+        "discovery_order": 0,
+        "parent_id": null,
+        "chassis_id": "00:23:ac:e5:74:00",
+        "pollable": true,
+        "neighbor_ports": [
+          "Fa1/0/1",
+          "Fa1/0/2",
+          "Fa1/0/6",
+          "FastEthernet1/0/15"
+        ],
+        "uplink_ports": [
+          "Fa1/0/1",
+          "Fa1/0/2",
+          "Fa1/0/6"
+        ],
+        "port_status": {
+          "Vlan1": "down",
+          "Vlan10": "up",
+          "Vlan20": "up",
+          "Vlan30": "up",
+          "Vlan40": "up",
+          "Vlan50": "down",
+          "Vlan70": "up",
+          "Vlan80": "up",
+          "Vlan99": "up",
+          "Vlan100": "up",
+          "StackPort1": "down",
+          "StackSub-St1-1": "down",
+          "StackSub-St1-2": "down",
+          "FastEthernet1/0/1": "up",
+          "FastEthernet1/0/2": "up",
+          "FastEthernet1/0/3": "up",
+          "FastEthernet1/0/4": "up",
+          "FastEthernet1/0/5": "down",
+          "FastEthernet1/0/6": "up",
+          "FastEthernet1/0/7": "down",
+          "FastEthernet1/0/8": "down",
+          "FastEthernet1/0/9": "down",
+          "FastEthernet1/0/10": "down",
+          "FastEthernet1/0/11": "down",
+          "FastEthernet1/0/12": "down",
+          "FastEthernet1/0/13": "down",
+          "FastEthernet1/0/14": "down",
+          "FastEthernet1/0/15": "up",
+          "FastEthernet1/0/16": "down",
+          "FastEthernet1/0/17": "down",
+          "FastEthernet1/0/18": "down",
+          "FastEthernet1/0/19": "down",
+          "FastEthernet1/0/20": "down",
+          "FastEthernet1/0/21": "down",
+          "FastEthernet1/0/22": "down",
+          "FastEthernet1/0/23": "down",
+          "FastEthernet1/0/24": "down",
+          "GigabitEthernet1/0/1": "down",
+          "GigabitEthernet1/0/2": "down",
+          "Null0": "up"
+        },
+        "software_family": "cisco_ios",
+        "top_cves": [
+          {
+            "cve": "CVE-2006-4950",
+            "cvss": 10.0,
+            "cvss_version": "2.0",
+            "severity": "High",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
+            "reference": "http://secunia.com/advisories/21974",
+            "published_at": "2006-09-23T10:07:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "LOW",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2007-5548",
+            "cvss": 6.9,
+            "cvss_version": "2.0",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "Multiple stack-based buffer overflows in Command EXEC in Cisco IOS allow local users to gain privileges via unspecified vectors, aka (1) PSIRT-0474975756 and (2) PSIRT-0388256465.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information.  However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+            "reference": "http://osvdb.org/45360",
+            "published_at": "2007-10-18T20:17:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "LOCAL",
+            "attack_complexity": "MEDIUM",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2007-2587",
+            "cvss": 6.3,
+            "cvss_version": "2.0",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "The IOS FTP Server in Cisco IOS 11.3 through 12.4 allows remote authenticated users to cause a denial of service (IOS reload) via unspecified vectors involving transferring files (aka bug ID CSCse29244).",
+            "reference": "http://secunia.com/advisories/25199",
+            "published_at": "2007-05-10T00:19:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "MEDIUM",
+            "privileges_required": "LOW",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2000-0486",
+            "cvss": 5.0,
+            "cvss_version": "2.0",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "Buffer overflow in Cisco TACACS+ tac_plus server allows remote attackers to cause a denial of service via a malformed packet with a long length field.",
+            "reference": "http://archives.neohapsis.com/archives/bugtraq/2000-05/0369.html",
+            "published_at": "2000-05-30T04:00:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "LOW",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2006-3906",
+            "cvss": 5.0,
+            "cvss_version": "2.0",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "Internet Key Exchange (IKE) version 1 protocol, as implemented on Cisco IOS, VPN 3000 Concentrators, and PIX firewalls, allows remote attackers to cause a denial of service (resource exhaustion) via a flood of IKE Phase-1 packets that exceed the session expiration rate. NOTE: it has been argued that this is due to a design weakness of the IKE version 1 protocol, in which case other vendors and implementations would also be affected.",
+            "reference": "http://archives.neohapsis.com/archives/bugtraq/2006-07/0531.html",
+            "published_at": "2006-07-27T22:04:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "LOW",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2007-0199",
+            "cvss": 5.0,
+            "cvss_version": "2.0",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "The Data-link Switching (DLSw) feature in Cisco IOS 11.0 through 12.4 allows remote attackers to cause a denial of service (device reload) via \"an invalid value in a DLSw message... during the capabilities exchange.\"",
+            "reference": "http://osvdb.org/32683",
+            "published_at": "2007-01-11T11:28:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "LOW",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2007-5547",
+            "cvss": 4.3,
+            "cvss_version": "2.0",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "Cross-site scripting (XSS) vulnerability in Cisco IOS allows remote attackers to inject arbitrary web script or HTML, and execute IOS commands, via unspecified vectors, aka PSIRT-2022590358.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+            "reference": "http://osvdb.org/43742",
+            "published_at": "2007-10-18T20:17:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "MEDIUM",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          },
+          {
+            "cve": "CVE-2005-3921",
+            "cvss": 2.6,
+            "cvss_version": "2.0",
+            "severity": "Low",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "description": "Cross-site scripting (XSS) vulnerability in Cisco IOS Web Server for IOS 12.0(2a) allows remote attackers to inject arbitrary web script or HTML by (1) packets containing HTML that an administrator views via an HTTP interface to the contents of memory buffers, as demonstrated by the URI /level/15/exec/-/buffers/assigned/dump; or (2) sending the router Cisco Discovery Protocol (CDP) packets with HTML payload that an administrator views via the CDP status pages.  NOTE: these vectors were originally reported as being associated with the dump and packet options in /level/15/exec/-/show/buffers.",
+            "reference": "http://secunia.com/advisories/17780",
+            "published_at": "2005-11-30T11:03:00.000Z",
+            "detected_at": "2026-10-09T08:00:06+00:00",
+            "attack_vector": "NETWORK",
+            "attack_complexity": "HIGH",
+            "privileges_required": "NONE",
+            "user_interaction": "NONE"
+          }
+        ],
+        "cve_summary": {
+          "total": 8,
+          "critical": 1,
+          "high": 0,
+          "medium": 6,
+          "low": 1,
+          "unknown": 0,
+          "max_cvss": 10.0
+        },
+        "cve_lookup": {
+          "status": "ok",
+          "match": "cpe",
+          "product": "Cisco IOS 12.2(55)SE12",
+          "cpe": "cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*",
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:06+00:00",
+          "stale": false,
+          "total": 8
+        },
+        "reachable_cve": {
+          "status": "found",
+          "source": "findings",
+          "cve": "CVE-2006-4950",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE",
+          "cvss": 10.0
+        },
+        "config_checks": [
+          {
+            "id": "mgmt-telnet-enabled",
+            "title": "Telnet management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "mgmt-http-enabled",
+            "title": "Plain HTTP management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-no-auth",
+            "title": "SNMP managed with a community string",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-default-community",
+            "title": "Default SNMP community name",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "spare-ports-in-used-vlan",
+            "title": "Spare access ports in a VLAN in use",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "access-ports-default-vlan",
+            "title": "Access ports in the default VLAN",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "bpdu-guard-missing",
+            "title": "BPDU guard missing on access ports",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "port-security-disabled",
+            "title": "Port security disabled on access ports",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          }
+        ],
+        "config_findings": [],
+        "config_summary": {
+          "checks": 8,
+          "results": {
+            "pass": 0,
+            "fail": 0,
+            "not_applicable": 0,
+            "unknown": 8,
+            "not_checked": 0
+          },
+          "findings": {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "advisory": 0
+          }
+        }
+      },
+      {
+        "node_id": "device:90:6c:ac:d7:43:7f",
+        "kind": "device",
+        "ip": "172.20.100.1",
+        "hostname": null,
+        "vendor": null,
+        "model": null,
+        "firmware": null,
+        "serial": null,
+        "mac": null,
+        "discovery_method": "snmp_lldp",
+        "status": "unreachable",
+        "role": "router",
+        "risk_score": null,
+        "max_cvss": null,
+        "discovery_order": 1,
+        "parent_id": "device:00:23:ac:e5:74:00",
+        "chassis_id": "90:6c:ac:d7:43:7f",
+        "pollable": false,
+        "neighbor_ports": [],
+        "uplink_ports": [],
+        "port_status": {},
+        "top_cves": [],
+        "cve_summary": null,
+        "cve_lookup": {
+          "status": "unidentified",
+          "match": null,
+          "product": null,
+          "cpe": null,
+          "source": "nvd",
+          "fetched_at": null,
+          "stale": false,
+          "total": null
+        },
+        "reachable_cve": null
+      },
+      {
+        "node_id": "device:00:17:95:be:b2:00",
+        "kind": "device",
+        "ip": "172.20.10.100",
+        "hostname": "L2-Switch",
+        "vendor": "Cisco",
+        "model": "C2960",
+        "firmware": "12.2(58)SE2",
+        "serial": null,
+        "mac": "00:17:95:be:b2:00",
+        "discovery_method": "snmp_lldp",
+        "status": "online",
+        "role": "l2-switch",
+        "risk_score": 7.7,
+        "max_cvss": 9.8,
+        "discovery_order": 2,
+        "parent_id": "device:00:23:ac:e5:74:00",
+        "chassis_id": "00:17:95:be:b2:00",
+        "pollable": true,
+        "neighbor_ports": [
+          "Fa0/1"
+        ],
+        "uplink_ports": [
+          "Fa0/1"
+        ],
+        "port_status": {
+          "Vlan1": "down",
+          "Vlan10": "up",
+          "Vlan20": "up",
+          "Vlan30": "up",
+          "Vlan99": "up",
+          "FastEthernet0/1": "up",
+          "FastEthernet0/2": "down",
+          "FastEthernet0/3": "down",
+          "FastEthernet0/4": "down",
+          "FastEthernet0/5": "down",
+          "FastEthernet0/6": "down",
+          "FastEthernet0/7": "down",
+          "FastEthernet0/8": "down",
+          "FastEthernet0/9": "down",
+          "FastEthernet0/10": "down",
+          "FastEthernet0/11": "down",
+          "FastEthernet0/12": "down",
+          "FastEthernet0/13": "down",
+          "FastEthernet0/14": "down",
+          "FastEthernet0/15": "down",
+          "FastEthernet0/16": "down",
+          "FastEthernet0/17": "down",
+          "FastEthernet0/18": "down",
+          "FastEthernet0/19": "down",
+          "FastEthernet0/20": "down",
+          "FastEthernet0/21": "down",
+          "FastEthernet0/22": "down",
+          "FastEthernet0/23": "down",
+          "FastEthernet0/24": "down",
+          "FastEthernet0/25": "down",
+          "FastEthernet0/26": "down",
+          "FastEthernet0/27": "down",
+          "FastEthernet0/28": "down",
+          "FastEthernet0/29": "down",
+          "FastEthernet0/30": "down",
+          "FastEthernet0/31": "down",
+          "FastEthernet0/32": "down",
+          "FastEthernet0/33": "down",
+          "FastEthernet0/34": "down",
+          "FastEthernet0/35": "down",
+          "FastEthernet0/36": "down",
+          "FastEthernet0/37": "down",
+          "FastEthernet0/38": "down",
+          "FastEthernet0/39": "down",
+          "FastEthernet0/40": "down",
+          "FastEthernet0/41": "down",
+          "FastEthernet0/42": "down",
+          "FastEthernet0/43": "down",
+          "FastEthernet0/44": "down",
+          "FastEthernet0/45": "down",
+          "FastEthernet0/46": "down",
+          "FastEthernet0/47": "down",
+          "FastEthernet0/48": "down",
+          "GigabitEthernet0/1": "down",
+          "GigabitEthernet0/2": "down",
+          "Null0": "up"
+        },
+        "software_family": "cisco_ios",
+        "top_cves": [
+          {
+            "cve": "CVE-2021-0001",
+            "cvss": 9.8,
+            "cvss_version": "3.1",
+            "severity": "Critical",
+            "package": "Cisco IOS 12.2(58)SE2",
+            "version": "12.2(58)SE2",
+            "description": "An issue.",
+            "reference": "https://example.invalid/a",
+            "published_at": "2020-01-02T03:04:05.000Z",
+            "detected_at": "2026-10-09T08:00:18+00:00"
+          },
+          {
+            "cve": "CVE-2021-0002",
+            "cvss": 5.3,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "Cisco IOS 12.2(58)SE2",
+            "version": "12.2(58)SE2",
+            "description": "An issue.",
+            "reference": "https://example.invalid/a",
+            "published_at": "2020-01-02T03:04:05.000Z",
+            "detected_at": "2026-10-09T08:00:18+00:00"
+          }
+        ],
+        "cve_summary": {
+          "total": 2,
+          "critical": 1,
+          "high": 0,
+          "medium": 1,
+          "low": 0,
+          "unknown": 0,
+          "max_cvss": 9.8
+        },
+        "cve_lookup": {
+          "status": "ok",
+          "match": "cpe",
+          "product": "Cisco IOS 12.2(58)SE2",
+          "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:18+00:00",
+          "stale": false,
+          "total": 2
+        },
+        "reachable_cve": {
+          "status": "none_found",
+          "source": "findings"
+        },
+        "config_checks": [
+          {
+            "id": "mgmt-telnet-enabled",
+            "title": "Telnet management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "mgmt-http-enabled",
+            "title": "Plain HTTP management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-no-auth",
+            "title": "SNMP managed with a community string",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-default-community",
+            "title": "Default SNMP community name",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "spare-ports-in-used-vlan",
+            "title": "Spare access ports in a VLAN in use",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "access-ports-default-vlan",
+            "title": "Access ports in the default VLAN",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "bpdu-guard-missing",
+            "title": "BPDU guard missing on access ports",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "port-security-disabled",
+            "title": "Port security disabled on access ports",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          }
+        ],
+        "config_findings": [],
+        "config_summary": {
+          "checks": 8,
+          "results": {
+            "pass": 0,
+            "fail": 0,
+            "not_applicable": 0,
+            "unknown": 8,
+            "not_checked": 0
+          },
+          "findings": {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "advisory": 0
+          }
+        }
+      },
+      {
+        "node_id": "device:5c:8a:38:8b:a1:0b",
+        "kind": "device",
+        "ip": "172.20.99.4",
+        "hostname": "CYFOR-HP-Switch",
+        "vendor": "HP",
+        "model": "HP 1920-48G",
+        "firmware": "5.20.99 Release 1107",
+        "serial": null,
+        "mac": null,
+        "discovery_method": "snmp_lldp",
+        "status": "online",
+        "role": "l3-switch",
+        "risk_score": null,
+        "max_cvss": null,
+        "discovery_order": 3,
+        "parent_id": "device:00:23:ac:e5:74:00",
+        "chassis_id": "5c:8a:38:8b:a1:0b",
+        "pollable": true,
+        "neighbor_ports": [],
+        "uplink_ports": [],
+        "port_status": {},
+        "software_family": "hp_comware",
+        "top_cves": [],
+        "cve_summary": null,
+        "cve_lookup": {
+          "status": "ok",
+          "match": "keyword",
+          "product": "HP Comware 5.20.99 Release 1107",
+          "cpe": null,
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:24+00:00",
+          "stale": false,
+          "total": 0
+        },
+        "reachable_cve": null,
+        "config_checks": [
+          {
+            "id": "mgmt-telnet-enabled",
+            "title": "Telnet management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "mgmt-http-enabled",
+            "title": "Plain HTTP management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-no-auth",
+            "title": "SNMP managed with a community string",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-default-community",
+            "title": "Default SNMP community name",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "spare-ports-in-used-vlan",
+            "title": "Spare access ports in a VLAN in use",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "access-ports-default-vlan",
+            "title": "Access ports in the default VLAN",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "bpdu-guard-missing",
+            "title": "BPDU guard missing on access ports",
+            "result": "not_applicable",
+            "reason": "no data source for this vendor"
+          },
+          {
+            "id": "port-security-disabled",
+            "title": "Port security disabled on access ports",
+            "result": "not_applicable",
+            "reason": "no data source for this vendor"
+          }
+        ],
+        "config_findings": [],
+        "config_summary": {
+          "checks": 8,
+          "results": {
+            "pass": 0,
+            "fail": 0,
+            "not_applicable": 2,
+            "unknown": 6,
+            "not_checked": 0
+          },
+          "findings": {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "advisory": 0
+          }
+        }
+      },
+      {
+        "node_id": "device:54:75:d0:ab:bd:1a",
+        "kind": "device",
+        "ip": "172.20.99.21",
+        "hostname": "CYFOR-AP1",
+        "vendor": "Cisco",
+        "model": "AIR-LAP1142N-A-K9",
+        "firmware": "15.3(3)JB",
+        "serial": "SERIAL-PLACEHOLDER-1",
+        "mac": "54:75:d0:ab:bd:1a",
+        "discovery_method": "snmp_cdp",
+        "status": "online",
+        "role": "access-point",
+        "risk_score": 0.0,
+        "max_cvss": null,
+        "discovery_order": 4,
+        "parent_id": "device:00:23:ac:e5:74:00",
+        "chassis_id": "54:75:d0:ab:bd:1a",
+        "pollable": true,
+        "neighbor_ports": [
+          "GigabitEthernet0"
+        ],
+        "uplink_ports": [
+          "GigabitEthernet0"
+        ],
+        "port_status": {
+          "Dot11Radio0": "up",
+          "Dot11Radio1": "up",
+          "GigabitEthernet0": "up",
+          "Null0": "up",
+          "Dot11Radio0.80": "up",
+          "Dot11Radio1.80": "up",
+          "GigabitEthernet0.80": "up",
+          "GigabitEthernet0.99": "up",
+          "BVI1": "up"
+        },
+        "wifi_clients": 2,
+        "software_family": "cisco_ios",
+        "top_cves": [],
+        "cve_summary": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "unknown": 0,
+          "max_cvss": null
+        },
+        "cve_lookup": {
+          "status": "ok",
+          "match": "cpe",
+          "product": "Cisco IOS 15.3(3)JB",
+          "cpe": "cpe:2.3:o:cisco:ios:15.3\\(3\\)jb:*:*:*:*:*:*:*",
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:36+00:00",
+          "stale": false,
+          "total": 0
+        },
+        "reachable_cve": {
+          "status": "none_found",
+          "source": "findings"
+        },
+        "config_checks": [
+          {
+            "id": "mgmt-telnet-enabled",
+            "title": "Telnet management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "mgmt-http-enabled",
+            "title": "Plain HTTP management enabled",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-no-auth",
+            "title": "SNMP managed with a community string",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "snmp-default-community",
+            "title": "Default SNMP community name",
+            "result": "unknown",
+            "reason": "configuration data was not collected"
+          },
+          {
+            "id": "spare-ports-in-used-vlan",
+            "title": "Spare access ports in a VLAN in use",
+            "result": "not_applicable",
+            "reason": "applies to switches"
+          },
+          {
+            "id": "access-ports-default-vlan",
+            "title": "Access ports in the default VLAN",
+            "result": "not_applicable",
+            "reason": "applies to switches"
+          },
+          {
+            "id": "bpdu-guard-missing",
+            "title": "BPDU guard missing on access ports",
+            "result": "not_applicable",
+            "reason": "applies to switches"
+          },
+          {
+            "id": "port-security-disabled",
+            "title": "Port security disabled on access ports",
+            "result": "not_applicable",
+            "reason": "applies to switches"
+          }
+        ],
+        "config_findings": [],
+        "config_summary": {
+          "checks": 8,
+          "results": {
+            "pass": 0,
+            "fail": 0,
+            "not_applicable": 4,
+            "unknown": 4,
+            "not_checked": 0
+          },
+          "findings": {
+            "high": 0,
+            "medium": 0,
+            "low": 0,
+            "advisory": 0
+          }
+        }
+      },
+      {
+        "node_id": "host:7a:bd:06:18:06:2c",
+        "kind": "endpoint",
+        "ip": "172.20.80.1",
+        "hostname": null,
+        "vendor": null,
+        "model": null,
+        "firmware": null,
+        "serial": null,
+        "mac": "7a:bd:06:18:06:2c",
+        "discovery_method": "snmp_wifi",
+        "status": "discovered",
+        "role": "host",
+        "risk_score": null,
+        "max_cvss": null,
+        "discovery_order": 5,
+        "parent_id": "device:54:75:d0:ab:bd:1a",
+        "agent_id": null,
+        "stale": false,
+        "top_cves": [],
+        "cve_summary": null,
+        "wifi": {
+          "ssid": "BIG-CYFOR",
+          "access_point": "device:54:75:d0:ab:bd:1a",
+          "radio": "Dot11Radio0"
+        },
+        "unmanaged": true,
+        "mac_type": "local",
+        "mac_vendor": null,
+        "reachable_cve": null
+      },
+      {
+        "node_id": "host:e4:a7:a0:25:ce:ac",
+        "kind": "endpoint",
+        "ip": "172.20.80.3",
+        "hostname": null,
+        "vendor": null,
+        "model": null,
+        "firmware": null,
+        "serial": null,
+        "mac": "e4:a7:a0:25:ce:ac",
+        "discovery_method": "snmp_wifi",
+        "status": "discovered",
+        "role": "host",
+        "risk_score": null,
+        "max_cvss": null,
+        "discovery_order": 6,
+        "parent_id": "device:54:75:d0:ab:bd:1a",
+        "agent_id": null,
+        "stale": false,
+        "top_cves": [],
+        "cve_summary": null,
+        "wifi": {
+          "ssid": "BIG-CYFOR-5G",
+          "access_point": "device:54:75:d0:ab:bd:1a",
+          "radio": "Dot11Radio1"
+        },
+        "unmanaged": true,
+        "mac_type": "global",
+        "mac_vendor": "Intel Corporate",
+        "reachable_cve": null
+      },
+      {
+        "node_id": "endpoint:101",
+        "kind": "endpoint",
+        "ip": "10.10.0.11",
+        "hostname": "web-01",
+        "vendor": "ubuntu",
+        "model": "Ubuntu",
+        "firmware": "22.04",
+        "serial": null,
+        "mac": "d4:be:d9:00:00:11",
+        "discovery_method": "wazuh",
+        "status": "active",
+        "role": "host",
+        "risk_score": 8.2,
+        "max_cvss": 9.8,
+        "discovery_order": 7,
+        "parent_id": null,
+        "agent_id": "101",
+        "stale": false,
+        "top_cves": [
+          {
+            "cve": "CVE-2026-90000",
+            "cvss": 9.8,
+            "cvss_version": "3.1",
+            "severity": "Critical",
+            "package": "lib0",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90000",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90001",
+            "cvss": 9.8,
+            "cvss_version": "3.1",
+            "severity": "Critical",
+            "package": "lib1",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90001",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90002",
+            "cvss": 9.1,
+            "cvss_version": "3.1",
+            "severity": "Critical",
+            "package": "lib2",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90002",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90003",
+            "cvss": 8.8,
+            "cvss_version": "3.1",
+            "severity": "High",
+            "package": "lib3",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90003",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90004",
+            "cvss": 8.1,
+            "cvss_version": "3.1",
+            "severity": "High",
+            "package": "lib4",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90004",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90005",
+            "cvss": 7.5,
+            "cvss_version": "3.1",
+            "severity": "High",
+            "package": "lib0",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90005",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90006",
+            "cvss": 7.5,
+            "cvss_version": "3.1",
+            "severity": "High",
+            "package": "lib1",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90006",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90007",
+            "cvss": 6.5,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "lib2",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90007",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90008",
+            "cvss": 5.9,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "lib3",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90008",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90009",
+            "cvss": 5.3,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "lib4",
+            "version": "1.0",
+            "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90009",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          }
+        ],
+        "cve_summary": {
+          "total": 14,
+          "critical": 3,
+          "high": 4,
+          "medium": 4,
+          "low": 2,
+          "unknown": 1,
+          "max_cvss": 9.8
+        },
+        "unmanaged": false,
+        "mac_type": "global",
+        "mac_vendor": "Dell Inc.",
+        "reachable_cve": {
+          "status": "none_found",
+          "source": "findings"
+        }
+      },
+      {
+        "node_id": "endpoint:102",
+        "kind": "endpoint",
+        "ip": "10.10.0.12",
+        "hostname": "db-01",
+        "vendor": "ubuntu",
+        "model": "Ubuntu",
+        "firmware": "22.04",
+        "serial": null,
+        "mac": "d4:be:d9:00:00:12",
+        "discovery_method": "wazuh",
+        "status": "active",
+        "role": "host",
+        "risk_score": 7.8,
+        "max_cvss": 9.8,
+        "discovery_order": 8,
+        "parent_id": null,
+        "agent_id": "102",
+        "stale": false,
+        "top_cves": [
+          {
+            "cve": "CVE-2026-90000",
+            "cvss": 9.8,
+            "cvss_version": "3.1",
+            "severity": "Critical",
+            "package": "openssl",
+            "version": "3.0.2",
+            "description": "Synthetic fixture vulnerability CVE-2026-90000 in openssl: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90000",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90020",
+            "cvss": 6.1,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "postgresql",
+            "version": "14.2",
+            "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90020",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90021",
+            "cvss": 5.5,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "postgresql",
+            "version": "14.2",
+            "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90021",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90022",
+            "cvss": 4.0,
+            "cvss_version": "3.1",
+            "severity": "Medium",
+            "package": "postgresql",
+            "version": "14.2",
+            "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+            "reference": "https://example.invalid/advisories/CVE-2026-90022",
+            "published_at": "2026-03-01T00:00:00Z",
+            "detected_at": "2026-10-01T08:00:00Z"
+          }
+        ],
+        "cve_summary": {
+          "total": 4,
+          "critical": 1,
+          "high": 0,
+          "medium": 3,
+          "low": 0,
+          "unknown": 0,
+          "max_cvss": 9.8
+        },
+        "unmanaged": false,
+        "mac_type": "global",
+        "mac_vendor": "Dell Inc.",
+        "reachable_cve": {
+          "status": "none_found",
+          "source": "findings"
+        }
+      },
+      {
+        "node_id": "endpoint:103",
+        "kind": "endpoint",
+        "ip": "10.10.0.13",
+        "hostname": "kiosk-01",
+        "vendor": "windows",
+        "model": "Windows 11",
+        "firmware": "10.0.22631",
+        "serial": null,
+        "mac": "d4:be:d9:00:00:13",
+        "discovery_method": "wazuh",
+        "status": "active",
+        "role": "host",
+        "risk_score": 0.0,
+        "max_cvss": null,
+        "discovery_order": 9,
+        "parent_id": null,
+        "agent_id": "103",
+        "stale": false,
+        "top_cves": [],
+        "cve_summary": {
+          "total": 0,
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "unknown": 0,
+          "max_cvss": null
+        },
+        "unmanaged": false,
+        "mac_type": "global",
+        "mac_vendor": "Dell Inc.",
+        "reachable_cve": {
+          "status": "none_found",
+          "source": "findings"
+        }
+      },
+      {
+        "node_id": "endpoint:104",
+        "kind": "endpoint",
+        "ip": "10.10.0.14",
+        "hostname": "laptop-07",
+        "vendor": "windows",
+        "model": "Windows 10",
+        "firmware": "10.0.19045",
+        "serial": null,
+        "mac": "d4:be:d9:00:00:14",
+        "discovery_method": "wazuh",
+        "status": "active",
+        "role": "host",
+        "risk_score": null,
+        "max_cvss": null,
+        "discovery_order": 10,
+        "parent_id": null,
+        "agent_id": "104",
+        "stale": false,
+        "top_cves": [],
+        "cve_summary": null,
+        "unmanaged": false,
+        "mac_type": "global",
+        "mac_vendor": "Dell Inc.",
+        "reachable_cve": null
+      }
+    ],
+    "edges": [
+      {
+        "source": "device:00:23:ac:e5:74:00",
+        "source_name": "L3-Switch",
+        "target": "device:90:6c:ac:d7:43:7f",
+        "target_name": "172.20.100.1",
+        "type": "lldp",
+        "local_port": "Fa1/0/1",
+        "remote_port": "Layer-3_UPLINK"
+      },
+      {
+        "source": "device:00:17:95:be:b2:00",
+        "source_name": "L2-Switch",
+        "target": "device:00:23:ac:e5:74:00",
+        "target_name": "L3-Switch",
+        "type": "lldp",
+        "local_port": "Fa0/1",
+        "remote_port": "Fa1/0/2"
+      },
+      {
+        "source": "device:00:23:ac:e5:74:00",
+        "source_name": "L3-Switch",
+        "target": "device:5c:8a:38:8b:a1:0b",
+        "target_name": "CYFOR-HP-Switch",
+        "type": "lldp",
+        "local_port": "Fa1/0/6",
+        "remote_port": "GigabitEthernet1/0/1"
+      },
+      {
+        "source": "device:00:23:ac:e5:74:00",
+        "source_name": "L3-Switch",
+        "target": "device:54:75:d0:ab:bd:1a",
+        "target_name": "CYFOR-AP1",
+        "type": "lldp",
+        "local_port": "FastEthernet1/0/15",
+        "remote_port": "GigabitEthernet0",
+        "protocol": "cdp"
+      },
+      {
+        "source": "host:7a:bd:06:18:06:2c",
+        "source_name": "172.20.80.1",
+        "target": "device:54:75:d0:ab:bd:1a",
+        "target_name": "CYFOR-AP1",
+        "type": "endpoint_link",
+        "local_port": "Dot11Radio0",
+        "confidence": "wifi"
+      },
+      {
+        "source": "host:e4:a7:a0:25:ce:ac",
+        "source_name": "172.20.80.3",
+        "target": "device:54:75:d0:ab:bd:1a",
+        "target_name": "CYFOR-AP1",
+        "type": "endpoint_link",
+        "local_port": "Dot11Radio1",
+        "confidence": "wifi"
+      }
+    ],
+    "metadata": {
+      "scan_time": null,
+      "network_scan_time": null,
+      "seed": null,
+      "warnings": [
+        {
+          "type": "checklist_data_missing",
+          "node_ids": [
+            "device:00:23:ac:e5:74:00",
+            "device:00:17:95:be:b2:00",
+            "device:5c:8a:38:8b:a1:0b",
+            "device:54:75:d0:ab:bd:1a"
+          ]
+        },
+        {
+          "type": "indexer_unreachable",
+          "error": "503 Server Error: Service Unavailable",
+          "agents": [
+            "104"
+          ],
+          "node_ids": [
+            "endpoint:104"
+          ]
+        }
+      ],
+      "attack_path_sources": [
+        "endpoint:101",
+        "endpoint:102",
+        "endpoint:103",
+        "endpoint:104"
+      ],
+      "counts": {
+        "nodes": 11,
+        "endpoints": 4,
+        "devices": 5,
+        "fdb_discovered_hosts": 0,
+        "lldp_edges": 4,
+        "endpoint_edges": 2,
+        "unparented_endpoints": 4
+      },
+      "confidence": {
+        "wifi": 2
+      },
+      "merged_lldp_endpoints": 0,
+      "fdb_discovered_hosts": 0,
+      "fdb_enriched_nodes": 0,
+      "unparented_endpoints": [
+        {
+          "node_id": "endpoint:101",
+          "hostname": "web-01",
+          "reason": "mac_absent_from_all_fdb"
+        },
+        {
+          "node_id": "endpoint:102",
+          "hostname": "db-01",
+          "reason": "mac_absent_from_all_fdb"
+        },
+        {
+          "node_id": "endpoint:103",
+          "hostname": "kiosk-01",
+          "reason": "mac_absent_from_all_fdb"
+        },
+        {
+          "node_id": "endpoint:104",
+          "hostname": "laptop-07",
+          "reason": "mac_absent_from_all_fdb"
+        }
+      ],
+      "unreachable_boundaries": [
+        {
+          "node_id": "device:90:6c:ac:d7:43:7f",
+          "chassis_id": "90:6c:ac:d7:43:7f",
+          "ip": "172.20.100.1",
+          "status": "unreachable"
+        }
+      ],
+      "coverage": {
+        "hosts": 6,
+        "managed": 4,
+        "unmanaged": 2,
+        "managed_share": 0.667
+      },
+      "device_cves": {
+        "looked_up": 5,
+        "by_status": {
+          "ok": 4,
+          "unidentified": 1
+        },
+        "from_cache": 0,
+        "nvd_requests": 7,
+        "stale": 0,
+        "api_key": false,
+        "budget_s": 180.0
+      },
+      "cve_vectors": {
+        "assets": 11,
+        "by_status": {
+          "found": 1,
+          "none_found": 5
+        },
+        "looked_up": 17,
+        "nvd_requests": 17,
+        "api_key": false,
+        "budget_s": 180.0
+      },
+      "checklist": {
+        "devices_checked": 4,
+        "results": {
+          "pass": 0,
+          "fail": 0,
+          "not_applicable": 6,
+          "unknown": 26,
+          "not_checked": 0
+        },
+        "findings": {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "advisory": 0
+        },
+        "probe_enabled": false,
+        "port_test_enabled": false,
+        "source": "scan"
+      },
+      "timing": {
+        "endpoint_collect_s": null,
+        "endpoint_score_s": null,
+        "network_crawl_s": null,
+        "assemble_s": null,
+        "device_cves_s": null,
+        "total_s": null,
+        "started_at": null,
+        "finished_at": null,
+        "cve_vectors_s": null,
+        "checklist_s": null
+      }
+    }
+  },
+  "vulnerabilities": {
+    "metadata": {
+      "scan_time": null,
+      "counts": {
+        "hosts": 4,
+        "devices": 5,
+        "cves": 27,
+        "findings": 29
+      }
+    },
+    "cves": {
+      "CVE-2000-0486": {
+        "cvss": 5.0,
+        "cvss_version": "2.0",
+        "severity": "Medium",
+        "description": "Buffer overflow in Cisco TACACS+ tac_plus server allows remote attackers to cause a denial of service via a malformed packet with a long length field.",
+        "reference": "http://archives.neohapsis.com/archives/bugtraq/2000-05/0369.html",
+        "published_at": "2000-05-30T04:00:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2005-3921": {
+        "cvss": 2.6,
+        "cvss_version": "2.0",
+        "severity": "Low",
+        "description": "Cross-site scripting (XSS) vulnerability in Cisco IOS Web Server for IOS 12.0(2a) allows remote attackers to inject arbitrary web script or HTML by (1) packets containing HTML that an administrator views via an HTTP interface to the contents of memory buffers, as demonstrated by the URI /level/15/exec/-/buffers/assigned/dump; or (2) sending the router Cisco Discovery Protocol (CDP) packets with HTML payload that an administrator views via the CDP status pages.  NOTE: these vectors were originally reported as being associated with the dump and packet options in /level/15/exec/-/show/buffers.",
+        "reference": "http://secunia.com/advisories/17780",
+        "published_at": "2005-11-30T11:03:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "HIGH",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2006-3906": {
+        "cvss": 5.0,
+        "cvss_version": "2.0",
+        "severity": "Medium",
+        "description": "Internet Key Exchange (IKE) version 1 protocol, as implemented on Cisco IOS, VPN 3000 Concentrators, and PIX firewalls, allows remote attackers to cause a denial of service (resource exhaustion) via a flood of IKE Phase-1 packets that exceed the session expiration rate. NOTE: it has been argued that this is due to a design weakness of the IKE version 1 protocol, in which case other vendors and implementations would also be affected.",
+        "reference": "http://archives.neohapsis.com/archives/bugtraq/2006-07/0531.html",
+        "published_at": "2006-07-27T22:04:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2006-4950": {
+        "cvss": 10.0,
+        "cvss_version": "2.0",
+        "severity": "High",
+        "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
+        "reference": "http://secunia.com/advisories/21974",
+        "published_at": "2006-09-23T10:07:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2007-0199": {
+        "cvss": 5.0,
+        "cvss_version": "2.0",
+        "severity": "Medium",
+        "description": "The Data-link Switching (DLSw) feature in Cisco IOS 11.0 through 12.4 allows remote attackers to cause a denial of service (device reload) via \"an invalid value in a DLSw message... during the capabilities exchange.\"",
+        "reference": "http://osvdb.org/32683",
+        "published_at": "2007-01-11T11:28:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2007-2587": {
+        "cvss": 6.3,
+        "cvss_version": "2.0",
+        "severity": "Medium",
+        "description": "The IOS FTP Server in Cisco IOS 11.3 through 12.4 allows remote authenticated users to cause a denial of service (IOS reload) via unspecified vectors involving transferring files (aka bug ID CSCse29244).",
+        "reference": "http://secunia.com/advisories/25199",
+        "published_at": "2007-05-10T00:19:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "MEDIUM",
+        "privileges_required": "LOW",
+        "user_interaction": "NONE"
+      },
+      "CVE-2007-5547": {
+        "cvss": 4.3,
+        "cvss_version": "2.0",
+        "severity": "Medium",
+        "description": "Cross-site scripting (XSS) vulnerability in Cisco IOS allows remote attackers to inject arbitrary web script or HTML, and execute IOS commands, via unspecified vectors, aka PSIRT-2022590358.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+        "reference": "http://osvdb.org/43742",
+        "published_at": "2007-10-18T20:17:00.000Z",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "MEDIUM",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2007-5548": {
+        "cvss": 6.9,
+        "cvss_version": "2.0",
+        "severity": "Medium",
+        "description": "Multiple stack-based buffer overflows in Command EXEC in Cisco IOS allow local users to gain privileges via unspecified vectors, aka (1) PSIRT-0474975756 and (2) PSIRT-0388256465.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information.  However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+        "reference": "http://osvdb.org/45360",
+        "published_at": "2007-10-18T20:17:00.000Z",
+        "attack_vector": "LOCAL",
+        "attack_complexity": "MEDIUM",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE"
+      },
+      "CVE-2021-0001": {
+        "cvss": 9.8,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "description": "An issue.",
+        "reference": "https://example.invalid/a",
+        "published_at": "2020-01-02T03:04:05.000Z"
+      },
+      "CVE-2021-0002": {
+        "cvss": 5.3,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "An issue.",
+        "reference": "https://example.invalid/a",
+        "published_at": "2020-01-02T03:04:05.000Z"
+      },
+      "CVE-2026-90000": {
+        "cvss": 9.8,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90000",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90001": {
+        "cvss": 9.8,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90001",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90002": {
+        "cvss": 9.1,
+        "cvss_version": "3.1",
+        "severity": "Critical",
+        "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90002",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90003": {
+        "cvss": 8.8,
+        "cvss_version": "3.1",
+        "severity": "High",
+        "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90003",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90004": {
+        "cvss": 8.1,
+        "cvss_version": "3.1",
+        "severity": "High",
+        "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90004",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90005": {
+        "cvss": 7.5,
+        "cvss_version": "3.1",
+        "severity": "High",
+        "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90005",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90006": {
+        "cvss": 7.5,
+        "cvss_version": "3.1",
+        "severity": "High",
+        "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90006",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90007": {
+        "cvss": 6.5,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90007",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90008": {
+        "cvss": 5.9,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90008",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90009": {
+        "cvss": 5.3,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90009",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90010": {
+        "cvss": 4.3,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90010 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90010",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90011": {
+        "cvss": 3.7,
+        "cvss_version": "3.1",
+        "severity": "Low",
+        "description": "Synthetic fixture vulnerability CVE-2026-90011 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90011",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90012": {
+        "cvss": 2.1,
+        "cvss_version": "3.1",
+        "severity": "Low",
+        "description": "Synthetic fixture vulnerability CVE-2026-90012 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90012",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90013": {
+        "cvss": null,
+        "cvss_version": null,
+        "severity": "-",
+        "description": "Synthetic fixture vulnerability CVE-2026-90013 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90013",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90020": {
+        "cvss": 6.1,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90020",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90021": {
+        "cvss": 5.5,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90021",
+        "published_at": "2026-03-01T00:00:00Z"
+      },
+      "CVE-2026-90022": {
+        "cvss": 4.0,
+        "cvss_version": "3.1",
+        "severity": "Medium",
+        "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+        "reference": "https://example.invalid/advisories/CVE-2026-90022",
+        "published_at": "2026-03-01T00:00:00Z"
+      }
+    },
+    "hosts": {
+      "endpoint:101": {
+        "kind": "endpoint",
+        "hostname": "web-01",
+        "agent_id": "101",
+        "findings": [
+          {
+            "cve": "CVE-2026-90000",
+            "package": "lib0",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90000",
+            "package": "openssl-legacy",
+            "version": "1.1.1",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90001",
+            "package": "lib1",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90002",
+            "package": "lib2",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90003",
+            "package": "lib3",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90004",
+            "package": "lib4",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90005",
+            "package": "lib0",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90006",
+            "package": "lib1",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90007",
+            "package": "lib2",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90008",
+            "package": "lib3",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90009",
+            "package": "lib4",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90010",
+            "package": "lib0",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90011",
+            "package": "lib1",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90012",
+            "package": "lib2",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90013",
+            "package": "lib3",
+            "version": "1.0",
+            "detected_at": "2026-10-01T08:00:00Z"
+          }
+        ]
+      },
+      "endpoint:102": {
+        "kind": "endpoint",
+        "hostname": "db-01",
+        "agent_id": "102",
+        "findings": [
+          {
+            "cve": "CVE-2026-90020",
+            "package": "postgresql",
+            "version": "14.2",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90021",
+            "package": "postgresql",
+            "version": "14.2",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90022",
+            "package": "postgresql",
+            "version": "14.2",
+            "detected_at": "2026-10-01T08:00:00Z"
+          },
+          {
+            "cve": "CVE-2026-90000",
+            "package": "openssl",
+            "version": "3.0.2",
+            "detected_at": "2026-10-01T08:00:00Z"
+          }
+        ]
+      },
+      "endpoint:103": {
+        "kind": "endpoint",
+        "hostname": "kiosk-01",
+        "agent_id": "103",
+        "findings": []
+      },
+      "endpoint:104": {
+        "kind": "endpoint",
+        "hostname": "laptop-07",
+        "agent_id": "104",
+        "findings": null
+      },
+      "device:00:23:ac:e5:74:00": {
+        "kind": "device",
+        "hostname": "L3-Switch",
+        "agent_id": null,
+        "cve_lookup": {
+          "status": "ok",
+          "match": "cpe",
+          "product": "Cisco IOS 12.2(55)SE12",
+          "cpe": "cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*",
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:06+00:00",
+          "stale": false,
+          "total": 8
+        },
+        "findings": [
+          {
+            "cve": "CVE-2000-0486",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2005-3921",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2006-3906",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2006-4950",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2007-0199",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2007-2587",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2007-5547",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          },
+          {
+            "cve": "CVE-2007-5548",
+            "package": "Cisco IOS 12.2(55)SE12",
+            "version": "12.2(55)SE12",
+            "detected_at": "2026-10-09T08:00:06+00:00"
+          }
+        ]
+      },
+      "device:90:6c:ac:d7:43:7f": {
+        "kind": "device",
+        "hostname": null,
+        "agent_id": null,
+        "cve_lookup": {
+          "status": "unidentified",
+          "match": null,
+          "product": null,
+          "cpe": null,
+          "source": "nvd",
+          "fetched_at": null,
+          "stale": false,
+          "total": null
+        },
+        "findings": null
+      },
+      "device:00:17:95:be:b2:00": {
+        "kind": "device",
+        "hostname": "L2-Switch",
+        "agent_id": null,
+        "cve_lookup": {
+          "status": "ok",
+          "match": "cpe",
+          "product": "Cisco IOS 12.2(58)SE2",
+          "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:18+00:00",
+          "stale": false,
+          "total": 2
+        },
+        "findings": [
+          {
+            "cve": "CVE-2021-0001",
+            "package": "Cisco IOS 12.2(58)SE2",
+            "version": "12.2(58)SE2",
+            "detected_at": "2026-10-09T08:00:18+00:00"
+          },
+          {
+            "cve": "CVE-2021-0002",
+            "package": "Cisco IOS 12.2(58)SE2",
+            "version": "12.2(58)SE2",
+            "detected_at": "2026-10-09T08:00:18+00:00"
+          }
+        ]
+      },
+      "device:5c:8a:38:8b:a1:0b": {
+        "kind": "device",
+        "hostname": "CYFOR-HP-Switch",
+        "agent_id": null,
+        "cve_lookup": {
+          "status": "ok",
+          "match": "keyword",
+          "product": "HP Comware 5.20.99 Release 1107",
+          "cpe": null,
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:24+00:00",
+          "stale": false,
+          "total": 0
+        },
+        "findings": []
+      },
+      "device:54:75:d0:ab:bd:1a": {
+        "kind": "device",
+        "hostname": "CYFOR-AP1",
+        "agent_id": null,
+        "cve_lookup": {
+          "status": "ok",
+          "match": "cpe",
+          "product": "Cisco IOS 15.3(3)JB",
+          "cpe": "cpe:2.3:o:cisco:ios:15.3\\(3\\)jb:*:*:*:*:*:*:*",
+          "source": "nvd",
+          "fetched_at": "2026-10-09T08:00:36+00:00",
+          "stale": false,
+          "total": 0
+        },
+        "findings": []
+      }
+    }
+  }
+}
