@@ -83,7 +83,11 @@
           "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
           "reference": "http://secunia.com/advisories/21974",
           "published_at": "2006-09-23T10:07:00.000Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+          "detected_at": "2026-10-08T23:09:10.453101+00:00",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2017-12240",
@@ -95,7 +99,11 @@
           "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
           "reference": "http://www.securityfocus.com/bid/101034",
           "published_at": "2017-09-29T01:34:49.077Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
+          "detected_at": "2026-10-08T23:09:10.453101+00:00",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2007-5552",
@@ -563,6 +571,16 @@
           "low": 0,
           "advisory": 1
         }
+      },
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2006-4950",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 10.0
       }
     },
     {
@@ -598,7 +616,11 @@
       "vlan": 40,
       "unmanaged": false,
       "mac_type": "local",
-      "mac_vendor": null
+      "mac_vendor": null,
+      "reachable_cve": {
+        "status": "none_found",
+        "source": "top_cves"
+      }
     },
     {
       "node_id": "device:90:6c:ac:d7:43:7f",
@@ -644,7 +666,11 @@
           "description": "A buffer underwrite ('buffer underflow') vulnerability in the administrative interface of Fortinet FortiOS version 7.2.0 through 7.2.3, version 7.0.0 through 7.0.6, version 6.4.0 through 6.4.11 and version 6.2.12 and below, FortiProxy version 7.2.0 through 7.2.2, version 7.0.0 through 7.0.8, version 2.0.12 and below and FortiOS-6K7K version 7.0.5, version 6.4.0 through 6.4.10 and version 6.2.0 through 6.2.10 and below allows a remote unauthenticated attacker to execute arbitrary code or commands via specifically crafted requests.",
           "reference": "https://fortiguard.com/psirt/FG-IR-23-001",
           "published_at": "2025-03-24T16:15:17.273Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
+          "detected_at": "2026-10-08T23:09:21.608036+00:00",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2023-27997",
@@ -773,6 +799,16 @@
         "fetched_at": "2026-10-08T23:09:21.608036+00:00",
         "stale": false,
         "total": 44
+      },
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2023-25610",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
       }
     },
     {
@@ -869,7 +905,11 @@
           "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
           "reference": "http://secunia.com/advisories/21974",
           "published_at": "2006-09-23T10:07:00.000Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+          "detected_at": "2026-10-08T23:09:38.009129+00:00",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2017-12240",
@@ -881,7 +921,11 @@
           "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
           "reference": "http://www.securityfocus.com/bid/101034",
           "published_at": "2017-09-29T01:34:49.077Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
+          "detected_at": "2026-10-08T23:09:38.009129+00:00",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2007-5552",
@@ -1351,6 +1395,16 @@
           "low": 0,
           "advisory": 1
         }
+      },
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2006-4950",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 10.0
       }
     },
     {
@@ -1598,7 +1652,8 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "reachable_cve": null
     },
     {
       "node_id": "endpoint:003",
@@ -1630,7 +1685,11 @@
           "description": "Inconsistent interpretation of http requests ('http request/response smuggling') in ASP.NET Core allows an authorized attacker to bypass a security feature over a network.",
           "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-55315, https://andrewlock.net/understanding-the-worst-dotnet-vulnerability-request-smuggling-and-cve-2025-55315/, https://gist.github.com/N3mes1s/d0897c13ca199e739ecc2b562f466040",
           "published_at": "2025-10-14T17:15:44Z",
-          "detected_at": "2026-10-08T12:26:44.659Z"
+          "detected_at": "2026-10-08T12:26:44.659Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "LOW",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2026-57092",
@@ -1642,7 +1701,11 @@
           "description": "Use after free in Windows VMSwitch allows an authorized attacker to elevate privileges over a network.",
           "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-57092",
           "published_at": "2026-07-14T18:18:33Z",
-          "detected_at": "2026-10-08T12:26:44.449Z"
+          "detected_at": "2026-10-08T12:26:44.449Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "LOW",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2025-60724",
@@ -1654,7 +1717,11 @@
           "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network.",
           "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-60724",
           "published_at": "2025-11-11T18:15:41Z",
-          "detected_at": "2026-10-08T12:26:44.495Z"
+          "detected_at": "2026-10-08T12:26:44.495Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2026-33824",
@@ -1753,7 +1820,17 @@
       "vlan": 40,
       "unmanaged": false,
       "mac_type": "global",
-      "mac_vendor": "Dell Inc."
+      "mac_vendor": "Dell Inc.",
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2025-60724",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
+      }
     },
     {
       "node_id": "endpoint:005",
@@ -1785,7 +1862,11 @@
           "description": "Windows Point-to-Point Protocol (PPP) Remote Code Execution Vulnerability",
           "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2022-35744",
           "published_at": "2023-05-31T19:15:16Z",
-          "detected_at": "2026-10-08T12:26:46.136Z"
+          "detected_at": "2026-10-08T12:26:46.136Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2023-21554",
@@ -1908,7 +1989,17 @@
       "vlan": 30,
       "unmanaged": false,
       "mac_type": "global",
-      "mac_vendor": "Dell Inc."
+      "mac_vendor": "Dell Inc.",
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2022-35744",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
+      }
     },
     {
       "node_id": "endpoint:002",
@@ -1940,7 +2031,11 @@
           "description": "Other issue in the DevTools component. This vulnerability was fixed in Thunderbird 157 and Firefox 157.",
           "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2064034, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-97/",
           "published_at": "2026-09-29T13:17:46Z",
-          "detected_at": "2026-10-08T12:26:43.967Z"
+          "detected_at": "2026-10-08T12:26:43.967Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2026-100770",
@@ -2063,7 +2158,17 @@
       "vlan": 20,
       "unmanaged": false,
       "mac_type": "global",
-      "mac_vendor": "Dell Inc."
+      "mac_vendor": "Dell Inc.",
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2026-100810",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
+      }
     },
     {
       "node_id": "host:28:f1:0e:31:3f:0c",
@@ -2089,7 +2194,8 @@
       "vlan": 20,
       "unmanaged": true,
       "mac_type": "global",
-      "mac_vendor": "Dell Inc."
+      "mac_vendor": "Dell Inc.",
+      "reachable_cve": null
     },
     {
       "node_id": "host:d8:d3:85:97:10:84",
@@ -2115,7 +2221,8 @@
       "vlan": 40,
       "unmanaged": true,
       "mac_type": "global",
-      "mac_vendor": "Hewlett Packard"
+      "mac_vendor": "Hewlett Packard",
+      "reachable_cve": null
     },
     {
       "node_id": "device:ip:172.20.99.21",
@@ -2165,7 +2272,11 @@
           "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
           "reference": "http://www.securityfocus.com/bid/101034",
           "published_at": "2017-09-29T01:34:49.077Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
+          "detected_at": "2026-10-08T23:09:55.500531+00:00",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2007-5552",
@@ -2430,6 +2541,16 @@
           "low": 0,
           "advisory": 0
         }
+      },
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2017-12240",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
       }
     },
     {
@@ -2460,7 +2581,8 @@
       },
       "unmanaged": true,
       "mac_type": "local",
-      "mac_vendor": null
+      "mac_vendor": null,
+      "reachable_cve": null
     },
     {
       "node_id": "endpoint:001",
@@ -2492,7 +2614,11 @@
           "description": "Use after free in Windows VMSwitch allows an authorized attacker to elevate privileges over a network.",
           "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-57092",
           "published_at": "2026-07-14T18:18:33Z",
-          "detected_at": "2026-10-08T12:26:40.890Z"
+          "detected_at": "2026-10-08T12:26:40.890Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "LOW",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2007-4559",
@@ -2504,7 +2630,11 @@
           "description": "Directory traversal vulnerability in the (1) extract and (2) extractall functions in the tarfile module in Python allows user-assisted remote attackers to overwrite arbitrary files via a .. (dot dot) sequence in filenames in a TAR archive, a related issue to CVE-2001-1267.",
           "reference": "http://secunia.com/advisories/26623, http://www.vupen.com/english/advisories/2007/3022, http://mail.python.org/pipermail/python-dev/2007-August/074292.html, https://bugzilla.redhat.com/show_bug.cgi?id=263261, http://mail.python.org/pipermail/python-dev/2007-August/074290.html, https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/CVBB7NU3YIRRDOKLYVN647WPRR3IAKR6/, https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/FI55PGL47ES3OU2FQPGEHOI2EK3S2OBH/, https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/KA4Z44ZAI4SY7THCFBUDNT5EEFO4XQ3A/, https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/CVBB7NU3YIRRDOKLYVN647WPRR3IAKR6/, https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/FI55PGL47ES3OU2FQPGEHOI2EK3S2OBH/, https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/KA4Z44ZAI4SY7THCFBUDNT5EEFO4XQ3A/, https://security.gentoo.org/glsa/202309-06",
           "published_at": "2007-08-28T01:17:00Z",
-          "detected_at": "2026-10-08T12:26:42.020Z"
+          "detected_at": "2026-10-08T12:26:42.020Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2025-60724",
@@ -2516,7 +2646,11 @@
           "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network.",
           "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-60724",
           "published_at": "2025-11-11T18:15:41Z",
-          "detected_at": "2026-10-08T12:26:40.857Z"
+          "detected_at": "2026-10-08T12:26:40.857Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2026-33824",
@@ -2614,7 +2748,17 @@
       },
       "unmanaged": false,
       "mac_type": "global",
-      "mac_vendor": "Intel Corporate"
+      "mac_vendor": "Intel Corporate",
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2007-4559",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
+      }
     },
     {
       "node_id": "endpoint:004",
@@ -2646,7 +2790,11 @@
           "description": "Other issue in the DevTools component. This vulnerability was fixed in Thunderbird 157 and Firefox 157.",
           "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2064034, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-97/",
           "published_at": "2026-09-29T13:17:46Z",
-          "detected_at": "2026-10-08T12:26:44.965Z"
+          "detected_at": "2026-10-08T12:26:44.965Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2026-100770",
@@ -2768,7 +2916,17 @@
       },
       "unmanaged": false,
       "mac_type": "global",
-      "mac_vendor": "Dell Inc."
+      "mac_vendor": "Dell Inc.",
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2026-100810",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 9.8
+      }
     },
     {
       "node_id": "endpoint:006",
@@ -2800,7 +2958,11 @@
           "description": "A flaw in Node.js's permission model allows Unix Domain Socket (UDS) connections to bypass network restrictions when `--permission` is enabled. Even without `--allow-net`, attacker-controlled inputs (such as URLs or socketPath options) can connect to arbitrary local sockets via net, tls, or undici/fetch. This breaks the intended security boundary of the permission model and enables access to privileged local services, potentially leading to privilege escalation, data exposure, or local code execution.\n\n* The issue affects users of the Node.js permission model on version v25.\n\nIn the moment of this vulnerability, network permissions (`--allow-net`) are still in the experimental phase.",
           "reference": "https://nodejs.org/en/blog/vulnerability/december-2025-security-releases",
           "published_at": "2026-01-20T21:16:05Z",
-          "detected_at": "2026-10-08T12:26:46.556Z"
+          "detected_at": "2026-10-08T12:26:46.556Z",
+          "attack_vector": "NETWORK",
+          "attack_complexity": "LOW",
+          "privileges_required": "NONE",
+          "user_interaction": "NONE"
         },
         {
           "cve": "CVE-2026-81376",
@@ -2922,7 +3084,17 @@
       },
       "unmanaged": false,
       "mac_type": "global",
-      "mac_vendor": "CLOUD NETWORK TECHNOLOGY SINGAPORE PTE. LTD."
+      "mac_vendor": "CLOUD NETWORK TECHNOLOGY SINGAPORE PTE. LTD.",
+      "reachable_cve": {
+        "status": "found",
+        "source": "top_cves",
+        "cve": "CVE-2026-21636",
+        "attack_vector": "NETWORK",
+        "attack_complexity": "LOW",
+        "privileges_required": "NONE",
+        "user_interaction": "NONE",
+        "cvss": 10.0
+      }
     }
   ],
   "edges": [
@@ -3120,6 +3292,18 @@
       "managed": 7,
       "unmanaged": 3,
       "managed_share": 0.7
+    },
+    "cve_vectors": {
+      "assets": 15,
+      "by_status": {
+        "found": 10,
+        "none_found": 1
+      },
+      "looked_up": 10,
+      "nvd_requests": 10,
+      "api_key": false,
+      "budget_s": 900.0,
+      "refreshed_at": "2026-10-10T08:30:02.432406+00:00"
     }
   }
 }
