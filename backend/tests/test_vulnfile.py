@@ -52,7 +52,8 @@ class TestVulnsFileRules(unittest.TestCase):
         self.assertIn("--vulns-out", build_parser().format_help())
 
     def test_written_next_to_output_by_default(self):
-        code, stdout, _ = run(["--scored", SCORED, "--network", NETWORK, "-o", self.graph])
+        code, stdout, _ = run(["--scored", SCORED, "--network", NETWORK, "-o", self.graph,
+                               "--no-attack-paths"])   # keep this folder to the vulns write
         self.assertEqual(code, 0)
         self.assertEqual(stdout, "")
         vulns = self.load(self.default)

@@ -115,6 +115,15 @@ def build_parser() -> argparse.ArgumentParser:
                         help="on devices that do not list their TCP listeners over SNMP, "
                              "open one connection to TCP 23 (telnet) and 80 (HTTP) and close "
                              "it at once; no data is sent. Off by default.")
+    parser.add_argument("--no-attack-paths", action="store_true",
+                        help="skip the exposure-path stage (no attack_paths.json); reads no "
+                             "network and leaves the graph as before.")
+    parser.add_argument("--targets", metavar="PATH",
+                        help="important assets for the exposure-path stage (default: "
+                             "targets.json beside -o; absent means no targets).")
+    parser.add_argument("--paths-out", metavar="PATH",
+                        help="write the exposure paths to PATH (default: attack_paths.json "
+                             "beside -o; skipped when the graph goes to stdout).")
     parser.add_argument("--no-name-lookup", action="store_true",
                         help="do not ask the system resolver for the reverse DNS name of "
                              "hosts that have an address and no name.")
@@ -413,6 +422,25 @@ class Pipeline:
             timing["checklist_s"] = time.monotonic() - t0
             document["metadata"]["checklist"] = checks.block
             document["metadata"]["warnings"].extend(checks.warnings)
+
+        if not args.no_attack_paths:
+            from . import attackpaths
+
+            paths_out = args.paths_out or (attackpaths.default_path(args.output)
+                                           if args.output else None)
+            targets_path = args.targets or (attackpaths._targets_path(args.output)
+                                            if args.output else None)
+            if paths_out is None:
+                log.info("graph went to stdout and --paths-out was not given; "
+                         "not writing %s", attackpaths.FILENAME)
+            else:
+                log.info("computing exposure paths ...")
+                t0 = time.monotonic()
+                vulns_doc = vulnfile.build_document(endpoints, vulns["cves"], None,
+                                                    devices=device_entries)
+                attackpaths.run_stage(document, attackpaths._load_targets(targets_path),
+                                      vulns_doc, paths_out)
+                timing["attack_paths_s"] = time.monotonic() - t0
 
         finished_at = datetime.now(timezone.utc)
         timing["finished_at"] = finished_at.isoformat()
