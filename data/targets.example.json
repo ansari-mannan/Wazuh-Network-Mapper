@@ -1,0 +1,14 @@
+{
+  "endpoint:001": {
+    "importance": "high",
+    "note": "A node_id from the graph. 'high' is the FIPS 199 impact of its loss: severe or catastrophic."
+  },
+  "device:aa:bb:cc:dd:ee:ff": {
+    "importance": "moderate",
+    "note": "Only the FIPS 199 levels high, moderate and low are used; no other scale."
+  },
+  "endpoint:002": {
+    "importance": "low",
+    "note": "Copy this file to targets.json beside the graph (targets.json is git-ignored) and list your own important assets. An id not in the graph is reported as missing."
+  }
+}

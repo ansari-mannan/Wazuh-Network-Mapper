@@ -1,0 +1,10 @@
+{
+  "endpoint:000": {
+    "importance": "high",
+    "note": "Wazuh server (the is_wazuh_server node); losing it is a high impact (FIPS 199)."
+  },
+  "device:00:23:ac:e5:74:00": {
+    "importance": "moderate",
+    "note": "the device that routes the most VLANs (lowest id on a tie); a moderate impact (FIPS 199)."
+  }
+}
