@@ -154,6 +154,39 @@ CVE_1999_0517 = {
 }
 
 
+# --- how easily a finding lets someone take the device over ---------------
+# Read by the exposure path engine (vulnmapper.attackpaths), which turns the
+# rating into a step value with the NIST IR 7788 mapping. Only these four
+# checks create a step. Each rating is the CVSS v2 Access Complexity a source
+# gives, quoted.
+
+CCSS = ("NIST IR 7502, The Common Configuration Scoring System (CCSS)",
+        "https://csrc.nist.gov/pubs/ir/7502/final")
+CVSS2_GUIDE = ("A Complete Guide to the Common Vulnerability Scoring System Version 2.0",
+               "https://www.first.org/cvss/v2/guide")
+
+_CLEAR_TEXT_EXPOSURE = {
+    "access_complexity": "HIGH",
+    "justification": "Someone must first see another system's traffic to read the clear-text "
+                     "login, which is the CVSS v2 guide's example of High; CCSS's own table "
+                     "drops that example, and its Medium would also be a defensible reading.",
+    "source": CVSS2_GUIDE[0],
+    "url": CVSS2_GUIDE[1],
+    "quote": "In most configurations, the attacking party must already have elevated "
+             "privileges or spoof additional systems in addition to the attacking system "
+             "(e.g., DNS hijacking).",
+}
+_DEFAULT_COMMUNITY_EXPOSURE = {
+    "access_complexity": "LOW",
+    "justification": "CCSS Scoring Tip 6 rates publicized default credentials Low, and NVD "
+                     "scores CVE-1999-0517 the same (AC:L).",
+    "source": CCSS[0],
+    "url": CCSS[1],
+    "quote": "Presence of a default user account may be considered as “Single” or "
+             "“Multiple” Authentication (as appropriate), but would have Access Complexity "
+             "of “Low” if the credentials are publicized (which is usually the case).",
+}
+
 CATALOGUE: list = [
     {
         "id": "mgmt-telnet-enabled",
@@ -165,6 +198,7 @@ CATALOGUE: list = [
         "severity": "high",
         "cwe": "CWE-319",
         "remediation": "Turn off Telnet on the management lines and use SSH instead.",
+        "exposure": _CLEAR_TEXT_EXPOSURE,
     },
     {
         "id": "mgmt-http-enabled",
@@ -175,6 +209,7 @@ CATALOGUE: list = [
         "severity": "high",
         "cwe": "CWE-319",
         "remediation": "Turn off the HTTP server; if web management is needed, use HTTPS only.",
+        "exposure": _CLEAR_TEXT_EXPOSURE,
     },
     {
         "id": "snmp-no-auth",
@@ -187,6 +222,7 @@ CATALOGUE: list = [
         "cwe": "CWE-319",
         "remediation": "Move management to SNMPv3 with authentication and privacy "
                        "(authPriv) and remove the v1/v2c communities.",
+        "exposure": _CLEAR_TEXT_EXPOSURE,
     },
     {
         "id": "snmp-default-community",
@@ -198,6 +234,7 @@ CATALOGUE: list = [
         "severity": "high",
         "cwe": "CWE-1392",
         "remediation": "Remove the public and private communities and use SNMPv3 users.",
+        "exposure": _DEFAULT_COMMUNITY_EXPOSURE,
     },
     {
         "id": "spare-ports-in-used-vlan",

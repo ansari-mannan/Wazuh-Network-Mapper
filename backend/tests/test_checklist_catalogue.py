@@ -73,6 +73,16 @@ class TestCatalogue(unittest.TestCase):
         self.assertEqual([r["rule_id"] for r in references_for(by_id("snmp-default-community"), None)],
                          ["CVE-1999-0517"])
 
+    def test_four_checks_carry_an_exposure_rating_with_its_source(self):
+        rated = {c["id"]: c["exposure"]["access_complexity"] for c in CATALOGUE if "exposure" in c}
+        self.assertEqual(rated, {"mgmt-telnet-enabled": "HIGH", "mgmt-http-enabled": "HIGH",
+                                 "snmp-no-auth": "HIGH", "snmp-default-community": "LOW"})
+        for c in CATALOGUE:
+            if "exposure" in c:
+                e = c["exposure"]
+                self.assertTrue(e["justification"] and e["quote"] and e["source"])
+                self.assertTrue(e["url"].startswith("https://"))
+
 
 if __name__ == "__main__":
     unittest.main()
