@@ -43,6 +43,7 @@ Useful options:
 - `--vulns-out PATH`: where to write `vulnerabilities.json` (see below).
 - `--no-device-cves`, `--nvd-cache PATH`, `--nvd-budget SECONDS`: the device
   CVE stage (see "Device CVEs").
+- `--no-cve-vectors`: skip the CVE vector stage (see "How a CVE is reached").
 - `--no-checklist`, `--check-default-communities`, `--check-management-ports`:
   the configuration checks (see "Configuration checks").
 - `--no-name-lookup`, `--probe-unmanaged-snmp`: hosts without an agent (see
@@ -261,6 +262,62 @@ fields and updates the device entries of `vulnerabilities.json` beside it. It
 needs no SNMP and no Wazuh. For a graph written before software families were
 recorded, the family is inferred only when unambiguous (a classic IOS version
 string, a FortiGate, the Comware version format).
+
+### How a CVE is reached
+
+A score says how bad a CVE is, not how easily it can be used. Four fields of
+the CVE's CVSS vector say that:
+
+- `attack_vector`: `NETWORK`, `ADJACENT` (same network segment), `LOCAL` or
+  `PHYSICAL`;
+- `attack_complexity`: `LOW` or `HIGH` (CVSS v2 also has `MEDIUM`);
+- `privileges_required`: `NONE`, `LOW` or `HIGH`;
+- `user_interaction`: `NONE`, or `REQUIRED` (v4: `PASSIVE`, `ACTIVE`).
+
+They come from NVD, from the same metric the score is taken from (v3.1, v3.0,
+v4.0, then v2). A v2 metric is mapped: access vector and complexity as they
+are, authentication `NONE` / `SINGLE` / `MULTIPLE` as privileges `NONE` / `LOW`
+/ `HIGH`, and NVD's user-interaction flag as `REQUIRED` or `NONE`. Device CVEs
+come from NVD with them. Host CVEs come from the Wazuh indexer with only a
+score, so they are looked up in NVD by CVE id.
+
+**On each endpoint and device node:** `reachable_cve`, its most easily
+reached CVE: among CVEs with attack vector `NETWORK` or `ADJACENT`, no
+privileges and no user interaction, the one with the lowest complexity, ties
+to the higher score. It gives the CVE id, the four fields and the score
+(`status: found`), or `none_found`, or `unverified` when the lookups did not
+finish; it is null for an asset with no CVE data. `source` says whether the
+candidates were all its findings (`findings`, from `vulnerabilities.json`) or
+only `top_cves`. The four fields are also added, where known, to the graph's
+`top_cves` rows and to the CVE catalogue of `vulnerabilities.json`.
+
+**Lookup order.** NVD allows few requests, so an asset's CVEs are looked up
+highest score first, and the asset is done at the first one that is
+`NETWORK`, `LOW`, no privileges and no interaction: nothing can rank above
+it. A CVE shared by many hosts is asked once. CVEs the device stage already
+holds are read from the cache.
+
+**Budget and cache.** The stage uses the device stage's NVD client and cache:
+the same request spacing, the same `--nvd-budget` for the scan (it gets what
+the device stage leaves), and `nvd-cache.json`, where a CVE looked up by id is
+fresh for 7 days (1 day when NVD does not know it). A warm cache makes no
+request. An asset whose lookups did not finish inside the budget, or that NVD
+could not answer for, is `unverified`, never `none_found`, and is listed in a
+`cve_vectors_unverified` warning; the next scan picks up from the cache.
+`metadata.cve_vectors` counts the assets by status, the CVEs looked up and the
+NVD requests; `metadata.timing.cve_vectors_s` is the stage's duration.
+`--no-cve-vectors` skips the stage, and the graph and `vulnerabilities.json`
+are then written as before.
+
+**Refresh without a rescan:**
+
+```
+python -m vulnmapper.devicecves.vectors --graph ../data/graph.json [--budget SECONDS]
+```
+
+re-runs only this stage on an existing graph. Nothing else in the graph
+changes; an existing `vulnerabilities.json` beside it gains the catalogue
+fields and is read for full findings (none is created).
 
 ### Configuration checks
 
