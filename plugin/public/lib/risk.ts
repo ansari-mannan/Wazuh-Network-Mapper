@@ -4,7 +4,7 @@ import { themeVars } from './theme';
 // this module adds the labels and colours.
 import { RiskLevel } from './riskRule';
 
-export { nodeRiskScore, riskCounts, riskLevel, SCORED_RISK_LEVELS } from './riskRule';
+export { displayRiskLevel, nodeRiskScore, riskCounts, riskLevel, SCORED_RISK_LEVELS } from './riskRule';
 export type { RiskLevel } from './riskRule';
 
 export const RISK_META: Record<RiskLevel, { label: string; color: string }> = {

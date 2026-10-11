@@ -17,6 +17,30 @@ export function riskLevel(score: number | null | undefined): RiskLevel {
   return 'low';
 }
 
+// Severity ordering of the risk levels (unscored is the least).
+const LEVEL_SEVERITY: Record<RiskLevel, number> = { unscored: 0, low: 1, medium: 2, high: 3, critical: 4 };
+
+/** The more severe of two risk levels. */
+export function worseRiskLevel(a: RiskLevel, b: RiskLevel): RiskLevel {
+  return LEVEL_SEVERITY[b] > LEVEL_SEVERITY[a] ? b : a;
+}
+
+/**
+ * The risk level to show for a device on the map: the more severe of its CVE
+ * risk band and its worst configuration-finding severity. Configuration
+ * findings carry the published DISA/STIG severity (CAT I/II/III -> high/medium/
+ * low), so no number is invented; a high finding lifts an otherwise unscored
+ * device to the high colour instead of leaving it grey. Advisory findings have
+ * no severity and are passed as null, so they never raise the level.
+ */
+export function displayRiskLevel(
+  score: number | null | undefined,
+  findingSeverity: 'high' | 'medium' | 'low' | null
+): RiskLevel {
+  const cve = riskLevel(score);
+  return findingSeverity ? worseRiskLevel(cve, findingSeverity) : cve;
+}
+
 export interface RiskNode {
   kind: string;
   risk_score: number | null;

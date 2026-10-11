@@ -3,8 +3,8 @@ import { EuiBadge } from '@elastic/eui';
 import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';
 import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
-import { isOffline, riskBorder, riskLabel, statusDot } from './nodeStyle';
-import { nodeRiskScore, RISK_META } from '../../lib/risk';
+import { isOffline, riskBorderForLevel, riskLabel, statusDot } from './nodeStyle';
+import { displayRiskLevel, nodeRiskScore, RISK_META } from '../../lib/risk';
 import { findingsBadge, findingsBadgeText } from '../../lib/findingsBadge';
 import { useLiveness } from '../../lib/liveness';
 
@@ -24,10 +24,12 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
   const Icon = iconForRole(data.role);
   const dot = statusDot(data.status, liveness);
   const risk = nodeRiskScore(data);
-  const border = riskBorder(risk);
+  const findings = findingsBadge(data);
+  // At-a-glance colour = worse of the CVE band and the worst config finding, so a
+  // device with no CVE score but a high finding is not shown grey (see displayRiskLevel).
+  const border = riskBorderForLevel(displayRiskLevel(risk, findings?.severity ?? null));
   const dimmed = data.stale || isOffline(data.status, liveness);
   const label = data.hostname || data.ip || data.node_id;
-  const findings = findingsBadge(data);
 
   return (
     // The unmanaged label sits beside the node, not in it, so an offline node's

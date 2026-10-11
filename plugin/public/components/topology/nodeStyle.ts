@@ -42,13 +42,17 @@ const BORDER_WIDTH: Record<RiskLevel, number> = {
   unscored: 1,
 };
 
+/** A risk level's border (outline) colour and width. */
+export function riskBorderForLevel(level: RiskLevel): RiskBorder {
+  return { color: RISK_META[level].color, width: BORDER_WIDTH[level] };
+}
+
 /**
  * RISK -> node border (outline), independent of liveness. Returns { color, width }.
  * An unscored node gets a neutral thin grey border, not green.
  */
 export function riskBorder(r: number | null | undefined): RiskBorder {
-  const level = riskLevel(r);
-  return { color: RISK_META[level].color, width: BORDER_WIDTH[level] };
+  return riskBorderForLevel(riskLevel(r));
 }
 
 /**

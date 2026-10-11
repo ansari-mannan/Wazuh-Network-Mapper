@@ -1,5 +1,5 @@
 import { CveLookup, CveLookupStatus } from '../../common';
-import { nodeRiskScore, riskCounts, riskLevel, RiskNode } from './riskRule';
+import { displayRiskLevel, nodeRiskScore, riskCounts, riskLevel, RiskNode } from './riskRule';
 
 const lookup = (status: CveLookupStatus, match: CveLookup['match'] = 'cpe'): CveLookup => ({
   status,
@@ -51,6 +51,23 @@ describe('riskLevel', () => {
     expect(riskLevel(4.0)).toBe('medium');
     expect(riskLevel(0)).toBe('low');
     expect(riskLevel(null)).toBe('unscored');
+  });
+});
+
+describe('displayRiskLevel', () => {
+  it('lifts an unscored device to its worst finding severity', () => {
+    expect(displayRiskLevel(null, 'high')).toBe('high'); // the HP switch: no CVE, two high findings
+    expect(displayRiskLevel(null, 'medium')).toBe('medium');
+  });
+
+  it('keeps the CVE band when it already exceeds the findings', () => {
+    expect(displayRiskLevel(9.5, 'medium')).toBe('critical');
+    expect(displayRiskLevel(7.2, 'low')).toBe('high');
+  });
+
+  it('does not let an advisory (no severity) raise the level', () => {
+    expect(displayRiskLevel(null, null)).toBe('unscored');
+    expect(displayRiskLevel(3.0, null)).toBe('low');
   });
 });
 
