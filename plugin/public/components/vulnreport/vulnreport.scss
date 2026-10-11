@@ -44,7 +44,7 @@
 }
 
 .vmAssetBlock {
-  padding: $euiSizeM 0;
+  padding: $euiSizeL 0 $euiSizeM;
   border-bottom: 1px solid $euiBorderColor;
 
   &__head {
@@ -52,10 +52,96 @@
     align-items: center;
     flex-wrap: wrap;
     gap: $euiSizeS;
+    padding-bottom: $euiSizeXS;
+    margin-bottom: $euiSizeXS;
+    border-bottom: 1px solid $euiColorLightShade;
     h3,
     h4 {
       margin: 0;
     }
+  }
+}
+
+/* --- Visuals (inline SVG; print-safe) --- */
+.vmStatBand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $euiSizeS;
+}
+.vmStat {
+  flex: 1 1 120px;
+  min-width: 110px;
+  padding: $euiSizeS $euiSizeM;
+  border: 1px solid $euiBorderColor;
+  border-radius: $euiBorderRadius;
+
+  &__value {
+    font-size: $euiFontSizeL;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  &__label {
+    font-size: $euiFontSizeXS;
+    color: $euiTextSubduedColor;
+  }
+}
+
+.vmChartBlock {
+  max-width: 640px;
+}
+.vmCover__chart {
+  margin-top: $euiSizeL;
+  max-width: 480px;
+}
+
+.vmBarRow {
+  display: flex;
+  align-items: center;
+  gap: $euiSizeS;
+  margin: 2px 0;
+
+  &__label {
+    flex: 0 0 72px;
+    font-size: $euiFontSizeXS;
+    color: $euiTextSubduedColor;
+  }
+}
+.vmStackBar {
+  flex: 1 1 auto;
+}
+.vmChartTrack {
+  fill: $euiColorLightestShade;
+}
+.vmChartLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 $euiSizeM;
+  margin-top: $euiSizeXS;
+}
+
+.vmBarChart {
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: $euiSizeS;
+    margin: 3px 0;
+  }
+  &__name {
+    flex: 0 0 140px;
+    font-size: $euiFontSizeXS;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__track {
+    flex: 1 1 auto;
+  }
+  &__value {
+    flex: 0 0 auto;
+    font-size: $euiFontSizeXS;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: right;
   }
 }
 
@@ -74,14 +160,23 @@
 }
 
 .vmConfigFindings {
-  margin-top: $euiSizeS;
+  margin-top: $euiSizeM;
 }
 .vmConfigFinding {
-  margin: $euiSizeXS 0;
+  margin: $euiSizeM 0 0;
   &__head {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: $euiSizeS;
+    font-size: $euiFontSizeS;
+  }
+  &__title {
+    font-weight: 600;
+  }
+  /* explanation sits indented beneath the title, muted and smaller */
+  &__why {
+    margin-top: 2px;
+    padding-left: calc(#{$euiSizeS} + #{$euiSizeXS});
     font-size: $euiFontSizeXS;
   }
 }
@@ -147,7 +242,7 @@
     background: #fff !important;
     color: #000 !important;
   }
-  .vmReport *:not(.vmChip__dot) {
+  .vmReport *:not(.vmChip__dot):not(.vmChartSeg):not(.vmChartTrack) {
     background: transparent !important;
     color: #000 !important;
     box-shadow: none !important;
@@ -157,7 +252,10 @@
     color: #000 !important;
     text-decoration: underline;
   }
-  .vmChip__dot {
+  /* the severity dots and the inline-SVG chart fills must keep their colour */
+  .vmChip__dot,
+  .vmChart,
+  .vmChart rect {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -174,7 +272,11 @@
   .vmAssetBlock,
   .vmTable,
   .vmConfigFinding,
-  .vmRemediationAsset {
+  .vmRemediationAsset,
+  .vmStatBand,
+  .vmChartBlock,
+  .vmBarRow,
+  .vmBarChart__row {
     page-break-inside: avoid;
   }
 
