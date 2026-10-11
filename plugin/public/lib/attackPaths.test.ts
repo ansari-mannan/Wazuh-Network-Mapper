@@ -5,6 +5,7 @@ import {
   likelihoodLabel,
   likelihoodText,
   pageState,
+  physicalPathNodeIds,
   startKindLabel,
   stepText,
   targetState,
@@ -104,6 +105,33 @@ describe('targetState', () => {
   });
   it('is ok when there are routes', () => {
     expect(targetState({ present: true, routes: [route(0.9, 8.9)] } as unknown as AttackTarget)).toBe('ok');
+  });
+});
+
+describe('physicalPathNodeIds', () => {
+  // hostA — hpSwitch — l3 — hostB (a tree, as the map is)
+  const edges = [
+    { source: 'hostA', target: 'hpSwitch' },
+    { source: 'hpSwitch', target: 'l3' },
+    { source: 'l3', target: 'hostB' },
+  ];
+
+  it('lights the switch between two assets, not just the endpoints', () => {
+    expect(new Set(physicalPathNodeIds(['hostA', 'l3'], edges))).toEqual(
+      new Set(['hostA', 'hpSwitch', 'l3'])
+    );
+  });
+
+  it('threads every device on the way across several hops', () => {
+    expect(new Set(physicalPathNodeIds(['hostA', 'hostB'], edges))).toEqual(
+      new Set(['hostA', 'hpSwitch', 'l3', 'hostB'])
+    );
+  });
+
+  it('falls back to the two endpoints when no physical path exists', () => {
+    expect(new Set(physicalPathNodeIds(['hostA', 'island'], edges))).toEqual(
+      new Set(['hostA', 'island'])
+    );
   });
 });
 

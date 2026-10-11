@@ -81,6 +81,12 @@
     opacity: 0.18;
   }
 
+  // a device the route only passes through (a switch/router on the physical path):
+  // lit, but lighter than the taken-over assets so the two read differently.
+  .react-flow__node.vmPassThrough {
+    opacity: 0.5;
+  }
+
   // worst configuration-finding severity, so a device with no CVE score but a
   // finding (e.g. open telnet) is not read as clean. The badge (lib/risk colour)
   // sits on the node's lower edge; EuiBadge picks its own readable text colour.

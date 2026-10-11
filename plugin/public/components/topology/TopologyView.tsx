@@ -130,6 +130,12 @@ interface TopologyViewProps {
    * "Show on map". When set, every other node and edge is dimmed.
    */
   highlightKey?: string;
+  /**
+   * node_ids the route only passes through (comma-separated): switches/routers on
+   * the physical path between its assets. Lit, but lighter than the taken-over
+   * assets in highlightKey. Edges between any two lit nodes (either set) stay lit.
+   */
+  passKey?: string;
 }
 
 // The graph without the hidden nodes and any edge that touches one.
@@ -144,11 +150,13 @@ function withoutHidden(graph: GraphResponse, hiddenKey: string): GraphResponse {
 }
 
 export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
-  ({ graph, onSelect, selectedId, hiddenKey = '', highlightKey = '' }, ref) => {
+  ({ graph, onSelect, selectedId, hiddenKey = '', highlightKey = '', passKey = '' }, ref) => {
     const highlight = useMemo(
       () => (highlightKey ? new Set(highlightKey.split(',')) : null),
       [highlightKey]
     );
+    // Pass-through nodes are lit (so their edges stay lit) but styled lighter.
+    const passThrough = useMemo(() => new Set(passKey ? passKey.split(',') : []), [passKey]);
     const { layoutNodes, edges } = useMemo(() => {
       // layoutGraph is the pure layout-prep module: it computes positions/ranks
       // from the real edges and returns the edges to draw (incl. dashed "inferred"
@@ -241,17 +249,18 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       return <div className="empty">The graph is empty (0 nodes).</div>;
     }
 
-    // Spotlight one route: fade the nodes and edges that are not on it.
+    // Spotlight one route: the taken-over assets full, the pass-through nodes
+    // lighter, everything else faded. An edge stays lit when both its ends are
+    // lit (either set), so the physical path reads as one continuous line.
+    const lit = (id: string) => highlight!.has(id) || passThrough.has(id);
     const displayNodes = nodes.map((n) => {
       const sel = n.id === selectedId;
-      const className = highlight && !highlight.has(n.id) ? 'vmDim' : '';
+      const className = !highlight ? '' : highlight.has(n.id) ? '' : passThrough.has(n.id) ? 'vmPassThrough' : 'vmDim';
       return n.selected === sel && (n.className || '') === className ? n : { ...n, selected: sel, className };
     });
     const displayEdges = highlight
       ? edges.map((e) =>
-          highlight.has(e.source) && highlight.has(e.target)
-            ? e
-            : { ...e, style: { ...e.style, opacity: 0.12 } }
+          lit(e.source) && lit(e.target) ? e : { ...e, style: { ...e.style, opacity: 0.12 } }
         )
       : edges;
 

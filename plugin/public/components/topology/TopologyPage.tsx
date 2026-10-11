@@ -104,7 +104,9 @@ export function TopologyPage() {
   const { liveness } = useLiveness();
   const { history } = useServices();
   const location = useLocation();
-  const highlightKey = new URLSearchParams(location.search).get('highlight') || '';
+  const params = new URLSearchParams(location.search);
+  const highlightKey = params.get('highlight') || '';
+  const passKey = params.get('pass') || '';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hideInactive, setHideInactive] = useState(true);
   const view = useRef<TopologyViewHandle>(null);
@@ -183,7 +185,7 @@ export function TopologyPage() {
       <div ref={ref} style={{ height }}>
         {graph && !livenessOn ? (
           <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '100%' }}>
-            <TopologyView ref={view} graph={graph} selectedId={selectedId} onSelect={setSelectedId} highlightKey={highlightKey} />
+            <TopologyView ref={view} graph={graph} selectedId={selectedId} onSelect={setSelectedId} highlightKey={highlightKey} passKey={passKey} />
           </EuiPanel>
         ) : graph ? (
           // Liveness on: the canvas, plus the hidden hosts beside it.
@@ -197,6 +199,7 @@ export function TopologyPage() {
                   onSelect={setSelectedId}
                   hiddenKey={hiddenKey}
                   highlightKey={highlightKey}
+                  passKey={passKey}
                 />
               </EuiPanel>
             </EuiFlexItem>

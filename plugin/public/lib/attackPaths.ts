@@ -77,6 +77,65 @@ export function routeNodeIds(route: AttackRoute): string[] {
   return [...ids];
 }
 
+/**
+ * The nodes a route visits in order: its start, then each step's reached asset.
+ * Consecutive entries are the pairs the physical path is drawn between.
+ */
+export function routeWalk(route: AttackRoute): string[] {
+  return [route.start, ...route.steps.map((s) => s.to)];
+}
+
+type Edge = { source: string; target: string };
+
+// Shortest path (inclusive) between two nodes along the edges, or [] if there is
+// none. The graph is a tree, so the path is unique; BFS finds it.
+function shortestPath(from: string, to: string, adj: Map<string, string[]>): string[] {
+  if (from === to) return [from];
+  const prev = new Map<string, string>();
+  const seen = new Set<string>([from]);
+  const queue = [from];
+  while (queue.length) {
+    const node = queue.shift()!;
+    for (const next of adj.get(node) || []) {
+      if (seen.has(next)) continue;
+      seen.add(next);
+      prev.set(next, node);
+      if (next === to) {
+        const path = [to];
+        for (let n = node; ; n = prev.get(n)!) {
+          path.unshift(n);
+          if (n === from) return path;
+        }
+      }
+      queue.push(next);
+    }
+  }
+  return [];
+}
+
+/**
+ * Every node to light for a route on the map: the given assets (in `walk` order)
+ * plus, between each consecutive pair, the shortest physical path along the graph
+ * edges — the switches a same-VLAN hop really crosses, so the highlight is a
+ * continuous path instead of leaving an intermediate device dimmed in the middle.
+ * A pair with no physical path contributes only its two endpoints (never fails).
+ * Edges light themselves when both their endpoints are lit, so only node ids are
+ * returned; the intermediates (lit here but not in `walk`) are the pass-through set.
+ */
+export function physicalPathNodeIds(walk: string[], edges: Edge[]): string[] {
+  const adj = new Map<string, string[]>();
+  const link = (a: string, b: string) => (adj.get(a) || adj.set(a, []).get(a)!).push(b);
+  for (const e of edges) {
+    link(e.source, e.target);
+    link(e.target, e.source);
+  }
+  const lit = new Set<string>(walk);
+  for (let i = 0; i + 1 < walk.length; i++) {
+    for (const id of shortestPath(walk[i], walk[i + 1], adj)) lit.add(id);
+  }
+  return [...lit];
+}
+
 // One step rendered as plain text: a takeover step reaches an asset and names
 // what allowed it; a transit step only crosses a router (lighter in the UI).
 export type StepText = { kind: AttackStep['kind']; heading: string; detail: string };

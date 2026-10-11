@@ -21,7 +21,9 @@ import {
   IMPORTANCE_RANK,
   likelihoodText,
   pageState,
+  physicalPathNodeIds,
   routeNodeIds,
+  routeWalk,
   targetState,
 } from '../../lib/attackPaths';
 import { RouteDetail } from './RouteDetail';
@@ -157,8 +159,17 @@ export function AttackPathsPage() {
 
   if (!doc) return null; // unreachable: pageState(null) is 'absent'
 
-  const onShowOnMap = (route: AttackRoute) =>
-    history.push(`/topology?highlight=${encodeURIComponent(routeNodeIds(route).join(','))}`);
+  // Light the physical path, not just the named assets: the taken-over assets
+  // (start, target and each takeover step's destination) are the full highlight;
+  // the switches/routers the hops really cross are pass-through (lighter).
+  const onShowOnMap = (route: AttackRoute) => {
+    const full = new Set<string>([route.start, route.target]);
+    for (const s of route.steps) if (s.kind !== 'transit') full.add(s.to);
+    const lit = new Set([...physicalPathNodeIds(routeWalk(route), graph?.edges || []), ...routeNodeIds(route)]);
+    const pass = [...lit].filter((id) => !full.has(id));
+    const q = new URLSearchParams({ highlight: [...full].join(','), pass: pass.join(',') });
+    history.push(`/topology?${q.toString()}`);
+  };
 
   return (
     <EuiFlexGroup className="vmAttackPaths" gutterSize="l" alignItems="flexStart">
