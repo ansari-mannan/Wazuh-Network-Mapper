@@ -53,6 +53,7 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.checkDefaultCommunities` | where the Scan settings switch "Also test factory-default SNMP names (public, private)" starts (default `false`); the switch's position is what a scan uses |
 | `vulnmapper.checkManagementPorts` | where the switch "Test whether telnet and web management answer on devices that do not report it" starts (default `false`); on, the scan runs with `--check-management-ports` |
 | `vulnmapper.probeUnmanagedSnmp` | where the switch "Ask unmanaged hosts for their identity over SNMP" starts (default `false`); on, the scan runs with `--probe-unmanaged-snmp` |
+| `vulnmapper.nmapUnmanaged` | where the switch "Service-scan unmanaged hosts with nmap" starts (default `false`); on, the scan runs with `--nmap-unmanaged`, which actively probes the discovered unmanaged hosts (nmap must be installed) |
 
 `backendDir` and `graphPath` have no default; until they are set, the API
 returns an error saying which key is missing.
@@ -149,6 +150,11 @@ what in one sentence:
   credential goes to every host without an agent (at most 256), and those
   machines are not verified; a hostile one receives the credential
   (`--probe-unmanaged-snmp`).
+- "Service-scan unmanaged hosts with nmap": `nmap -sV` actively connects to
+  and probes the discovered unmanaged hosts for open ports and service
+  versions, then looks those up in NVD for potential CVEs; never managed hosts
+  or network devices, and nmap must be installed on the dashboard server
+  (`--nmap-unmanaged`).
 
 The config keys above set where each switch starts. The scan request carries
 the switches' positions; an automatic rescan keeps the choices of the last

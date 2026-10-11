@@ -48,6 +48,8 @@ Useful options:
   the configuration checks (see "Configuration checks").
 - `--no-name-lookup`, `--probe-unmanaged-snmp`: hosts without an agent (see
   "Unmanaged hosts").
+- `--nmap-unmanaged`, `--nmap-hosts-cap N`, `--nmap-budget SECONDS`: the
+  optional, active service scan of unmanaged hosts (see "Service scan").
 - `--help`: list every option.
 
 ## Output
@@ -578,7 +580,54 @@ keeps `unmanaged: true`. A host that does not answer is unchanged.
 `metadata.snmp_question` gives `asked`, `answered`, `forwarding`, `cap` and
 `cap_reached`.
 
-**Planned:** an optional nmap service scan of unmanaged hosts, off by default.
+### Service scan (unmanaged hosts)
+
+`--nmap-unmanaged` (off by default) service-scans the unmanaged hosts the scan
+already discovered, to fill in the blind spot a host without an agent leaves.
+It is the only part of the tool that actively probes hosts: it connects to
+them. So it is off unless you turn it on, and `nmap` must be installed (if it
+is not, the stage warns `nmap_not_installed` and is skipped; the scan still
+succeeds).
+
+**What it probes, and what it never touches.** Only nodes that are
+`unmanaged: true` and have a known IP, taken from the graph the pipeline just
+built — never a managed host, never a network device, never an address the
+scan did not already see. One `nmap -sV` run (service/version detection,
+nmap's default port set and timing) over a host-list file, plus the benign
+`nbstat` discovery script for a Windows host's NetBIOS name. No OS detection,
+no vuln scripts, no aggressive options. The host list carries IP addresses
+only, in a temp file nmap reads and that is removed afterwards; nmap's
+arguments carry no secret.
+
+**Bounds.** `--nmap-hosts-cap` (default 256) caps the hosts scanned per run and
+`--nmap-budget` (default 300 s) the whole scan's time; over either, the rest
+are left for the next run (`nmap_cap_reached`, `nmap_budget_exceeded`). A
+per-host timeout bounds each host.
+
+**What a host that answered gets.** Its `open_ports` (port, protocol and, where
+nmap detected them, service, product and version) — recorded even when no CVE
+is found, because the ports are useful on their own and are the honest
+evidence. When nmap detected a product with a version (through the CPE it
+emits), that version is turned into a CPE lookup and run through the same
+device-CVE NVD path (same client, cache and time budget), so the host gains
+`cve_summary`, `top_cves`, `max_cvss`, `risk_score` and a `cve_lookup` like a
+device's — with `source: "nmap"` and `potential: true`. **Potential** means a
+detected service version is not proof the vulnerable build is running, the same
+caution as a device's version match. A host that answered with no identifiable
+service, or no CVE, keeps its `open_ports` and is otherwise unchanged. The host
+keeps `unmanaged: true`: this gives it data, not an agent.
+
+**Identity (gaps only).** The NetBIOS name fills `hostname` only when the node
+has none (`name_source: "netbios"`). An nmap service fingerprint that suggests
+a device type (printer, camera, …) is recorded as `device_hint`, clearly a
+guess, and never overwrites a known role. Reverse DNS still names hosts
+elsewhere; the order of preference stays an existing name, then DNS, then
+NetBIOS.
+
+`metadata.nmap` gives `eligible`, `scanned`, `answered`, `named`, `with_cves`,
+`nmap_requests`, `cap_reached` and `budget_exceeded`; `metadata.timing.nmap_s`
+is the stage's duration. Both are absent when the flag is off, so a scan with
+it off produces the same document as before.
 
 ## Liveness
 
