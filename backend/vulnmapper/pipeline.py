@@ -34,6 +34,10 @@ frontend's pre-rendered graph is rebuilt without touching the lab:
                    ask each host without an agent (at most 256) for its SNMP
                    system group with the scan's own credentials; this sends
                    them to machines nobody has vouched for (off by default)
+  --nmap-unmanaged service-scan the discovered unmanaged hosts with nmap -sV
+                   (open ports, service versions -> NVD CVEs); actively probes
+                   them, never managed hosts or devices. Off by default.
+                   --nmap-hosts-cap / --nmap-budget bound it
 
 Live stages read credentials from the environment (``WAZUH_*`` for collect,
 ``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
@@ -115,6 +119,16 @@ def build_parser() -> argparse.ArgumentParser:
                         help="on devices that do not list their TCP listeners over SNMP, "
                              "open one connection to TCP 23 (telnet) and 80 (HTTP) and close "
                              "it at once; no data is sent. Off by default.")
+    parser.add_argument("--nmap-unmanaged", action="store_true",
+                        help="service-scan (nmap -sV) the unmanaged hosts the scan discovered: "
+                             "detect their open ports and service versions, then look those up in "
+                             "NVD for potential CVEs. This actively connects to and probes those "
+                             "hosts; never managed hosts or network devices. Off by default.")
+    parser.add_argument("--nmap-hosts-cap", type=int, default=None, metavar="N",
+                        help="most unmanaged hosts to service-scan per run (default 256); the rest "
+                             "are left for the next scan.")
+    parser.add_argument("--nmap-budget", type=float, default=None, metavar="SECONDS",
+                        help="time budget for the whole service scan (default 300).")
     parser.add_argument("--no-attack-paths", action="store_true",
                         help="skip the exposure-path stage (no attack_paths.json); reads no "
                              "network and leaves the graph as before.")
@@ -220,11 +234,12 @@ class Pipeline:
     """
 
     def __init__(self, nvd_transport=None, clock=None, resolver=None,
-                 snmp_client=None) -> None:
+                 snmp_client=None, nmap_runner=None) -> None:
         self._nvd_transport = nvd_transport
         self._clock = clock
         self._resolver = resolver
         self._snmp_client = snmp_client
+        self._nmap_runner = nmap_runner
         self._nvd = None
 
     def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
@@ -315,6 +330,13 @@ class Pipeline:
 
         return run_stage(document, *self.nvd(cache_path, budget_s))
 
+    def service_scan(self, document: dict, cache_path: Optional[str], nvd_budget_s: float,
+                     cap: int, nmap_budget_s: float):
+        from .servicescan.stage import run_stage
+
+        return run_stage(document, *self.nvd(cache_path, nvd_budget_s), cap=cap,
+                         budget_s=nmap_budget_s, runner=self._nmap_runner)
+
     def cve_vectors(self, document: dict, hosts: dict, catalogue: dict,
                     cache_path: Optional[str], budget_s: float):
         from .devicecves.vectors import run_stage
@@ -383,7 +405,7 @@ class Pipeline:
                                         if args.output else None)
         device_entries: dict = {}
         self._nvd = None
-        if not (args.no_device_cves and args.no_cve_vectors):
+        if not (args.no_device_cves and args.no_cve_vectors and not args.nmap_unmanaged):
             from .devicecves.cache import default_path as cache_beside
             from .devicecves.stage import DEFAULT_BUDGET_S
 
@@ -402,6 +424,26 @@ class Pipeline:
             for rows in stage.rows.values():
                 merge_catalogue(vulns["cves"], rows)
             device_entries = stage.entries
+
+        # The service scan runs before the vector stage so its CVEs flow through
+        # it (vector fields, reachable_cve) and the attack-path engine unchanged.
+        if args.nmap_unmanaged:
+            from .devicecves.stage import merge_catalogue
+            from .servicescan.stage import DEFAULT_BUDGET_S as NMAP_BUDGET_S
+            from .servicescan.stage import DEFAULT_HOSTS_CAP
+
+            log.info("service-scanning unmanaged hosts with nmap ...")
+            t0 = time.monotonic()
+            nmap_stage = self.service_scan(document, cache_path, budget_s,
+                                           args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
+                                           args.nmap_budget or NMAP_BUDGET_S)
+            timing["nmap_s"] = time.monotonic() - t0
+            document["metadata"]["nmap"] = nmap_stage.block
+            document["metadata"]["warnings"].extend(nmap_stage.warnings)
+            vulns["cves"] = dict(vulns["cves"] or {})
+            for rows in nmap_stage.rows.values():
+                merge_catalogue(vulns["cves"], rows)
+            device_entries.update(nmap_stage.entries)
 
         if not args.no_cve_vectors:
             log.info("looking up CVE vectors in NVD ...")
