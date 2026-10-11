@@ -77,10 +77,10 @@ function RouteTile({
       <EuiSpacer size="xs" />
       <EuiFlexGroup gutterSize="s" responsive={false} wrap alignItems="center">
         <EuiFlexItem grow={false}>
-          <EuiText size="xs">{likelihoodText(route.likelihood)}</EuiText>
+          <EuiText size="xs">Likelihood: {likelihoodText(route.likelihood)}</EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiBadge color="hollow">base score {route.highest_base_score}</EuiBadge>
+          <EuiBadge color="hollow">Worst asset severity: {route.highest_base_score} / 10</EuiBadge>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPanel>

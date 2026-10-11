@@ -50,7 +50,7 @@ function TakeoverStep({ step, nameOf }: { step: AttackStep; nameOf: (id: string)
         {typeof step.destination_base_score === 'number' && (
           <EuiFlexItem grow={false}>
             <EuiBadge color="hollow" data-test-subj="vmStepScore">
-              base score {step.destination_base_score}
+              severity {step.destination_base_score} / 10
             </EuiBadge>
           </EuiFlexItem>
         )}
@@ -117,6 +117,11 @@ export function RouteDetail({
       <EuiSpacer size="m" />
       <EuiAccordion id={`vmScoring-${route.start}`} buttonContent="How this is scored" paddingSize="s">
         <EuiText size="xs" color="subdued">
+          <p>
+            Likelihood is NIST IR 7788&apos;s coarse three-value model (low / medium / high step
+            complexity), shown as a percentage for legibility — not a precise probability. Severity is
+            the asset&apos;s worst CVSS base score, out of 10. Higher is worse on both.
+          </p>
           <p>Sources</p>
           <ul>
             {(metadata.sources || []).map((s) => (

@@ -47,9 +47,13 @@ export function likelihoodLabel(value: number): string {
   return 'Unlikely';
 }
 
-/** Likelihood as a label with the raw value beside it, e.g. "Very likely · 0.90". */
+/**
+ * Likelihood as the word plus a percentage, e.g. "Very likely · 90%". The
+ * percentage is the NIST IR 7788 value (a coarse three-value model), shown as a
+ * percent for legibility, not a precise probability — the scoring section says so.
+ */
 export function likelihoodText(value: number): string {
-  return `${likelihoodLabel(value)} · ${value.toFixed(2)}`;
+  return `${likelihoodLabel(value)} · ${Math.round(value * 100)}%`;
 }
 
 /**

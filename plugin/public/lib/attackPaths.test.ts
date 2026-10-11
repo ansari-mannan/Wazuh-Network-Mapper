@@ -29,9 +29,10 @@ describe('likelihoodLabel', () => {
     expect(likelihoodLabel(0.01)).toBe('Unlikely');
   });
 
-  it('shows the label with the value beside it', () => {
-    expect(likelihoodText(0.9)).toBe('Very likely · 0.90');
-    expect(likelihoodText(0.18)).toBe('Unlikely · 0.18');
+  it('shows the label with the value as a percentage', () => {
+    expect(likelihoodText(0.9)).toBe('Very likely · 90%');
+    expect(likelihoodText(0.6)).toBe('Likely · 60%');
+    expect(likelihoodText(0.18)).toBe('Unlikely · 18%');
   });
 });
 
