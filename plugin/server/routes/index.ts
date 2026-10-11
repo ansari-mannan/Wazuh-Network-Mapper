@@ -5,7 +5,7 @@ import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
-import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath } from '../targets';
+import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from '../targets';
 
 export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
   const notConfigured = (key: string) => ({
@@ -74,6 +74,34 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
         return response.customError({
           statusCode: 500,
           body: { message: `attack_paths.json is not valid JSON: ${(err as Error).message}` },
+        });
+      }
+    }
+  );
+
+  // The full per-asset CVE list (vulnerabilities.json beside the graph, like
+  // the attack-paths route). A missing file is "not produced yet", returned as
+  // an empty doc with metadata.state 'absent' so the report shows a clean
+  // "not available" state rather than an error. The report's organisation name
+  // (config vulnmapper.reportOrg) is injected here; it is not part of the file.
+  router.get(
+    { path: '/api/vulnmapper/vulnerabilities', validate: false },
+    async (context, request, response) => {
+      const { graphPath } = config;
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      const file = vulnerabilitiesFilePath(graphPath);
+      let data: string;
+      try {
+        data = await fs.readFile(file, 'utf-8');
+      } catch {
+        return response.ok({ body: { metadata: { state: 'absent' }, cves: {}, hosts: {}, org: config.reportOrg } });
+      }
+      try {
+        return response.ok({ body: { ...JSON.parse(data), org: config.reportOrg } });
+      } catch (err) {
+        return response.customError({
+          statusCode: 500,
+          body: { message: `vulnerabilities.json is not valid JSON: ${(err as Error).message}` },
         });
       }
     }

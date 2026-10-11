@@ -46,6 +46,8 @@ export const configSchema = schema.object({
   checkManagementPorts: schema.boolean({ defaultValue: false }),
   probeUnmanagedSnmp: schema.boolean({ defaultValue: false }),
   nmapUnmanaged: schema.boolean({ defaultValue: false }),
+  // The organisation/owner name shown on the vulnerability report's cover.
+  reportOrg: schema.string({ defaultValue: 'Network Vulnerability Assessment' }),
   liveness: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
     intervalSeconds: schema.number({ defaultValue: 10, min: 10 }),

@@ -436,3 +436,50 @@ export type AttackPathsDoc = {
   per_asset: AttackAsset[];
   not_placed: Array<{ id: string; reason: string }>;
 };
+
+// --- Vulnerabilities (data/vulnerabilities.json, backend/vulnmapper/vulnfile.py) ---
+// The full per-asset CVE list. The graph carries only each node's worst CVEs;
+// the complete list is here. A CVE's text is stored once in `cves` and each
+// host lists slim findings that point at it by id. The exact file shape.
+
+// One CVE in the shared catalogue (keyed by CVE id). Same fields as a graph CVE
+// without the per-host package/version/detected_at.
+export type CatalogueCve = {
+  cvss: number | null;
+  cvss_version: string | null;
+  severity: string;
+  description: string | null;
+  reference?: string | null;
+  published_at?: string | null;
+};
+
+// One finding on a host: the CVE id, the affected package and its version.
+export type VulnFinding = {
+  cve: string;
+  package: string | null;
+  version: string | null;
+  detected_at: string | null;
+};
+
+// A host's entry. `kind` endpoint = a Wazuh agent (findings confirmed); kind
+// device, or an endpoint carrying a cve_lookup (an unmanaged host looked up by
+// version), means the findings are potential. findings is null when the full
+// list is not available.
+export type VulnHostEntry = {
+  kind: 'endpoint' | 'device';
+  hostname: string | null;
+  agent_id: string | null;
+  findings: VulnFinding[] | null;
+  cve_lookup?: CveLookup;
+};
+
+export type VulnerabilitiesDoc = {
+  // 'absent' is the route's synthetic state when the file has not been produced
+  // yet; a real file has scan_time and counts instead.
+  metadata: { scan_time?: string; counts?: Record<string, number>; state?: 'absent' };
+  cves: Record<string, CatalogueCve>;
+  hosts: Record<string, VulnHostEntry>;
+  // The report's organisation/owner name, injected by the server from config
+  // (vulnmapper.reportOrg); not part of the file on disk.
+  org?: string;
+};

@@ -9,6 +9,10 @@ export function targetsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'targets.json');
 }
 
+export function vulnerabilitiesFilePath(graphPath: string): string {
+  return path.join(path.dirname(path.resolve(graphPath)), 'vulnerabilities.json');
+}
+
 export function attackPathsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'attack_paths.json');
 }
