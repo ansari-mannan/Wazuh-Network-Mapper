@@ -117,6 +117,12 @@ const ACTIVE_CHECKS: Array<{ key: keyof ActiveChecks; label: string; help: strin
     help: 'Sends this scan’s SNMP credential to every host without a Wazuh agent (at most 256), and those machines are not verified: one that is hostile receives the credential.',
     testSubj: 'vmProbeUnmanagedSnmp',
   },
+  {
+    key: 'nmapUnmanaged',
+    label: 'Service-scan unmanaged hosts with nmap',
+    help: 'Actively connects to and probes the discovered unmanaged hosts (nmap -sV: open ports and service versions, then NVD for potential CVEs). Never managed hosts or network devices. nmap must be installed on the dashboard server.',
+    testSubj: 'vmNmapUnmanaged',
+  },
 ];
 
 export function ScanSettingsPage() {

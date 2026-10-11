@@ -31,6 +31,7 @@ const CHECK_FLAGS: Record<keyof ActiveChecks, string> = {
   checkDefaultCommunities: '--check-default-communities',
   checkManagementPorts: '--check-management-ports',
   probeUnmanagedSnmp: '--probe-unmanaged-snmp',
+  nmapUnmanaged: '--nmap-unmanaged',
 };
 
 interface ScanOptions {

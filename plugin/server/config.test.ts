@@ -30,10 +30,12 @@ describe('active checks config', () => {
       checkDefaultCommunities: false,
       checkManagementPorts: false,
       probeUnmanagedSnmp: false,
+      nmapUnmanaged: false,
     });
     expect(configSchema.validate({ checkDefaultCommunities: true }).checkDefaultCommunities).toBe(true);
     expect(configSchema.validate({ checkManagementPorts: true }).checkManagementPorts).toBe(true);
     expect(configSchema.validate({ probeUnmanagedSnmp: true }).probeUnmanagedSnmp).toBe(true);
+    expect(configSchema.validate({ nmapUnmanaged: true }).nmapUnmanaged).toBe(true);
   });
 });
 

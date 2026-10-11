@@ -61,10 +61,20 @@ export type CveLookup = {
   match: "cpe" | "keyword" | null;
   product: string | null;   // "Cisco IOS 12.2(55)SE12"
   cpe: string | null;
-  source: string;           // "nvd"
+  source: string;           // "nvd", or "nmap" from the service scan
   fetched_at: string | null;
   stale: boolean;           // an expired cached answer, NVD unreachable
   total: number | null;     // distinct CVEs, when status is ok
+  potential?: boolean;      // service-scan match: a version match, not proof
+};
+
+// An open port the service scan found; service fields null where undetected.
+export type OpenPort = {
+  port: number;
+  protocol: string;
+  service: string | null;
+  product: string | null;
+  version: string | null;
 };
 
 // Device configuration checks (backend/vulnmapper/checklist), one result per
@@ -190,13 +200,17 @@ export type EndpointNode = GraphNodeBase & {
   unmanaged?: boolean;                // true: no Wazuh agent reports from it
   mac_type?: 'global' | 'local';      // local: randomised or virtual, no manufacturer
   mac_vendor?: string | null;         // IEEE registry organisation for a global MAC
-  name_source?: 'dns' | 'snmp';       // where hostname came from when not from Wazuh
+  name_source?: 'dns' | 'snmp' | 'netbios'; // where hostname came from when not from Wazuh
   // It answered the optional SNMP question: what it reported, and, with a
   // known software family, the same CVE lookup as a device.
   snmp?: boolean;
   sys_descr?: string | null;
   software_family?: string;
   cve_lookup?: CveLookup;
+  // The optional service scan (backend/vulnmapper/servicescan): open ports it
+  // found and a guessed device type. Absent unless the host was scanned.
+  open_ports?: OpenPort[];
+  device_hint?: string;
 };
 
 // metadata.coverage: how many hosts a Wazuh agent reports from.
@@ -280,6 +294,7 @@ export type ActiveChecks = {
   checkDefaultCommunities: boolean; // --check-default-communities
   checkManagementPorts: boolean;    // --check-management-ports
   probeUnmanagedSnmp: boolean;      // --probe-unmanaged-snmp
+  nmapUnmanaged: boolean;           // --nmap-unmanaged
 };
 
 // Liveness (GET /api/vulnmapper/liveness): per node_id, whether the node still

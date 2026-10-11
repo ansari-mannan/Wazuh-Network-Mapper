@@ -12,6 +12,7 @@ describe('scanArgs', () => {
     expect(
       scanArgs('/tmp/v.json', { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(4)
     ).toEqual(['--check-management-ports', '--probe-unmanaged-snmp']);
+    expect(scanArgs('/tmp/v.json', { checks: { nmapUnmanaged: true } })).toContain('--nmap-unmanaged');
     expect(scanArgs('/tmp/v.json', { deviceCves: false, checks: { checkDefaultCommunities: false } })).toEqual([
       '-m',
       'vulnmapper',

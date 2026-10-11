@@ -138,6 +138,7 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
             checkDefaultCommunities: schema.maybe(schema.boolean()),
             checkManagementPorts: schema.maybe(schema.boolean()),
             probeUnmanagedSnmp: schema.maybe(schema.boolean()),
+            nmapUnmanaged: schema.maybe(schema.boolean()),
           })
         ),
       },
@@ -153,6 +154,7 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
           checkDefaultCommunities: request.body?.checkDefaultCommunities ?? config.checkDefaultCommunities,
           checkManagementPorts: request.body?.checkManagementPorts ?? config.checkManagementPorts,
           probeUnmanagedSnmp: request.body?.probeUnmanagedSnmp ?? config.probeUnmanagedSnmp,
+          nmapUnmanaged: request.body?.nmapUnmanaged ?? config.nmapUnmanaged,
         },
         pythonBin,
         backendDir,

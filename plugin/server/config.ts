@@ -22,6 +22,12 @@ import { ActiveChecks } from '../common';
 //                          identity over SNMP" (default false). On, a scan
 //                          passes --probe-unmanaged-snmp: the scan's SNMP
 //                          credential goes to hosts nobody has verified.
+//   vulnmapper.nmapUnmanaged  the switch "Service-scan unmanaged hosts with
+//                          nmap" (default false). On, a scan passes
+//                          --nmap-unmanaged: nmap actively connects to and
+//                          probes the discovered unmanaged hosts (open ports,
+//                          service versions -> NVD CVEs), never managed hosts
+//                          or network devices. nmap must be installed.
 //   vulnmapper.liveness.*  the background liveness check (off by default):
 //     enabled, intervalSeconds (min 10), missThreshold (min 1),
 //     agentMaxAgeSeconds (oldest Wazuh agent check-in that counts, default
@@ -39,6 +45,7 @@ export const configSchema = schema.object({
   checkDefaultCommunities: schema.boolean({ defaultValue: false }),
   checkManagementPorts: schema.boolean({ defaultValue: false }),
   probeUnmanagedSnmp: schema.boolean({ defaultValue: false }),
+  nmapUnmanaged: schema.boolean({ defaultValue: false }),
   liveness: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
     intervalSeconds: schema.number({ defaultValue: 10, min: 10 }),
@@ -54,6 +61,6 @@ export type VulnmapperConfig = TypeOf<typeof configSchema>;
 
 /** The active checks' configured defaults (all off unless the owner turns them on). */
 export function configuredChecks(config: VulnmapperConfig): ActiveChecks {
-  const { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp } = config;
-  return { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp };
+  const { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp, nmapUnmanaged } = config;
+  return { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp, nmapUnmanaged };
 }
