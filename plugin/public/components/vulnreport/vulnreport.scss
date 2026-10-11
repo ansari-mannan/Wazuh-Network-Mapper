@@ -1,0 +1,196 @@
+/* Vulnerability report. On screen it follows the OUI theme (light/dark); the
+ * PDF is produced by window.print() with the @media print block below, which
+ * hides the dashboard and plugin chrome and forces a light A4 document.
+ * Severity is always shown as a coloured dot AND a word (never colour alone),
+ * and the dot colours come from lib/risk.ts. */
+
+.vmChip {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.vmChip__dot {
+  display: inline-block;
+  width: $euiSizeS;
+  height: $euiSizeS;
+  border-radius: 50%;
+  margin-right: $euiSizeXS;
+  flex-shrink: 0;
+}
+
+.vmTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $euiFontSizeXS;
+  margin: $euiSizeXS 0;
+
+  th,
+  td {
+    text-align: left;
+    vertical-align: top;
+    padding: $euiSizeXS $euiSizeS;
+    border-bottom: 1px solid $euiBorderColor;
+  }
+  thead th {
+    color: $euiTextSubduedColor;
+    font-weight: 600;
+    border-bottom: 1px solid $euiColorMediumShade;
+  }
+}
+.vmKeyValue th {
+  width: 180px;
+  color: $euiTextSubduedColor;
+  font-weight: 600;
+}
+
+.vmAssetBlock {
+  padding: $euiSizeM 0;
+  border-bottom: 1px solid $euiBorderColor;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $euiSizeS;
+    h3,
+    h4 {
+      margin: 0;
+    }
+  }
+}
+
+.vmCountRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $euiSizeS;
+  font-size: $euiFontSizeXS;
+  margin: 2px 0;
+
+  &__label {
+    color: $euiTextSubduedColor;
+    font-weight: 600;
+  }
+}
+
+.vmConfigFindings {
+  margin-top: $euiSizeS;
+}
+.vmConfigFinding {
+  margin: $euiSizeXS 0;
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: $euiSizeS;
+    font-size: $euiFontSizeXS;
+  }
+}
+
+.vmRemediation {
+  margin: $euiSizeXS 0 0 $euiSizeM;
+  font-size: $euiFontSizeS;
+  li {
+    margin: 2px 0;
+  }
+}
+.vmRemediationAsset {
+  margin-bottom: $euiSizeM;
+}
+
+.vmReportSection {
+  margin-bottom: $euiSizeL;
+}
+.vmCover__org {
+  font-size: $euiFontSizeL;
+  color: $euiTextSubduedColor;
+}
+
+.vmSeverityGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 $euiSizeM;
+}
+
+/* footer only exists for print */
+.vmPrintFooter {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 14mm 20mm;
+  }
+
+  /* dashboard chrome */
+  header[data-test-subj='headerGlobalNav'],
+  #globalBannerList {
+    display: none !important;
+  }
+  /* plugin chrome: the overview link, the page title + tab row, the controls */
+  [data-test-subj='vmBackToOverview'],
+  .vmInnerPage .euiPageHeader,
+  .vmScreenOnly,
+  .vmReportControls {
+    display: none !important;
+  }
+  .euiPage.vmInnerPage,
+  .vmInnerPage .euiPageBody {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    max-width: none !important;
+  }
+
+  /* force a light document, but keep the severity dots' colour */
+  .vmReport {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .vmReport *:not(.vmChip__dot) {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  .vmReport a,
+  .vmReport .euiLink {
+    color: #000 !important;
+    text-decoration: underline;
+  }
+  .vmChip__dot {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* page breaks: cover on its own page, each section on a new page, and keep
+     asset blocks and tables from splitting across a page boundary */
+  .vmReportSection:not(.vmCover) {
+    page-break-before: always;
+  }
+  .vmCover {
+    page-break-after: always;
+    min-height: 85vh;
+  }
+  .vmAssetBlock,
+  .vmTable,
+  .vmConfigFinding,
+  .vmRemediationAsset {
+    page-break-inside: avoid;
+  }
+
+  .vmPrintFooter {
+    display: block;
+    position: fixed;
+    bottom: 6mm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9px;
+  }
+  /* page number where the print engine supports @page margin boxes */
+  @page {
+    @bottom-right {
+      content: 'Page ' counter(page);
+    }
+  }
+}

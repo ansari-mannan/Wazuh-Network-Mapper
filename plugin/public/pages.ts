@@ -36,11 +36,11 @@ export const PAGES: PageDef[] = [
   },
   {
     id: 'vulnerabilities',
-    title: 'Vulnerabilities',
-    description: 'CVEs found on endpoints, by severity and host.',
+    title: 'Vulnerability report',
+    description: 'A ranked, exportable report of the CVEs and configuration findings per asset.',
     icon: 'securitySignalDetected',
     group: 'risk',
-    available: false,
+    available: true,
   },
   {
     id: 'attack-paths',

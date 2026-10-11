@@ -8,6 +8,7 @@ import { GraphProvider } from '../lib/graph';
 import { ScanProvider } from '../lib/scan';
 import { LivenessProvider } from '../lib/liveness';
 import { AttackPathsProvider } from '../lib/attackPathsData';
+import { VulnerabilitiesProvider } from '../lib/vulnerabilities';
 import { Services, ServicesProvider, useServices } from '../lib/services';
 import { Overview } from './overview/Overview';
 import { InnerPage } from './layout/InnerPage';
@@ -15,6 +16,7 @@ import { ComingSoon } from './layout/ComingSoon';
 import { TopologyPage } from './topology/TopologyPage';
 import { ScanSettingsPage } from './scan/ScanSettingsPage';
 import { AttackPathsPage } from './attackpaths/AttackPathsPage';
+import { VulnerabilityReportPage } from './vulnreport/VulnerabilityReportPage';
 
 // Page bodies by page id. A page without an entry here (or not `available` in
 // PAGES) renders the "coming soon" empty state.
@@ -22,6 +24,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
   topology: TopologyPage,
   scan: ScanSettingsPage,
   'attack-paths': AttackPathsPage,
+  vulnerabilities: VulnerabilityReportPage,
 };
 
 function useBreadcrumbs(page?: PageDef) {
@@ -58,6 +61,7 @@ export const VulnmapperApp = ({ services }: { services: Services }) => (
         <ScanProvider>
           <LivenessProvider>
             <AttackPathsProvider>
+             <VulnerabilitiesProvider>
               <Router history={services.history}>
                 <Switch>
                   {PAGES.map((page) => (
@@ -70,6 +74,7 @@ export const VulnmapperApp = ({ services }: { services: Services }) => (
                   </Route>
                 </Switch>
               </Router>
+             </VulnerabilitiesProvider>
             </AttackPathsProvider>
           </LivenessProvider>
         </ScanProvider>
