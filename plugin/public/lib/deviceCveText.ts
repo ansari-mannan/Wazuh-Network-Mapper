@@ -30,6 +30,9 @@ const NOT_CONFIRMED = 'A version match does not confirm the affected feature is 
 export function potentialText(l: CveLookup): string {
   if (l.status !== 'ok') return '';
   const when = lookupDate(l.fetched_at);
+  if (l.source === 'nmap') {
+    return `Potential, from service detection: nmap detected ${l.product}, looked up against NVD on ${when}. ${NOT_CONFIRMED}`;
+  }
   if (l.match === 'keyword') {
     return `Potential: matched by product name and version (${l.product}) in NVD descriptions on ${when}. ${NOT_CONFIRMED}`;
   }

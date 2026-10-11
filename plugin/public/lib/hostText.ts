@@ -22,11 +22,17 @@ export function manufacturerText(node: GraphNode): string {
 const NAME_SOURCES: Record<string, string> = {
   dns: 'Reverse DNS',
   snmp: 'Its own SNMP system name',
+  netbios: 'Its NetBIOS name (service scan)',
 };
 
 /** Where a name not from Wazuh came from; empty when it came from Wazuh or the network devices. */
 export function nameSourceText(source: string | undefined): string {
   return source ? NAME_SOURCES[source] || source : '';
+}
+
+/** A guessed device type from the service scan, marked a guess; empty when none. */
+export function deviceHintText(hint: string | undefined): string {
+  return hint ? `${hint} (a guess, from the service fingerprint)` : '';
 }
 
 /** "7 of 10 hosts have a Wazuh agent". */

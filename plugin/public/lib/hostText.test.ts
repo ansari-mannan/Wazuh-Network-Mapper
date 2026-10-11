@@ -1,5 +1,5 @@
 import { EndpointNode, GraphNode } from '../../common';
-import { coverageText, manufacturerText, nameSourceText, unmanagedText } from './hostText';
+import { coverageText, deviceHintText, manufacturerText, nameSourceText, unmanagedText } from './hostText';
 
 const host = (fields: Partial<EndpointNode>): GraphNode =>
   ({ node_id: 'host:x', kind: 'endpoint', agent_id: null, top_cves: [], ...fields } as GraphNode);
@@ -37,7 +37,15 @@ describe('nameSourceText', () => {
   it('says where a name not from Wazuh came from', () => {
     expect(nameSourceText('dns')).toBe('Reverse DNS');
     expect(nameSourceText('snmp')).toBe('Its own SNMP system name');
+    expect(nameSourceText('netbios')).toBe('Its NetBIOS name (service scan)');
     expect(nameSourceText(undefined)).toBe('');
+  });
+});
+
+describe('deviceHintText', () => {
+  it('marks the hint a guess, and is empty without one', () => {
+    expect(deviceHintText('printer')).toBe('printer (a guess, from the service fingerprint)');
+    expect(deviceHintText(undefined)).toBe('');
   });
 });
 

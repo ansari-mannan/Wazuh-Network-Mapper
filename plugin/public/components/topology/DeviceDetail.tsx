@@ -26,7 +26,7 @@ import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
 import { hasDeviceFindings, potentialText, staleText, unscoredReason } from '../../lib/deviceCveText';
-import { manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
+import { deviceHintText, manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
 import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
 import { ConfigChecks } from './ConfigChecks';
 import { iconForRole } from './icons';
@@ -252,7 +252,10 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   if (node.kind === 'endpoint') {
     if (node.mac_type) hostRows.push(['Manufacturer', manufacturerText(node)]);
     if (node.name_source) hostRows.push(['Name from', nameSourceText(node.name_source)]);
+    if (node.device_hint) hostRows.push(['Device type', deviceHintText(node.device_hint)]);
   }
+  // The service scan's open ports (unmanaged hosts); evidence on its own.
+  const openPorts = node.kind === 'endpoint' ? node.open_ports || [] : [];
   if (node.snmp) hostRows.push(['SNMP reports', node.sys_descr || 'its name only']);
   const deviceLookedUp = hasDeviceFindings(lookup);
   const reason = level === 'unscored' ? unscoredReason(node) : '';
@@ -420,6 +423,34 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               })
             )}
           </Section>
+        )}
+
+        {node.kind === 'endpoint' && node.open_ports && (
+          <>
+            {(!isDevice || deviceLookedUp) && <EuiSpacer size="m" />}
+            <Section title="Open ports" count={openPorts.length}>
+              <EuiText size="xs" color="subdued">
+                <p>From the service scan (nmap). The host has no Wazuh agent.</p>
+              </EuiText>
+              <EuiSpacer size="s" />
+              {openPorts.length === 0 ? (
+                <EuiText size="s" color="subdued">
+                  <p>It answered the scan, but no open port was found.</p>
+                </EuiText>
+              ) : (
+                <EuiDescriptionList
+                  type="column"
+                  compressed
+                  className="vmFields"
+                  data-test-subj="vmOpenPorts"
+                  listItems={openPorts.map((p) => ({
+                    title: <span className="vmMono">{`${p.port}/${p.protocol}`}</span>,
+                    description: [p.service, p.product, p.version].filter(Boolean).join(' · ') || EMPTY,
+                  }))}
+                />
+              )}
+            </Section>
+          </>
         )}
 
         {node.kind === 'device' && (

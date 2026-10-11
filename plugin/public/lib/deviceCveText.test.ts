@@ -28,6 +28,13 @@ describe('potentialText', () => {
     );
   });
 
+  it('says when a service scan detected it', () => {
+    expect(potentialText(at({ source: 'nmap', potential: true, product: 'OpenSSH 8.2p1' }))).toBe(
+      'Potential, from service detection: nmap detected OpenSSH 8.2p1, looked up against NVD on 9 Oct 2026. ' +
+        'A version match does not confirm the affected feature is in use.'
+    );
+  });
+
   it('is empty when nothing was matched', () => {
     expect(potentialText(at({ status: 'unavailable' }))).toBe('');
   });
