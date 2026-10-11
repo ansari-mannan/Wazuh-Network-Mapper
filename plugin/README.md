@@ -13,7 +13,9 @@ as **Network Topology Mapper** and has:
 - **Scan settings**: run a scan with an SNMP community string (and,
   optionally, three active checks that are off by default), follow its
   status, and see where the current graph came from.
-- Vulnerabilities, Attack paths and Recommendations: shown as "Coming soon".
+- **Vulnerability report**: a ranked, exportable report of the CVEs and
+  configuration findings per asset (see below).
+- Attack paths; Recommendations shown as "Coming soon".
 
 The server side reads the graph file and runs the scanner; the scanner itself
 is unchanged.
@@ -54,6 +56,7 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.checkManagementPorts` | where the switch "Test whether telnet and web management answer on devices that do not report it" starts (default `false`); on, the scan runs with `--check-management-ports` |
 | `vulnmapper.probeUnmanagedSnmp` | where the switch "Ask unmanaged hosts for their identity over SNMP" starts (default `false`); on, the scan runs with `--probe-unmanaged-snmp` |
 | `vulnmapper.nmapUnmanaged` | where the switch "Service-scan unmanaged hosts with nmap" starts (default `false`); on, the scan runs with `--nmap-unmanaged`, which actively probes the discovered unmanaged hosts (nmap must be installed) |
+| `vulnmapper.reportOrg` | the organisation/owner name shown on the vulnerability report's cover (default `Network Vulnerability Assessment`) |
 
 `backendDir` and `graphPath` have no default; until they are set, the API
 returns an error saying which key is missing.
@@ -160,6 +163,41 @@ The config keys above set where each switch starts. The scan request carries
 the switches' positions; an automatic rescan keeps the choices of the last
 scan.
 
+## Vulnerability report
+
+The **Vulnerability report** page turns the three files a scan produces
+(`graph.json`, `vulnerabilities.json`, `attack_paths.json`) into one report —
+on screen and as an A4 PDF. It only displays data the scan produced; it changes
+no scanner or engine.
+
+Two modes, chosen by a switch at the top:
+
+- **Most vulnerable assets**: assets ranked worst-first (by displayed risk
+  level, then confirmed-critical count, then total CVEs), each a compact block
+  with its counts by severity split into confirmed and potential, its worst
+  CVEs and its configuration findings. A configurable top N (default 10) shows;
+  the rest are collapsed.
+- **Single asset**: one asset's full detail — identity, open ports and detected
+  services, every CVE, every configuration finding with its remediation, and
+  whether it lies on an attack path.
+
+A finding is **confirmed** when a Wazuh agent reports from the host, and
+**potential** when it is matched against the NVD by software version (network
+devices, hosts without an agent, and services detected by nmap). Three filters
+apply on screen and carry into the PDF: severity (critical/high/medium/low/
+unknown), confidence (all / confirmed only / potential only) and on-path (only
+assets a route passes through). Because a host can carry thousands of CVEs, each
+asset shows its worst 10 with "show all N" on demand, and the PDF caps each
+asset's CVE table at a configurable number (default 200) with a "showing the
+200 worst of N" line.
+
+**Export PDF** calls the browser's print; its "Save as PDF" writes a multi-page
+A4 file with a cover, executive summary, methodology and sources, findings and
+remediation. A print stylesheet hides the dashboard and plugin chrome, forces a
+light document, and starts each section on its own page. Keep the print
+dialog's "Headers and footers" on for page numbers. The organisation name on
+the cover comes from `vulnmapper.reportOrg`.
+
 ## Development setup
 
 1. Check out OpenSearch Dashboards 2.19.3 and use Node 18.19.0 (`nvm use 18.19.0`).
@@ -202,6 +240,7 @@ dashboard's own jest, from the dashboard folder:
 | `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp }` for the scan form |
 | `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 | `GET /api/vulnmapper/attack-paths` | the computed `attack_paths.json` read from beside the graph; a missing file is returned as `{ metadata: { state: "absent" }, ... }` rather than an error |
+| `GET /api/vulnmapper/vulnerabilities` | the full per-asset CVE list (`vulnerabilities.json`) read from beside the graph, plus `org` (from `vulnmapper.reportOrg`); a missing file is returned as `{ metadata: { state: "absent" }, cves: {}, hosts: {}, org }` rather than an error |
 | `POST /api/vulnmapper/targets` | mark, re-rate or unmark one protected asset; body `{ "id": string, "importance": "high" \| "moderate" \| "low" \| null }` (null unmarks); updates `targets.json` beside the graph and runs `<pythonBin> -m vulnmapper.attackpaths --graph <graphPath>` to recompute |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
