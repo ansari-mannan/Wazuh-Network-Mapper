@@ -27,6 +27,7 @@ import {
   targetState,
 } from '../../lib/attackPaths';
 import { RouteDetail } from './RouteDetail';
+import { ProtectedAssets } from './ProtectedAssets';
 
 const keyOf = (r: AttackRoute) => `${r.target}|${r.start}`;
 
@@ -141,19 +142,14 @@ export function AttackPathsPage() {
   }
   if (state === 'no_targets') {
     return (
-      <EuiPanel paddingSize="l">
-        <EuiEmptyPrompt
-          iconType="bullseye"
-          title={<h2>No assets marked to protect</h2>}
-          body={
-            <p>
-              Marking an asset shows the routes that could reach it. Mark one from its panel on the
-              Topology page.
-            </p>
-          }
-          data-test-subj="vmNoTargets"
-        />
-      </EuiPanel>
+      <div data-test-subj="vmNoTargets">
+        <EuiText>
+          <h2>No assets marked to protect</h2>
+          <p>Mark an asset below to see the routes that could reach it.</p>
+        </EuiText>
+        <EuiSpacer size="m" />
+        <ProtectedAssets />
+      </div>
     );
   }
 
@@ -172,6 +168,9 @@ export function AttackPathsPage() {
   };
 
   return (
+    <>
+    <ProtectedAssets />
+    <EuiSpacer size="l" />
     <EuiFlexGroup className="vmAttackPaths" gutterSize="l" alignItems="flexStart">
       <EuiFlexItem grow={2} data-test-subj="vmRouteList">
         {groups.map(({ target, routes }) => {
@@ -238,5 +237,6 @@ export function AttackPathsPage() {
         )}
       </EuiFlexItem>
     </EuiFlexGroup>
+    </>
   );
 }

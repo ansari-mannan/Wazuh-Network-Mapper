@@ -35,3 +35,15 @@
 .vmAttackPaths .euiFlexItem {
   min-width: 0;
 }
+
+/* Protected assets: one target per row; the name truncates so the importance
+ * buttons and Remove stay on the row in a narrow panel. */
+.vmProtectedRow {
+  padding: $euiSizeXS 0;
+  border-bottom: 1px solid $euiBorderColor;
+}
+.vmTruncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

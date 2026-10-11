@@ -21,7 +21,7 @@ import { CveSummary, GraphNode, Importance, NodeLiveness } from '../../../common
 import { useGraph } from '../../lib/graph';
 import { useAttackPaths } from '../../lib/attackPathsData';
 import { useServices } from '../../lib/services';
-import { IMPORTANCE_META } from '../../lib/attackPaths';
+import { IMPORTANCE_LEVELS, IMPORTANCE_META, IMPORTANCE_SHORT } from '../../lib/attackPaths';
 import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { livenessMethod } from '../../lib/livenessText';
@@ -118,9 +118,6 @@ function RiskSummary({ score, summary }: { score: number | null; summary: CveSum
     </Section>
   );
 }
-
-const IMPORTANCE_LEVELS: Importance[] = ['low', 'moderate', 'high'];
-const IMPORTANCE_SHORT: Record<Importance, string> = { low: 'Low', moderate: 'Moderate', high: 'High' };
 
 // Mark this asset as one to protect: the owner picks its FIPS 199 importance (or
 // unmarks it). Saving runs the recompute on the server, then re-reads the paths.

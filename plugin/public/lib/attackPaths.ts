@@ -30,6 +30,10 @@ export const IMPORTANCE_META: Record<Importance, { label: string; color: string 
   low: { label: 'Low importance', color: 'hollow' },
 };
 
+// The importance choices a control offers, least to most, and their short labels.
+export const IMPORTANCE_LEVELS: Importance[] = ['low', 'moderate', 'high'];
+export const IMPORTANCE_SHORT: Record<Importance, string> = { low: 'Low', moderate: 'Moderate', high: 'High' };
+
 /**
  * The likelihood scale. A route's likelihood is the product of its step values,
  * which the engine takes from NIST IR 7788's three CVSS-complexity values
