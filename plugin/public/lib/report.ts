@@ -216,6 +216,19 @@ export type RemediationAction = {
   category?: string | null; // DISA CAT I/II/III for a config finding
 };
 
+// The honest, generic CVE/coverage wording, in one place so the per-asset
+// report and the network-wide recommendations say the same thing. None of it
+// names an invented fixed version; each line states why the finding is only
+// potential. The per-asset report may append factual detail (package names).
+export const CVE_GUIDANCE = {
+  firmware: "Confirm the running version and apply the vendor's latest firmware; the findings are version-matched and not confirmed on the device.",
+  os: 'Apply operating-system and package updates.',
+  service: 'Verify the service and update it; detected by version only.',
+  endpoint: 'Confirm the running version and update it; the findings are version-matched only.',
+} as const;
+export const COVERAGE_GUIDANCE =
+  'Deploy a Wazuh agent or document this asset; its software and vulnerabilities are otherwise unknown.';
+
 /** Package names carrying the most critical (then high, then any) CVEs. */
 function worstPackages(cves: AssetCve[], limit = 2): string[] {
   const score = new Map<string, number>();
@@ -250,35 +263,23 @@ export function remediationActions(report: AssetReport): RemediationAction[] {
   // 2) CVEs — one generic line by asset kind, if the asset has any CVEs.
   if (report.cves.length > 0) {
     const worst = report.cves[0].severity;
-    const n = report.cves.length;
     if (node.kind === 'device') {
-      actions.push({
-        severity: worst,
-        source: 'cve',
-        text: `Confirm the running version and apply the vendor's latest firmware; the ${n} finding${n === 1 ? '' : 's'} ${n === 1 ? 'is' : 'are'} version-matched and not confirmed on the device.`,
-      });
+      actions.push({ severity: worst, source: 'cve', text: CVE_GUIDANCE.firmware });
     } else if (report.managed) {
+      const n = report.cves.length;
       const pkgs = worstPackages(report.cves);
       const where = pkgs.length ? ` ${n} finding${n === 1 ? '' : 's'} affect ${pkgs.join(' and ')}.` : '';
-      actions.push({ severity: worst, source: 'cve', text: `Apply operating-system and package updates.${where}` });
+      actions.push({ severity: worst, source: 'cve', text: `${CVE_GUIDANCE.os}${where}` });
     } else if (node.kind === 'endpoint' && node.cve_lookup?.source === 'nmap') {
-      actions.push({ severity: worst, source: 'cve', text: 'Verify the service and update it; detected by version only.' });
+      actions.push({ severity: worst, source: 'cve', text: CVE_GUIDANCE.service });
     } else {
-      actions.push({
-        severity: worst,
-        source: 'cve',
-        text: `Confirm the running version and update it; the ${n} finding${n === 1 ? '' : 's'} ${n === 1 ? 'is' : 'are'} version-matched only.`,
-      });
+      actions.push({ severity: worst, source: 'cve', text: CVE_GUIDANCE.endpoint });
     }
   }
 
   // 3) Unmanaged host — its software is otherwise unknown.
   if (node.kind === 'endpoint' && node.unmanaged) {
-    actions.push({
-      severity: null,
-      source: 'coverage',
-      text: 'Deploy a Wazuh agent or document this asset; its software and vulnerabilities are otherwise unknown.',
-    });
+    actions.push({ severity: null, source: 'coverage', text: COVERAGE_GUIDANCE });
   }
 
   // Order by severity of what each action addresses (informational last).

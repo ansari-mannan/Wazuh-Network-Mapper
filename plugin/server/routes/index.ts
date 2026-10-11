@@ -6,6 +6,7 @@ import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, startScan } from '../scan';
 import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from '../targets';
+import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 
 export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
   const notConfigured = (key: string) => ({
@@ -153,6 +154,66 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
         });
       }
       return response.ok({ body: { targets: next } });
+    }
+  );
+
+  // The shared recommendations tracker (recommendations.json beside the graph).
+  // GET returns the file ({ statuses: {} } when absent). Read fresh from disk,
+  // like the other routes.
+  router.get(
+    { path: '/api/vulnmapper/recommendations', validate: false },
+    async (context, request, response) => {
+      const { graphPath } = config;
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      let data: string | null = null;
+      try {
+        data = await fs.readFile(recommendationsFilePath(graphPath), 'utf-8');
+      } catch {
+        // no tracker yet: an empty one
+      }
+      return response.ok({ body: readRecommendations(data) });
+    }
+  );
+
+  // Set one item's status, then atomically rewrite the tracker. This writes a
+  // local file only: it never scans, spawns a process, or puts anything in argv.
+  router.post(
+    {
+      path: '/api/vulnmapper/recommendations/status',
+      validate: {
+        body: schema.object({
+          key: schema.string({ minLength: 1, maxLength: 512 }),
+          status: schema.oneOf([
+            schema.literal('open'),
+            schema.literal('in_progress'),
+            schema.literal('done'),
+            schema.literal('accepted_risk'),
+          ]),
+        }),
+      },
+    },
+    async (context, request, response) => {
+      const { graphPath } = config;
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      const file = recommendationsFilePath(graphPath);
+      let data: string | null = null;
+      try {
+        data = await fs.readFile(file, 'utf-8');
+      } catch {
+        // no tracker yet: start empty
+      }
+      const next = applyRecommendationStatus(readRecommendations(data), request.body.key, request.body.status);
+      try {
+        const tmp = `${file}.tmp-${process.pid}`;
+        await fs.writeFile(tmp, JSON.stringify(next, null, 2));
+        await fs.rename(tmp, file);
+      } catch (e) {
+        return response.customError({
+          statusCode: 500,
+          body: { message: `could not save recommendations: ${(e as Error).message}` },
+        });
+      }
+      return response.ok({ body: next });
     }
   );
 

@@ -275,6 +275,15 @@ export type GraphResponse = {
   metadata: Metadata;
 };
 
+// The shared recommendations tracker (recommendations.json beside the graph).
+// `open` is the implicit default and is never stored, so the file holds only
+// the items a user has moved off Open.
+export type RecommendationStatus = 'open' | 'in_progress' | 'done' | 'accepted_risk';
+
+export type RecommendationsFile = {
+  statuses: Record<string, { status: RecommendationStatus; updated: string }>;
+};
+
 // Scan state reported by GET /api/vulnmapper/scan/status. After a successful
 // scan the status returns to idle with a completion message.
 export type ScanStatus = 'idle' | 'running' | 'failed';

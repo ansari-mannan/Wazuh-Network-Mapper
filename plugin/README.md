@@ -15,7 +15,9 @@ as **Network Topology Mapper** and has:
   status, and see where the current graph came from.
 - **Vulnerability report**: a ranked, exportable report of the CVEs and
   configuration findings per asset (see below).
-- Attack paths; Recommendations shown as "Coming soon".
+- **Recommendations**: a network-wide, prioritised and trackable action plan
+  (see below).
+- Attack paths.
 
 The server side reads the graph file and runs the scanner; the scanner itself
 is unchanged.
@@ -198,6 +200,25 @@ light document, and starts each section on its own page. Keep the print
 dialog's "Headers and footers" on for page numbers. The organisation name on
 the cover comes from `vulnmapper.reportOrg`.
 
+## Recommendations
+
+The **Recommendations** page aggregates every asset's honest recommended action
+(the same logic as the vulnerability report's remediation) into one
+network-wide, prioritised plan. Instead of reading fixes asset by asset, each
+distinct action appears once, listing the assets it affects, ranked worst-first
+(severity, then how many assets, then how many lie on an attack path). It
+invents nothing: configuration fixes use the checklist's stored remediation text
+verbatim, and CVE guidance stays generic and never names an invented fixed
+version. There is no PDF export; it is on screen only.
+
+A header shows progress ("5 of 14 addressed") and filters by status and
+severity. Each item carries a status — Open, In progress, Done or Accepted risk
+— set from the page. Statuses are a **shared tracker** kept in
+`recommendations.json` beside the graph (the same place as `targets.json`),
+written through a server route, so every viewer sees the same statuses and they
+survive rescans. `open` is the default and is not stored, so the file holds only
+items moved off Open; a finding that a rescan clears silently drops off the plan.
+
 ## Development setup
 
 1. Check out OpenSearch Dashboards 2.19.3 and use Node 18.19.0 (`nvm use 18.19.0`).
@@ -242,6 +263,8 @@ dashboard's own jest, from the dashboard folder:
 | `GET /api/vulnmapper/attack-paths` | the computed `attack_paths.json` read from beside the graph; a missing file is returned as `{ metadata: { state: "absent" }, ... }` rather than an error |
 | `GET /api/vulnmapper/vulnerabilities` | the full per-asset CVE list (`vulnerabilities.json`) read from beside the graph, plus `org` (from `vulnmapper.reportOrg`); a missing file is returned as `{ metadata: { state: "absent" }, cves: {}, hosts: {}, org }` rather than an error |
 | `POST /api/vulnmapper/targets` | mark, re-rate or unmark one protected asset; body `{ "id": string, "importance": "high" \| "moderate" \| "low" \| null }` (null unmarks); updates `targets.json` beside the graph and runs `<pythonBin> -m vulnmapper.attackpaths --graph <graphPath>` to recompute |
+| `GET /api/vulnmapper/recommendations` | the shared recommendations tracker (`recommendations.json`) read from beside the graph; a missing file is returned as `{ "statuses": {} }` rather than an error |
+| `POST /api/vulnmapper/recommendations/status` | set one item's status; body `{ "key": string, "status": "open" \| "in_progress" \| "done" \| "accepted_risk" }`; updates `recommendations.json` beside the graph (`open` deletes the entry) and returns the updated file. Writes a local file only — it runs no scanner or process |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so

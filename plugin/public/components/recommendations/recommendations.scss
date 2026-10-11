@@ -1,0 +1,26 @@
+.vmRec__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.vmRec__title {
+  margin: 0;
+}
+
+.vmRec__assets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+// Done / accepted-risk items stay in rank order but are de-emphasised.
+.vmRecMuted {
+  opacity: 0.6;
+
+  .vmRec__title {
+    text-decoration: line-through;
+  }
+}

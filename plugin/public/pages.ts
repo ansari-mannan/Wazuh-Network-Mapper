@@ -53,9 +53,9 @@ export const PAGES: PageDef[] = [
   {
     id: 'recommendations',
     title: 'Recommendations',
-    description: 'Prioritised fixes to reduce network risk.',
+    description: 'A prioritised, trackable action plan across the whole network.',
     icon: 'bullseye',
     group: 'risk',
-    available: false,
+    available: true,
   },
 ];
