@@ -50,7 +50,7 @@ suggestion stands until a new scan replaces the graph (``graph_scan_time``).
 """
 
 from .cli import load_state, main
-from .monitor import liveness_pass
+from .monitor import LivenessMonitor, liveness_pass
 from .prober import SystemProber
 
-__all__ = ["SystemProber", "liveness_pass", "load_state", "main"]
+__all__ = ["LivenessMonitor", "SystemProber", "liveness_pass", "load_state", "main"]

@@ -145,8 +145,9 @@ class TestReachability(unittest.TestCase):
         self.assertEqual(doc["targets"][0]["routes"], [])
 
     def test_lowest_id_router_on_a_tie(self):
-        routers = {"device:b": {10, 20}, "device:a": {10, 20}}
-        self.assertEqual(ap._router_between({10}, {20}, routers, set()), "device:a")
+        engine = ap.AttackPathEngine(graph([dev("device:b", "router", [10, 20]),
+                                            dev("device:a", "router", [10, 20])]), None, None)
+        self.assertEqual(engine._router_between({10}, {20}, set()), "device:a")
 
 
 # --- steps, stepping stones, start kinds ------------------------------------
@@ -326,6 +327,41 @@ class TestRecompute(unittest.TestCase):
 
 
 # --- the pipeline stage against the frozen baseline -------------------------
+
+class TestEngine(unittest.TestCase):
+    """The engine's public steps agree with the document compute() builds."""
+
+    def setUp(self):
+        self.nodes = [
+            host("endpoint:001", 10, cves=[cve("C", 9.0)], agent="001"),
+            host("endpoint:002", 20, cves=[cve("C", 9.0)], risk=5.0),
+            host("endpoint:off", 10, cves=[cve("C", 9.0)], agent="009"),
+            host("endpoint:none", None),
+            dev("device:00:r", "router", [10, 20]),
+        ]
+        self.nodes[2]["status"] = "disconnected"
+        self.engine = ap.AttackPathEngine(graph(self.nodes),
+                                          {"endpoint:002": {"importance": "high"}}, None)
+
+    def test_placement_and_starts(self):
+        placed, not_placed = self.engine.placement()
+        self.assertEqual(placed["endpoint:002"], {20})
+        self.assertEqual(not_placed, [{"id": "endpoint:none", "reason": "no known VLAN"}])
+        starts, offline = self.engine.find_starts()
+        self.assertEqual([s["id"] for s in starts], ["endpoint:001"])
+        self.assertEqual([o["id"] for o in offline], ["endpoint:off"])
+
+    def test_route_is_the_one_compute_ranks(self):
+        route = self.engine.route(self.engine.starts[0], "endpoint:002")
+        self.assertTrue(route["crosses_router"])
+        doc = self.engine.compute()
+        ranked = dict(doc["targets"][0]["routes"][0])
+        for key in ("rank", "importance"):
+            ranked.pop(key)
+        self.assertEqual(ranked, route)
+        again = ap.compute(graph(self.nodes), {"endpoint:002": {"importance": "high"}}, None)
+        self.assertEqual(again["targets"], doc["targets"])        # the wrapper, same engine
+
 
 class TestPipeline(unittest.TestCase):
     """Offline endpoints with findings, the lab crawl and its devices' NVD answers."""

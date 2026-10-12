@@ -34,9 +34,13 @@ import socket
 import threading
 import time
 from functools import lru_cache
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
+from .common import StageResult, plural
 from .schema import KIND_DEVICE, KIND_ENDPOINT, canonical_mac
+
+if TYPE_CHECKING:
+    from .pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.hosts")
 
@@ -154,6 +158,13 @@ def lookup_names(graph: dict, resolver: Callable = _reverse,
     return {"asked": asked, "named": named, "budget_reached": asked < len(todo)}
 
 
+def run_name_lookup(scan: "ScanContext") -> StageResult:
+    """The pipeline's reverse DNS stage."""
+    block = lookup_names(scan.document, **({"resolver": scan.resolver} if scan.resolver else {}))
+    return StageResult(block=block, note=f"{plural(block.get('asked', 0), 'host')} asked, "
+                                         f"{block.get('named', 0)} named")
+
+
 def _rename_edges(graph: dict, names: dict) -> None:
     for edge in graph.get("edges") or []:
         for end in ("source", "target"):
@@ -221,3 +232,75 @@ def apply_answer(node: dict, info: dict) -> None:
         node["firmware"] = info.get("firmware")
     if info.get("software_family"):
         node["software_family"] = info["software_family"]
+
+
+def run_snmp_question(scan: "ScanContext") -> StageResult:
+    """The pipeline's SNMP question to the unmanaged hosts.
+
+    A host that forwards traffic is crawled as a device from its address and
+    the graph assembled again, so ``scan.document`` and ``scan.network_doc``
+    may be replaced. Any other host that answers keeps its node and gains what
+    it reported.
+    """
+    from .assemble import assemble
+    from .network.config import load_credentials
+    from .network.crawl import crawl_more
+    from .network.document import merge_documents
+
+    args = scan.args
+    client = scan.snmp_client
+    if client is None:
+        from .network.snmp import SnmpClient
+
+        credentials = load_credentials(args.community)
+        if not credentials:
+            log.warning("no SNMP credentials; unmanaged hosts were not asked")
+            return StageResult(block={"asked": 0, "answered": 0, "cap": QUESTION_CAP,
+                                      "cap_reached": False},
+                               note=f"{plural(0, 'host')} asked, 0 answered")
+        # one attempt, short timeout: a silent host costs about a second
+        client = SnmpClient(credentials, timeout=1.0, retries=0)
+
+    warnings: list = []
+    targets, capped = question_targets(scan.document, QUESTION_CAP)
+    if capped:
+        log.warning("more than %d unmanaged hosts; only the first %d were asked",
+                    QUESTION_CAP, QUESTION_CAP)
+        warnings.append({"type": "snmp_question_cap_reached", "cap": QUESTION_CAP})
+    answers = asyncio.run(ask_hosts(client, [n["ip"] for n in targets]))
+    by_node = {n["node_id"]: answers.get(n["ip"]) for n in targets}
+    forwarding = sorted({n["ip"] for n in targets if (by_node[n["node_id"]] or {}).get("forwards")})
+    new_devices: set = set()
+    if forwarding:
+        log.info("%d unmanaged host(s) forward traffic; crawling them as devices", len(forwarding))
+        checklist = not args.no_checklist
+        extra = asyncio.run(crawl_more(
+            client, forwarding, scan.network_doc, checklist=checklist,
+            check_default_communities=args.check_default_communities and checklist,
+            port_connect=_port_connect(args)))
+        scan.network_doc = merge_documents(scan.network_doc, extra)
+        new_devices = {n["chassis_id"] for n in extra["nodes"] if n.get("pollable")}
+        scan.document = assemble(scan.endpoints, scan.network_doc)
+
+    info_by_ip = {ip: info for ip, info in answers.items() if info}
+    for node in scan.document["nodes"]:
+        if node["kind"] == "device" and node.get("chassis_id") in new_devices:
+            node["unmanaged"] = True            # still no agent
+            apply_answer(node, info_by_ip.get(node.get("ip")) or {})
+        elif by_node.get(node["node_id"]) and not by_node[node["node_id"]]["forwards"]:
+            apply_answer(node, by_node[node["node_id"]])
+    block = {"asked": len(targets), "answered": len(info_by_ip),
+             "forwarding": len(forwarding), "cap": QUESTION_CAP, "cap_reached": capped}
+    log.info("SNMP question: %d unmanaged host(s) asked, %d answered",
+             block["asked"], block["answered"])
+    return StageResult(block=block, warnings=warnings,
+                       note=f"{plural(block['asked'], 'host')} asked, {block['answered']} answered")
+
+
+def _port_connect(args):
+    """The checklist's connection test, when it is on; else None."""
+    if not args.check_management_ports or args.no_checklist:
+        return None
+    from .checklist.collect import tcp_connect
+
+    return tcp_connect

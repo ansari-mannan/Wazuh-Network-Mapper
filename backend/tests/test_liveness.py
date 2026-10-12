@@ -875,6 +875,23 @@ class TestMacTable(unittest.TestCase):
         self.assertEqual(set(call[2]), {Q_KEY, (30, "02000000000b")})
 
 
+class TestMonitorCarriesState(unittest.TestCase):
+    def test_one_monitor_over_two_passes_is_two_chained_passes(self):
+        from vulnmapper.liveness import LivenessMonitor
+        g = graph(switch(), host("host:a", "10.0.0.9"), edges=[link("host:a", "device:sw", "Fa0/1")])
+        probers = [FakeProber(snmp={"10.0.0.2": True}, icmp={"10.0.0.9": True},
+                              ports={"10.0.0.2": {"Fa0/1": "up"}}),
+                   FakeProber(snmp={"10.0.0.2": True}, ports={"10.0.0.2": {"Fa0/1": "down"}})]
+        chained = {}
+        for prober, now in zip(probers, (T0, T1)):
+            chained = run(g, chained, prober, now=now)
+        monitor = LivenessMonitor(probers[0], 3)
+        asyncio.run(monitor.check(g, T0))
+        monitor.prober = probers[1]
+        self.assertEqual(asyncio.run(monitor.check(g, T1)), chained)
+        self.assertEqual(monitor.ports, {"device:sw": {"Fa0/1": "down"}})
+
+
 class TestRescanSuggestion(unittest.TestCase):
     """Item 6: a pass suggests a rescan when something new appears."""
 

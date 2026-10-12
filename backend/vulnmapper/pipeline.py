@@ -54,49 +54,116 @@ import logging
 import sys
 import time
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Callable, Optional
 
-from . import vulnfile
-from .common import setup_logging
+from . import attackpaths, hosts, vulnfile
 from .assemble import assemble
+from .checklist.stage import run_checklist
+from .common import StageResult, plural, setup_logging
+from .devicecves.stage import run_device_cves
+from .devicecves.vectors import run_cve_vectors
+from .servicescan.stage import run_service_scan
 
 log = logging.getLogger("vulnmapper.pipeline")
 
 
+class ScanContext:
+    """One run of the pipeline, as every stage sees it: the options, the graph
+    as it is built, the CVE catalogue and vulnerabilities.json entries the
+    stages add to, and the services they share (one NVD client and cache for
+    the whole scan, and the stand-ins tests pass for the network)."""
+
+    def __init__(self, args: argparse.Namespace, *, nvd_transport=None, clock=None,
+                 resolver=None, snmp_client=None, nmap_runner=None) -> None:
+        self.args = args
+        self.resolver = resolver
+        self.snmp_client = snmp_client
+        self.nmap_runner = nmap_runner
+        self._nvd_transport = nvd_transport
+        self._clock = clock
+        self._nvd: Optional[tuple] = None
+
+        self.endpoints: list[dict] = []
+        self.network_doc: dict = {"nodes": [], "edges": []}
+        self.document: dict = {}
+        # vulnerabilities.json's shared CVE text (None until something adds to
+        # it) and the per-node entries of everything that is not an agent
+        self.cves: Optional[dict] = None
+        self.device_entries: dict = {}
+        self.score_warnings: list = []
+        self.stages: list = []
+
+        # Durations come from the monotonic clock (immune to wall-clock jumps);
+        # a stage that did not run keeps null, which is not "ran instantly".
+        self.timing: dict = {
+            "endpoint_collect_s": None,
+            "endpoint_score_s": None,
+            "network_crawl_s": None,
+            "assemble_s": None,
+            "device_cves_s": None,
+            "total_s": None,
+            "started_at": None,
+            "finished_at": None,
+        }
+
+        beside_graph = args.output
+        self.vulns_path = args.vulns_out or (vulnfile.default_path(beside_graph)
+                                             if beside_graph else None)
+        self.paths_out = args.paths_out or (attackpaths.default_path(beside_graph)
+                                            if beside_graph else None)
+        self.targets_path = args.targets or (attackpaths.targets_path(beside_graph)
+                                             if beside_graph else None)
+
+    def nvd(self) -> tuple:
+        """The scan's ``(NvdClient, Cache)``, made on first use: both NVD stages
+        and the service scan share one request spacing and one time budget."""
+        if self._nvd is None:
+            from .devicecves.cache import Cache, default_path
+            from .devicecves.nvd import NvdClient, SystemClock
+            from .devicecves.stage import DEFAULT_BUDGET_S
+
+            cache_path = self.args.nvd_cache or (default_path(self.vulns_path)
+                                                 if self.vulns_path else None)
+            clock = self._clock or SystemClock()
+            self._nvd = (NvdClient(transport=self._nvd_transport, clock=clock,
+                                   budget_s=self.args.nvd_budget or DEFAULT_BUDGET_S),
+                         Cache(cache_path, clock))
+        return self._nvd
+
+    def nvd_tally(self, stage: str, before: tuple) -> tuple:
+        """Log and return the cache's ``(hits, misses, expired)`` since ``before``."""
+        hits, misses, expired = (a - b for a, b in zip(self.nvd()[1].tally(), before))
+        log.info("NVD cache, %s: %d hit(s), %d miss(es) (%d not cached, %d expired)",
+                 stage, hits, misses + expired, misses, expired)
+        return hits, misses, expired
+
+    def add_findings(self, result: StageResult) -> None:
+        """A CVE stage's rows join the catalogue, its entries vulnerabilities.json."""
+        from .endpoints import merge_catalogue
+
+        self.cves = dict(self.cves or {})
+        for rows in result.rows.values():
+            merge_catalogue(self.cves, rows)
+        self.device_entries.update(result.entries)
+
+    def record(self, name: str, seconds: Optional[float], note: Optional[str],
+               ran: bool = True) -> None:
+        """One line of ``metadata.stages``."""
+        self.stages.append({"name": name, "status": "ran" if ran else "skipped",
+                            "seconds": None if seconds is None else round(seconds, 1),
+                            "note": note})
+
+    def vulnerabilities(self, scan_time: Optional[str]) -> dict:
+        """vulnerabilities.json as it stands."""
+        return vulnfile.build_document(self.endpoints, self.cves, scan_time,
+                                       devices=self.device_entries)
+
+
 def _begin(label: str) -> float:
-    """Log a stage starting and start its clock. The dashboard follows a running
+    """Announce a stage and start its clock. The dashboard follows a running
     scan by the last ``stage: <label>`` line on stderr, so keep the form."""
     log.info("stage: %s", label)
     return time.monotonic()
-
-
-def _stage(stages: list, name: str, seconds: Optional[float], note: Optional[str] = None,
-           ran: bool = True) -> None:
-    """Record one stage's outcome for ``metadata.stages``."""
-    stages.append({"name": name, "status": "ran" if ran else "skipped",
-                   "seconds": None if seconds is None else round(seconds, 1), "note": note})
-
-
-def _plural(n: int, word: str) -> str:
-    return f"{n} {word}{'' if n == 1 else 's'}"
-
-
-def _nvd_note(block: dict, asked: str, cache: tuple) -> str:
-    """e.g. "9 devices looked up, 2 NVD requests; cache 7 hits, 2 misses"."""
-    hits, misses, expired = cache
-    return (f"{asked}, {_plural(block.get('nvd_requests', 0), 'NVD request')}; cache "
-            f"{_plural(hits, 'hit')}, {misses + expired} miss{'' if misses + expired == 1 else 'es'}")
-
-
-def _default_community_note(document: dict) -> Optional[str]:
-    """e.g. "5 devices tested, 0 answered the default community"; None if none tested."""
-    results = [c["result"] for n in document["nodes"] if n.get("kind") == "device"
-               for c in n.get("config_checks") or [] if c.get("id") == "snmp-default-community"]
-    tested = [r for r in results if r in ("pass", "fail")]
-    if not tested:
-        return None
-    return (f"{_plural(len(tested), 'device')} tested, {tested.count('fail')} answered "
-            "the default community")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -178,213 +245,198 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _load_endpoints(args, timing: dict, vulns: dict) -> list[dict]:
-    """Collect + score endpoints, recording per-phase elapsed time in ``timing``.
+def _read_endpoints(scan: ScanContext) -> None:
+    """The Wazuh endpoints: collected and scored live, or read from ``--scored``.
 
-    A phase that is skipped (``--no-endpoints``, or a cached ``--scored`` file)
-    leaves its duration as ``None`` rather than 0 — null means "did not run", not
-    "ran instantly". The shared CVE catalogue and the score-stage warnings go in
-    ``vulns`` (``cves`` / ``warnings``).
-
-    A ``--scored`` file is either the old shape (a list of endpoints, with no
-    full findings) or ``{"endpoints": [...], "cves": {...}, "warnings": [...]}``.
+    A ``--scored`` file is either the old shape (a plain list of endpoints,
+    with no full findings) or ``{"endpoints": [...], "cves": {...},
+    "warnings": [...]}``.
     """
+    args = scan.args
     if args.no_endpoints:
-        return []
-    if args.scored:
+        pass
+    elif args.scored:
         with open(args.scored) as f:
             doc = json.load(f)
         if isinstance(doc, list):
-            return doc
-        vulns["cves"] = doc.get("cves")
-        vulns["warnings"] = doc.get("warnings") or []
-        return doc.get("endpoints") or []
-    # Live: collect from the Manager API, then score against the Indexer.
-    from .endpoints import WazuhSource
+            scan.endpoints = doc
+        else:
+            scan.cves = doc.get("cves")
+            scan.score_warnings = doc.get("warnings") or []
+            scan.endpoints = doc.get("endpoints") or []
+    else:
+        from .endpoints import WazuhSource
 
-    source = WazuhSource()
+        source = WazuhSource()
+        t0 = _begin("Collecting endpoints from the Wazuh Manager API")
+        agents = source.collect()
+        scan.timing["endpoint_collect_s"] = time.monotonic() - t0
 
-    t0 = _begin("Collecting endpoints from the Wazuh Manager API")
-    agents = source.collect()
-    timing["endpoint_collect_s"] = time.monotonic() - t0
+        log.info("scoring %d endpoint(s) against the Wazuh Indexer ...", len(agents))
+        t0 = _begin("Scoring endpoints against the Wazuh Indexer")
+        scan.endpoints = source.score(agents)
+        scan.timing["endpoint_score_s"] = time.monotonic() - t0
+        scan.cves = source.cves
+        scan.score_warnings = source.collect_warnings + source.warnings
 
-    log.info("scoring %d endpoint(s) against the Wazuh Indexer ...", len(agents))
-    t0 = _begin("Scoring endpoints against the Wazuh Indexer")
-    scored = source.score(agents)
-    timing["endpoint_score_s"] = time.monotonic() - t0
-    vulns["cves"] = source.cves
-    vulns["warnings"] = source.collect_warnings + source.warnings
-    return scored
+    collect_s = scan.timing["endpoint_collect_s"]
+    scan.record("Wazuh endpoints", collect_s and collect_s + scan.timing["endpoint_score_s"],
+                "off" if args.no_endpoints else
+                plural(len(scan.endpoints), "endpoint") + (" (from a file)" if args.scored else ""),
+                ran=not args.no_endpoints)
 
 
-def _load_network(args, timing: dict) -> dict:
-    """Run (or load) the network topology, recording crawl elapsed time."""
+def _read_network(scan: ScanContext) -> None:
+    """The network: the SNMP/LLDP crawl run live, or read from ``--network``."""
+    args = scan.args
     if args.no_network:
-        return {"nodes": [], "edges": []}
-    if args.network:
+        pass
+    elif args.network:
         with open(args.network) as f:
-            return json.load(f)
-    # Live: run the seed-based LLDP crawl.
-    from .network.config import Config, load_credentials
-    from .network.crawl import crawl_document
+            scan.network_doc = json.load(f)
+    else:
+        from .network.config import Config, load_credentials
+        from .network.crawl import crawl_document
 
-    cfg = Config(
-        credentials=load_credentials(args.community),
-        seeds=list(args.seed or []),
-        checklist=not args.no_checklist,
-        check_default_communities=args.check_default_communities and not args.no_checklist,
-        check_management_ports=args.check_management_ports and not args.no_checklist,
-    )
-    t0 = _begin("Crawling the network over SNMP/LLDP")
-    doc = crawl_document(cfg)
-    timing["network_crawl_s"] = time.monotonic() - t0
-    return doc
+        checklist = not args.no_checklist
+        cfg = Config(
+            credentials=load_credentials(args.community),
+            seeds=list(args.seed or []),
+            checklist=checklist,
+            check_default_communities=args.check_default_communities and checklist,
+            check_management_ports=args.check_management_ports and checklist,
+        )
+        t0 = _begin("Crawling the network over SNMP/LLDP")
+        scan.network_doc = crawl_document(cfg)
+        scan.timing["network_crawl_s"] = time.monotonic() - t0
+
+    devices = sum(1 for n in scan.network_doc.get("nodes") or [] if n.get("pollable"))
+    scan.record("Network crawl", scan.timing["network_crawl_s"],
+                "off" if args.no_network else
+                plural(devices, "device") + " polled" + (" (from a file)" if args.network else ""),
+                ran=not args.no_network)
 
 
-def _port_connect(args):
-    """The connection test's connector when it is on, else None."""
-    if not args.check_management_ports or args.no_checklist:
-        return None
-    from .checklist.collect import tcp_connect
+def _run_stage(scan: ScanContext, name: str, run: Callable[[ScanContext], StageResult], *,
+               skip: Optional[str], label: str, timing: str,
+               metadata: Optional[str] = None) -> None:
+    """Run one optional stage, or record why it did not run.
 
-    return tcp_connect
+    ``skip`` is that reason ("off" for a stage the options turned off), None to
+    run it. Its block goes in ``metadata.<metadata>`` and its warnings join the
+    graph's; its time and note make its line in ``metadata.stages``.
+    """
+    if skip is not None:
+        scan.record(name, None, skip, ran=False)
+        return
+    t0 = _begin(label)
+    result = run(scan)
+    scan.timing[timing] = time.monotonic() - t0
+    if metadata is not None:
+        scan.document["metadata"][metadata] = result.block
+    scan.document["metadata"]["warnings"].extend(result.warnings)
+    scan.record(name, scan.timing[timing], result.note, ran=result.ran)
+
+
+def _off_unless(enabled: bool) -> Optional[str]:
+    return None if enabled else "off"
 
 
 class Pipeline:
-    """The top-level orchestrator: collect -> score -> crawl -> assemble ->
-    device CVEs -> emit.
+    """The whole scan, from the Wazuh endpoints and the network crawl to
+    graph.json, vulnerabilities.json and attack_paths.json.
 
-    A thin object wrapper so the sequence diagram has a single clean lifeline.
     ``nvd_transport`` and ``clock`` replace the NVD HTTP layer and the clock
-    (tests serve saved replies); ``resolver`` replaces the reverse DNS lookup and
-    ``snmp_client`` the SNMP client of the question to unmanaged hosts.
+    (tests serve saved replies); ``resolver`` replaces the reverse DNS lookup,
+    ``snmp_client`` the SNMP client of the question to unmanaged hosts and
+    ``nmap_runner`` nmap.
     """
 
     def __init__(self, nvd_transport=None, clock=None, resolver=None,
                  snmp_client=None, nmap_runner=None) -> None:
-        self._nvd_transport = nvd_transport
-        self._clock = clock
-        self._resolver = resolver
-        self._snmp_client = snmp_client
-        self._nmap_runner = nmap_runner
-        self._nvd = None
+        self._services = dict(nvd_transport=nvd_transport, clock=clock, resolver=resolver,
+                              snmp_client=snmp_client, nmap_runner=nmap_runner)
 
-    def load_endpoints(self, args, timing: dict, vulns: dict) -> list[dict]:
-        return _load_endpoints(args, timing, vulns)
+    def run(self, argv: Optional[list[str]] = None) -> int:
+        setup_logging()
+        args = build_parser().parse_args(argv)
+        scan = ScanContext(args, **self._services)
+        started = time.monotonic()
+        scan.timing["started_at"] = datetime.now(timezone.utc).isoformat()
 
-    def load_network(self, args, timing: dict) -> dict:
-        return _load_network(args, timing)
+        _read_endpoints(scan)
+        _read_network(scan)
+        t0 = time.monotonic()
+        scan.document = assemble(scan.endpoints, scan.network_doc)
+        scan.timing["assemble_s"] = time.monotonic() - t0
 
-    def assemble(self, endpoints: list[dict], network_doc: dict) -> dict:
-        return assemble(endpoints, network_doc)
+        _run_stage(scan, "SNMP question to unmanaged hosts", hosts.run_snmp_question,
+                   skip=_off_unless(args.probe_unmanaged_snmp),
+                   label="Asking unmanaged hosts over SNMP",
+                   timing="snmp_question_s", metadata="snmp_question")
+        _run_stage(scan, "Reverse DNS names", hosts.run_name_lookup,
+                   skip=_off_unless(not args.no_name_lookup),
+                   label="Looking up host names",
+                   timing="name_lookup_s", metadata="name_lookup")
+        _run_stage(scan, "Device CVEs (NVD)", run_device_cves,
+                   skip=_off_unless(not args.no_device_cves),
+                   label="Looking up device CVEs in NVD",
+                   timing="device_cves_s", metadata="device_cves")
+        # The service scan runs before the vector stage, so its CVEs flow
+        # through it (vector fields, reachable_cve) and on to the attack paths.
+        _run_stage(scan, "nmap service scan", run_service_scan,
+                   skip=_off_unless(args.nmap_unmanaged),
+                   label="Service-scanning unmanaged hosts with nmap",
+                   timing="nmap_s", metadata="nmap")
+        _run_stage(scan, "CVE vectors (NVD)", run_cve_vectors,
+                   skip=_off_unless(not args.no_cve_vectors),
+                   label="Looking up CVE vectors in NVD",
+                   timing="cve_vectors_s", metadata="cve_vectors")
+        _run_stage(scan, "Configuration checks", run_checklist,
+                   skip=_off_unless(not args.no_checklist),
+                   label="Evaluating device configuration checks",
+                   timing="checklist_s", metadata="checklist")
 
-    def question_unmanaged(self, args, endpoints: list, document: dict, network_doc: dict):
-        """Ask unmanaged hosts over SNMP; ``(document, network_doc, block, warnings)``.
+        finished_at = datetime.now(timezone.utc)
+        scan.timing["finished_at"] = finished_at.isoformat()
+        scan.timing["total_s"] = time.monotonic() - started
+        metadata = scan.document["metadata"]
+        metadata["timing"] = scan.timing
+        # scan_time means "finished at"; the per-stage breakdown is in timing
+        metadata["scan_time"] = finished_at.isoformat()
+        metadata["warnings"].extend(scan.score_warnings)
 
-        A host that forwards traffic is crawled as a device from its address
-        and the graph assembled again; any other host that answers keeps its
-        node and gains what it reported.
-        """
-        import asyncio
+        # last, so attack_paths.json's source_scan names this graph's scan_time
+        _run_stage(scan, "Attack paths", attackpaths.run_attack_paths,
+                   skip=self._attack_paths_skip(scan), label="Computing attack paths",
+                   timing="attack_paths_s")
+        metadata["stages"] = scan.stages
 
-        from .hosts import QUESTION_CAP, apply_answer, ask_hosts, question_targets
-        from .network.config import load_credentials
-        from .network.crawl import crawl_more
-        from .network.document import merge_documents
+        self._log_summary(scan.document)
+        self.emit(scan.document, args.output)
+        self._write_vulnerabilities(scan)
+        return 0
 
-        warnings: list = []
-        client = self._snmp_client
-        if client is None:
-            from .network.snmp import SnmpClient
+    @staticmethod
+    def _attack_paths_skip(scan: ScanContext) -> Optional[str]:
+        if scan.args.no_attack_paths:
+            return "off"
+        if scan.paths_out is None:
+            log.info("graph went to stdout and --paths-out was not given; "
+                     "not writing %s", attackpaths.FILENAME)
+            return "no output file given"
+        return None
 
-            credentials = load_credentials(args.community)
-            if not credentials:
-                log.warning("no SNMP credentials; unmanaged hosts were not asked")
-                return document, network_doc, {"asked": 0, "answered": 0,
-                                               "cap": QUESTION_CAP, "cap_reached": False}, []
-            # one attempt, short timeout: a silent host costs about a second
-            client = SnmpClient(credentials, timeout=1.0, retries=0)
-        targets, capped = question_targets(document, QUESTION_CAP)
-        if capped:
-            log.warning("more than %d unmanaged hosts; only the first %d were asked",
-                        QUESTION_CAP, QUESTION_CAP)
-            warnings.append({"type": "snmp_question_cap_reached", "cap": QUESTION_CAP})
-        answers = asyncio.run(ask_hosts(client, [n["ip"] for n in targets]))
-        by_node = {n["node_id"]: answers.get(n["ip"]) for n in targets}
-        forwarding = sorted({n["ip"] for n in targets
-                             if (by_node[n["node_id"]] or {}).get("forwards")})
-        new_devices: set = set()
-        if forwarding:
-            log.info("%d unmanaged host(s) forward traffic; crawling them as devices",
-                     len(forwarding))
-            extra = asyncio.run(crawl_more(
-                client, forwarding, network_doc, checklist=not args.no_checklist,
-                check_default_communities=args.check_default_communities and not args.no_checklist,
-                port_connect=_port_connect(args)))
-            network_doc = merge_documents(network_doc, extra)
-            new_devices = {n["chassis_id"] for n in extra["nodes"] if n.get("pollable")}
-            document = self.assemble(endpoints, network_doc)
-        info_by_ip = {ip: info for ip, info in answers.items() if info}
-        for node in document["nodes"]:
-            if node["kind"] == "device" and node.get("chassis_id") in new_devices:
-                node["unmanaged"] = True            # still no agent
-                apply_answer(node, info_by_ip.get(node.get("ip")) or {})
-            elif by_node.get(node["node_id"]) and not by_node[node["node_id"]]["forwards"]:
-                apply_answer(node, by_node[node["node_id"]])
-        block = {"asked": len(targets), "answered": len(info_by_ip),
-                 "forwarding": len(forwarding), "cap": QUESTION_CAP, "cap_reached": capped}
-        log.info("SNMP question: %d unmanaged host(s) asked, %d answered",
-                 block["asked"], block["answered"])
-        return document, network_doc, block, warnings
-
-    def lookup_names(self, document: dict) -> dict:
-        from .hosts import lookup_names
-
-        return lookup_names(document, **({"resolver": self._resolver} if self._resolver else {}))
-
-    def nvd(self, cache_path: Optional[str], budget_s: float) -> tuple:
-        """The run's ``(client, cache)``, shared by both NVD stages: one request
-        spacing and one time budget for the scan."""
-        if self._nvd is None:
-            from .devicecves.cache import Cache
-            from .devicecves.nvd import NvdClient, SystemClock
-
-            clock = self._clock or SystemClock()
-            self._nvd = (NvdClient(transport=self._nvd_transport, clock=clock, budget_s=budget_s),
-                         Cache(cache_path, clock))
-        return self._nvd
-
-    def nvd_tally(self, stage: str, before: tuple) -> tuple:
-        """Log and return the NVD cache's ``(hits, misses, expired)`` since ``before``."""
-        now = self._nvd[1].tally()
-        hits, misses, expired = (a - b for a, b in zip(now, before))
-        log.info("NVD cache, %s: %d hit(s), %d miss(es) (%d not cached, %d expired)",
-                 stage, hits, misses + expired, misses, expired)
-        return hits, misses, expired
-
-    def device_cves(self, document: dict, cache_path: Optional[str], budget_s: float):
-        from .devicecves.stage import run_stage
-
-        return run_stage(document, *self.nvd(cache_path, budget_s))
-
-    def service_scan(self, document: dict, cache_path: Optional[str], nvd_budget_s: float,
-                     cap: int, nmap_budget_s: float):
-        from .servicescan.stage import run_stage
-
-        return run_stage(document, *self.nvd(cache_path, nvd_budget_s), cap=cap,
-                         budget_s=nmap_budget_s, runner=self._nmap_runner)
-
-    def cve_vectors(self, document: dict, hosts: dict, catalogue: dict,
-                    cache_path: Optional[str], budget_s: float):
-        from .devicecves.vectors import run_stage
-
-        return run_stage(document, hosts, catalogue, *self.nvd(cache_path, budget_s))
-
-    def checklist(self, document: dict, network_doc: dict, probe_enabled: bool,
-                  port_test: bool = False):
-        from .checklist.stage import run_stage
-
-        return run_stage(document, network_doc, probe_enabled, port_test=port_test)
+    @staticmethod
+    def _log_summary(document: dict) -> None:
+        counts = document["metadata"]["counts"]
+        log.info(
+            "SUMMARY: %d node(s) (%d endpoints, %d devices), %d edge(s) "
+            "(%d lldp, %d endpoint), %d unparented endpoint(s).",
+            counts["nodes"], counts["endpoints"], counts["devices"],
+            counts["lldp_edges"] + counts["endpoint_edges"],
+            counts["lldp_edges"], counts["endpoint_edges"], counts["unparented_endpoints"],
+        )
 
     def emit(self, document: dict, output_path: Optional[str]) -> None:
         text = json.dumps(document, indent=2)
@@ -396,218 +448,19 @@ class Pipeline:
             sys.stdout.write(text + "\n")
             sys.stdout.flush()
 
-    def run(self, argv: Optional[list[str]] = None) -> int:
-        setup_logging()
-        args = build_parser().parse_args(argv)
-
-        # Real per-phase timing: monotonic clock for the durations (immune to wall-
-        # clock jumps), wall clock only for the ISO start/finish stamps. A skipped
-        # phase stays null. ``total_s`` covers the whole run end-to-end.
-        timing: dict = {
-            "endpoint_collect_s": None,
-            "endpoint_score_s": None,
-            "network_crawl_s": None,
-            "assemble_s": None,
-            "device_cves_s": None,
-            "total_s": None,
-            "started_at": None,
-            "finished_at": None,
-        }
-        started_at = datetime.now(timezone.utc)
-        run_t0 = time.monotonic()
-        timing["started_at"] = started_at.isoformat()
-
-        vulns: dict = {"cves": None, "warnings": []}
-        stages: list = []
-        endpoints = self.load_endpoints(args, timing, vulns)
-        collect_s = timing["endpoint_collect_s"]
-        _stage(stages, "Wazuh endpoints", collect_s and collect_s + timing["endpoint_score_s"],
-               "off" if args.no_endpoints else
-               f"{_plural(len(endpoints), 'endpoint')}" + (" (from a file)" if args.scored else ""),
-               ran=not args.no_endpoints)
-        network_doc = self.load_network(args, timing)
-        devices = sum(1 for n in network_doc.get("nodes") or [] if n.get("pollable"))
-        _stage(stages, "Network crawl", timing["network_crawl_s"],
-               "off" if args.no_network else
-               f"{_plural(devices, 'device')} polled" + (" (from a file)" if args.network else ""),
-               ran=not args.no_network)
-
-        assemble_t0 = time.monotonic()
-        document = self.assemble(endpoints, network_doc)
-        timing["assemble_s"] = time.monotonic() - assemble_t0
-
-        if args.probe_unmanaged_snmp:
-            t0 = _begin("Asking unmanaged hosts over SNMP")
-            document, network_doc, block, question_warnings = self.question_unmanaged(
-                args, endpoints, document, network_doc)
-            timing["snmp_question_s"] = time.monotonic() - t0
-            document["metadata"]["snmp_question"] = block
-            document["metadata"]["warnings"].extend(question_warnings)
-            _stage(stages, "SNMP question to unmanaged hosts", timing["snmp_question_s"],
-                   f"{_plural(block['asked'], 'host')} asked, {block['answered']} answered")
-        else:
-            _stage(stages, "SNMP question to unmanaged hosts", None, "off", ran=False)
-
-        if not args.no_name_lookup:
-            t0 = _begin("Looking up host names")
-            document["metadata"]["name_lookup"] = self.lookup_names(document)
-            timing["name_lookup_s"] = time.monotonic() - t0
-            names = document["metadata"]["name_lookup"]
-            _stage(stages, "Reverse DNS names", timing["name_lookup_s"],
-                   f"{_plural(names.get('asked', 0), 'host')} asked, {names.get('named', 0)} named")
-        else:
-            _stage(stages, "Reverse DNS names", None, "off", ran=False)
-
-        vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
-                                        if args.output else None)
-        device_entries: dict = {}
-        self._nvd = None
-        if not (args.no_device_cves and args.no_cve_vectors and not args.nmap_unmanaged):
-            from .devicecves.cache import default_path as cache_beside
-            from .devicecves.stage import DEFAULT_BUDGET_S
-
-            cache_path = args.nvd_cache or (cache_beside(vulns_path) if vulns_path else None)
-            budget_s = args.nvd_budget or DEFAULT_BUDGET_S
-        if not args.no_device_cves:
-            from .endpoints import merge_catalogue
-
-            t0 = _begin("Looking up device CVEs in NVD")
-            before = self.nvd(cache_path, budget_s)[1].tally()
-            stage = self.device_cves(document, cache_path, budget_s)
-            timing["device_cves_s"] = time.monotonic() - t0
-            _stage(stages, "Device CVEs (NVD)", timing["device_cves_s"],
-                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'device')} looked up",
-                             self.nvd_tally("device CVEs", before)))
-            document["metadata"]["device_cves"] = stage.block
-            document["metadata"]["warnings"].extend(stage.warnings)
-            vulns["cves"] = dict(vulns["cves"] or {})
-            for rows in stage.rows.values():
-                merge_catalogue(vulns["cves"], rows)
-            device_entries = stage.entries
-        else:
-            _stage(stages, "Device CVEs (NVD)", None, "off", ran=False)
-
-        # The service scan runs before the vector stage so its CVEs flow through
-        # it (vector fields, reachable_cve) and the attack-path engine unchanged.
-        if args.nmap_unmanaged:
-            from .endpoints import merge_catalogue
-            from .servicescan.stage import DEFAULT_BUDGET_S as NMAP_BUDGET_S
-            from .servicescan.stage import DEFAULT_HOSTS_CAP
-
-            t0 = _begin("Service-scanning unmanaged hosts with nmap")
-            before = self.nvd(cache_path, budget_s)[1].tally()
-            nmap_stage = self.service_scan(document, cache_path, budget_s,
-                                           args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
-                                           args.nmap_budget or NMAP_BUDGET_S)
-            timing["nmap_s"] = time.monotonic() - t0
-            self.nvd_tally("service scan", before)
-            document["metadata"]["nmap"] = nmap_stage.block
-            nb = nmap_stage.block
-            not_installed = any(w["type"] == "nmap_not_installed" for w in nmap_stage.warnings)
-            _stage(stages, "nmap service scan", timing["nmap_s"],
-                   "nmap not installed" if not_installed else
-                   f"{_plural(nb['scanned'], 'host')} scanned, {nb['answered']} answered, "
-                   f"{nb['with_cves']} with CVEs", ran=not not_installed)
-            document["metadata"]["warnings"].extend(nmap_stage.warnings)
-            vulns["cves"] = dict(vulns["cves"] or {})
-            for rows in nmap_stage.rows.values():
-                merge_catalogue(vulns["cves"], rows)
-            device_entries.update(nmap_stage.entries)
-        else:
-            _stage(stages, "nmap service scan", None, "off", ran=False)
-
-        if not args.no_cve_vectors:
-            t0 = _begin("Looking up CVE vectors in NVD")
-            before = self.nvd(cache_path, budget_s)[1].tally()
-            vulns["cves"] = dict(vulns["cves"] or {})
-            hosts = vulnfile.build_document(endpoints, vulns["cves"], None,
-                                            devices=device_entries)["hosts"]
-            stage = self.cve_vectors(document, hosts, vulns["cves"], cache_path, budget_s)
-            timing["cve_vectors_s"] = time.monotonic() - t0
-            document["metadata"]["cve_vectors"] = stage.block
-            document["metadata"]["warnings"].extend(stage.warnings)
-            _stage(stages, "CVE vectors (NVD)", timing["cve_vectors_s"],
-                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'CVE')} looked up",
-                             self.nvd_tally("CVE vectors", before)))
-        else:
-            _stage(stages, "CVE vectors (NVD)", None, "off", ran=False)
-
-        if not args.no_checklist:
-            t0 = _begin("Evaluating device configuration checks")
-            checks = self.checklist(document, network_doc, args.check_default_communities,
-                                    args.check_management_ports)
-            timing["checklist_s"] = time.monotonic() - t0
-            document["metadata"]["checklist"] = checks.block
-            document["metadata"]["warnings"].extend(checks.warnings)
-            note = f"{_plural(checks.block['devices_checked'], 'device')} checked"
-            if args.check_default_communities:
-                note += "; " + (_default_community_note(document)
-                                or "no device tested for the default community")
-            _stage(stages, "Configuration checks", timing["checklist_s"], note)
-        else:
-            _stage(stages, "Configuration checks", None, "off", ran=False)
-
-        finished_at = datetime.now(timezone.utc)
-        timing["finished_at"] = finished_at.isoformat()
-        timing["total_s"] = time.monotonic() - run_t0
-
-        # scan_time now means "finished_at" (kept for backward compat); the per-phase
-        # breakdown lives in metadata.timing.
-        document["metadata"]["timing"] = timing
-        document["metadata"]["scan_time"] = finished_at.isoformat()
-        document["metadata"]["warnings"].extend(vulns["warnings"])
-
-        # After scan_time is final, so attack_paths.json's source_scan names this graph.
-        if not args.no_attack_paths:
-            from . import attackpaths
-
-            paths_out = args.paths_out or (attackpaths.default_path(args.output)
-                                           if args.output else None)
-            targets_path = args.targets or (attackpaths._targets_path(args.output)
-                                            if args.output else None)
-            if paths_out is None:
-                log.info("graph went to stdout and --paths-out was not given; "
-                         "not writing %s", attackpaths.FILENAME)
-                _stage(stages, "Attack paths", None, "no output file given", ran=False)
-            else:
-                t0 = _begin("Computing attack paths")
-                vulns_doc = vulnfile.build_document(endpoints, vulns["cves"], None,
-                                                    devices=device_entries)
-                paths = attackpaths.run_stage(document, attackpaths._load_targets(targets_path),
-                                              vulns_doc, paths_out)
-                timing["attack_paths_s"] = time.monotonic() - t0
-                c = paths["metadata"]["counts"]
-                _stage(stages, "Attack paths", timing["attack_paths_s"],
-                       f"{_plural(c['routes'], 'route')} to "
-                       f"{_plural(c['targets_present'], 'protected asset')}")
-        else:
-            _stage(stages, "Attack paths", None, "off", ran=False)
-        document["metadata"]["stages"] = stages
-
-        counts = document["metadata"]["counts"]
-        log.info(
-            "SUMMARY: %d node(s) (%d endpoints, %d devices), %d edge(s) "
-            "(%d lldp, %d endpoint), %d unparented endpoint(s).",
-            counts["nodes"], counts["endpoints"], counts["devices"],
-            counts["lldp_edges"] + counts["endpoint_edges"],
-            counts["lldp_edges"], counts["endpoint_edges"], counts["unparented_endpoints"],
-        )
-
-        self.emit(document, args.output)
-
-        if vulns_path:
-            vulnfile.write_atomic(vulns_path, vulnfile.build_document(
-                endpoints, vulns["cves"], document["metadata"]["scan_time"],
-                devices=device_entries))
-            log.info("wrote vulnerabilities to %s", vulns_path)
+    @staticmethod
+    def _write_vulnerabilities(scan: ScanContext) -> None:
+        if scan.vulns_path:
+            vulnfile.write_atomic(scan.vulns_path,
+                                  scan.vulnerabilities(scan.document["metadata"]["scan_time"]))
+            log.info("wrote vulnerabilities to %s", scan.vulns_path)
         else:
             log.info("graph went to stdout and --vulns-out was not given; "
                      "not writing %s", vulnfile.FILENAME)
-        return 0
 
 
 def run(argv: Optional[list[str]] = None) -> int:
-    """Entry point used by ``python -m vulnmapper`` (delegates to :class:`Pipeline`)."""
+    """``python -m vulnmapper``."""
     return Pipeline().run(argv)
 
 

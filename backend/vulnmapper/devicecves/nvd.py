@@ -37,6 +37,8 @@ from datetime import datetime, timezone
 from typing import Callable, Optional
 from urllib.parse import quote
 
+from ..common import VulnmapperError
+
 log = logging.getLogger("vulnmapper.devicecves")
 
 CVES_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
@@ -52,15 +54,15 @@ REQUEST_TIMEOUT_S = 30.0
 RETRY_STATUSES = {403, 429, 500, 502, 503, 504}
 
 
-class NvdUnavailable(Exception):
+class NvdUnavailable(VulnmapperError):
     """NVD did not answer usefully (network error, repeated rate limit or 5xx)."""
 
 
-class NvdInvalidQuery(Exception):
+class NvdInvalidQuery(VulnmapperError):
     """NVD rejected the query as malformed (HTTP 404 with a message)."""
 
 
-class NvdBudgetExceeded(Exception):
+class NvdBudgetExceeded(VulnmapperError):
     """The stage's time budget ran out before the request could be made."""
 
 

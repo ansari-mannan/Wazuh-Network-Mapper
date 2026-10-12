@@ -33,14 +33,18 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
+from ..common import StageResult, plural
 from ..endpoints import distinct_cves, enrich_agent, slim_findings
 from ..schema import KIND_DEVICE
 from . import families
 from .cache import Cache
 from .lookup import STATUS_OK, STATUS_UNAVAILABLE, STATUS_UNIDENTIFIED, Lookup, lookup
 from .nvd import VECTOR_KEYS, NvdClient
+
+if TYPE_CHECKING:
+    from ..pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.devicecves")
 
@@ -86,14 +90,6 @@ def device_entry(node: dict, rows: Optional[list]) -> dict:
         "cve_lookup": node["cve_lookup"],
         "findings": slim_findings(rows) if rows is not None else None,
     }
-
-
-class StageResult:
-    def __init__(self) -> None:
-        self.entries: dict = {}           # node_id -> vulnerabilities.json device entry
-        self.rows: dict = {}              # node_id -> CVE rows (status ok)
-        self.warnings: list = []
-        self.block: dict = {}
 
 
 def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
@@ -142,3 +138,22 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
     log.info("device CVEs: %d device(s) %s, %d NVD request(s)", len(devices),
              dict(by_status), client.requests)
     return out
+
+
+def run_device_cves(scan: "ScanContext") -> StageResult:
+    """The pipeline's device CVE stage: every device looked up in NVD, what it
+    found added to the scan's CVE catalogue and vulnerabilities.json entries."""
+    client, cache = scan.nvd()
+    before = cache.tally()
+    result = run_stage(scan.document, client, cache)
+    result.note = nvd_note(result.block, f"{plural(result.block['looked_up'], 'device')} looked up",
+                           scan.nvd_tally("device CVEs", before))
+    scan.add_findings(result)
+    return result
+
+
+def nvd_note(block: dict, asked: str, cache: tuple) -> str:
+    """A stage note such as "9 devices looked up, 2 NVD requests; cache 7 hits, 2 misses"."""
+    hits, misses, expired = cache
+    return (f"{asked}, {plural(block.get('nvd_requests', 0), 'NVD request')}; cache "
+            f"{plural(hits, 'hit')}, {misses + expired} miss{'' if misses + expired == 1 else 'es'}")

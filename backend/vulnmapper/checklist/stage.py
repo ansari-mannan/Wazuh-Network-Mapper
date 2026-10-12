@@ -18,18 +18,17 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
+from typing import TYPE_CHECKING, Optional
 
+from ..common import StageResult, plural
 from ..devicecves.families import family_of
 from ..schema import KIND_DEVICE
 from .evaluate import RESULTS, evaluate_device, l3_vlans, normalise
 
+if TYPE_CHECKING:
+    from ..pipeline import ScanContext
+
 log = logging.getLogger("vulnmapper.checklist")
-
-
-class StageResult:
-    def __init__(self) -> None:
-        self.warnings: list = []
-        self.block: dict = {}
 
 
 def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
@@ -77,3 +76,27 @@ def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
     }
     log.info("configuration checks: %d device(s), findings %s", checked, out.block["findings"])
     return out
+
+
+def run_checklist(scan: "ScanContext") -> StageResult:
+    """The pipeline's checklist stage, on the configuration data the crawl read."""
+    args = scan.args
+    result = run_stage(scan.document, scan.network_doc, args.check_default_communities,
+                       port_test=args.check_management_ports)
+    note = f"{plural(result.block['devices_checked'], 'device')} checked"
+    if args.check_default_communities:
+        note += "; " + (_default_community_note(scan.document)
+                        or "no device tested for the default community")
+    result.note = note
+    return result
+
+
+def _default_community_note(graph: dict) -> Optional[str]:
+    """e.g. "5 devices tested, 0 answered the default community"; None if none was."""
+    results = [c["result"] for n in graph["nodes"] if n.get("kind") == KIND_DEVICE
+               for c in n.get("config_checks") or [] if c.get("id") == "snmp-default-community"]
+    tested = [r for r in results if r in ("pass", "fail")]
+    if not tested:
+        return None
+    return (f"{plural(len(tested), 'device')} tested, {tested.count('fail')} answered "
+            "the default community")

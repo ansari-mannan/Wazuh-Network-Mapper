@@ -46,16 +46,19 @@ import logging
 import os
 import sys
 from collections import Counter
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from ..common import setup_logging
+from ..common import StageResult, plural, setup_logging
 from .. import vulnfile
 from ..endpoints import distinct_cves
 from .__main__ import _load, _write_json_atomic
 from .cache import Cache, default_path
 from .lookup import Unanswered, lookup_cve
 from .nvd import VECTOR_FIELDS, NvdClient, SystemClock, vector_fields
-from .stage import DEFAULT_BUDGET_S
+from .stage import DEFAULT_BUDGET_S, nvd_note
+
+if TYPE_CHECKING:
+    from ..pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.devicecves")
 
@@ -117,12 +120,6 @@ def assess(rows: list, fields_of) -> dict:
             "cvss": row["cvss"]}
 
 
-class StageResult:
-    def __init__(self) -> None:
-        self.warnings: list = []
-        self.block: dict = {}
-
-
 def run_stage(graph: dict, hosts: dict, catalogue: dict, client: NvdClient,
               cache: Cache) -> StageResult:
     """Summarise every asset of ``graph`` in place and add the four fields, where
@@ -181,6 +178,20 @@ def run_stage(graph: dict, hosts: dict, catalogue: dict, client: NvdClient,
     log.info("CVE vectors: %d asset(s) %s, %d CVE(s) looked up, %d NVD request(s)",
              len(nodes), dict(by_status), len(asked), out.block["nvd_requests"])
     return out
+
+
+def run_cve_vectors(scan: "ScanContext") -> StageResult:
+    """The pipeline's vector stage, over every CVE the scan has found so far
+    (Wazuh's, the device lookups' and the service scan's)."""
+    client, cache = scan.nvd()
+    before = cache.tally()
+    scan.cves = dict(scan.cves or {})
+    hosts = vulnfile.build_document(scan.endpoints, scan.cves, None,
+                                    devices=scan.device_entries)["hosts"]
+    result = run_stage(scan.document, hosts, scan.cves, client, cache)
+    result.note = nvd_note(result.block, f"{plural(result.block['looked_up'], 'CVE')} looked up",
+                           scan.nvd_tally("CVE vectors", before))
+    return result
 
 
 def main(argv: Optional[list] = None, transport=None, clock=None) -> int:

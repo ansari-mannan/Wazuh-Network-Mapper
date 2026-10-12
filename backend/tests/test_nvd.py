@@ -526,5 +526,15 @@ class TestLookupById(Base):
         self.assertEqual((e.exception.reason, len(fake.calls)), ("budget", 2))
 
 
+
+class TestErrorBase(unittest.TestCase):
+    def test_every_scanner_error_shares_one_base(self):
+        from vulnmapper.common import VulnmapperError
+        from vulnmapper.servicescan.nmap import NmapBudgetExceeded
+        for error in (nvd.NvdUnavailable, nvd.NvdInvalidQuery, nvd.NvdBudgetExceeded,
+                      NmapBudgetExceeded, Unanswered):
+            self.assertTrue(issubclass(error, VulnmapperError), error.__name__)
+
+
 if __name__ == "__main__":
     unittest.main()

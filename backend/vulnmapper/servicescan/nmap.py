@@ -21,6 +21,8 @@ import tempfile
 import xml.etree.ElementTree as ET
 from typing import Optional
 
+from ..common import VulnmapperError
+
 log = logging.getLogger("vulnmapper.servicescan")
 
 PER_HOST_TIMEOUT_S = 60.0
@@ -32,7 +34,7 @@ _SERVICE_HINTS = {
 _NETBIOS_NAME = re.compile(r"NetBIOS name:\s*([^,\n]+)")
 
 
-class NmapBudgetExceeded(Exception):
+class NmapBudgetExceeded(VulnmapperError):
     """nmap did not finish inside the run's time budget."""
 
 

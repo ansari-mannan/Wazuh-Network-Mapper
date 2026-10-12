@@ -17,6 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
+from ..common import VulnmapperError
 from .cache import INVALID_QUERY, Cache, trim_cve
 from .families import keyword_accepts
 from .nvd import (NvdBudgetExceeded, NvdClient, NvdInvalidQuery, NvdUnavailable,
@@ -46,7 +47,7 @@ class Lookup:
     queries: list = field(default_factory=list)
 
 
-class Unanswered(Exception):
+class Unanswered(VulnmapperError):
     def __init__(self, reason: str):
         self.reason = reason
 

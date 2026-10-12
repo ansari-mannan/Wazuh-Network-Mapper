@@ -53,15 +53,18 @@ import math
 import os
 import sys
 from datetime import datetime, timezone
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import networkx as nx
 
-from .common import setup_logging
 from . import vulnfile
 from .checklist import catalogue
 from .checklist import tables as t
 from .checklist.evaluate import l3_vlans
+from .common import StageResult, plural, setup_logging
+
+if TYPE_CHECKING:
+    from .pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.attackpaths")
 
@@ -118,81 +121,7 @@ LIMITS = [
 ]
 
 
-# --- VLAN membership and routing (offline, from port_status) -----------------
-
-def _l3_vlans(node: dict) -> set:
-    """VLANs a device has an up layer-3 interface for, via the checklist helper."""
-    ps = node.get("port_status") or {}
-    config = {"interfaces": {i: {"name": name, "oper": t.UP if state == "up" else 2}
-                             for i, (name, state) in enumerate(ps.items())}}
-    return l3_vlans(config)
-
-
-def _routes(node: dict) -> set:
-    return _l3_vlans(node) if node.get("role") in ROUTER_ROLES else set()
-
-
-def _radio_vlans(ap: dict, radio: Optional[str]) -> set:
-    """VLANs of the up sub-interfaces on ``radio`` (e.g. "Do0" -> "Do0.80")."""
-    out = set()
-    for name, state in (ap.get("port_status") or {}).items():
-        base, _, sub = str(name).partition(".")
-        if state == "up" and sub.isdigit() and base == radio:
-            out.add(int(sub))
-    return out
-
-
-def _placement(by_id: dict) -> tuple[dict, list]:
-    """``({node_id: {vlan, ...}}, [{"id", "reason"}])`` for placed / not-placed assets."""
-    placed, not_placed = {}, []
-    for nid, node in by_id.items():
-        if node["kind"] == "device":
-            vlans = _l3_vlans(node)
-            if vlans:
-                placed[nid] = vlans
-            else:
-                not_placed.append({"id": nid,
-                                   "reason": "no up layer-3 interface with a VLAN number"})
-            continue
-        if node.get("vlan"):
-            placed[nid] = {int(node["vlan"])}
-        elif node.get("wifi"):
-            radio = node["wifi"].get("radio")
-            ap = by_id.get(node["wifi"].get("access_point"))
-            vlans = _radio_vlans(ap, radio) if ap else set()
-            if len(vlans) == 1:
-                placed[nid] = set(vlans)
-            else:
-                why = (f"the radio {radio} has {len(vlans)} up sub-interfaces; its VLAN "
-                       "is ambiguous" if vlans else
-                       f"the radio {radio} has no up sub-interface with a VLAN number")
-                not_placed.append({"id": nid, "reason": why})
-        else:
-            not_placed.append({"id": nid, "reason": "no known VLAN"})
-    return placed, not_placed
-
-
-# --- step values from the stored CVE fields and catalogue findings -----------
-
-def _candidates(node: dict, vulns: Optional[dict]) -> list:
-    """The node's CVEs that carry the four vector fields (vulnerabilities.json
-    when it has the full list, else the graph's top_cves)."""
-    nid = node["node_id"]
-    host = (vulns or {}).get("hosts", {}).get(nid)
-    cat = (vulns or {}).get("cves", {})
-    rows = []
-    if host and host.get("findings") is not None:
-        for f in host["findings"]:
-            c = cat.get(f.get("cve"))
-            if c and all(k in c for k in FOUR):
-                rows.append({"cve": f["cve"], "cvss": c.get("cvss"),
-                             **{k: c[k] for k in FOUR}})
-    else:
-        for r in node.get("top_cves") or []:
-            if all(k in r for k in FOUR):
-                rows.append(r)
-    return rows
-
+# --- step values: the rules that turn a CVE or a finding into a step --------
 
 def _qualifies(row: dict, cross_router: bool) -> bool:
     """A CVE gives a weakness step: no privileges, no user interaction, and a
@@ -259,159 +188,6 @@ def _takeover(node: dict, candidates: list, cross_router: bool) -> Optional[dict
     return max(options, key=lambda o: (o["value"], o["kind"] == "weakness"))
 
 
-# --- the reachability graph --------------------------------------------------
-
-def _router_between(a_vlans: set, b_vlans: set, routers: dict, exclude: set) -> Optional[str]:
-    for rid in sorted(routers):                 # lowest node id among qualifiers
-        if rid not in exclude and routers[rid] & a_vlans and routers[rid] & b_vlans:
-            return rid
-    return None
-
-
-def _build_graph(placed: dict, by_id: dict, cands: dict, routers: dict,
-                 extra_sources: list) -> nx.DiGraph:
-    """Directed: an edge u->v means v can be taken over from a compromised u.
-
-    ``extra_sources`` are synthetic spare-port starts (``{"id", "membership"}``);
-    they get out-edges only (never a target, never a stepping stone).
-    """
-    g = nx.DiGraph()
-    members = dict(placed)
-    for s in extra_sources:
-        members[s["id"]] = s["membership"]
-    takeover = {nid: {False: _takeover(by_id[nid], cands[nid], False),
-                      True: _takeover(by_id[nid], cands[nid], True)} for nid in placed}
-    for u, mu in members.items():
-        for v, mv in placed.items():
-            if u == v:
-                continue
-            if mu & mv:
-                cross, router = False, None
-            else:
-                router = _router_between(mu, mv, routers, {u, v})
-                if router is None:
-                    continue
-                cross = True
-            step = takeover[v][cross]
-            if step is None:
-                continue
-            g.add_edge(u, v, weight=-math.log(step["value"]), step=step,
-                       cross=cross, router=router)
-    return g
-
-
-# --- starting points ---------------------------------------------------------
-
-def _host_starts(by_id: dict, placed: dict) -> tuple[list, list]:
-    """``(starts, offline)``: managed hosts with a CVE, and unmanaged hosts;
-    placed ones only. A managed host whose Wazuh agent is disconnected or never
-    connected is not a start; it is listed in ``offline`` instead."""
-    starts, offline = [], []
-    for nid, node in by_id.items():
-        if node["kind"] == "device" or nid not in placed:
-            continue
-        if node.get("unmanaged"):
-            kind = "unmanaged_host"
-        elif node.get("agent_id") and node.get("top_cves"):
-            kind = "managed_host"
-        else:
-            continue
-        status = (node.get("status") or "").lower()
-        if kind == "managed_host" and status in AGENT_OFFLINE:
-            offline.append({"id": nid, "kind": kind, "reason": "offline",
-                            "detail": f"Wazuh agent {status.replace('_', ' ')}"})
-            continue
-        starts.append({"id": nid, "kind": kind, "vlans": sorted(placed[nid])})
-    return starts, offline
-
-
-def _spare_starts(by_id: dict) -> list:
-    """One start per (switch, VLAN) from each switch's spare-port finding."""
-    starts = []
-    for nid, node in by_id.items():
-        if node["kind"] != "device":
-            continue
-        finding = next((f for f in node.get("config_findings") or []
-                        if f["id"] == "spare-ports-in-used-vlan" and f.get("evidence")), None)
-        if not finding:
-            continue
-        ev = finding["evidence"]
-        listed = ev.get("ports") or []
-        truncated = ev.get("total") is not None and ev["total"] > len(listed)
-        by_vlan: dict = {}
-        for p in listed:
-            by_vlan.setdefault(p["vlan"], []).append(p["port"])
-        for vlan, ports in sorted(by_vlan.items()):
-            starts.append({"id": f"start:spare-ports:{nid}:{vlan}", "kind": "spare_ports",
-                           "switch": nid, "vlans": [vlan], "ports": ports,
-                           "listed_ports": len(ports), "spare_ports_on_switch": ev.get("total"),
-                           "list_truncated": truncated, "membership": {vlan}})
-    return starts
-
-
-# --- routes ------------------------------------------------------------------
-
-def _label(node: dict) -> str:
-    return node.get("hostname") or node["node_id"]
-
-
-def _route(graph: nx.DiGraph, by_id: dict, start: dict, target: str) -> Optional[dict]:
-    """The single highest-likelihood route start->target, or None."""
-    try:
-        path = nx.dijkstra_path(graph, start["id"], target)
-    except (nx.NetworkXNoPath, nx.NodeNotFound):
-        return None
-
-    steps, likelihood = [], 1.0
-    for a, b in zip(path, path[1:]):
-        edge = graph.edges[a, b]
-        dest = by_id[b]
-        if edge["cross"]:
-            steps.append({"kind": "transit", "from": a, "through": edge["router"], "to": b,
-                          "value": 1.0, "source": _IR7788,
-                          "note": "firewall and access rules are not read"})
-        step = dict(edge["step"])
-        likelihood *= step["value"]
-        step.update({"from": edge["router"] if edge["cross"] else a, "to": b,
-                     "destination_base_score": dest.get("risk_score"),
-                     "context_findings": _context_findings(dest)})
-        steps.append(step)
-
-    owned = [nid for nid in path if nid in by_id]
-    scores = [by_id[nid].get("risk_score") for nid in owned]
-    return {
-        "target": target,
-        "start": start["id"],
-        "start_kind": start["kind"],
-        "steps": steps,
-        "likelihood": round(likelihood, 6),
-        "highest_base_score": max([s for s in scores if s is not None], default=0.0),
-        "crosses_router": any(s["kind"] == "transit" for s in steps),
-        "narrative": _narrative(by_id, start, steps),
-    }
-
-
-def _narrative(by_id: dict, start: dict, steps: list) -> str:
-    if start["kind"] == "spare_ports":
-        opening = (f"From {start['listed_ports']} spare port(s) in VLAN {start['vlans'][0]} "
-                   f"on {_label(by_id[start['switch']])}")
-    elif start["kind"] == "unmanaged_host":
-        opening = f"From {_label(by_id[start['id']])} (unmanaged, state unknown)"
-    else:
-        opening = f"From {_label(by_id[start['id']])}, assumed already compromised"
-    parts = [opening]
-    for s in steps:
-        if s["kind"] == "transit":
-            parts.append(f"cross into the target's VLAN through {_label(by_id[s['through']])} "
-                         "(firewall rules not checked)")
-        elif s["kind"] == "weakness":
-            parts.append(f"take over {_label(by_id[s['to']])} using {s['cve']} "
-                         f"({s['attack_complexity'].lower()} complexity)")
-        else:
-            parts.append(f"take over {_label(by_id[s['to']])} through {s['title'].lower()}")
-    return ", ".join(parts) + "."
-
-
 def _order_key(route: dict) -> tuple:
     """Within a target, never a blended score: likelihood, then highest base score,
     then fewer steps, then start id, then the ids along the route."""
@@ -419,144 +195,380 @@ def _order_key(route: dict) -> tuple:
             route["start"], tuple(s["to"] for s in route["steps"]))
 
 
-# --- dependants (browse-list order only, never route ordering) ---------------
+class AttackPathEngine:
+    """The exposure-path computation over one graph.
 
-def _dependants(by_id: dict) -> dict:
-    """Hosts that depend on each asset: a switch counts hosts attached to it; a
-    router also counts hosts in the VLANs it routes; a host counts none. A host
-    is any endpoint/host-kind node with a known VLAN."""
-    hosts = [n for n in by_id.values() if n["kind"] != "device"]
-    out = {}
-    for nid, node in by_id.items():
-        if node["kind"] != "device":
-            out[nid] = 0
-            continue
-        routed = _routes(node)
-        out[nid] = sum(1 for h in hosts
-                       if h.get("parent_id") == nid
-                       or (routed and h.get("vlan") in routed))
-    return out
+    Built once from the graph, the owner's targets and the CVE findings, it
+    holds what every route needs: the node lookup, each asset's VLANs, the
+    routers and the VLANs they route, each asset's usable CVEs, and the way to
+    take every placed asset over within a VLAN and across a router. The
+    public methods are the computation's steps; ``compute`` runs them all.
+    """
 
+    def __init__(self, graph: dict, targets: Optional[dict], vulns: Optional[dict],
+                 keep: int = KEEP_PER_TARGET) -> None:
+        self.graph = graph
+        self.targets = targets or {}
+        self.vulns = vulns
+        self.keep = keep
+        self.by_id = {n["node_id"]: n for n in graph["nodes"]}
+        self.placed, self.not_placed = self.placement()
+        self.candidates = {nid: self._candidates(self.by_id[nid]) for nid in self.placed}
+        self.routers = {nid: self._routes(n) for nid, n in self.by_id.items()
+                        if n.get("role") in ROUTER_ROLES and self._routes(n)}
+        # The best takeover of each placed asset, keyed by whether the attacker
+        # crosses a router to reach it (False: same VLAN, True: across).
+        self.takeover = {nid: {cross: _takeover(self.by_id[nid], self.candidates[nid], cross)
+                               for cross in (False, True)} for nid in self.placed}
+        self.starts, self.offline_starts = self.find_starts()
+        self.reachability = self.reachability_graph()
 
-def _cves_v4(by_id: dict) -> int:
-    """Distinct CVEs scored with CVSS v4 (their Attack Requirements go unread)."""
-    seen = set()
-    for node in by_id.values():
-        for r in node.get("top_cves") or []:
-            if str(r.get("cvss_version") or "").startswith("4"):
-                seen.add(r.get("cve"))
-    return len(seen)
+    # ---- where each asset sits --------------------------------------------------
 
+    @staticmethod
+    def _l3_vlans(node: dict) -> set:
+        """VLANs a device has an up layer-3 interface for, via the checklist helper."""
+        ps = node.get("port_status") or {}
+        config = {"interfaces": {i: {"name": name, "oper": t.UP if state == "up" else 2}
+                                 for i, (name, state) in enumerate(ps.items())}}
+        return l3_vlans(config)
 
-# --- the whole computation ---------------------------------------------------
+    def _routes(self, node: dict) -> set:
+        return self._l3_vlans(node) if node.get("role") in ROUTER_ROLES else set()
+
+    @staticmethod
+    def _radio_vlans(ap: dict, radio: Optional[str]) -> set:
+        """VLANs of the up sub-interfaces on ``radio`` (e.g. "Do0" -> "Do0.80")."""
+        out = set()
+        for name, state in (ap.get("port_status") or {}).items():
+            base, _, sub = str(name).partition(".")
+            if state == "up" and sub.isdigit() and base == radio:
+                out.add(int(sub))
+        return out
+
+    def placement(self) -> tuple[dict, list]:
+        """``({node_id: {vlan, ...}}, [{"id", "reason"}])``: placed and not placed assets."""
+        placed, not_placed = {}, []
+        for nid, node in self.by_id.items():
+            if node["kind"] == "device":
+                vlans = self._l3_vlans(node)
+                if vlans:
+                    placed[nid] = vlans
+                else:
+                    not_placed.append({"id": nid,
+                                       "reason": "no up layer-3 interface with a VLAN number"})
+                continue
+            if node.get("vlan"):
+                placed[nid] = {int(node["vlan"])}
+            elif node.get("wifi"):
+                radio = node["wifi"].get("radio")
+                ap = self.by_id.get(node["wifi"].get("access_point"))
+                vlans = self._radio_vlans(ap, radio) if ap else set()
+                if len(vlans) == 1:
+                    placed[nid] = set(vlans)
+                else:
+                    why = (f"the radio {radio} has {len(vlans)} up sub-interfaces; its VLAN "
+                           "is ambiguous" if vlans else
+                           f"the radio {radio} has no up sub-interface with a VLAN number")
+                    not_placed.append({"id": nid, "reason": why})
+            else:
+                not_placed.append({"id": nid, "reason": "no known VLAN"})
+        return placed, not_placed
+
+    def _candidates(self, node: dict) -> list:
+        """The node's CVEs that carry the four vector fields (vulnerabilities.json
+        when it has the full list, else the graph's top_cves)."""
+        nid = node["node_id"]
+        host = (self.vulns or {}).get("hosts", {}).get(nid)
+        cat = (self.vulns or {}).get("cves", {})
+        rows = []
+        if host and host.get("findings") is not None:
+            for f in host["findings"]:
+                c = cat.get(f.get("cve"))
+                if c and all(k in c for k in FOUR):
+                    rows.append({"cve": f["cve"], "cvss": c.get("cvss"),
+                                 **{k: c[k] for k in FOUR}})
+        else:
+            for r in node.get("top_cves") or []:
+                if all(k in r for k in FOUR):
+                    rows.append(r)
+        return rows
+
+    # ---- the reachability graph -------------------------------------------------
+
+    def _router_between(self, a_vlans: set, b_vlans: set, exclude: set) -> Optional[str]:
+        for rid in sorted(self.routers):             # lowest node id among qualifiers
+            routed = self.routers[rid]
+            if rid not in exclude and routed & a_vlans and routed & b_vlans:
+                return rid
+        return None
+
+    def reachability_graph(self) -> nx.DiGraph:
+        """Directed: an edge u->v means v can be taken over from a compromised u.
+
+        Spare-port starts (``{"id", "membership"}``) get out-edges only: never a
+        target, never a stepping stone.
+        """
+        g = nx.DiGraph()
+        members = dict(self.placed)
+        for s in self.starts:
+            if "membership" in s:
+                members[s["id"]] = s["membership"]
+        for u, mu in members.items():
+            for v, mv in self.placed.items():
+                if u == v:
+                    continue
+                if mu & mv:
+                    cross, router = False, None
+                else:
+                    router = self._router_between(mu, mv, {u, v})
+                    if router is None:
+                        continue
+                    cross = True
+                step = self.takeover[v][cross]
+                if step is None:
+                    continue
+                g.add_edge(u, v, weight=-math.log(step["value"]), step=step,
+                           cross=cross, router=router)
+        return g
+
+    # ---- starting points --------------------------------------------------------
+
+    def find_starts(self) -> tuple[list, list]:
+        """``(starts, offline)``. A start is a placed managed host with a CVE, a
+        placed unmanaged host, or the spare ports of one VLAN on a switch. A
+        managed host whose Wazuh agent is disconnected or never connected is
+        no start; it is listed in ``offline`` instead."""
+        starts, offline = [], []
+        for nid, node in self.by_id.items():
+            if node["kind"] == "device" or nid not in self.placed:
+                continue
+            if node.get("unmanaged"):
+                kind = "unmanaged_host"
+            elif node.get("agent_id") and node.get("top_cves"):
+                kind = "managed_host"
+            else:
+                continue
+            status = (node.get("status") or "").lower()
+            if kind == "managed_host" and status in AGENT_OFFLINE:
+                offline.append({"id": nid, "kind": kind, "reason": "offline",
+                                "detail": f"Wazuh agent {status.replace('_', ' ')}"})
+                continue
+            starts.append({"id": nid, "kind": kind, "vlans": sorted(self.placed[nid])})
+        return starts + self._spare_starts(), offline
+
+    def _spare_starts(self) -> list:
+        """One start per (switch, VLAN) from each switch's spare-port finding."""
+        starts = []
+        for nid, node in self.by_id.items():
+            if node["kind"] != "device":
+                continue
+            finding = next((f for f in node.get("config_findings") or []
+                            if f["id"] == "spare-ports-in-used-vlan" and f.get("evidence")), None)
+            if not finding:
+                continue
+            ev = finding["evidence"]
+            listed = ev.get("ports") or []
+            truncated = ev.get("total") is not None and ev["total"] > len(listed)
+            by_vlan: dict = {}
+            for p in listed:
+                by_vlan.setdefault(p["vlan"], []).append(p["port"])
+            for vlan, ports in sorted(by_vlan.items()):
+                starts.append({"id": f"start:spare-ports:{nid}:{vlan}", "kind": "spare_ports",
+                               "switch": nid, "vlans": [vlan], "ports": ports,
+                               "listed_ports": len(ports), "spare_ports_on_switch": ev.get("total"),
+                               "list_truncated": truncated, "membership": {vlan}})
+        return starts
+
+    # ---- routes -----------------------------------------------------------------
+
+    def _label(self, nid: str) -> str:
+        node = self.by_id[nid]
+        return node.get("hostname") or node["node_id"]
+
+    def route(self, start: dict, target: str) -> Optional[dict]:
+        """The single highest-likelihood route from ``start`` to ``target``, or None."""
+        try:
+            path = nx.dijkstra_path(self.reachability, start["id"], target)
+        except (nx.NetworkXNoPath, nx.NodeNotFound):
+            return None
+
+        steps, likelihood = [], 1.0
+        for a, b in zip(path, path[1:]):
+            edge = self.reachability.edges[a, b]
+            dest = self.by_id[b]
+            if edge["cross"]:
+                steps.append({"kind": "transit", "from": a, "through": edge["router"], "to": b,
+                              "value": 1.0, "source": _IR7788,
+                              "note": "firewall and access rules are not read"})
+            step = dict(edge["step"])
+            likelihood *= step["value"]
+            step.update({"from": edge["router"] if edge["cross"] else a, "to": b,
+                         "destination_base_score": dest.get("risk_score"),
+                         "context_findings": _context_findings(dest)})
+            steps.append(step)
+
+        scores = [self.by_id[nid].get("risk_score") for nid in path if nid in self.by_id]
+        return {
+            "target": target,
+            "start": start["id"],
+            "start_kind": start["kind"],
+            "steps": steps,
+            "likelihood": round(likelihood, 6),
+            "highest_base_score": max([s for s in scores if s is not None], default=0.0),
+            "crosses_router": any(s["kind"] == "transit" for s in steps),
+            "narrative": self._narrative(start, steps),
+        }
+
+    def _narrative(self, start: dict, steps: list) -> str:
+        if start["kind"] == "spare_ports":
+            opening = (f"From {start['listed_ports']} spare port(s) in VLAN {start['vlans'][0]} "
+                       f"on {self._label(start['switch'])}")
+        elif start["kind"] == "unmanaged_host":
+            opening = f"From {self._label(start['id'])} (unmanaged, state unknown)"
+        else:
+            opening = f"From {self._label(start['id'])}, assumed already compromised"
+        parts = [opening]
+        for s in steps:
+            if s["kind"] == "transit":
+                parts.append(f"cross into the target's VLAN through {self._label(s['through'])} "
+                             "(firewall rules not checked)")
+            elif s["kind"] == "weakness":
+                parts.append(f"take over {self._label(s['to'])} using {s['cve']} "
+                             f"({s['attack_complexity'].lower()} complexity)")
+            else:
+                parts.append(f"take over {self._label(s['to'])} through {s['title'].lower()}")
+        return ", ".join(parts) + "."
+
+    # ---- the document -----------------------------------------------------------
+
+    def _target_blocks(self) -> tuple[list, list, int]:
+        """``(target blocks, kept routes, pairs with a route)``, in browse order."""
+        all_routes, pairs_with_route, blocks = [], 0, []
+        for tid, info in self.targets.items():
+            if tid not in self.by_id:
+                continue
+            importance = info.get("importance")
+            # a start that is the target itself is skipped
+            routes = [r for r in (self.route(start, tid) for start in self.starts
+                                  if start["id"] != tid) if r]
+            pairs_with_route += len(routes)
+            rank = sorted(routes, key=_order_key)[:self.keep]
+            for i, r in enumerate(rank, 1):
+                r["rank"] = i
+                r["importance"] = importance
+            all_routes.extend(rank)
+            blocks.append({"id": tid, "importance": importance, "note": info.get("note"),
+                           "present": True, "label": self._label(tid), "routes": rank})
+        for tid, info in self.targets.items():
+            if tid not in self.by_id:
+                blocks.append({"id": tid, "importance": info.get("importance"),
+                               "note": info.get("note"), "present": False,
+                               "reason": "no node with this id in the graph"})
+        # stable order: importance, then how many routes, then id
+        blocks.sort(key=lambda b: (IMPORTANCE.index(b["importance"])
+                                   if b["importance"] in IMPORTANCE else len(IMPORTANCE),
+                                   -len(b.get("routes") or []), b["id"]))
+        return blocks, all_routes, pairs_with_route
+
+    def _dependants(self) -> dict:
+        """Hosts that depend on each asset (browse-list order only, never route
+        order): a switch counts the hosts attached to it, a router also those in
+        the VLANs it routes, a host none. A host is any non-device node."""
+        hosts = [n for n in self.by_id.values() if n["kind"] != "device"]
+        out = {}
+        for nid, node in self.by_id.items():
+            if node["kind"] != "device":
+                out[nid] = 0
+                continue
+            routed = self._routes(node)
+            out[nid] = sum(1 for h in hosts
+                           if h.get("parent_id") == nid or (routed and h.get("vlan") in routed))
+        return out
+
+    def _per_asset(self, all_routes: list) -> list:
+        through = {nid: 0 for nid in self.by_id}
+        for r in all_routes:
+            for nid in {s["from"] for s in r["steps"]} | {s["to"] for s in r["steps"]}:
+                if nid in through:
+                    through[nid] += 1
+        dependants = self._dependants()
+        per_asset = []
+        for nid, node in self.by_id.items():
+            status = (node.get("reachable_cve") or {}).get("status")
+            per_asset.append({"id": nid, "kind": node["kind"], "label": self._label(nid),
+                              "dependants": dependants[nid], "verified": status != "unverified",
+                              "routes_through": through[nid]})
+        per_asset.sort(key=lambda a: (-a["dependants"], a["id"]))     # browse order
+        return per_asset
+
+    def _cves_v4(self) -> int:
+        """Distinct CVEs scored with CVSS v4 (their Attack Requirements go unread)."""
+        seen = set()
+        for node in self.by_id.values():
+            for r in node.get("top_cves") or []:
+                if str(r.get("cvss_version") or "").startswith("4"):
+                    seen.add(r.get("cve"))
+        return len(seen)
+
+    def compute(self) -> dict:
+        """The attack_paths.json document."""
+        target_ids = list(self.targets)
+        present = [tid for tid in target_ids if tid in self.by_id]
+        blocks, all_routes, pairs_with_route = self._target_blocks()
+        per_asset = self._per_asset(all_routes)
+        most_shared = max(per_asset, key=lambda a: (a["routes_through"], -len(a["id"])),
+                          default=None)
+        most_shared = most_shared["id"] if most_shared and most_shared["routes_through"] else None
+        verified = sum(1 for a in per_asset if a["verified"])
+        return {
+            "metadata": {
+                "computed_at": datetime.now(timezone.utc).isoformat(),
+                "source_scan": self.graph.get("metadata", {}).get("scan_time"),
+                "state": "no_targets" if not target_ids else "ok",
+                "keep_per_target": self.keep,
+                "counts": {
+                    "targets": len(target_ids), "targets_present": len(present),
+                    "targets_missing": len(target_ids) - len(present),
+                    "starting_points": len(self.starts),
+                    "offline_starts": len(self.offline_starts),
+                    "routes": len(all_routes), "pairs_with_route": pairs_with_route,
+                    "pairs_total": len(present) * len(self.starts), "placed": len(self.placed),
+                    "not_placed": len(self.not_placed), "assets_verified": verified,
+                    "assets_unverified": len(per_asset) - verified,
+                    "cves_v4_unread": self._cves_v4(),
+                },
+                "sources": SOURCES,
+                "reachability": REACHABILITY,
+                "limits": LIMITS,
+                "most_shared_asset": most_shared,
+            },
+            "targets": blocks,
+            "starting_points": [{k: v for k, v in s.items() if k != "membership"}
+                                for s in self.starts],
+            "offline_starts": self.offline_starts,
+            "per_asset": per_asset,
+            "not_placed": self.not_placed,
+        }
+
 
 def compute(graph: dict, targets: Optional[dict], vulns: Optional[dict],
             keep: int = KEEP_PER_TARGET) -> dict:
     """Build the attack_paths document from the graph, targets and CVE findings."""
-    by_id = {n["node_id"]: n for n in graph["nodes"]}
-    placed, not_placed = _placement(by_id)
-    cands = {nid: _candidates(by_id[nid], vulns) for nid in placed}
-    routers = {nid: _routes(n) for nid, n in by_id.items()
-               if n.get("role") in ROUTER_ROLES and _routes(n)}
-
-    spare = _spare_starts(by_id)
-    host_starts, offline = _host_starts(by_id, placed)
-    starts = host_starts + spare
-    graph_nx = _build_graph(placed, by_id, cands, routers, spare)
-
-    targets = targets or {}
-    target_ids = list(targets)
-    present = [tid for tid in target_ids if tid in by_id]
-    missing = [tid for tid in target_ids if tid not in by_id]
-
-    all_routes, pairs_with_route = [], 0
-    target_blocks = []
-    for tid in present:
-        info = targets[tid]
-        importance = info.get("importance")
-        routes = []
-        for start in starts:
-            if start["id"] == tid:
-                continue                        # a start that is the target is skipped
-            route = _route(graph_nx, by_id, start, tid)
-            if route:
-                routes.append(route)
-        pairs_with_route += len(routes)
-        rank = sorted(routes, key=_order_key)[:keep]
-        for i, r in enumerate(rank, 1):
-            r["rank"] = i
-            r["importance"] = importance
-        all_routes.extend(rank)
-        target_blocks.append({"id": tid, "importance": importance,
-                              "note": info.get("note"), "present": True,
-                              "label": _label(by_id[tid]), "routes": rank})
-    for tid in missing:
-        target_blocks.append({"id": tid, "importance": targets[tid].get("importance"),
-                              "note": targets[tid].get("note"), "present": False,
-                              "reason": "no node with this id in the graph"})
-    # stable order: importance, then how many routes, then id
-    target_blocks.sort(key=lambda b: (IMPORTANCE.index(b["importance"])
-                                      if b["importance"] in IMPORTANCE else len(IMPORTANCE),
-                                      -len(b.get("routes") or []), b["id"]))
-
-    through = {nid: 0 for nid in by_id}
-    for r in all_routes:
-        for nid in {s["from"] for s in r["steps"]} | {s["to"] for s in r["steps"]}:
-            if nid in through:
-                through[nid] += 1
-    dependants = _dependants(by_id)
-    per_asset = []
-    for nid, node in by_id.items():
-        status = (node.get("reachable_cve") or {}).get("status")
-        per_asset.append({"id": nid, "kind": node["kind"], "label": _label(node),
-                          "dependants": dependants[nid], "verified": status != "unverified",
-                          "routes_through": through[nid]})
-    per_asset.sort(key=lambda a: (-a["dependants"], a["id"]))     # browse order
-    most_shared = max(per_asset, key=lambda a: (a["routes_through"], -len(a["id"])),
-                      default=None)
-    most_shared = most_shared["id"] if most_shared and most_shared["routes_through"] else None
-
-    verified = sum(1 for a in per_asset if a["verified"])
-    state = "no_targets" if not target_ids else "ok"
-    return {
-        "metadata": {
-            "computed_at": datetime.now(timezone.utc).isoformat(),
-            "source_scan": graph.get("metadata", {}).get("scan_time"),
-            "state": state,
-            "keep_per_target": keep,
-            "counts": {
-                "targets": len(target_ids), "targets_present": len(present),
-                "targets_missing": len(missing), "starting_points": len(starts),
-                "offline_starts": len(offline),
-                "routes": len(all_routes), "pairs_with_route": pairs_with_route,
-                "pairs_total": len(present) * len(starts), "placed": len(placed),
-                "not_placed": len(not_placed), "assets_verified": verified,
-                "assets_unverified": len(per_asset) - verified, "cves_v4_unread": _cves_v4(by_id),
-            },
-            "sources": SOURCES,
-            "reachability": REACHABILITY,
-            "limits": LIMITS,
-            "most_shared_asset": most_shared,
-        },
-        "targets": target_blocks,
-        "starting_points": [{k: v for k, v in s.items() if k != "membership"} for s in starts],
-        "offline_starts": offline,
-        "per_asset": per_asset,
-        "not_placed": not_placed,
-    }
+    return AttackPathEngine(graph, targets, vulns, keep).compute()
 
 
-# --- file I/O and CLI --------------------------------------------------------
+# --- files, the pipeline stage and the CLI -----------------------------------
 
 def default_path(graph_path: str) -> str:
     return os.path.join(os.path.dirname(os.path.abspath(graph_path)), FILENAME)
 
 
-def _targets_path(graph_path: str) -> str:
+def targets_path(graph_path: str) -> str:
     return os.path.join(os.path.dirname(os.path.abspath(graph_path)), TARGETS_FILENAME)
 
 
-def _load_targets(path: Optional[str]) -> Optional[dict]:
+def load_targets(path: Optional[str]) -> Optional[dict]:
     if not path or not os.path.exists(path):
         return None
     with open(path, encoding="utf-8") as f:
@@ -564,17 +576,24 @@ def _load_targets(path: Optional[str]) -> Optional[dict]:
 
 
 def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],
-              paths_out: Optional[str], keep: int = KEEP_PER_TARGET):
-    """Pipeline hook: compute and (when ``paths_out`` is set) write the document.
-
-    Returns the ``(document, counts)`` so the pipeline can log a summary. The
-    graph gains no fields.
-    """
+              paths_out: Optional[str], keep: int = KEEP_PER_TARGET) -> dict:
+    """Compute the document and, when ``paths_out`` is set, write it there.
+    The graph gains no fields."""
     document = compute(graph, targets, vulns, keep)
     if paths_out:
         vulnfile.write_atomic(paths_out, document)
         log.info("wrote attack paths to %s", paths_out)
     return document
+
+
+def run_attack_paths(scan: "ScanContext") -> StageResult:
+    """The pipeline's exposure-path stage. It runs last, once the graph's
+    scan_time is final, so attack_paths.json's source_scan names this graph."""
+    vulns = vulnfile.build_document(scan.endpoints, scan.cves, None, devices=scan.device_entries)
+    document = run_stage(scan.document, load_targets(scan.targets_path), vulns, scan.paths_out)
+    c = document["metadata"]["counts"]
+    return StageResult(note=f"{plural(c['routes'], 'route')} to "
+                            f"{plural(c['targets_present'], 'protected asset')}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -603,7 +622,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     except (OSError, ValueError) as exc:
         log.error("could not read graph %s: %s", args.graph, exc)
         return 1
-    targets = _load_targets(args.targets or _targets_path(args.graph))
+    targets = load_targets(args.targets or targets_path(args.graph))
     vulns_path = args.vulns or vulnfile.default_path(args.graph)
     vulns = None
     if os.path.exists(vulns_path):

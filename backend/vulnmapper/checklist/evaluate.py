@@ -1,4 +1,4 @@
-"""Evaluate the configuration checks for one polled device. Pure functions.
+"""Evaluate the configuration checks for one polled device (``DeviceChecker``).
 
 Each check ends in exactly one result:
 
@@ -97,67 +97,6 @@ def access_ports(config: dict, uplinks, vendor: Optional[str]):
                   and port_key(x["name"]) not in up), None
 
 
-def _name(config: dict, if_index: int) -> str:
-    return config["interfaces"][if_index]["name"]
-
-
-# --- the checks -----------------------------------------------------------------
-# Each returns (result, reason, evidence).
-
-def _tcp_port(config: dict, port: int, port_test: bool):
-    tcp = config.get("tcp")
-    if tcp is None:
-        return UNKNOWN, "the TCP tables were not read", None
-    if not tcp["read"]:
-        outcome = (config.get("connect") or {}).get(port)
-        if outcome == "accepted":
-            return FAIL, None, {"port": port, "found_by": "the port answered a connection test"}
-        if outcome == "refused":
-            return PASS, None, None
-        if outcome == "no_answer":
-            return UNKNOWN, "no answer from the scanner's position", None
-        return UNKNOWN, ("the device does not list its TCP listeners over SNMP, and the "
-                         + ("connection test results were not collected" if port_test
-                            else "connection test is not enabled")), None
-    if port in tcp["ports"]:
-        return FAIL, None, {"port": port}
-    return PASS, None, None
-
-
-def _snmp_no_auth(config: dict):
-    version = (config.get("snmp") or {}).get("version")
-    if version is None:
-        return UNKNOWN, "the SNMP version in use is not known", None
-    if version in ("v1", "v2c"):
-        return FAIL, None, {"snmp_version": version}
-    return PASS, None, None
-
-
-def _default_community(config: dict, probe_enabled: bool):
-    name = (config.get("snmp") or {}).get("default_name")
-    if name:
-        return FAIL, None, {"communities": [name], "found_by": "the scan's own credential"}
-    probe = config.get("probe")
-    if probe is None:
-        if probe_enabled:
-            return UNKNOWN, "the probe results were not collected", None
-        return NOT_CHECKED, "probe not enabled", None
-    answered = [n for n in ("public", "private") if probe.get(n)]
-    if answered:
-        return FAIL, None, {"communities": answered, "found_by": "the default-name probe"}
-    return PASS, None, None
-
-
-def _vlan_of(config: dict, vendor: Optional[str]) -> dict:
-    """``{ifIndex: VLAN}`` for the access ports (empty when not read)."""
-    if vendor == "Cisco" and config.get("vm_vlan"):
-        return dict(config["vm_vlan"])
-    if config.get("pvid") and config.get("bridge_ports"):
-        return {config["bridge_ports"][bp]: v for bp, v in config["pvid"].items()
-                if bp in config["bridge_ports"]}
-    return {}
-
-
 # Layer-3 interface names that carry a VLAN number, as the captures show them:
 # Cisco "Vlan99" (ifName "Vl99"), Comware "Vlan-interface99", and a routed
 # sub-interface "GigabitEthernet0.99" / "Dot11Radio0.80" (by convention the
@@ -182,126 +121,266 @@ def l3_vlans(config: Optional[dict]) -> set:
     return out
 
 
-def _spare_ports(config: dict, ports: list, vendor: Optional[str], vlans_in_use) -> tuple:
-    """Spare access ports (no link since the device booted) in a VLAN in use.
+class DeviceChecker:
+    """The configuration checks for one polled device.
 
-    A VLAN is in use when one of the device's access ports in it has a link,
-    when it is in ``vlans_in_use`` (a host was learned on it, or a polled
-    device has an up layer-3 interface for it), or when it is VLAN 1. Any
-    other VLAN is taken for an unused (parking) VLAN, and the evidence lists
-    them, on a pass too. A port that lost its link after boot may be a PC that
-    is switched off: it is not counted, only reported. Whether a spare port is
-    shut down does not change the result.
+    Holds what every check reads: the device's node (role, vendor, uplinks),
+    its ``config_data`` (normalised), the access ports and the scan's options.
+    Each check is a method returning ``(result, reason, evidence)``;
+    ``evaluate`` runs the catalogue and returns the device's results.
     """
-    vlan_of = _vlan_of(config, vendor)
-    if not vlan_of:
-        return UNKNOWN, "the VLAN of each port was not read", None
-    ifs, uptime = config["interfaces"], config.get("uptime")
-    no_link = [i for i in ports if ifs[i]["oper"] in NO_LINK]
-    spare, recent, unclear = [], 0, 0
-    for i in no_link:
-        last = ifs[i]["last_change"]
-        if uptime is None or last is None or last > uptime:
-            unclear += 1
-        elif last <= BOOT_WINDOW_S * 100:
-            spare.append(i)
+
+    def __init__(self, node: dict, config: Optional[dict], probe_enabled: bool,
+                 family: Optional[str] = None, port_test: bool = False, vlans_in_use=()) -> None:
+        self.node = node
+        self.role, self.vendor = node.get("role"), node.get("vendor")
+        self.config = normalise(config)
+        self.probe_enabled = probe_enabled
+        self.family = family
+        self.port_test = port_test
+        self.vlans_in_use = vlans_in_use
+        # Why no check can read anything, if that is the case.
+        self.missing = ("configuration data was not collected" if self.config is None
+                        else "reading the configuration tables failed" if self.config.get("failed")
+                        else None)
+        self.ports, self.port_reason = (None, self.missing) if self.missing else \
+            access_ports(self.config, node.get("uplink_ports"), self.vendor)
+
+    def _port_name(self, if_index: int) -> str:
+        return self.config["interfaces"][if_index]["name"]
+
+    def _vlan_of(self) -> dict:
+        """``{ifIndex: VLAN}`` for the access ports (empty when not read)."""
+        config = self.config
+        if self.vendor == "Cisco" and config.get("vm_vlan"):
+            return dict(config["vm_vlan"])
+        if config.get("pvid") and config.get("bridge_ports"):
+            return {config["bridge_ports"][bp]: v for bp, v in config["pvid"].items()
+                    if bp in config["bridge_ports"]}
+        return {}
+
+    # ---- checks on the whole device ------------------------------------------------
+
+    def telnet(self):
+        return self._tcp_port(23)
+
+    def http(self):
+        return self._tcp_port(80)
+
+    def _tcp_port(self, port: int):
+        config = self.config
+        tcp = config.get("tcp")
+        if tcp is None:
+            return UNKNOWN, "the TCP tables were not read", None
+        if not tcp["read"]:
+            outcome = (config.get("connect") or {}).get(port)
+            if outcome == "accepted":
+                return FAIL, None, {"port": port, "found_by": "the port answered a connection test"}
+            if outcome == "refused":
+                return PASS, None, None
+            if outcome == "no_answer":
+                return UNKNOWN, "no answer from the scanner's position", None
+            return UNKNOWN, ("the device does not list its TCP listeners over SNMP, and the "
+                             + ("connection test results were not collected" if self.port_test
+                                else "connection test is not enabled")), None
+        if port in tcp["ports"]:
+            return FAIL, None, {"port": port}
+        return PASS, None, None
+
+    def snmp_no_auth(self):
+        version = (self.config.get("snmp") or {}).get("version")
+        if version is None:
+            return UNKNOWN, "the SNMP version in use is not known", None
+        if version in ("v1", "v2c"):
+            return FAIL, None, {"snmp_version": version}
+        return PASS, None, None
+
+    def default_community(self):
+        name = (self.config.get("snmp") or {}).get("default_name")
+        if name:
+            return FAIL, None, {"communities": [name], "found_by": "the scan's own credential"}
+        probe = self.config.get("probe")
+        if probe is None:
+            if self.probe_enabled:
+                return UNKNOWN, "the probe results were not collected", None
+            return NOT_CHECKED, "probe not enabled", None
+        answered = [n for n in ("public", "private") if probe.get(n)]
+        if answered:
+            return FAIL, None, {"communities": answered, "found_by": "the default-name probe"}
+        return PASS, None, None
+
+    # ---- checks on the access ports ------------------------------------------------
+
+    def spare_ports(self):
+        """Spare access ports (no link since the device booted) in a VLAN in use.
+
+        A VLAN is in use when one of the device's access ports in it has a link,
+        when it is in ``vlans_in_use`` (a host was learned on it, or a polled
+        device has an up layer-3 interface for it), or when it is VLAN 1. Any
+        other VLAN is taken for an unused (parking) VLAN, and the evidence lists
+        them, on a pass too. A port that lost its link after boot may be a PC
+        that is switched off: it is not counted, only reported. Whether a spare
+        port is shut down does not change the result.
+        """
+        vlan_of = self._vlan_of()
+        if not vlan_of:
+            return UNKNOWN, "the VLAN of each port was not read", None
+        ports = self.ports
+        ifs, uptime = self.config["interfaces"], self.config.get("uptime")
+        no_link = [i for i in ports if ifs[i]["oper"] in NO_LINK]
+        spare, recent, unclear = [], 0, 0
+        for i in no_link:
+            last = ifs[i]["last_change"]
+            if uptime is None or last is None or last > uptime:
+                unclear += 1
+            elif last <= BOOT_WINDOW_S * 100:
+                spare.append(i)
+            else:
+                recent += 1
+        in_use = {DEFAULT_VLAN, *(self.vlans_in_use or ()), *l3_vlans(self.config)}
+        in_use |= {vlan_of[i] for i in ports if ifs[i]["oper"] == t.UP and vlan_of.get(i)}
+        unused = sorted({vlan_of[i] for i in ports if vlan_of.get(i)} - in_use)
+        found = [i for i in spare if vlan_of.get(i) in in_use]
+        if found:
+            enabled = sum(ifs[i]["admin"] == t.UP for i in found)
+            return FAIL, None, {
+                "ports": [{"port": self._port_name(i), "vlan": vlan_of[i]}
+                          for i in found[:EVIDENCE_CAP]],
+                "total": len(found), "enabled": enabled, "shut_down": len(found) - enabled,
+                "down_recently_not_counted": recent, "unused_vlans": unused}
+        if any(ifs[i]["oper"] is None for i in ports) or unclear \
+                or any(not vlan_of.get(i) for i in spare):
+            return UNKNOWN, "port state, time of last change or VLAN was not read for every " \
+                            "access port", None
+        return PASS, None, {"unused_vlans": unused}
+
+    def default_vlan(self):
+        vlan_of = self._vlan_of()
+        if not vlan_of:
+            return UNKNOWN, "the VLAN of each port was not read", None
+        ports, ifs = self.ports, self.config["interfaces"]
+        in_default = [i for i in ports if vlan_of.get(i) == DEFAULT_VLAN]
+        unknown = [i for i in ports if not vlan_of.get(i)]       # missing or 0
+        if in_default:
+            # ports with a host attached first, then the unused ones
+            linked = [i for i in in_default if ifs[i]["oper"] == t.UP]
+            ordered = linked + [i for i in in_default if i not in linked]
+            return FAIL, None, _evidence_ports([self._port_name(i) for i in ordered],
+                                               {"with_link": len(linked)})
+        if unknown:
+            return UNKNOWN, "the VLAN of some access ports was not read", None
+        return PASS, None, None
+
+    def bpdu_guard(self):
+        bpdu = self.config.get("bpdu")
+        if bpdu is None:
+            return UNKNOWN, "the spanning-tree extension table was not read", None
+        ports = self.ports
+        states = {bp: t.bpdu_guard_on(bpdu, bp) for bp in bpdu["ports"]}
+        if len(set(states.values())) == 1:
+            # every bridge port alike, so every access port is too
+            state = next(iter(states.values()))
+            per_port = {i: state for i in ports}
         else:
-            recent += 1
-    in_use = {DEFAULT_VLAN, *(vlans_in_use or ()), *l3_vlans(config)}
-    in_use |= {vlan_of[i] for i in ports if ifs[i]["oper"] == t.UP and vlan_of.get(i)}
-    unused = sorted({vlan_of[i] for i in ports if vlan_of.get(i)} - in_use)
-    found = [i for i in spare if vlan_of.get(i) in in_use]
-    if found:
-        enabled = sum(ifs[i]["admin"] == t.UP for i in found)
-        return FAIL, None, {
-            "ports": [{"port": _name(config, i), "vlan": vlan_of[i]}
-                      for i in found[:EVIDENCE_CAP]],
-            "total": len(found), "enabled": enabled, "shut_down": len(found) - enabled,
-            "down_recently_not_counted": recent, "unused_vlans": unused}
-    if any(ifs[i]["oper"] is None for i in ports) or unclear \
-            or any(not vlan_of.get(i) for i in spare):
-        return UNKNOWN, "port state, time of last change or VLAN was not read for every " \
-                        "access port", None
-    return PASS, None, {"unused_vlans": unused}
+            to_bp = {}
+            for bp, if_index in {**(self.config.get("bridge_ports") or {}),
+                                 **(bpdu.get("port_ifindex") or {})}.items():
+                to_bp[if_index] = bp
+            per_port = {i: states.get(to_bp[i]) if i in to_bp else None for i in ports}
+        off = [i for i in ports if per_port[i] is False]
+        if off:
+            return FAIL, None, _evidence_ports([self._port_name(i) for i in off])
+        if any(per_port[i] is None for i in ports):
+            return UNKNOWN, "BPDU guard could not be read for every access port", None
+        return PASS, None, None
 
+    def port_security(self):
+        ps = self.config.get("port_security")
+        if ps is None or ps["global"] is None:
+            return UNKNOWN, "the port security table was not read", None
+        ports = self.ports
+        off = [i for i in ports if i in ps["ports"] and not (ps["global"] and ps["ports"][i])]
+        if off:
+            return FAIL, None, _evidence_ports([self._port_name(i) for i in off])
+        if any(i not in ps["ports"] for i in ports):
+            return UNKNOWN, "port security was not read for every access port", None
+        return PASS, None, None
 
-def _default_vlan(config: dict, ports: list, vendor: Optional[str]):
-    vlan_of = _vlan_of(config, vendor)
-    if not vlan_of:
-        return UNKNOWN, "the VLAN of each port was not read", None
-    ifs = config["interfaces"]
-    in_default = [i for i in ports if vlan_of.get(i) == DEFAULT_VLAN]
-    unknown = [i for i in ports if not vlan_of.get(i)]       # missing or 0
-    if in_default:
-        # ports with a host attached first, then the unused ones
-        linked = [i for i in in_default if ifs[i]["oper"] == t.UP]
-        ordered = linked + [i for i in in_default if i not in linked]
-        return FAIL, None, _evidence_ports([_name(config, i) for i in ordered],
-                                           {"with_link": len(linked)})
-    if unknown:
-        return UNKNOWN, "the VLAN of some access ports was not read", None
-    return PASS, None, None
+    # ---- the catalogue -------------------------------------------------------------
 
-
-def _bpdu_guard(config: dict, ports: list):
-    bpdu = config.get("bpdu")
-    if bpdu is None:
-        return UNKNOWN, "the spanning-tree extension table was not read", None
-    states = {bp: t.bpdu_guard_on(bpdu, bp) for bp in bpdu["ports"]}
-    if len(set(states.values())) == 1:
-        # every bridge port alike, so every access port is too
-        state = next(iter(states.values()))
-        per_port = {i: state for i in ports}
-    else:
-        to_bp = {}
-        for bp, if_index in {**(config.get("bridge_ports") or {}),
-                             **(bpdu.get("port_ifindex") or {})}.items():
-            to_bp[if_index] = bp
-        per_port = {i: states.get(to_bp[i]) if i in to_bp else None for i in ports}
-    off = [i for i in ports if per_port[i] is False]
-    if off:
-        return FAIL, None, _evidence_ports([_name(config, i) for i in off])
-    if any(per_port[i] is None for i in ports):
-        return UNKNOWN, "BPDU guard could not be read for every access port", None
-    return PASS, None, None
-
-
-def _port_security(config: dict, ports: list):
-    ps = config.get("port_security")
-    if ps is None or ps["global"] is None:
-        return UNKNOWN, "the port security table was not read", None
-    off = [i for i in ports if i in ps["ports"] and not (ps["global"] and ps["ports"][i])]
-    if off:
-        return FAIL, None, _evidence_ports([_name(config, i) for i in off])
-    if any(i not in ps["ports"] for i in ports):
-        return UNKNOWN, "port security was not read for every access port", None
-    return PASS, None, None
-
-
-# --- one device -------------------------------------------------------------------
-
-def _applies(check: dict, role: Optional[str], vendor: Optional[str]):
-    roles = check["applies_to"]["roles"]
-    if roles != "any" and role not in roles:
-        return "applies to switches"
-    vendors = check["applies_to"]["vendors"]
-    if vendors and vendor not in vendors:
-        return "no data source for this vendor"
-    return None
-
-
-def _finding(check: dict, family: Optional[str], evidence: Optional[dict]) -> dict:
-    refs = [{k: v for k, v in r.items() if k != "scope"} for r in references_for(check, family)]
-    return {
-        "id": check["id"],
-        "title": check["title"],
-        "severity": check["severity"],
-        "why": check["why"],
-        "remediation": check["remediation"],
-        "references": refs,
-        "cwe": check["cwe"],
-        "evidence": evidence,
+    # Check id -> the method that runs it. The port checks need the access
+    # ports, so they are only run once those are known.
+    DEVICE_CHECKS = {
+        "mgmt-telnet-enabled": telnet,
+        "mgmt-http-enabled": http,
+        "snmp-no-auth": snmp_no_auth,
+        "snmp-default-community": default_community,
     }
+    PORT_CHECKS = {
+        "spare-ports-in-used-vlan": spare_ports,
+        "access-ports-default-vlan": default_vlan,
+        "bpdu-guard-missing": bpdu_guard,
+        "port-security-disabled": port_security,
+    }
+
+    def _not_applicable(self, check: dict) -> Optional[str]:
+        roles = check["applies_to"]["roles"]
+        if roles != "any" and self.role not in roles:
+            return "applies to switches"
+        vendors = check["applies_to"]["vendors"]
+        if vendors and self.vendor not in vendors:
+            return "no data source for this vendor"
+        return None
+
+    def _run(self, check: dict) -> tuple:
+        """``(result, reason, evidence)`` for one catalogue check."""
+        reason = self._not_applicable(check)
+        if reason:
+            return NOT_APPLICABLE, reason, None
+        if self.missing:
+            return UNKNOWN, self.missing, None
+        if check["id"] in self.DEVICE_CHECKS:
+            return self.DEVICE_CHECKS[check["id"]](self)
+        if self.ports is None:
+            return UNKNOWN, self.port_reason, None
+        return self.PORT_CHECKS[check["id"]](self)
+
+    def _finding(self, check: dict, evidence: Optional[dict]) -> dict:
+        refs = [{k: v for k, v in r.items() if k != "scope"}
+                for r in references_for(check, self.family)]
+        return {
+            "id": check["id"],
+            "title": check["title"],
+            "severity": check["severity"],
+            "why": check["why"],
+            "remediation": check["remediation"],
+            "references": refs,
+            "cwe": check["cwe"],
+            "evidence": evidence,
+        }
+
+    def evaluate(self) -> dict:
+        """``{config_checks, config_findings, config_summary}`` for the device."""
+        checks, findings = [], []
+        for check in CATALOGUE:
+            result, reason, evidence = self._run(check)
+            entry = {"id": check["id"], "title": check["title"], "result": result}
+            if result not in (PASS, FAIL) and reason:
+                entry["reason"] = reason
+            if result == PASS and evidence:      # what a pass assumed (unused VLANs)
+                entry.update(evidence)
+            checks.append(entry)
+            if result == FAIL:
+                findings.append(self._finding(check, evidence))
+
+        results = {r: sum(c["result"] == r for c in checks) for r in RESULTS}
+        by_severity = {s: sum(f["severity"] == s for f in findings) for s in ("high", "medium", "low")}
+        by_severity["advisory"] = sum(f["severity"] is None for f in findings)
+        return {
+            "config_checks": checks,
+            "config_findings": findings,
+            "config_summary": {"checks": len(checks), "results": results, "findings": by_severity},
+        }
 
 
 def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
@@ -313,53 +392,4 @@ def evaluate_device(node: dict, config: Optional[dict], probe_enabled: bool,
     the crawl's ``config_data`` (None: not collected); ``vlans_in_use`` the VLANs
     in use anywhere in the graph (hosts learned on them, up layer-3 interfaces).
     """
-    role, vendor = node.get("role"), node.get("vendor")
-    config = normalise(config)
-    missing = ("configuration data was not collected" if config is None
-               else "reading the configuration tables failed" if config.get("failed")
-               else None)
-    ports, port_reason = (None, missing) if missing else \
-        access_ports(config, node.get("uplink_ports"), vendor)
-
-    checks, findings = [], []
-    for check in CATALOGUE:
-        reason = _applies(check, role, vendor)
-        if reason:
-            result, evidence = NOT_APPLICABLE, None
-        elif missing:
-            result, reason, evidence = UNKNOWN, missing, None
-        elif check["id"] == "mgmt-telnet-enabled":
-            result, reason, evidence = _tcp_port(config, 23, port_test)
-        elif check["id"] == "mgmt-http-enabled":
-            result, reason, evidence = _tcp_port(config, 80, port_test)
-        elif check["id"] == "snmp-no-auth":
-            result, reason, evidence = _snmp_no_auth(config)
-        elif check["id"] == "snmp-default-community":
-            result, reason, evidence = _default_community(config, probe_enabled)
-        elif ports is None:
-            result, reason, evidence = UNKNOWN, port_reason, None
-        elif check["id"] == "spare-ports-in-used-vlan":
-            result, reason, evidence = _spare_ports(config, ports, vendor, vlans_in_use)
-        elif check["id"] == "access-ports-default-vlan":
-            result, reason, evidence = _default_vlan(config, ports, vendor)
-        elif check["id"] == "bpdu-guard-missing":
-            result, reason, evidence = _bpdu_guard(config, ports)
-        else:
-            result, reason, evidence = _port_security(config, ports)
-        entry = {"id": check["id"], "title": check["title"], "result": result}
-        if result not in (PASS, FAIL) and reason:
-            entry["reason"] = reason
-        if result == PASS and evidence:      # what a pass assumed (unused VLANs)
-            entry.update(evidence)
-        checks.append(entry)
-        if result == FAIL:
-            findings.append(_finding(check, family, evidence))
-
-    results = {r: sum(c["result"] == r for c in checks) for r in RESULTS}
-    by_severity = {s: sum(f["severity"] == s for f in findings) for s in ("high", "medium", "low")}
-    by_severity["advisory"] = sum(f["severity"] is None for f in findings)
-    return {
-        "config_checks": checks,
-        "config_findings": findings,
-        "config_summary": {"checks": len(checks), "results": results, "findings": by_severity},
-    }
+    return DeviceChecker(node, config, probe_enabled, family, port_test, vlans_in_use).evaluate()

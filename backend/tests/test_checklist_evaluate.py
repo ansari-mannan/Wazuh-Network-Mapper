@@ -446,6 +446,17 @@ class TestFinding(unittest.TestCase):
         self.assertEqual(direct, via_json)
 
 
+class TestDeviceChecker(unittest.TestCase):
+    def test_each_check_method_is_its_catalogue_result(self):
+        from vulnmapper.checklist.evaluate import DeviceChecker
+        checker = DeviceChecker(switch(), config(), False)
+        out = checker.evaluate()
+        by_id = {c["id"]: c["result"] for c in out["config_checks"]}
+        for check_id, method in {**DeviceChecker.DEVICE_CHECKS, **DeviceChecker.PORT_CHECKS}.items():
+            with self.subTest(check=check_id):
+                self.assertEqual(method(checker)[0], by_id[check_id])
+
+
 class TestStage(unittest.TestCase):
     def graph(self):
         return {"nodes": [

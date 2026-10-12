@@ -18,8 +18,9 @@ The host stays ``unmanaged``; this gives it data, not an agent.
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
+from ..common import StageResult, plural
 from ..hosts import question_targets
 from ..devicecves import families
 from ..devicecves.cache import Cache
@@ -28,20 +29,15 @@ from ..devicecves.nvd import NvdClient
 from ..devicecves.stage import apply_result, device_entry
 from .nmap import NmapBudgetExceeded, NmapRunner, parse_nmap_xml
 
+if TYPE_CHECKING:
+    from ..pipeline import ScanContext
+
 log = logging.getLogger("vulnmapper.servicescan")
 
 DEFAULT_HOSTS_CAP = 256
 DEFAULT_BUDGET_S = 300.0
 SOURCE = "nmap"
 _PORT_KEYS = ("port", "protocol", "service", "product", "version")
-
-
-class StageResult:
-    def __init__(self) -> None:
-        self.entries: dict = {}           # node_id -> vulnerabilities.json entry
-        self.rows: dict = {}              # node_id -> CVE rows (status ok)
-        self.warnings: list = []
-        self.block: dict = {}
 
 
 def ident_from_ports(open_ports: list) -> Optional[dict]:
@@ -132,3 +128,23 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
     log.info("service scan: %d eligible, %d scanned, %d answered, %d with CVEs, %d NVD request(s)",
              block["eligible"], block["scanned"], block["answered"], block["with_cves"], client.requests)
     return out
+
+
+def run_service_scan(scan: "ScanContext") -> StageResult:
+    """The pipeline's service scan, within the run's host cap and nmap budget.
+    It counts as skipped when nmap is not installed."""
+    args = scan.args
+    client, cache = scan.nvd()
+    before = cache.tally()
+    result = run_stage(scan.document, client, cache,
+                       cap=args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
+                       budget_s=args.nmap_budget or DEFAULT_BUDGET_S, runner=scan.nmap_runner)
+    scan.nvd_tally("service scan", before)
+    block = result.block
+    not_installed = any(w["type"] == "nmap_not_installed" for w in result.warnings)
+    result.ran = not not_installed
+    result.note = ("nmap not installed" if not_installed else
+                   f"{plural(block['scanned'], 'host')} scanned, {block['answered']} answered, "
+                   f"{block['with_cves']} with CVEs")
+    scan.add_findings(result)
+    return result

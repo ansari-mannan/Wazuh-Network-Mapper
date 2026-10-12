@@ -14,8 +14,7 @@ from collections import defaultdict
 from typing import Optional
 
 from ..common import setup_logging
-from .monitor import DEFAULT_THRESHOLD, liveness_pass
-from .prober import SystemProber
+from .monitor import DEFAULT_THRESHOLD, LivenessMonitor
 from .records import AGENT_MAX_AGE_S
 
 log = logging.getLogger("vulnmapper.liveness")
@@ -70,10 +69,9 @@ def main(argv: Optional[list] = None) -> int:
         print(f"vulnmapper.liveness: cannot read graph {args.graph}: {e}", file=sys.stderr)
         return 1
 
-    from ..network.config import load_credentials
-    prober = SystemProber(load_credentials(None))
-    doc = asyncio.run(liveness_pass(graph, load_state(args.state), prober, args.threshold,
-                                    agent_max_age=args.agent_max_age))
+    monitor = LivenessMonitor(threshold=args.threshold, previous=load_state(args.state),
+                              agent_max_age=args.agent_max_age)
+    doc = asyncio.run(monitor.check(graph))
     sys.stdout.write(json.dumps(doc, indent=2) + "\n")
     sys.stdout.flush()
     counts = defaultdict(int)
