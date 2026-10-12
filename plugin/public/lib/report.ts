@@ -333,6 +333,17 @@ export function executiveSummary(reports: AssetReport[], worstNames = 5): Execut
   };
 }
 
+/**
+ * The "Most at risk (by CVE count)" chart: the assets with the most distinct
+ * CVEs, most first, so the bar order matches the bar lengths (ties by name).
+ */
+export function mostCves(reports: AssetReport[], limit = 7): AssetReport[] {
+  return reports
+    .filter((r) => r.counts.total > 0)
+    .sort((a, b) => b.counts.total - a.counts.total || a.name.localeCompare(b.name))
+    .slice(0, limit);
+}
+
 /** The distinct address ranges (/24s) seen among the graph's IPs, for the cover. */
 export function addressRanges(graph: GraphResponse): string[] {
   const nets = new Set<string>();

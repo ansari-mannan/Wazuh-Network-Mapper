@@ -11,6 +11,7 @@ import {
   buildAssetReports,
   capCves,
   executiveSummary,
+  mostCves,
   rankAssetReports,
   remediationActions,
   reportAssets,
@@ -245,6 +246,20 @@ describe('executiveSummary', () => {
     expect(s.counts.potential).toEqual({ critical: 0, high: 1, medium: 2, low: 0, unknown: 1 });
     expect(s.onPathAssets).toBe(1);
     expect(s.worstAssets[0]).toBe('web-01');
+  });
+});
+
+describe('mostCves', () => {
+  it('orders the bars by CVE count, most first, whatever the risk rank', () => {
+    const many = { ...byId('endpoint:db'), name: 'Mannan-PC', counts: { ...byId('endpoint:db').counts, total: 1574 } };
+    const few = { ...byId('endpoint:web'), name: 'CYFOR-3', counts: { ...byId('endpoint:web').counts, total: 302 } };
+    // web outranks db on risk (9.8 vs 7.5); the chart still puts the 1,574 first
+    expect(rankAssetReports([many, few])[0].name).toBe('CYFOR-3');
+    expect(mostCves([few, many]).map((r) => r.name)).toEqual(['Mannan-PC', 'CYFOR-3']);
+  });
+  it('leaves out assets with no CVEs and keeps at most the limit', () => {
+    expect(mostCves(reports).map((r) => r.id)).not.toContain('endpoint:unknown');
+    expect(mostCves(reports, 2)).toHaveLength(2);
   });
 });
 
