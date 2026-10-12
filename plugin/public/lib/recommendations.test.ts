@@ -87,6 +87,12 @@ describe('buildRecommendations', () => {
     ]);
   });
 
+  it('does not count offline hosts as affected assets', () => {
+    const keys = buildRecommendations(graph, vulns, attackPaths, null, new Set(['web', 'printer'])).map((r) => r.key);
+    expect(keys).not.toContain('cve:os-updates');
+    expect(keys).not.toContain('coverage:agents');
+  });
+
   it('uses the finding id for a stable key', () => {
     expect(byKey('config:telnet-enabled').key).toBe('config:telnet-enabled');
   });

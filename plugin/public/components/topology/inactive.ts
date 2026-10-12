@@ -1,16 +1,29 @@
 import { GraphNode, GraphResponse, LivenessResponse } from '../../../common';
 
-// Hosts that leave the canvas while "Hide inactive hosts" is on: every
-// endpoint liveness reports inactive, whatever found it (Wazuh agent, switch
-// table, LLDP). Devices never leave: removing a switch would orphan everything
-// that hangs off it, so an inactive device stays on the canvas, dimmed.
-export function inactiveHosts(
+// Wazuh agent states that mean the host is not there (the Manager API's words).
+const AGENT_OFFLINE = new Set(['disconnected', 'never_connected']);
+
+/**
+ * The one rule for an offline host, used by the map, the vulnerability report
+ * and the recommendations: an endpoint whose Wazuh agent is disconnected or
+ * never connected, or (when liveness is on) that liveness reports inactive,
+ * whatever found it. Devices are never offline here: removing a switch would
+ * orphan everything that hangs off it, so an inactive device stays, dimmed.
+ */
+export function isOfflineHost(
+  node: GraphNode,
+  liveness: LivenessResponse | null | undefined
+): boolean {
+  if (node.kind !== 'endpoint') return false;
+  if (node.agent_id && AGENT_OFFLINE.has((node.status || '').toLowerCase())) return true;
+  return Boolean(liveness?.enabled) && liveness?.nodes[node.node_id]?.state === 'inactive';
+}
+
+export function offlineHosts(
   graph: Pick<GraphResponse, 'nodes'>,
-  liveness: LivenessResponse
+  liveness: LivenessResponse | null | undefined
 ): GraphNode[] {
-  return graph.nodes.filter(
-    (n) => n.kind === 'endpoint' && liveness.nodes[n.node_id]?.state === 'inactive'
-  );
+  return graph.nodes.filter((n) => isOfflineHost(n, liveness));
 }
 
 /**

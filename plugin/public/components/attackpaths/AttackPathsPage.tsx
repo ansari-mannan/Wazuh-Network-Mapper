@@ -151,6 +151,7 @@ export function AttackPathsPage() {
     </>
   );
   if (state !== 'ok' || !doc) return header;
+  const offlineStarts = doc.offline_starts || [];
 
   // Light the physical path, not just the named assets: the taken-over assets
   // (start, target and each takeover step's destination) are the full highlight;
@@ -167,6 +168,17 @@ export function AttackPathsPage() {
   return (
     <>
     {header}
+    {offlineStarts.length > 0 && (
+      <>
+        <EuiSpacer size="s" />
+        <EuiText size="xs" color="subdued" data-test-subj="vmOfflineStarts">
+          <p>
+            Not used as starting points ({offlineStarts.length} offline):{' '}
+            {offlineStarts.map((s) => `${nameOf(s.id)} (${s.detail})`).join(', ')}
+          </p>
+        </EuiText>
+      </>
+    )}
     <EuiSpacer size="l" />
     <EuiFlexGroup className="vmAttackPaths" gutterSize="l" alignItems="flexStart">
       <EuiFlexItem grow={2} data-test-subj="vmRouteList">

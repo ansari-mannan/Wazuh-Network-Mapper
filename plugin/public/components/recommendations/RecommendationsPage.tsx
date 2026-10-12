@@ -24,6 +24,7 @@ import { useGraph } from '../../lib/graph';
 import { useVulnerabilities } from '../../lib/vulnerabilities';
 import { useAttackPaths } from '../../lib/attackPathsData';
 import { useRecommendations } from '../../lib/recommendationsData';
+import { useOfflineHosts } from '../../lib/liveness';
 import { buildRecommendations, Recommendation, recommendationProgress } from '../../lib/recommendations';
 
 const SEV_META: Record<Severity, { label: string; color: string }> = {
@@ -113,9 +114,12 @@ export function RecommendationsPage() {
   // Optimistic per-item overrides, so the status flips before the POST resolves.
   const [pending, setPending] = useState<Record<string, RecommendationStatus>>({});
 
+  // Offline hosts are not counted as affected assets.
+  const offline = useOfflineHosts();
+  const offlineIds = useMemo(() => new Set(offline.map((n) => n.node_id)), [offline]);
   const recs = useMemo(
-    () => (graph && vulns ? buildRecommendations(graph, vulns, attackPaths, file) : []),
-    [graph, vulns, attackPaths, file]
+    () => (graph && vulns ? buildRecommendations(graph, vulns, attackPaths, file, offlineIds) : []),
+    [graph, vulns, attackPaths, file, offlineIds]
   );
   // Apply optimistic overrides on top of the server-built status.
   const withPending = useMemo(

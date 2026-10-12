@@ -1,5 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { LivenessResponse } from '../../common';
+import { GraphNode, LivenessResponse } from '../../common';
+import { offlineHosts } from '../components/topology/inactive';
 import { useGraph } from './graph';
 import { shouldReloadGraph } from './graphReload';
 import { useServices } from './services';
@@ -79,4 +80,11 @@ export function useLiveness(): LivenessContextValue {
   const value = useContext(LivenessContext);
   if (!value) throw new Error('useLiveness must be used inside LivenessProvider');
   return value;
+}
+
+/** The hosts the shared offline rule (topology/inactive.ts) leaves out right now. */
+export function useOfflineHosts(): GraphNode[] {
+  const { graph } = useGraph();
+  const { liveness } = useLiveness();
+  return useMemo(() => (graph ? offlineHosts(graph, liveness) : []), [graph, liveness]);
 }

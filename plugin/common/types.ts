@@ -444,6 +444,9 @@ export type AttackPathsDoc = {
   starting_points: AttackStartingPoint[];
   per_asset: AttackAsset[];
   not_placed: Array<{ id: string; reason: string }>;
+  // managed hosts not used as starts because their Wazuh agent is offline;
+  // absent in older files
+  offline_starts?: Array<{ id: string; kind: AttackStartKind; reason: 'offline'; detail: string }>;
 };
 
 // --- Vulnerabilities (data/vulnerabilities.json, backend/vulnmapper/vulnfile.py) ---

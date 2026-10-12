@@ -1,5 +1,5 @@
 import { GraphNode, LivenessResponse, NodeLiveness } from '../../../common';
-import { hiddenKeyOf, inactiveHosts } from './inactive';
+import { hiddenKeyOf, isOfflineHost, offlineHosts } from './inactive';
 
 function node(node_id: string, kind: 'device' | 'endpoint', discovery_method: string): GraphNode {
   return { node_id, kind, discovery_method, ip: null, hostname: null } as GraphNode;
@@ -21,7 +21,7 @@ const graph = {
   ],
 };
 
-describe('inactiveHosts', () => {
+describe('offlineHosts', () => {
   it('takes every inactive endpoint, whatever its discovery method', () => {
     const live = liveness({
       'device:sw': 'inactive',
@@ -30,7 +30,7 @@ describe('inactiveHosts', () => {
       'host:bb': 'inactive',
       'endpoint:001': 'active',
     });
-    expect(inactiveHosts(graph, live).map((n) => n.node_id)).toEqual([
+    expect(offlineHosts(graph, live).map((n) => n.node_id)).toEqual([
       'endpoint:004',
       'host:aa',
       'host:bb',
@@ -38,12 +38,34 @@ describe('inactiveHosts', () => {
   });
 
   it('never takes a device, even when it is inactive', () => {
-    expect(inactiveHosts(graph, liveness({ 'device:sw': 'inactive' }))).toEqual([]);
+    expect(offlineHosts(graph, liveness({ 'device:sw': 'inactive' }))).toEqual([]);
   });
 
   it('leaves unknown, active and unchecked endpoints alone', () => {
     const live = liveness({ 'endpoint:004': 'unknown', 'host:aa': 'active' });
-    expect(inactiveHosts(graph, live)).toEqual([]);
+    expect(offlineHosts(graph, live)).toEqual([]);
+  });
+});
+
+describe('isOfflineHost', () => {
+  const agent = (status: string) =>
+    ({ ...node('endpoint:009', 'endpoint', 'wazuh'), agent_id: '009', status } as GraphNode);
+  const off: LivenessResponse = { ...liveness({ 'endpoint:009': 'inactive' }), enabled: false };
+
+  it('takes a disconnected or never-connected Wazuh agent, liveness on or off', () => {
+    expect(isOfflineHost(agent('disconnected'), null)).toBe(true);
+    expect(isOfflineHost(agent('never_connected'), null)).toBe(true);
+    expect(isOfflineHost(agent('active'), null)).toBe(false);
+  });
+
+  it('takes a liveness-inactive host only while liveness is on', () => {
+    expect(isOfflineHost(agent('active'), liveness({ 'endpoint:009': 'inactive' }))).toBe(true);
+    expect(isOfflineHost(agent('active'), off)).toBe(false);
+  });
+
+  it('never takes a device, whatever its status', () => {
+    const sw = { ...node('device:sw', 'device', 'snmp_lldp'), status: 'disconnected' } as GraphNode;
+    expect(isOfflineHost(sw, liveness({ 'device:sw': 'inactive' }))).toBe(false);
   });
 });
 

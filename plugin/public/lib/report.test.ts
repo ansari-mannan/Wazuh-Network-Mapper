@@ -237,7 +237,7 @@ describe('remediationActions', () => {
 
 describe('executiveSummary', () => {
   it('reports coverage, the severity split, the on-path count and the worst assets', () => {
-    const s = executiveSummary(reports, graph);
+    const s = executiveSummary(reports);
     expect(s.totalAssets).toBe(5);
     expect(s.managed).toBe(2); // web, db
     expect(s.totalHosts).toBe(4); // the four endpoints (the switch is not a host)
@@ -245,6 +245,20 @@ describe('executiveSummary', () => {
     expect(s.counts.potential).toEqual({ critical: 0, high: 1, medium: 2, low: 0, unknown: 1 });
     expect(s.onPathAssets).toBe(1);
     expect(s.worstAssets[0]).toBe('web-01');
+  });
+});
+
+describe('offline hosts', () => {
+  const offline = new Set(['endpoint:web']);
+  const without = buildAssetReports(graph, vulns, attackPaths, offline);
+  it('are left out of the rows, the ranking and the summary counts', () => {
+    expect(without.map((r) => r.id)).not.toContain('endpoint:web');
+    const s = executiveSummary(without);
+    expect(s.totalAssets).toBe(4);
+    expect(s.managed).toBe(1); // db only
+    expect(s.totalHosts).toBe(3);
+    expect(s.counts.confirmed.critical).toBe(0); // web's CVE-A is gone
+    expect(s.worstAssets).not.toContain('web-01');
   });
 });
 

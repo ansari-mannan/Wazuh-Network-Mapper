@@ -22,7 +22,7 @@ import { useServices } from '../../lib/services';
 import { livenessMethod } from '../../lib/livenessText';
 import { TopologyView, TopologyViewHandle } from './TopologyView';
 import { DeviceDetail, formatSeen } from './DeviceDetail';
-import { hiddenKeyOf, inactiveHosts } from './inactive';
+import { hiddenKeyOf, offlineHosts } from './inactive';
 
 // Counts line, all from the loaded graph. "Unparented" = endpoints the scanner
 // could not attach to a switch port (parent_id null).
@@ -115,7 +115,7 @@ export function TopologyPage() {
 
   const livenessOn = Boolean(liveness?.enabled);
   const hidden = useMemo(
-    () => (graph && liveness && livenessOn && hideInactive ? inactiveHosts(graph, liveness) : []),
+    () => (graph && liveness && livenessOn && hideInactive ? offlineHosts(graph, liveness) : []),
     [graph, liveness, livenessOn, hideInactive]
   );
   // The canvas re-lays out only when this key changes, not on every poll.

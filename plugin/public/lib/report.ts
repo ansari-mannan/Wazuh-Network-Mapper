@@ -95,7 +95,9 @@ function nameOf(node: GraphNode): string {
 export function buildAssetReports(
   graph: GraphResponse,
   vulns: VulnerabilitiesDoc,
-  attackPaths: AttackPathsDoc | null
+  attackPaths: AttackPathsDoc | null,
+  // offline hosts (topology/inactive.ts's rule) are not assessed at all
+  offline: ReadonlySet<string> = new Set()
 ): AssetReport[] {
   const routesThrough = new Map<string, number>();
   for (const a of attackPaths?.per_asset || []) routesThrough.set(a.id, a.routes_through);
@@ -103,6 +105,7 @@ export function buildAssetReports(
   const reports: AssetReport[] = [];
   for (const node of graph.nodes) {
     if (node.kind !== 'device' && node.kind !== 'endpoint') continue;
+    if (offline.has(node.node_id)) continue;
     const confidence = confidenceOf(node);
     const entry = vulns.hosts[node.node_id];
 
@@ -308,11 +311,9 @@ export type ExecutiveSummary = {
   worstAssets: string[]; // names of the handful of worst assets
 };
 
-export function executiveSummary(
-  reports: AssetReport[],
-  graph: GraphResponse,
-  worstNames = 5
-): ExecutiveSummary {
+// Host figures come from the rows themselves, so offline hosts left out of the
+// report are left out of the summary too.
+export function executiveSummary(reports: AssetReport[], worstNames = 5): ExecutiveSummary {
   const counts: SplitCounts = { confirmed: zeroCounts(), potential: zeroCounts(), total: 0 };
   for (const r of reports) {
     for (const sev of SEVERITIES) {
@@ -321,12 +322,11 @@ export function executiveSummary(
     }
     counts.total += r.counts.total;
   }
-  const endpoints = graph.nodes.filter((n) => n.kind === 'endpoint');
-  const cov = graph.metadata.coverage;
+  const hosts = reports.filter((r) => r.node.kind === 'endpoint');
   return {
     totalAssets: reports.length,
-    managed: cov ? cov.managed : endpoints.filter((n) => n.kind === 'endpoint' && !n.unmanaged).length,
-    totalHosts: cov ? cov.hosts : endpoints.length,
+    managed: hosts.filter((r) => r.managed).length,
+    totalHosts: hosts.length,
     counts,
     onPathAssets: reports.filter((r) => r.onPath).length,
     worstAssets: rankAssetReports(reports).slice(0, worstNames).map((r) => r.name),

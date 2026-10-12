@@ -65,9 +65,11 @@ export function buildRecommendations(
   graph: GraphResponse,
   vulns: VulnerabilitiesDoc,
   attackPaths: AttackPathsDoc | null,
-  file: RecommendationsFile | null
+  file: RecommendationsFile | null,
+  // offline hosts are not counted as affected (topology/inactive.ts's rule)
+  offline: ReadonlySet<string> = new Set()
 ): Recommendation[] {
-  const reports = buildAssetReports(graph, vulns, attackPaths);
+  const reports = buildAssetReports(graph, vulns, attackPaths, offline);
   const recs = new Map<string, Recommendation>();
 
   // Accumulate the affected asset into a recommendation, creating it on first

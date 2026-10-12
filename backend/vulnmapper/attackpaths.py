@@ -69,6 +69,9 @@ TARGETS_FILENAME = "targets.json"
 KEEP_PER_TARGET = 10
 IMPORTANCE = ("high", "moderate", "low")       # FIPS 199 impact levels, no other scale
 ROUTER_ROLES = ("router", "l3-switch")
+# Wazuh agent states that mean the host is not there: never a starting point
+# (the plugin's offline rule, topology/inactive.ts, uses the same two).
+AGENT_OFFLINE = ("disconnected", "never_connected")
 FOUR = ("attack_vector", "attack_complexity", "privileges_required", "user_interaction")
 
 # NIST IR 7788 likelihood by CVSS attack complexity; the misconfiguration steps
@@ -298,9 +301,11 @@ def _build_graph(placed: dict, by_id: dict, cands: dict, routers: dict,
 
 # --- starting points ---------------------------------------------------------
 
-def _host_starts(by_id: dict, placed: dict) -> list:
-    """Managed hosts with a CVE, and unmanaged hosts; placed ones only."""
-    starts = []
+def _host_starts(by_id: dict, placed: dict) -> tuple[list, list]:
+    """``(starts, offline)``: managed hosts with a CVE, and unmanaged hosts;
+    placed ones only. A managed host whose Wazuh agent is disconnected or never
+    connected is not a start; it is listed in ``offline`` instead."""
+    starts, offline = [], []
     for nid, node in by_id.items():
         if node["kind"] == "device" or nid not in placed:
             continue
@@ -310,8 +315,13 @@ def _host_starts(by_id: dict, placed: dict) -> list:
             kind = "managed_host"
         else:
             continue
+        status = (node.get("status") or "").lower()
+        if kind == "managed_host" and status in AGENT_OFFLINE:
+            offline.append({"id": nid, "kind": kind, "reason": "offline",
+                            "detail": f"Wazuh agent {status.replace('_', ' ')}"})
+            continue
         starts.append({"id": nid, "kind": kind, "vlans": sorted(placed[nid])})
-    return starts
+    return starts, offline
 
 
 def _spare_starts(by_id: dict) -> list:
@@ -449,7 +459,8 @@ def compute(graph: dict, targets: Optional[dict], vulns: Optional[dict],
                if n.get("role") in ROUTER_ROLES and _routes(n)}
 
     spare = _spare_starts(by_id)
-    starts = _host_starts(by_id, placed) + spare
+    host_starts, offline = _host_starts(by_id, placed)
+    starts = host_starts + spare
     graph_nx = _build_graph(placed, by_id, cands, routers, spare)
     start_by_id = {s["id"]: s for s in starts}
 
@@ -516,6 +527,7 @@ def compute(graph: dict, targets: Optional[dict], vulns: Optional[dict],
             "counts": {
                 "targets": len(target_ids), "targets_present": len(present),
                 "targets_missing": len(missing), "starting_points": len(starts),
+                "offline_starts": len(offline),
                 "routes": len(all_routes), "pairs_with_route": pairs_with_route,
                 "pairs_total": len(present) * len(starts), "placed": len(placed),
                 "not_placed": len(not_placed), "assets_verified": verified,
@@ -528,6 +540,7 @@ def compute(graph: dict, targets: Optional[dict], vulns: Optional[dict],
         },
         "targets": target_blocks,
         "starting_points": [{k: v for k, v in s.items() if k != "membership"} for s in starts],
+        "offline_starts": offline,
         "per_asset": per_asset,
         "not_placed": not_placed,
     }

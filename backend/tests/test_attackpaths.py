@@ -173,6 +173,24 @@ class TestRoutesAndStarts(unittest.TestCase):
         # endpoint:001 is both a start and this target: no self-route
         self.assertTrue(all(r["start"] != "endpoint:001" for r in doc["targets"][0]["routes"]))
 
+    def test_offline_agents_are_listed_not_used_as_starts(self):
+        gone = host("endpoint:002", 10, cves=[cve("C", 9.0)], agent="002")
+        gone["status"] = "disconnected"
+        never = host("endpoint:003", 10, cves=[cve("C", 9.0)], agent="003")
+        never["status"] = "never_connected"
+        up = host("endpoint:004", 10, cves=[cve("C", 9.0)], agent="004")
+        up["status"] = "active"
+        doc = run([gone, never, up, host("endpoint:009", 10, cves=[cve("C", 9.0)], agent="009")],
+                  {"endpoint:009": {"importance": "high"}})
+        self.assertEqual([s["id"] for s in doc["starting_points"]], ["endpoint:004", "endpoint:009"])
+        self.assertEqual(doc["offline_starts"], [
+            {"id": "endpoint:002", "kind": "managed_host", "reason": "offline",
+             "detail": "Wazuh agent disconnected"},
+            {"id": "endpoint:003", "kind": "managed_host", "reason": "offline",
+             "detail": "Wazuh agent never connected"}])
+        self.assertEqual(doc["metadata"]["counts"]["offline_starts"], 2)
+        self.assertEqual({r["start"] for r in doc["targets"][0]["routes"]}, {"endpoint:004"})
+
     def test_step_kinds_and_values_on_a_route(self):
         # a switch whose only takeover is a misconfiguration, reached from its own
         # spare ports in the same VLAN
