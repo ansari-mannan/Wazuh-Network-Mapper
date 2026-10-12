@@ -98,8 +98,8 @@ export function ProtectedAssets() {
       {targets.length === 0 ? (
         <EuiText size="s" color="subdued">
           <p>
-            No assets are marked to protect yet. Add one below (or from a node&apos;s panel on the
-            Topology map) to see the routes that could reach it.
+            No assets are marked to protect yet. Add one below, or on the Topology map select a node and
+            use <em>Protect this asset</em> in its panel, to see the routes that could reach it.
           </p>
         </EuiText>
       ) : (

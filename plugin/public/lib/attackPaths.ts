@@ -11,6 +11,20 @@ export function pageState(doc: Pick<AttackPathsDoc, 'metadata'> | null): PageSta
   return 'ok';
 }
 
+/**
+ * Whether attack_paths.json was computed from an older graph than the one shown
+ * (its source_scan predates the graph's scan_time), so a rescan would refresh it.
+ * Unknown times are never called out of date.
+ */
+export function isStale(
+  doc: Pick<AttackPathsDoc, 'metadata'> | null,
+  graphScanTime: string | null | undefined
+): boolean {
+  if (!doc || doc.metadata.state === 'absent' || !graphScanTime) return false;
+  const source = Date.parse(doc.metadata.source_scan || '');
+  return Number.isNaN(source) || source < Date.parse(graphScanTime);
+}
+
 // A target group's own state: missing from the graph, reachable by no route
 // (a calm result, not an error), or routes to show.
 export type TargetState = 'missing' | 'no_routes' | 'ok';

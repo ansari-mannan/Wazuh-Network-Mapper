@@ -4,6 +4,7 @@ import {
   IMPORTANCE_RANK,
   likelihoodLabel,
   likelihoodText,
+  isStale,
   pageState,
   physicalPathNodeIds,
   startKindLabel,
@@ -94,6 +95,23 @@ describe('pageState', () => {
   });
   it('shows the routes when the file is ok', () => {
     expect(pageState(doc('ok'))).toBe('ok');
+  });
+});
+
+describe('isStale', () => {
+  const doc = (source_scan?: string, state = 'ok') =>
+    ({ metadata: { state, source_scan } } as Pick<AttackPathsDoc, 'metadata'>);
+  it('is current when computed from the graph shown', () => {
+    expect(isStale(doc('2026-10-12T10:00:00Z'), '2026-10-12T10:00:00+00:00')).toBe(false);
+  });
+  it('is out of date when computed from an older scan', () => {
+    expect(isStale(doc('2026-10-11T10:00:00Z'), '2026-10-12T10:00:00Z')).toBe(true);
+    expect(isStale(doc(undefined), '2026-10-12T10:00:00Z')).toBe(true);
+  });
+  it('is never out of date with no file or no graph time', () => {
+    expect(isStale(null, '2026-10-12T10:00:00Z')).toBe(false);
+    expect(isStale(doc(undefined, 'absent'), '2026-10-12T10:00:00Z')).toBe(false);
+    expect(isStale(doc('2026-10-11T10:00:00Z'), undefined)).toBe(false);
   });
 });
 

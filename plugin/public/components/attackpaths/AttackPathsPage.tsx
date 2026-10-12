@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   EuiBadge,
   EuiCallOut,
-  EuiEmptyPrompt,
   EuiFlexGroup,
   EuiFlexItem,
   EuiLoadingSpinner,
@@ -19,6 +18,7 @@ import {
   compareRoutes,
   IMPORTANCE_META,
   IMPORTANCE_RANK,
+  isStale,
   likelihoodText,
   pageState,
   physicalPathNodeIds,
@@ -128,32 +128,29 @@ export function AttackPathsPage() {
   if (error) return <EuiCallOut color="danger" iconType="alert" title={error} />;
 
   const state = pageState(doc);
-  if (state === 'absent') {
-    return (
-      <EuiPanel paddingSize="l">
-        <EuiEmptyPrompt
-          iconType="branch"
-          title={<h2>No attack paths yet</h2>}
-          body={<p>Run a scan to compute attack paths for the assets you have marked to protect.</p>}
-          data-test-subj="vmNotComputed"
-        />
-      </EuiPanel>
-    );
-  }
-  if (state === 'no_targets') {
-    return (
-      <div data-test-subj="vmNoTargets">
-        <EuiText>
-          <h2>No assets marked to protect</h2>
-          <p>Mark an asset below to see the routes that could reach it.</p>
-        </EuiText>
-        <EuiSpacer size="m" />
-        <ProtectedAssets />
-      </div>
-    );
-  }
-
-  if (!doc) return null; // unreachable: pageState(null) is 'absent'
+  // The card is always there, so a first target can be marked before any routes exist.
+  const notice =
+    state === 'absent' ? (
+      <EuiCallOut iconType="branch" title="No attack paths yet" data-test-subj="vmNotComputed">
+        <p>Run a scan to compute attack paths for the assets you have marked to protect.</p>
+      </EuiCallOut>
+    ) : isStale(doc, graph?.metadata.scan_time) ? (
+      <EuiCallOut color="warning" iconType="clock" title="These attack paths are out of date" data-test-subj="vmStale">
+        <p>They were computed from an older scan than the map shows. A rescan will refresh them.</p>
+      </EuiCallOut>
+    ) : null;
+  const header = (
+    <>
+      {notice && (
+        <>
+          {notice}
+          <EuiSpacer size="m" />
+        </>
+      )}
+      <ProtectedAssets />
+    </>
+  );
+  if (state !== 'ok' || !doc) return header;
 
   // Light the physical path, not just the named assets: the taken-over assets
   // (start, target and each takeover step's destination) are the full highlight;
@@ -169,7 +166,7 @@ export function AttackPathsPage() {
 
   return (
     <>
-    <ProtectedAssets />
+    {header}
     <EuiSpacer size="l" />
     <EuiFlexGroup className="vmAttackPaths" gutterSize="l" alignItems="flexStart">
       <EuiFlexItem grow={2} data-test-subj="vmRouteList">
