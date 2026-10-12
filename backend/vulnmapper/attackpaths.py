@@ -462,7 +462,6 @@ def compute(graph: dict, targets: Optional[dict], vulns: Optional[dict],
     host_starts, offline = _host_starts(by_id, placed)
     starts = host_starts + spare
     graph_nx = _build_graph(placed, by_id, cands, routers, spare)
-    start_by_id = {s["id"]: s for s in starts}
 
     targets = targets or {}
     target_ids = list(targets)

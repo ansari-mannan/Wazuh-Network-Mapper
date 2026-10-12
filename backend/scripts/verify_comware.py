@@ -60,7 +60,6 @@ from vulnmapper.network import parse as fdb, parse as lldp  # noqa: E402
 from vulnmapper.network.roles import (  # noqa: E402
     decode_capabilities,
     neighbor_is_infrastructure,
-    role_from_capabilities,
 )
 
 # --- OIDs (no trailing dot for walk bases) ---------------------------------

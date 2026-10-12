@@ -28,7 +28,7 @@ python -m pip install -r requirements.txt
 ## Run
 
 Run from `backend/`. Credentials come from environment variables only; see
-`../frontend/.env.example` for the full list. A stage that needs a credential
+`.env.example` for the full list. A stage that needs a credential
 exits with a one-line message if it is not set.
 
 ```

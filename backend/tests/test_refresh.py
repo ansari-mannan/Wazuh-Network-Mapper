@@ -1,7 +1,6 @@
 """python -m vulnmapper.devicecves: refresh device CVEs on an existing graph."""
 
 import contextlib
-import copy
 import io
 import json
 import os

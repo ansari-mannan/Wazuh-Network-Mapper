@@ -4,7 +4,6 @@ import { Network, Router, Shield, Monitor, Server, Box, Wifi, LucideIcon } from 
 // deliberately NOT Cisco's proprietary Packet Tracer assets). Glyphs are chosen
 // to be instantly recognizable: a switch reads as a network node, a router as a
 // router, a firewall as a shield, a host as a monitor, a server as a server.
-// Ported verbatim from frontend/risk-module/ui/topology/icons.ts.
 const ROLE_ICON: Record<string, LucideIcon> = {
   'l3-switch': Network,
   'l2-switch': Network,

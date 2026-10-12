@@ -16,8 +16,6 @@ export type TopologyFlowNode = Node<GraphNode>;
 //   * the node border -> RISK     (riskBorder): thicker + redder = more critical
 // A stale endpoint (duplicate IP of a live host) is dimmed. Offline nodes keep
 // the dashed/dim treatment too.
-// Ported from frontend/risk-module/ui/topology/CustomNode.tsx
-// (@xyflow/react v12 -> react-flow-renderer v10).
 export function CustomNode({ data }: NodeProps<GraphNode>) {
   const { liveness: livenessContext } = useLiveness();
   const liveness = livenessContext?.nodes?.[data.node_id];

@@ -65,12 +65,6 @@ OID_LLDP_LOC_CHASSIS_ID = "1.0.8802.1.1.2.1.3.2.0"
 # most reliable source of a polled device's OWN role (a neighbor reporting it is
 # only available when that neighbor also runs LLDP).
 OID_LLDP_LOC_SYS_CAP_ENABLED = "1.0.8802.1.1.2.1.3.6.0"
-# LLDP local port table — maps local port number -> a human port id.
-OID_LLDP_LOC_PORT_TABLE = "1.0.8802.1.1.2.1.3.7.1"
-# LLDP remote neighbor table.
-OID_LLDP_REM_TABLE = "1.0.8802.1.1.2.1.4.1.1"
-# LLDP remote management-address table (carries neighbors' management IPs).
-OID_LLDP_REM_MAN_ADDR_TABLE = "1.0.8802.1.1.2.1.4.2.1"
 
 # Sentinel value classes pysnmp returns for absent OIDs / end of a walk.
 _ABSENT = ("NoSuchObject", "NoSuchInstance", "EndOfMibView")

@@ -9,7 +9,7 @@ result). Each stage tolerates per-item failures and the run always emits a valid
 document.
 
 Stages can be fed from cached files instead of run live, which is how the
-frontend's pre-rendered graph is rebuilt without touching the lab:
+sample graph in data/ is rebuilt without touching the lab:
 
   --scored PATH    use an existing scored endpoints JSON (skip collect + score)
   --network PATH   use an existing network topology JSON (skip the crawl)

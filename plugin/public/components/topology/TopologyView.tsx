@@ -18,11 +18,9 @@ import { CustomNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
 
-// Ported from frontend/risk-module/ui/topology/TopologyView.tsx (@xyflow/react
-// v12 -> react-flow-renderer v10). Renders the dagre-positioned graph with
-// distinct edge styles for lldp, endpoint_link (by confidence) and inferred links.
-// Differences from the original: nodes are draggable, and every link is drawn
-// from the upper node to the lower one (see orientForDrawing).
+// Renders the dagre-positioned graph with distinct edge styles for lldp,
+// endpoint_link (by confidence) and inferred links. Nodes are draggable, and
+// every link is drawn from the upper node to the lower one (see orientForDrawing).
 const nodeTypes = { device: CustomNode };
 
 // How far along a device-to-device link its two port labels sit, from each end.

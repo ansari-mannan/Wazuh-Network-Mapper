@@ -23,7 +23,7 @@ import re
 from typing import Optional
 
 from . import tables as t
-from .catalogue import CATALOGUE, SWITCH_ROLES, references_for
+from .catalogue import CATALOGUE, references_for
 
 PASS, FAIL, NOT_APPLICABLE, UNKNOWN, NOT_CHECKED = (
     "pass", "fail", "not_applicable", "unknown", "not_checked")

@@ -4,7 +4,6 @@ No test here touches the network: every reply comes from FakeNvd, and the
 clock is a FakeClock that tests move forward.
 """
 
-import copy
 import json
 import os
 import tempfile

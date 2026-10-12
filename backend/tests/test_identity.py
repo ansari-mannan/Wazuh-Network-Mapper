@@ -8,8 +8,7 @@ base MAC, chosen from its own interface MACs, now names it.
 import asyncio
 import unittest
 
-from snmp_fakes import FakeSnmpClient, load_rows
-from test_cdp import AP_IP, L2_CID, L3_CID, L3_IPS, crawl, lab
+from test_cdp import AP_IP, L2_CID, L3_CID, crawl, lab
 from vulnmapper.assemble import assemble
 from vulnmapper.liveness import liveness_pass
 from vulnmapper.network import parse

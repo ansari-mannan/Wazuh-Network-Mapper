@@ -4,7 +4,6 @@ Every NVD reply is served by FakeNvd (test_nvd); nothing touches the network.
 """
 
 import contextlib
-import copy
 import io
 import json
 import os

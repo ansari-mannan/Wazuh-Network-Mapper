@@ -5,7 +5,6 @@ import { Logger } from '../../../src/core/server';
 import { ActiveChecks, ScanState } from '../common';
 import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 
-// Ported from frontend/app/api/scan/route.ts and frontend/lib/scanState.ts.
 // One module-level state object: the server process runs one scan at a time.
 let scan: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
 // The last community a scan was started with, for the liveness pass's SNMP

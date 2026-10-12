@@ -3,7 +3,6 @@ import { GraphNode, GraphEdge, GraphResponse } from "../../../common";
 
 // React Flow does NOT auto-layout — it renders whatever x/y you hand it. So we
 // run dagre over the graph to compute a top-down hierarchy before rendering.
-// Ported verbatim from frontend/risk-module/ui/topology/layout.ts.
 //
 // CORE PRINCIPLE: ROOT SELECTION is separate from DEPTH ASSIGNMENT.
 //   - ROLE only picks the root (the viewing origin) and the node icon. It is
@@ -249,5 +248,3 @@ export function layoutGraph(
 
   return { nodes: outNodes, edges: [...confirmed, ...inferred] };
 }
-
-export const NODE_SIZE = { width: NODE_W, height: NODE_H };

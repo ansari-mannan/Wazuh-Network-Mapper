@@ -3,7 +3,6 @@ the lab inputs for the pipeline; nothing touches the network.
 """
 
 import contextlib
-import copy
 import io
 import json
 import os

@@ -214,37 +214,6 @@ def host_node_id(mac: Any) -> str:
 
 
 @dataclass
-class CVE:
-    """One vulnerability finding attached to an endpoint node."""
-
-    cve: Optional[str] = None
-    cvss: Optional[float] = None
-    cvss_version: Optional[str] = None
-    severity: Optional[str] = None
-    package: Optional[str] = None
-    version: Optional[str] = None
-    description: Optional[str] = None
-    # Optional; absent from older scans and from some vulnerability documents.
-    reference: Optional[str] = None
-    published_at: Optional[str] = None
-    detected_at: Optional[str] = None
-
-    def to_dict(self) -> dict:
-        return {
-            "cve": self.cve,
-            "cvss": self.cvss,
-            "cvss_version": self.cvss_version,
-            "severity": self.severity,
-            "package": self.package,
-            "version": self.version,
-            "description": self.description,
-            "reference": self.reference,
-            "published_at": self.published_at,
-            "detected_at": self.detected_at,
-        }
-
-
-@dataclass
 class Edge:
     """A graph edge referencing nodes by ``node_id`` (never hostname/IP).
 

@@ -732,7 +732,6 @@ _CDP_TO_LLDP_BITS = (
 # Wireless access points (CISCO-DOT11-ASSOCIATION-MIB)
 # ===========================================================================
 
-DOT11_BASE = "1.3.6.1.4.1.9.9.273"
 # cDot11ActiveWirelessClients, one row per radio: present on an access point
 # even with no client associated, absent on anything else.
 DOT11_ACTIVE_CLIENTS_BASE = "1.3.6.1.4.1.9.9.273.1.1.2.1.1"

@@ -1,5 +1,4 @@
-// Graph types, modelled on the real graph.json shape. Ported from
-// frontend/lib/vulnmapperApi.ts.
+// Graph types, modelled on the real graph.json shape.
 
 export type CVE = {
   cve: string;

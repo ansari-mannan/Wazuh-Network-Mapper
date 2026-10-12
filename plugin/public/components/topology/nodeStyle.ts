@@ -1,8 +1,7 @@
 // Node styling helpers: a subtle risk border + liveness dot + offline dimming.
 // Risk is shown by the border, never by recoloring the whole node.
-// Ported from frontend/risk-module/ui/topology/nodeStyle.ts; the risk bands now
-// come from the shared riskLevel() so the map agrees with the overview.
-import { RISK_META, RiskLevel, riskLevel } from '../../lib/risk';
+// The risk bands come from the shared riskLevel() so the map agrees with the overview.
+import { RISK_META, RiskLevel } from '../../lib/risk';
 import { NodeLiveness } from '../../../common';
 
 export function riskLabel(score: number | null | undefined): string {
@@ -45,14 +44,6 @@ const BORDER_WIDTH: Record<RiskLevel, number> = {
 /** A risk level's border (outline) colour and width. */
 export function riskBorderForLevel(level: RiskLevel): RiskBorder {
   return { color: RISK_META[level].color, width: BORDER_WIDTH[level] };
-}
-
-/**
- * RISK -> node border (outline), independent of liveness. Returns { color, width }.
- * An unscored node gets a neutral thin grey border, not green.
- */
-export function riskBorder(r: number | null | undefined): RiskBorder {
-  return riskBorderForLevel(riskLevel(r));
 }
 
 /**

@@ -845,7 +845,7 @@ class Crawler:
 
     async def run(self) -> tuple[list[Device], list[Link]]:
         workers = [
-            asyncio.create_task(self._worker(i))
+            asyncio.create_task(self._worker())
             for i in range(self._concurrency)
         ]
         # Wait for the queue to fully drain, then tell each worker to stop.
@@ -865,7 +865,7 @@ class Crawler:
                     dev.lldp_cap_enabled = caps
             return list(self._devices.values()), list(self._links)
 
-    async def _worker(self, worker_id: int) -> None:
+    async def _worker(self) -> None:
         while True:
             item = await self._queue.get()
             if item is _STOP:

@@ -32,9 +32,8 @@ import { ConfigChecks } from './ConfigChecks';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
 
-// Ported from frontend/risk-module/ui/topology/DeviceDetail.tsx to an OUI
-// flyout: identity, risk and CVE list (endpoints from Wazuh, devices from NVD),
-// configuration checks and port grid for devices.
+// The detail flyout for one node: identity, risk and CVE list (endpoints from
+// Wazuh, devices from NVD), configuration checks and port grid for devices.
 
 const EMPTY = '—';
 
