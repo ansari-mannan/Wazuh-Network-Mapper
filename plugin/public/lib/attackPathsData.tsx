@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AttackPathsDoc } from '../../common';
 import { useServices } from './services';
+import { useGraph } from './graph';
 
 // Attack-paths document shared by the page and the topology detail panel.
 // Loaded once on mount; `reload` re-reads it after a target is marked.
@@ -31,9 +32,11 @@ export function AttackPathsProvider({ children }: { children: ReactNode }) {
     }
   }, [http]);
 
+  // Re-read whenever a new graph arrives: a scan rewrites this file with it.
+  const scanTime = useGraph().graph?.metadata.scan_time;
   useEffect(() => {
     reload();
-  }, [reload]);
+  }, [reload, scanTime]);
 
   const value = useMemo(() => ({ doc, loading, error, reload }), [doc, loading, error, reload]);
   return <AttackPathsContext.Provider value={value}>{children}</AttackPathsContext.Provider>;

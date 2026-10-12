@@ -1,6 +1,7 @@
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { VulnerabilitiesDoc } from '../../common';
 import { useServices } from './services';
+import { useGraph } from './graph';
 
 // The full per-asset CVE list, shared by the vulnerability report. Loaded once
 // on mount; `reload` re-reads it (after a scan). A missing file comes back as a
@@ -32,9 +33,11 @@ export function VulnerabilitiesProvider({ children }: { children: ReactNode }) {
     }
   }, [http]);
 
+  // Re-read whenever a new graph arrives: a scan rewrites this file with it.
+  const scanTime = useGraph().graph?.metadata.scan_time;
   useEffect(() => {
     reload();
-  }, [reload]);
+  }, [reload, scanTime]);
 
   const value = useMemo(() => ({ doc, loading, error, reload }), [doc, loading, error, reload]);
   return <VulnerabilitiesContext.Provider value={value}>{children}</VulnerabilitiesContext.Provider>;

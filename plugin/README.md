@@ -268,7 +268,9 @@ dashboard's own jest, from the dashboard folder:
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so
-a failed scan keeps the previous graph.
+a failed scan keeps the previous graph. `vulnerabilities.json` and
+`attack_paths.json` (from `targets.json`) are written beside the graph and moved
+into place only with it.
 
 ## Liveness (optional)
 

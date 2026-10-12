@@ -465,6 +465,17 @@ class Pipeline:
             document["metadata"]["checklist"] = checks.block
             document["metadata"]["warnings"].extend(checks.warnings)
 
+        finished_at = datetime.now(timezone.utc)
+        timing["finished_at"] = finished_at.isoformat()
+        timing["total_s"] = time.monotonic() - run_t0
+
+        # scan_time now means "finished_at" (kept for backward compat); the per-phase
+        # breakdown lives in metadata.timing.
+        document["metadata"]["timing"] = timing
+        document["metadata"]["scan_time"] = finished_at.isoformat()
+        document["metadata"]["warnings"].extend(vulns["warnings"])
+
+        # After scan_time is final, so attack_paths.json's source_scan names this graph.
         if not args.no_attack_paths:
             from . import attackpaths
 
@@ -483,16 +494,6 @@ class Pipeline:
                 attackpaths.run_stage(document, attackpaths._load_targets(targets_path),
                                       vulns_doc, paths_out)
                 timing["attack_paths_s"] = time.monotonic() - t0
-
-        finished_at = datetime.now(timezone.utc)
-        timing["finished_at"] = finished_at.isoformat()
-        timing["total_s"] = time.monotonic() - run_t0
-
-        # scan_time now means "finished_at" (kept for backward compat); the per-phase
-        # breakdown lives in metadata.timing.
-        document["metadata"]["timing"] = timing
-        document["metadata"]["scan_time"] = finished_at.isoformat()
-        document["metadata"]["warnings"].extend(vulns["warnings"])
 
         counts = document["metadata"]["counts"]
         log.info(

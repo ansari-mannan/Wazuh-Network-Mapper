@@ -1,8 +1,8 @@
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
-import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { ActiveChecks, ScanState } from '../common';
+import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 
 // Ported from frontend/app/api/scan/route.ts and frontend/lib/scanState.ts.
 // One module-level state object: the server process runs one scan at a time.
@@ -58,10 +58,10 @@ export function failureMessage(stderr: string, code: number | null, community?: 
 
 /** The scanner's arguments. Never a credential: those go through the environment. */
 export function scanArgs(
-  vulnsOut: string,
+  out: { vulns: string; paths: string; targets: string },
   { deviceCves = true, checks = {} }: { deviceCves?: boolean; checks?: Partial<ActiveChecks> }
 ): string[] {
-  const args = ['-m', 'vulnmapper', '--vulns-out', vulnsOut];
+  const args = ['-m', 'vulnmapper', '--vulns-out', out.vulns, '--paths-out', out.paths, '--targets', out.targets];
   if (!deviceCves) args.push('--no-device-cves');
   for (const key of Object.keys(CHECK_FLAGS) as Array<keyof ActiveChecks>) {
     if (checks[key]) args.push(CHECK_FLAGS[key]);
@@ -81,6 +81,8 @@ function finish(status: ScanState['status'], message: string) {
  * vulnerabilities.json beside graphPath: the scanner writes it to a temp path,
  * which is moved into place only after the graph has been saved and deleted if
  * the scan or the save fails, so the two files always come from the same scan.
+ * attack_paths.json (computed from targets.json beside the graph) is handled
+ * the same way.
  */
 export function startScan({
   pythonBin,
@@ -104,13 +106,16 @@ export function startScan({
   const env = { ...process.env };
   if (community) env.SNMP_COMMUNITIES = community;
 
-  const vulnsPath = path.join(path.dirname(path.resolve(graphPath)), 'vulnerabilities.json');
+  const vulnsPath = vulnerabilitiesFilePath(graphPath);
   const vulnsTmp = `${vulnsPath}.tmp-${process.pid}`;
-  const discardVulns = () => fs.unlink(vulnsTmp).catch(() => undefined);
+  const pathsPath = attackPathsFilePath(graphPath);
+  const pathsTmp = `${pathsPath}.tmp-${process.pid}`;
+  const discardVulns = () =>
+    Promise.all([vulnsTmp, pathsTmp].map((f) => fs.unlink(f).catch(() => undefined)));
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
   // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
   // environment like the other credentials.
-  const args = scanArgs(vulnsTmp, { deviceCves, checks });
+  const args = scanArgs({ vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath) }, { deviceCves, checks });
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
@@ -149,12 +154,16 @@ export function startScan({
     }
     try {
       await fs.rename(vulnsTmp, vulnsPath);
+      // absent only when the scanner skipped the attack-path stage
+      await fs.rename(pathsTmp, pathsPath).catch((e) => {
+        if (e.code !== 'ENOENT') throw e;
+      });
       finish('idle', 'Scan completed; graph updated.');
       logger.info('scan completed; graph updated');
     } catch (e) {
       // The graph is saved; only the full CVE list is stale.
-      finish('idle', `Scan completed; graph updated, but vulnerabilities.json was not: ${(e as Error).message}`);
-      logger.warn(`could not save vulnerabilities.json: ${(e as Error).message}`);
+      finish('idle', `Scan completed; graph updated, but vulnerabilities.json or attack_paths.json was not: ${(e as Error).message}`);
+      logger.warn(`could not save vulnerabilities.json / attack_paths.json: ${(e as Error).message}`);
       await discardVulns();
     }
   });

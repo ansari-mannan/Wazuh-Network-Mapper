@@ -1,23 +1,29 @@
 import { failureMessage, scanArgs } from './scan';
 
+const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
+const FILES = ['--vulns-out', '/tmp/v.json', '--paths-out', '/tmp/p.json', '--targets', '/data/targets.json'];
+
 describe('scanArgs', () => {
   it('runs every stage and no probe by default', () => {
-    expect(scanArgs('/tmp/v.json', {})).toEqual(['-m', 'vulnmapper', '--vulns-out', '/tmp/v.json']);
+    expect(scanArgs(OUT, {})).toEqual(['-m', 'vulnmapper', ...FILES]);
+  });
+
+  it('writes attack paths from the targets beside the graph', () => {
+    const args = scanArgs(OUT, {});
+    expect(args[args.indexOf('--paths-out') + 1]).toBe('/tmp/p.json');
+    expect(args[args.indexOf('--targets') + 1]).toBe('/data/targets.json');
   });
 
   it('passes the scan form’s choices as flags', () => {
-    expect(scanArgs('/tmp/v.json', { checks: { checkDefaultCommunities: true } })).toContain(
-      '--check-default-communities'
-    );
+    expect(scanArgs(OUT, { checks: { checkDefaultCommunities: true } })).toContain('--check-default-communities');
     expect(
-      scanArgs('/tmp/v.json', { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(4)
+      scanArgs(OUT, { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(2 + FILES.length)
     ).toEqual(['--check-management-ports', '--probe-unmanaged-snmp']);
-    expect(scanArgs('/tmp/v.json', { checks: { nmapUnmanaged: true } })).toContain('--nmap-unmanaged');
-    expect(scanArgs('/tmp/v.json', { deviceCves: false, checks: { checkDefaultCommunities: false } })).toEqual([
+    expect(scanArgs(OUT, { checks: { nmapUnmanaged: true } })).toContain('--nmap-unmanaged');
+    expect(scanArgs(OUT, { deviceCves: false, checks: { checkDefaultCommunities: false } })).toEqual([
       '-m',
       'vulnmapper',
-      '--vulns-out',
-      '/tmp/v.json',
+      ...FILES,
       '--no-device-cves',
     ]);
   });

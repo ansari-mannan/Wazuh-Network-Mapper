@@ -347,6 +347,12 @@ class TestPipeline(unittest.TestCase):
         out["vulnerabilities"]["metadata"]["scan_time"] = None
         self.assertEqual(out, frozen)
 
+    def test_source_scan_names_the_graph_it_was_computed_from(self):
+        out = self.run_pipeline()
+        with open(os.path.join(self.tmp, ap.FILENAME)) as f:
+            paths = json.load(f)
+        self.assertEqual(paths["metadata"]["source_scan"], out["graph"]["metadata"]["scan_time"])
+
     def test_stage_on_writes_the_file_and_adds_only_timing(self):
         off = self.run_pipeline("--no-attack-paths")
         on = self.run_pipeline()                              # stage on, no targets beside -o
