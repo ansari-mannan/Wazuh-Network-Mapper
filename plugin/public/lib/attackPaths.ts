@@ -1,5 +1,14 @@
 // Pure helpers for the attack-paths page (no theme/JSX imports, unit tested).
-import { AttackPathsDoc, AttackRoute, AttackStartKind, AttackStep, AttackTarget, Importance } from '../../common';
+import {
+  AttackPathsDoc,
+  AttackRoute,
+  AttackStartKind,
+  AttackStep,
+  AttackTarget,
+  GraphNode,
+  Importance,
+} from '../../common';
+import { subnet24 } from '../components/topology/layout';
 
 // Which page-level state to show. 'absent' = no file yet (run a scan); the
 // engine's 'no_targets' = nothing marked to protect; 'ok' = show the routes.
@@ -100,11 +109,12 @@ export function routeNodeIds(route: AttackRoute): string[] {
 }
 
 /**
- * The nodes a route visits in order: its start, then each step's reached asset.
- * Consecutive entries are the pairs the physical path is drawn between.
+ * The nodes a route visits in order: its start, then each step's reached asset,
+ * or for a transit step the router it crosses. Consecutive entries are the
+ * pairs the physical path is drawn between.
  */
 export function routeWalk(route: AttackRoute): string[] {
-  return [route.start, ...route.steps.map((s) => s.to)];
+  return [route.start, ...route.steps.map((s) => (s.kind === 'transit' && s.through ? s.through : s.to))];
 }
 
 type Edge = { source: string; target: string };
@@ -136,24 +146,50 @@ function shortestPath(from: string, to: string, adj: Map<string, string[]>): str
 }
 
 /**
+ * Where an asset with no edges of its own joins the physical network: the
+ * device the map places it under (the first linked device in its /24, as
+ * layout.ts infers), else its VLAN's access switch (the device a linked host in
+ * the same VLAN hangs off). Null when neither is known.
+ */
+function attachPoint(node: GraphNode | undefined, nodes: GraphNode[], adj: Map<string, string[]>): string | null {
+  if (!node) return null;
+  const sub = subnet24(node.ip);
+  const placedUnder = sub && nodes.find((d) => d.kind === 'device' && adj.has(d.node_id) && subnet24(d.ip) === sub);
+  if (placedUnder) return placedUnder.node_id;
+  const vlan = node.kind === 'endpoint' ? node.vlan : undefined;
+  if (vlan === undefined) return null;
+  const kind = new Map(nodes.map((n) => [n.node_id, n.kind]));
+  for (const h of nodes) {
+    if (h.kind !== 'endpoint' || h.vlan !== vlan || !adj.has(h.node_id)) continue;
+    const sw = adj.get(h.node_id)!.find((id) => kind.get(id) === 'device');
+    if (sw) return sw;
+  }
+  return null;
+}
+
+/**
  * Every node to light for a route on the map: the given assets (in `walk` order)
  * plus, between each consecutive pair, the shortest physical path along the graph
  * edges — the switches a same-VLAN hop really crosses, so the highlight is a
  * continuous path instead of leaving an intermediate device dimmed in the middle.
- * A pair with no physical path contributes only its two endpoints (never fails).
- * Edges light themselves when both their endpoints are lit, so only node ids are
- * returned; the intermediates (lit here but not in `walk`) are the pass-through set.
+ * A step with no edges (an unparented host) is joined at its attach point (see
+ * attachPoint), which is lit too. A pair with no physical path contributes only
+ * its two endpoints (never fails). Edges light themselves when both their
+ * endpoints are lit, so only node ids are returned; the intermediates (lit here
+ * but not in `walk`) are the pass-through set.
  */
-export function physicalPathNodeIds(walk: string[], edges: Edge[]): string[] {
+export function physicalPathNodeIds(walk: string[], edges: Edge[], nodes: GraphNode[] = []): string[] {
   const adj = new Map<string, string[]>();
   const link = (a: string, b: string) => (adj.get(a) || adj.set(a, []).get(a)!).push(b);
   for (const e of edges) {
     link(e.source, e.target);
     link(e.target, e.source);
   }
+  const byId = new Map(nodes.map((n) => [n.node_id, n]));
+  const joinAt = (id: string) => (adj.has(id) ? id : attachPoint(byId.get(id), nodes, adj) || id);
   const lit = new Set<string>(walk);
   for (let i = 0; i + 1 < walk.length; i++) {
-    for (const id of shortestPath(walk[i], walk[i + 1], adj)) lit.add(id);
+    for (const id of shortestPath(joinAt(walk[i]), joinAt(walk[i + 1]), adj)) lit.add(id);
   }
   return [...lit];
 }

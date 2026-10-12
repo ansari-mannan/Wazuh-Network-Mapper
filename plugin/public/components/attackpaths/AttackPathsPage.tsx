@@ -159,7 +159,11 @@ export function AttackPathsPage() {
   const onShowOnMap = (route: AttackRoute) => {
     const full = new Set<string>([route.start, route.target]);
     for (const s of route.steps) if (s.kind !== 'transit') full.add(s.to);
-    const lit = new Set([...physicalPathNodeIds(routeWalk(route), graph?.edges || []), ...routeNodeIds(route)]);
+    // A spare-ports start is not a graph node: the route leaves from its switch.
+    const spare = doc.starting_points.find((p) => p.id === route.start && p.kind === 'spare_ports');
+    const walk = routeWalk(route).map((id) => (id === route.start && spare?.switch ? spare.switch : id));
+    const physical = physicalPathNodeIds(walk, graph?.edges || [], graph?.nodes || []);
+    const lit = new Set([...physical, ...routeNodeIds(route)]);
     const pass = [...lit].filter((id) => !full.has(id));
     const q = new URLSearchParams({ highlight: [...full].join(','), pass: pass.join(',') });
     history.push(`/topology?${q.toString()}`);

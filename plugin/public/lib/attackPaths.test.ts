@@ -1,4 +1,4 @@
-import { AttackPathsDoc, AttackRoute, AttackStep, AttackTarget } from '../../common';
+import { AttackPathsDoc, AttackRoute, AttackStep, AttackTarget, GraphNode } from '../../common';
 import {
   compareRoutes,
   IMPORTANCE_RANK,
@@ -7,6 +7,7 @@ import {
   isStale,
   pageState,
   physicalPathNodeIds,
+  routeWalk,
   startKindLabel,
   stepText,
   targetState,
@@ -145,6 +146,42 @@ describe('physicalPathNodeIds', () => {
     expect(new Set(physicalPathNodeIds(['hostA', 'hostB'], edges))).toEqual(
       new Set(['hostA', 'hpSwitch', 'l3', 'hostB'])
     );
+  });
+
+  // An unparented host (no edges): the map places it under the device in its
+  // /24; failing that, it joins at its VLAN's access switch.
+  const n = (node_id: string, kind: 'device' | 'endpoint', ip: string | null, vlan?: number) =>
+    ({ node_id, kind, ip, vlan } as GraphNode);
+  const nodes = [
+    n('hostA', 'endpoint', '10.0.1.5', 10),
+    n('hpSwitch', 'device', '10.0.1.2'),
+    n('l3', 'device', '10.0.2.1'),
+    n('hostB', 'endpoint', '10.0.2.9', 20),
+    n('orphan', 'endpoint', '10.0.1.77', 10),
+    n('roamer', 'endpoint', '192.168.9.9', 10),
+  ];
+
+  it('lights the switches to an unparented host through the device it is placed under', () => {
+    expect(new Set(physicalPathNodeIds(['hostB', 'orphan'], edges, nodes))).toEqual(
+      new Set(['hostB', 'l3', 'hpSwitch', 'orphan'])
+    );
+  });
+
+  it('falls back to the VLAN’s access switch when no device shares the /24', () => {
+    expect(new Set(physicalPathNodeIds(['hostB', 'roamer'], edges, nodes))).toEqual(
+      new Set(['hostB', 'l3', 'hpSwitch', 'roamer'])
+    );
+  });
+
+  it('walks through the router a transit step crosses', () => {
+    const r = {
+      start: 'hostA',
+      steps: [
+        { kind: 'transit', from: 'hostA', through: 'l3', to: 'hostB' },
+        { kind: 'weakness', from: 'l3', to: 'hostB' },
+      ],
+    } as unknown as AttackRoute;
+    expect(routeWalk(r)).toEqual(['hostA', 'l3', 'hostB']);
   });
 
   it('falls back to the two endpoints when no physical path exists', () => {

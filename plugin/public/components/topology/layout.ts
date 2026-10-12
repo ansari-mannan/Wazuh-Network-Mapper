@@ -127,7 +127,7 @@ export function orientEdge(
 
 // /24 of an IPv4 address, e.g. "172.20.40.1" -> "172.20.40". Used to infer which
 // switch an unparented host probably hangs off when there's no confirmed link.
-function subnet24(ip: unknown): string | null {
+export function subnet24(ip: unknown): string | null {
   if (typeof ip !== "string") return null;
   const parts = ip.split(".");
   return parts.length === 4 ? parts.slice(0, 3).join(".") : null;
