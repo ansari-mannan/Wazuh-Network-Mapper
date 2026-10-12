@@ -252,7 +252,7 @@ class TestPipeline(unittest.TestCase):
         out = self.run_pipeline("--no-cve-vectors")
         timing = out["graph"]["metadata"].pop("timing")
         self.assertNotIn("cve_vectors_s", timing)
-        for key in ("scan_time", "network_scan_time"):
+        for key in ("scan_time", "network_scan_time", "stages"):
             out["graph"]["metadata"].pop(key)
         out["vulnerabilities"]["metadata"].pop("scan_time")
         self.assertEqual(out, today)
@@ -274,7 +274,7 @@ class TestPipeline(unittest.TestCase):
             for k in FOUR:
                 entry.pop(k, None)
         for doc in (on, off):
-            for key in ("scan_time", "network_scan_time", "timing"):
+            for key in ("scan_time", "network_scan_time", "timing", "stages"):
                 doc["graph"]["metadata"].pop(key)
             doc["vulnerabilities"]["metadata"].pop("scan_time")
         self.assertEqual(on, off)

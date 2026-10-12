@@ -246,8 +246,17 @@ export type GraphWarning = {
   [key: string]: unknown;
 };
 
+// metadata.stages: one entry per scanner stage, in run order. Absent in older graphs.
+export type ScanStageOutcome = {
+  name: string;
+  status: 'ran' | 'skipped';
+  seconds: number | null;
+  note: string | null; // e.g. "nmap not installed", "9 devices looked up, 2 NVD requests"
+};
+
 export type Metadata = {
   scan_time?: string;
+  stages?: ScanStageOutcome[];
   network_scan_time?: string;
   seed?: string | null;
   warnings?: GraphWarning[];
@@ -295,6 +304,10 @@ export type ScanState = {
   finishedAt: string | null;
   // The server's defaults for the scan form's active checks.
   defaults?: ActiveChecks;
+  // While running: the stage the scanner last announced, e.g. "Looking up device CVEs in NVD".
+  stage?: string | null;
+  // Whether nmap is on the dashboard server's PATH (the nmap switch needs it).
+  nmapAvailable?: boolean;
 };
 
 // The scan's optional active checks, each off unless the owner turns it on

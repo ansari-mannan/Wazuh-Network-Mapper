@@ -267,6 +267,8 @@ class TestPipelineGate(unittest.TestCase):
         self.assertIn("nmap", g["metadata"])
         self.assertIsInstance(g["metadata"]["timing"]["nmap_s"], float)
         self.assertIn("nmap_not_installed", [w["type"] for w in g["metadata"]["warnings"]])
+        stage = next(st for st in g["metadata"]["stages"] if st["name"] == "nmap service scan")
+        self.assertEqual((stage["status"], stage["note"]), ("skipped", "nmap not installed"))
 
 
 if __name__ == "__main__":

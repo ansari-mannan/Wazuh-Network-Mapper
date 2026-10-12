@@ -560,6 +560,7 @@ class TestPipeline(unittest.TestCase):
             m["timing"] = {k: v for k, v in m["timing"].items() if not k.endswith("_s")
                            and k not in ("started_at", "finished_at")}
             m.pop("scan_time")
+            m.pop("stages")
         self.assertEqual(meta, meta_before)
         self.assertIsInstance(after["metadata"]["timing"]["checklist_s"], float)
         self.assertEqual(set(after["metadata"]["checklist"]),

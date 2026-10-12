@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
-import { promises as fs } from 'fs';
+import { accessSync, constants, promises as fs } from 'fs';
+import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { ActiveChecks, ScanState } from '../common';
 import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
@@ -56,6 +57,32 @@ export function failureMessage(stderr: string, code: number | null, community?: 
   return msg;
 }
 
+// The scanner announces each stage on stderr as "... vulnmapper.pipeline: stage: <label>".
+const STAGE_LINE = /vulnmapper\.pipeline: stage: (.+)$/;
+
+/** The last stage announced in these complete stderr lines, or null. */
+export function latestStage(lines: string): string | null {
+  let stage: string | null = null;
+  for (const line of lines.split('\n')) {
+    const m = STAGE_LINE.exec(line.trim());
+    if (m) stage = m[1];
+  }
+  return stage;
+}
+
+/** Whether an executable `bin` is on this PATH (the scanner inherits the server's). */
+export function onPath(bin: string, pathEnv = process.env.PATH || ''): boolean {
+  return pathEnv.split(path.delimiter).some((dir) => {
+    if (!dir) return false;
+    try {
+      accessSync(path.join(dir, bin), constants.X_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+}
+
 /** The scanner's arguments. Never a credential: those go through the environment. */
 export function scanArgs(
   out: { vulns: string; paths: string; targets: string },
@@ -70,7 +97,7 @@ export function scanArgs(
 }
 
 function finish(status: ScanState['status'], message: string) {
-  scan = { ...scan, status, message, finishedAt: new Date().toISOString() };
+  scan = { ...scan, status, message, stage: null, finishedAt: new Date().toISOString() };
 }
 
 /**
@@ -94,7 +121,7 @@ export function startScan({
   logger,
 }: ScanOptions) {
   if (scan.status === 'running') return false;
-  scan = { status: 'running', message: null, startedAt: new Date().toISOString(), finishedAt: null };
+  scan = { status: 'running', message: null, stage: null, startedAt: new Date().toISOString(), finishedAt: null };
   // A scan started without one falls back to the environment; keep the last
   // community that was given rather than forgetting it.
   if (community) lastCommunity = community;
@@ -120,9 +147,15 @@ export function startScan({
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
   let stderr = '';
+  let partial = ''; // a stderr line not yet ended
   child.stdout.on('data', (d: Buffer) => chunks.push(d));
   child.stderr.on('data', (d: Buffer) => {
-    stderr += d.toString();
+    const text = d.toString();
+    stderr += text;
+    const lines = (partial + text).split('\n');
+    partial = lines.pop() || '';
+    const stage = latestStage(lines.join('\n'));
+    if (stage && scan.status === 'running') scan = { ...scan, stage };
   });
 
   child.on('error', (e: Error) => {

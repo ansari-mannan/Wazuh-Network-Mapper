@@ -62,6 +62,43 @@ from .assemble import assemble
 log = logging.getLogger("vulnmapper.pipeline")
 
 
+def _begin(label: str) -> float:
+    """Log a stage starting and start its clock. The dashboard follows a running
+    scan by the last ``stage: <label>`` line on stderr, so keep the form."""
+    log.info("stage: %s", label)
+    return time.monotonic()
+
+
+def _stage(stages: list, name: str, seconds: Optional[float], note: Optional[str] = None,
+           ran: bool = True) -> None:
+    """Record one stage's outcome for ``metadata.stages``."""
+    stages.append({"name": name, "status": "ran" if ran else "skipped",
+                   "seconds": None if seconds is None else round(seconds, 1), "note": note})
+
+
+def _plural(n: int, word: str) -> str:
+    return f"{n} {word}{'' if n == 1 else 's'}"
+
+
+def _nvd_note(block: dict, asked: str) -> str:
+    """e.g. "9 devices looked up, 2 NVD requests (7 answered from the cache)"."""
+    note = f"{asked}, {_plural(block.get('nvd_requests', 0), 'NVD request')}"
+    if block.get("from_cache"):
+        note += f" ({block['from_cache']} answered from the cache)"
+    return note
+
+
+def _default_community_note(document: dict) -> Optional[str]:
+    """e.g. "5 devices tested, 0 answered the default community"; None if none tested."""
+    results = [c["result"] for n in document["nodes"] if n.get("kind") == "device"
+               for c in n.get("config_checks") or [] if c.get("id") == "snmp-default-community"]
+    tested = [r for r in results if r in ("pass", "fail")]
+    if not tested:
+        return None
+    return (f"{_plural(len(tested), 'device')} tested, {tested.count('fail')} answered "
+            "the default community")
+
+
 def _setup_logging() -> None:
     logging.basicConfig(
         stream=sys.stderr,
@@ -175,13 +212,12 @@ def _load_endpoints(args, timing: dict, vulns: dict) -> list[dict]:
 
     source = WazuhSource()
 
-    log.info("collecting endpoints from the Wazuh Manager API ...")
-    t0 = time.monotonic()
+    t0 = _begin("Collecting endpoints from the Wazuh Manager API")
     agents = source.collect()
     timing["endpoint_collect_s"] = time.monotonic() - t0
 
     log.info("scoring %d endpoint(s) against the Wazuh Indexer ...", len(agents))
-    t0 = time.monotonic()
+    t0 = _begin("Scoring endpoints against the Wazuh Indexer")
     scored = source.score(agents)
     timing["endpoint_score_s"] = time.monotonic() - t0
     vulns["cves"] = source.cves
@@ -207,8 +243,7 @@ def _load_network(args, timing: dict) -> dict:
         check_default_communities=args.check_default_communities and not args.no_checklist,
         check_management_ports=args.check_management_ports and not args.no_checklist,
     )
-    log.info("running the live SNMP/LLDP crawl ...")
-    t0 = time.monotonic()
+    t0 = _begin("Crawling the network over SNMP/LLDP")
     doc = crawl_document(cfg)
     timing["network_crawl_s"] = time.monotonic() - t0
     return doc
@@ -381,25 +416,45 @@ class Pipeline:
         timing["started_at"] = started_at.isoformat()
 
         vulns: dict = {"cves": None, "warnings": []}
+        stages: list = []
         endpoints = self.load_endpoints(args, timing, vulns)
+        collect_s = timing["endpoint_collect_s"]
+        _stage(stages, "Wazuh endpoints", collect_s and collect_s + timing["endpoint_score_s"],
+               "off" if args.no_endpoints else
+               f"{_plural(len(endpoints), 'endpoint')}" + (" (from a file)" if args.scored else ""),
+               ran=not args.no_endpoints)
         network_doc = self.load_network(args, timing)
+        devices = sum(1 for n in network_doc.get("nodes") or [] if n.get("pollable"))
+        _stage(stages, "Network crawl", timing["network_crawl_s"],
+               "off" if args.no_network else
+               f"{_plural(devices, 'device')} polled" + (" (from a file)" if args.network else ""),
+               ran=not args.no_network)
 
         assemble_t0 = time.monotonic()
         document = self.assemble(endpoints, network_doc)
         timing["assemble_s"] = time.monotonic() - assemble_t0
 
         if args.probe_unmanaged_snmp:
-            t0 = time.monotonic()
+            t0 = _begin("Asking unmanaged hosts over SNMP")
             document, network_doc, block, question_warnings = self.question_unmanaged(
                 args, endpoints, document, network_doc)
             timing["snmp_question_s"] = time.monotonic() - t0
             document["metadata"]["snmp_question"] = block
             document["metadata"]["warnings"].extend(question_warnings)
+            _stage(stages, "SNMP question to unmanaged hosts", timing["snmp_question_s"],
+                   f"{_plural(block['asked'], 'host')} asked, {block['answered']} answered")
+        else:
+            _stage(stages, "SNMP question to unmanaged hosts", None, "off", ran=False)
 
         if not args.no_name_lookup:
-            t0 = time.monotonic()
+            t0 = _begin("Looking up host names")
             document["metadata"]["name_lookup"] = self.lookup_names(document)
             timing["name_lookup_s"] = time.monotonic() - t0
+            names = document["metadata"]["name_lookup"]
+            _stage(stages, "Reverse DNS names", timing["name_lookup_s"],
+                   f"{_plural(names.get('asked', 0), 'host')} asked, {names.get('named', 0)} named")
+        else:
+            _stage(stages, "Reverse DNS names", None, "off", ran=False)
 
         vulns_path = args.vulns_out or (vulnfile.default_path(args.output)
                                         if args.output else None)
@@ -414,16 +469,19 @@ class Pipeline:
         if not args.no_device_cves:
             from .devicecves.stage import merge_catalogue
 
-            log.info("looking up device CVEs in NVD ...")
-            t0 = time.monotonic()
+            t0 = _begin("Looking up device CVEs in NVD")
             stage = self.device_cves(document, cache_path, budget_s)
             timing["device_cves_s"] = time.monotonic() - t0
+            _stage(stages, "Device CVEs (NVD)", timing["device_cves_s"],
+                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'device')} looked up"))
             document["metadata"]["device_cves"] = stage.block
             document["metadata"]["warnings"].extend(stage.warnings)
             vulns["cves"] = dict(vulns["cves"] or {})
             for rows in stage.rows.values():
                 merge_catalogue(vulns["cves"], rows)
             device_entries = stage.entries
+        else:
+            _stage(stages, "Device CVEs (NVD)", None, "off", ran=False)
 
         # The service scan runs before the vector stage so its CVEs flow through
         # it (vector fields, reachable_cve) and the attack-path engine unchanged.
@@ -432,22 +490,28 @@ class Pipeline:
             from .servicescan.stage import DEFAULT_BUDGET_S as NMAP_BUDGET_S
             from .servicescan.stage import DEFAULT_HOSTS_CAP
 
-            log.info("service-scanning unmanaged hosts with nmap ...")
-            t0 = time.monotonic()
+            t0 = _begin("Service-scanning unmanaged hosts with nmap")
             nmap_stage = self.service_scan(document, cache_path, budget_s,
                                            args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
                                            args.nmap_budget or NMAP_BUDGET_S)
             timing["nmap_s"] = time.monotonic() - t0
             document["metadata"]["nmap"] = nmap_stage.block
+            nb = nmap_stage.block
+            not_installed = any(w["type"] == "nmap_not_installed" for w in nmap_stage.warnings)
+            _stage(stages, "nmap service scan", timing["nmap_s"],
+                   "nmap not installed" if not_installed else
+                   f"{_plural(nb['scanned'], 'host')} scanned, {nb['answered']} answered, "
+                   f"{nb['with_cves']} with CVEs", ran=not not_installed)
             document["metadata"]["warnings"].extend(nmap_stage.warnings)
             vulns["cves"] = dict(vulns["cves"] or {})
             for rows in nmap_stage.rows.values():
                 merge_catalogue(vulns["cves"], rows)
             device_entries.update(nmap_stage.entries)
+        else:
+            _stage(stages, "nmap service scan", None, "off", ran=False)
 
         if not args.no_cve_vectors:
-            log.info("looking up CVE vectors in NVD ...")
-            t0 = time.monotonic()
+            t0 = _begin("Looking up CVE vectors in NVD")
             vulns["cves"] = dict(vulns["cves"] or {})
             hosts = vulnfile.build_document(endpoints, vulns["cves"], None,
                                             devices=device_entries)["hosts"]
@@ -455,15 +519,25 @@ class Pipeline:
             timing["cve_vectors_s"] = time.monotonic() - t0
             document["metadata"]["cve_vectors"] = stage.block
             document["metadata"]["warnings"].extend(stage.warnings)
+            _stage(stages, "CVE vectors (NVD)", timing["cve_vectors_s"],
+                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'CVE')} looked up"))
+        else:
+            _stage(stages, "CVE vectors (NVD)", None, "off", ran=False)
 
         if not args.no_checklist:
-            log.info("evaluating device configuration checks ...")
-            t0 = time.monotonic()
+            t0 = _begin("Evaluating device configuration checks")
             checks = self.checklist(document, network_doc, args.check_default_communities,
                                     args.check_management_ports)
             timing["checklist_s"] = time.monotonic() - t0
             document["metadata"]["checklist"] = checks.block
             document["metadata"]["warnings"].extend(checks.warnings)
+            note = f"{_plural(checks.block['devices_checked'], 'device')} checked"
+            if args.check_default_communities:
+                note += "; " + (_default_community_note(document)
+                                or "no device tested for the default community")
+            _stage(stages, "Configuration checks", timing["checklist_s"], note)
+        else:
+            _stage(stages, "Configuration checks", None, "off", ran=False)
 
         finished_at = datetime.now(timezone.utc)
         timing["finished_at"] = finished_at.isoformat()
@@ -486,14 +560,21 @@ class Pipeline:
             if paths_out is None:
                 log.info("graph went to stdout and --paths-out was not given; "
                          "not writing %s", attackpaths.FILENAME)
+                _stage(stages, "Attack paths", None, "no output file given", ran=False)
             else:
-                log.info("computing exposure paths ...")
-                t0 = time.monotonic()
+                t0 = _begin("Computing attack paths")
                 vulns_doc = vulnfile.build_document(endpoints, vulns["cves"], None,
                                                     devices=device_entries)
-                attackpaths.run_stage(document, attackpaths._load_targets(targets_path),
-                                      vulns_doc, paths_out)
+                paths = attackpaths.run_stage(document, attackpaths._load_targets(targets_path),
+                                              vulns_doc, paths_out)
                 timing["attack_paths_s"] = time.monotonic() - t0
+                c = paths["metadata"]["counts"]
+                _stage(stages, "Attack paths", timing["attack_paths_s"],
+                       f"{_plural(c['routes'], 'route')} to "
+                       f"{_plural(c['targets_present'], 'protected asset')}")
+        else:
+            _stage(stages, "Attack paths", None, "off", ran=False)
+        document["metadata"]["stages"] = stages
 
         counts = document["metadata"]["counts"]
         log.info(

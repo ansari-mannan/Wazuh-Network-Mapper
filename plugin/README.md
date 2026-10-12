@@ -258,7 +258,7 @@ dashboard's own jest, from the dashboard folder:
 |---|---|
 | `GET /api/vulnmapper/graph` | the current graph; file time in the `x-vulnmapper-graph-mtime` header |
 | `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string, "checkDefaultCommunities"?: boolean, "checkManagementPorts"?: boolean, "probeUnmanagedSnmp"?: boolean }` (each switch defaults to its `vulnmapper.*` key); 409 if one is running |
-| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp }` for the scan form |
+| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, `stage` (the stage the scanner last announced, while running), `nmapAvailable` (nmap is on the server's PATH) and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp, nmapUnmanaged }` for the scan form |
 | `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 | `GET /api/vulnmapper/attack-paths` | the computed `attack_paths.json` read from beside the graph; a missing file is returned as `{ metadata: { state: "absent" }, ... }` rather than an error |
 | `GET /api/vulnmapper/vulnerabilities` | the full per-asset CVE list (`vulnerabilities.json`) read from beside the graph, plus `org` (from `vulnmapper.reportOrg`); a missing file is returned as `{ metadata: { state: "absent" }, cves: {}, hosts: {}, org }` rather than an error |

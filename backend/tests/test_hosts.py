@@ -234,7 +234,7 @@ class TestPipeline(unittest.TestCase):
                     n["config_checks"] = [c for c in n["config_checks"] if c["id"] not in replaced]
             self.assertEqual(node, was)
         meta = dict(graph["metadata"])
-        for key in ("scan_time", "timing", "network_scan_time"):
+        for key in ("scan_time", "timing", "network_scan_time", "stages"):
             meta.pop(key)
         self.assertEqual(meta.pop("coverage"), {"hosts": 2, "managed": 0, "unmanaged": 2,
                                                 "managed_share": 0.0})

@@ -360,6 +360,7 @@ class TestPipeline(unittest.TestCase):
         out = self.run_pipeline("--no-attack-paths")
         self.assertFalse(os.path.exists(os.path.join(self.tmp, ap.FILENAME)))
         out["graph"]["metadata"]["timing"] = {k: None for k in out["graph"]["metadata"]["timing"]}
+        del out["graph"]["metadata"]["stages"]
         for key in ("scan_time", "network_scan_time"):
             out["graph"]["metadata"][key] = None
         out["vulnerabilities"]["metadata"]["scan_time"] = None
@@ -380,6 +381,7 @@ class TestPipeline(unittest.TestCase):
         for doc in (on, off):
             meta = doc["graph"]["metadata"]
             meta["timing"] = {k: None for k in meta["timing"]}
+            del meta["stages"]
             meta["scan_time"] = meta["network_scan_time"] = None
             doc["vulnerabilities"]["metadata"]["scan_time"] = None
         self.assertEqual(on, off)

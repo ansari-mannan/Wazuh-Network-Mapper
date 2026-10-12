@@ -194,6 +194,24 @@ class TestPipeline(unittest.TestCase):
         vulns = self.load("vulnerabilities.json")
         self.assertEqual(vulns["metadata"]["counts"]["devices"], 0)
 
+    def test_stages_record_what_ran_and_what_was_skipped(self):
+        graph = self.run_pipeline("--check-default-communities")
+        stages = {st["name"]: st for st in graph["metadata"]["stages"]}
+        self.assertEqual(list(stages), [
+            "Wazuh endpoints", "Network crawl", "SNMP question to unmanaged hosts",
+            "Reverse DNS names", "Device CVEs (NVD)", "nmap service scan", "CVE vectors (NVD)",
+            "Configuration checks", "Attack paths"])
+        for name in ("Wazuh endpoints", "SNMP question to unmanaged hosts", "Reverse DNS names",
+                     "nmap service scan"):
+            self.assertEqual((stages[name]["status"], stages[name]["note"]), ("skipped", "off"))
+        cves = stages["Device CVEs (NVD)"]
+        self.assertEqual(cves["status"], "ran")
+        self.assertIsInstance(cves["seconds"], float)
+        self.assertRegex(cves["note"], r"^\d+ devices? looked up, \d+ NVD requests?")
+        self.assertRegex(stages["Configuration checks"]["note"],
+                         r"^\d+ devices? checked; (\d+ devices? tested, \d+ answered the default "
+                         r"community|no device tested for the default community)$")
+
     def test_stage_on_adds_exactly_the_documented_fields(self):
         before = {n["node_id"]: n for n in self.run_pipeline("--no-device-cves",
                                                              "--no-cve-vectors")["nodes"]}

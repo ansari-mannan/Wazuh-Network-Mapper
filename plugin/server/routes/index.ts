@@ -4,7 +4,7 @@ import { IRouter, Logger } from '../../../../src/core/server';
 import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
-import { getScan, startScan } from '../scan';
+import { getScan, onPath, startScan } from '../scan';
 import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 
@@ -18,6 +18,7 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
   const scanBody = (): ScanState => ({
     ...getScan(),
     defaults: configuredChecks(config),
+    nmapAvailable: onPath('nmap'),
   });
 
   // The graph is read fresh from disk on every request so the file the scanner

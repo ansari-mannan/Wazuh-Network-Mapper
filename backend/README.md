@@ -64,6 +64,12 @@ attached by subnet instead (to a device sharing its /24, confidence
 `subnet_fallback`); any other endpoint without evidence stays unparented and
 is listed in `metadata.unparented_endpoints` with its reason.
 
+`metadata.stages` lists every stage in run order as `{name, status ("ran" or
+"skipped"), seconds, note}`, the note a short outcome such as "nmap not
+installed" or "5 devices tested, 0 answered the default community". As each
+stage starts the scanner logs `stage: <label>` on stderr, which the dashboard
+shows while a scan runs.
+
 ### Device identity
 
 Every polled device has the standard inventory table (ENTITY-MIB

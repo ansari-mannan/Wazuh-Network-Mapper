@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  EuiBasicTable,
   EuiButton,
   EuiCallOut,
   EuiDescriptionList,
@@ -15,7 +16,7 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { ActiveChecks, ScanState } from '../../../common';
+import { ActiveChecks, ScanStageOutcome, ScanState } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { useScan } from '../../lib/scan';
 
@@ -38,6 +39,9 @@ function ScanStatus({ scan }: { scan: ScanState | null }) {
         }
         data-test-subj="vmScanStatus-running"
       >
+        <p data-test-subj="vmScanStage">
+          <strong>{scan.stage ? `${scan.stage}…` : 'Starting…'}</strong>
+        </p>
         <p>Started {formatTime(scan.startedAt)}. The current graph stays in use until it finishes.</p>
       </EuiCallOut>
     );
@@ -68,6 +72,40 @@ function ScanStatus({ scan }: { scan: ScanState | null }) {
   );
 }
 
+// What each stage of the scan behind the current graph did (metadata.stages).
+function ScanStages({ stages }: { stages: ScanStageOutcome[] }) {
+  return (
+    <>
+      <EuiSpacer size="m" />
+      <EuiTitle size="xxs">
+        <h3>Last scan, stage by stage</h3>
+      </EuiTitle>
+      <EuiSpacer size="s" />
+      <EuiBasicTable<ScanStageOutcome>
+        compressed
+        items={stages}
+        data-test-subj="vmScanStages"
+        columns={[
+          { field: 'name', name: 'Stage' },
+          {
+            field: 'status',
+            name: 'Result',
+            width: '80px',
+            render: (status: ScanStageOutcome['status']) => (status === 'ran' ? 'Ran' : 'Skipped'),
+          },
+          {
+            field: 'seconds',
+            name: 'Time',
+            width: '70px',
+            render: (s: number | null) => (s === null ? '—' : `${s} s`),
+          },
+          { field: 'note', name: 'Note', render: (note: string | null) => note || '' },
+        ]}
+      />
+    </>
+  );
+}
+
 function GraphSource() {
   const { graph, fileTime } = useGraph();
   return (
@@ -93,6 +131,7 @@ function GraphSource() {
           <p>No graph loaded.</p>
         </EuiText>
       )}
+      {graph?.metadata?.stages?.length ? <ScanStages stages={graph.metadata.stages} /> : null}
     </EuiPanel>
   );
 }
@@ -186,6 +225,17 @@ export function ScanSettingsPage() {
                 />
               </EuiFormRow>
             ))}
+            {checks.nmapUnmanaged && scan?.nmapAvailable === false && (
+              <EuiCallOut
+                size="s"
+                color="warning"
+                iconType="alert"
+                title="nmap is not installed on the dashboard server"
+                data-test-subj="vmNmapMissing"
+              >
+                <p>It is not on the server&apos;s PATH, so the service scan will be skipped. Install nmap there to use it.</p>
+              </EuiCallOut>
+            )}
             <EuiSpacer size="m" />
             <EuiButton fill iconType="play" onClick={run} isLoading={running} data-test-subj="vmRunScan">
               {running ? 'Scanning…' : 'Run scan'}
