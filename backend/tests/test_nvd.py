@@ -349,6 +349,16 @@ class TestRateLimit(Base):
         self.assertEqual((result.status, result.reason), ("unavailable", "unreachable"))
         self.assertEqual(client.requests, 3)
 
+    def test_no_answer_is_not_retried_and_stops_asking_for_the_scan(self):
+        fake = self.nvd(script=["down"])
+        result, client = self.run_lookup(fake)
+        self.assertEqual((result.status, result.reason), ("unavailable", "unreachable"))
+        self.assertEqual((client.requests, self.clock.sleeps), (1, []))
+        self.assertTrue(client.unreachable)
+        # a second device in the same scan does not wait out another timeout
+        again = lookup(ident_for(FORTIOS_CPE), client, Cache(self.path, self.clock))
+        self.assertEqual((again.status, client.requests), ("unavailable", 1))
+
     def test_a_client_error_is_not_retried(self):
         result, client = self.run_lookup(self.nvd(script=[400]))
         self.assertEqual((result.status, client.requests), ("unavailable", 1))
@@ -401,6 +411,23 @@ class TestCache(Base):
         self.clock.advance(seconds=13 * 3600)
         # the dictionary hit is still fresh; only the empty CVE answer is asked again
         self.assertEqual(self.run_lookup(self.nvd(cves={IOS_CPE: []}))[1].requests, 1)
+
+    def test_malformed_query_is_cached_like_an_empty_answer(self):
+        # the dictionary lists the CPE, but NVD calls the CVE query malformed
+        real = self.nvd()
+
+        def cves_malformed(url, headers, timeout):
+            if "/cves/2.0" in url:
+                return 404, None, {"message": "Invalid cpeName parameter"}
+            return real(url, headers, timeout)
+
+        first, _ = self.run_lookup(cves_malformed)
+        self.assertEqual((first.status, first.reason), ("unverified", "invalid_query"))
+        fake = self.nvd()
+        again, client = self.run_lookup(fake)
+        self.assertEqual((again.status, again.reason, client.requests), ("unverified", "invalid_query", 0))
+        self.clock.advance(days=1, seconds=1)
+        self.assertEqual(self.run_lookup(self.nvd())[0].status, "ok")   # asked again a day on
 
     def test_not_listed_is_asked_again_after_a_day(self):
         self.run_lookup(self.nvd(dictionary={}))

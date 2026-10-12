@@ -80,12 +80,11 @@ def _plural(n: int, word: str) -> str:
     return f"{n} {word}{'' if n == 1 else 's'}"
 
 
-def _nvd_note(block: dict, asked: str) -> str:
-    """e.g. "9 devices looked up, 2 NVD requests (7 answered from the cache)"."""
-    note = f"{asked}, {_plural(block.get('nvd_requests', 0), 'NVD request')}"
-    if block.get("from_cache"):
-        note += f" ({block['from_cache']} answered from the cache)"
-    return note
+def _nvd_note(block: dict, asked: str, cache: tuple) -> str:
+    """e.g. "9 devices looked up, 2 NVD requests; cache 7 hits, 2 misses"."""
+    hits, misses, expired = cache
+    return (f"{asked}, {_plural(block.get('nvd_requests', 0), 'NVD request')}; cache "
+            f"{_plural(hits, 'hit')}, {misses + expired} miss{'' if misses + expired == 1 else 'es'}")
 
 
 def _default_community_note(document: dict) -> Optional[str]:
@@ -360,6 +359,14 @@ class Pipeline:
                          Cache(cache_path, clock))
         return self._nvd
 
+    def nvd_tally(self, stage: str, before: tuple) -> tuple:
+        """Log and return the NVD cache's ``(hits, misses, expired)`` since ``before``."""
+        now = self._nvd[1].tally()
+        hits, misses, expired = (a - b for a, b in zip(now, before))
+        log.info("NVD cache, %s: %d hit(s), %d miss(es) (%d not cached, %d expired)",
+                 stage, hits, misses + expired, misses, expired)
+        return hits, misses, expired
+
     def device_cves(self, document: dict, cache_path: Optional[str], budget_s: float):
         from .devicecves.stage import run_stage
 
@@ -470,10 +477,12 @@ class Pipeline:
             from .devicecves.stage import merge_catalogue
 
             t0 = _begin("Looking up device CVEs in NVD")
+            before = self.nvd(cache_path, budget_s)[1].tally()
             stage = self.device_cves(document, cache_path, budget_s)
             timing["device_cves_s"] = time.monotonic() - t0
             _stage(stages, "Device CVEs (NVD)", timing["device_cves_s"],
-                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'device')} looked up"))
+                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'device')} looked up",
+                             self.nvd_tally("device CVEs", before)))
             document["metadata"]["device_cves"] = stage.block
             document["metadata"]["warnings"].extend(stage.warnings)
             vulns["cves"] = dict(vulns["cves"] or {})
@@ -491,10 +500,12 @@ class Pipeline:
             from .servicescan.stage import DEFAULT_HOSTS_CAP
 
             t0 = _begin("Service-scanning unmanaged hosts with nmap")
+            before = self.nvd(cache_path, budget_s)[1].tally()
             nmap_stage = self.service_scan(document, cache_path, budget_s,
                                            args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
                                            args.nmap_budget or NMAP_BUDGET_S)
             timing["nmap_s"] = time.monotonic() - t0
+            self.nvd_tally("service scan", before)
             document["metadata"]["nmap"] = nmap_stage.block
             nb = nmap_stage.block
             not_installed = any(w["type"] == "nmap_not_installed" for w in nmap_stage.warnings)
@@ -512,6 +523,7 @@ class Pipeline:
 
         if not args.no_cve_vectors:
             t0 = _begin("Looking up CVE vectors in NVD")
+            before = self.nvd(cache_path, budget_s)[1].tally()
             vulns["cves"] = dict(vulns["cves"] or {})
             hosts = vulnfile.build_document(endpoints, vulns["cves"], None,
                                             devices=device_entries)["hosts"]
@@ -520,7 +532,8 @@ class Pipeline:
             document["metadata"]["cve_vectors"] = stage.block
             document["metadata"]["warnings"].extend(stage.warnings)
             _stage(stages, "CVE vectors (NVD)", timing["cve_vectors_s"],
-                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'CVE')} looked up"))
+                   _nvd_note(stage.block, f"{_plural(stage.block['looked_up'], 'CVE')} looked up",
+                             self.nvd_tally("CVE vectors", before)))
         else:
             _stage(stages, "CVE vectors (NVD)", None, "off", ran=False)
 

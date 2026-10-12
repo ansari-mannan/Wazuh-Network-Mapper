@@ -12,6 +12,8 @@ request at all.
     result is marked stale: a device never loses its CVEs because NVD had a
     bad day.
   * A corrupt or unreadable file is ignored and rebuilt; it never stops a scan.
+  * A query NVD calls malformed is cached like an empty answer, with the data
+    :data:`INVALID_QUERY`, so it is not asked again every scan.
 
 The file is written atomically (temp file and rename, as vulnerabilities.json
 is). Each CVE is stored trimmed to what the stage reads. The trim keeps every
@@ -34,6 +36,7 @@ FILENAME = "nvd-cache.json"
 FORMAT = 1
 FRESH_FOUND = timedelta(days=7)
 FRESH_EMPTY = timedelta(days=1)
+INVALID_QUERY = {"invalid_query": True}    # the cached answer to a malformed query
 
 
 def default_path(beside: str) -> str:
@@ -70,7 +73,8 @@ class Cache:
         self.entries: dict = {}
         self.corrupt = False
         self.dirty = False
-        self.hits = 0
+        # lookups served fresh / not cached at all / cached but expired
+        self.hits = self.misses = self.expired = 0
         if path and os.path.exists(path):
             try:
                 with open(path, encoding="utf-8") as f:
@@ -83,6 +87,11 @@ class Cache:
                 log.warning("NVD cache %s is unreadable (%s); starting a new one", path, e)
                 self.corrupt = True
                 self.entries = {}
+        log.info("NVD cache %s: %d entries", path or "(in memory)", len(self.entries))
+
+    def tally(self) -> tuple:
+        """``(hits, misses, expired)`` so far, for a stage's before/after log line."""
+        return self.hits, self.misses, self.expired
 
     def get(self, key: str) -> Optional[dict]:
         """The entry with ``fresh`` and ``fetched_at`` filled in, or None."""

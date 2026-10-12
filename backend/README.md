@@ -252,13 +252,17 @@ devices looked up, by status, served from the cache, and the NVD requests made.
 **Cache.** NVD answers are kept in `nvd-cache.json` beside the vulnerabilities
 file (`data/nvd-cache.json` in practice; `--nvd-cache PATH` to move it), keyed
 by query, so devices on the same software share an entry. An answer with CVEs
-is fresh for 7 days, an empty one for 1 day. When NVD cannot be reached an
-expired entry is used and marked `stale`. A corrupt cache is rebuilt. With a
-warm cache a scan makes no NVD request.
+is fresh for 7 days, an empty one for 1 day, as is a query NVD calls
+malformed. When NVD cannot be reached an expired entry is used and marked
+`stale`. A corrupt cache is rebuilt. With a warm cache a scan makes no NVD
+request. Each NVD stage logs its cache hits and misses (`NVD cache, device
+CVEs: ...`), and its `metadata.stages` note carries them.
 
 **Rate and time.** Without a key requests are 6 seconds apart (NVD allows 5 per
 30 seconds); with `NVD_API_KEY` set in the environment, 0.8 seconds. A
-rate-limit or server error is retried twice. The stage has a time budget per
+rate-limit or server error is retried twice; a request that gets no answer at
+all (timeout, connection error) is not, and no further request is made that
+scan, so the remaining lookups use the cache. The stage has a time budget per
 scan (`--nvd-budget`, default 180 seconds); devices it does not reach wait for
 the next scan, with a warning. NVD never fails a scan. `--no-device-cves`
 skips the stage, and device nodes are then written as before.

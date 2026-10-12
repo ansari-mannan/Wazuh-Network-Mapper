@@ -19,7 +19,11 @@ The optional key (environment variable ``NVD_API_KEY`` only) goes in the
 ``apiKey`` header and is never logged. Without it NVD allows 5 requests per
 rolling 30 seconds and requests are spaced 6 seconds apart; with it, 50 and
 0.8 seconds. A rate-limit (403/429) or server error is retried a small, fixed
-number of times with a back-off. The client stops at its time budget.
+number of times with a back-off. A request that gets no answer at all (a
+timeout or connection error) is not retried: NVD is taken as unreachable for
+the rest of the scan, so the remaining lookups fall back to the cache at once
+instead of each waiting out its own timeouts. The client stops at its time
+budget.
 
 The HTTP layer and the clock are parameters, so tests run from saved replies.
 """
@@ -109,6 +113,7 @@ class NvdClient:
         self._started = self._clock.monotonic()
         self._last: Optional[float] = None
         self.requests = 0                 # HTTP requests actually sent
+        self.unreachable = False          # a request got no answer: ask no more this scan
 
     @property
     def has_key(self) -> bool:
@@ -125,9 +130,11 @@ class NvdClient:
         self._clock.sleep(seconds)
 
     def _get(self, base: str, params: list) -> dict:
+        if self.unreachable:
+            raise NvdUnavailable("unreachable earlier in this scan")
         url = f"{base}?{_query(params)}"
         headers = {"apiKey": self._key} if self._key else {}
-        last_error = "no answer"
+        last_error = ""
         for attempt in range(len(RETRY_WAITS_S) + 1):
             if self._last is not None:
                 self._wait(self._last + self.spacing_s - self._clock.monotonic())
@@ -138,19 +145,19 @@ class NvdClient:
             try:
                 status, body, resp_headers = self._transport(
                     url, headers, min(REQUEST_TIMEOUT_S, max(1.0, self.remaining_s())))
-            except NvdUnavailable as e:
-                status, body, resp_headers, last_error = None, None, {}, str(e)
-            except OSError as e:
-                status, body, resp_headers, last_error = None, None, {}, type(e).__name__
+            except (NvdUnavailable, OSError) as e:
+                self.unreachable = True
+                log.warning("NVD did not answer (%s); no more NVD requests this scan",
+                            str(e) if isinstance(e, NvdUnavailable) else type(e).__name__)
+                raise NvdUnavailable(str(e) or type(e).__name__) from None
             if status == 200 and isinstance(body, dict):
                 return body
             if status == 404:
                 message = {k.lower(): v for k, v in (resp_headers or {}).items()}.get("message", "")
                 raise NvdInvalidQuery(message or "HTTP 404")
-            if status is not None:
-                last_error = f"HTTP {status}"
-                if status not in RETRY_STATUSES:
-                    break
+            last_error = f"HTTP {status}"
+            if status not in RETRY_STATUSES:
+                break
             if attempt < len(RETRY_WAITS_S):
                 log.info("NVD %s; retrying in %.0f s", last_error, RETRY_WAITS_S[attempt])
                 self._wait(RETRY_WAITS_S[attempt])

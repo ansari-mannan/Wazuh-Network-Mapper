@@ -17,7 +17,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
-from .cache import Cache, trim_cve
+from .cache import INVALID_QUERY, Cache, trim_cve
 from .families import keyword_accepts
 from .nvd import (NvdBudgetExceeded, NvdClient, NvdInvalidQuery, NvdUnavailable,
                   is_rejected, parse_cve)
@@ -52,21 +52,36 @@ class Unanswered(Exception):
 
 
 def _answer(cache: Cache, key: str, fetch, found_of, result: Lookup) -> dict:
-    """A fresh cache entry, else NVD's answer (cached), else an expired entry."""
+    """A fresh cache entry, else NVD's answer (cached), else an expired entry.
+    Raises :class:`NvdInvalidQuery` for a query NVD called malformed, now or
+    when it was cached."""
     result.queries.append(key)
     entry = cache.get(key)
     if entry is not None and entry["fresh"]:
         cache.hits += 1
-        return entry
+        return _valid(entry)
+    if entry is None:
+        cache.misses += 1
+    else:
+        cache.expired += 1
     result.from_cache = False
     try:
         data = fetch()
     except (NvdUnavailable, NvdBudgetExceeded) as e:
         if entry is not None:            # an old answer beats no answer
             result.stale = True
-            return entry
+            return _valid(entry)
         raise Unanswered("budget" if isinstance(e, NvdBudgetExceeded) else "unreachable")
+    except NvdInvalidQuery:
+        cache.put(key, found=False, data=INVALID_QUERY)
+        raise
     return cache.put(key, found=found_of(data), data=data)
+
+
+def _valid(entry: dict) -> dict:
+    if entry["data"] == INVALID_QUERY:
+        raise NvdInvalidQuery("cached")
+    return entry
 
 
 def lookup(ident: dict, client: NvdClient, cache: Cache) -> Lookup:
@@ -80,13 +95,8 @@ def lookup(ident: dict, client: NvdClient, cache: Cache) -> Lookup:
     try:
         if ident["match"] == "cpe":
             cpe = ident["cpe"]
-            try:
-                listed = _answer(cache, f"cpe-dictionary:{cpe}",
-                                 lambda: client.cpe_listed(cpe), bool, result)
-            except NvdInvalidQuery:
-                cache.put(f"cpe-dictionary:{cpe}", found=False, data=False)
-                result.status, result.reason = STATUS_UNVERIFIED, "invalid_query"
-                return result
+            listed = _answer(cache, f"cpe-dictionary:{cpe}",
+                             lambda: client.cpe_listed(cpe), bool, result)
             if not listed["data"]:
                 result.status, result.reason = STATUS_UNVERIFIED, "not_in_dictionary"
                 result.fetched_at = listed["fetched_at"]
@@ -125,9 +135,7 @@ def lookup_cve(cve_id: str, client: NvdClient, cache: Cache) -> Optional[dict]:
         cve = client.cve_by_id(cve_id)
         return trim_cve(cve) if cve else None
 
-    key = f"cve:{cve_id}"
     try:
-        answer = _answer(cache, key, fetch, bool, Lookup(status=STATUS_OK))
+        return _answer(cache, f"cve:{cve_id}", fetch, bool, Lookup(status=STATUS_OK))["data"]
     except NvdInvalidQuery:              # an id NVD calls malformed is no CVE it knows
-        return cache.put(key, found=False, data=None)["data"]
-    return answer["data"]
+        return None

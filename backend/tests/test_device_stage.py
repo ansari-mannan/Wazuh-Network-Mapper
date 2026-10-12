@@ -268,6 +268,20 @@ class TestPipeline(unittest.TestCase):
         graph = self.run_pipeline(fake=warm)
         self.assertEqual(warm.calls, [])
         self.assertEqual(graph["metadata"]["device_cves"]["nvd_requests"], 0)
+        notes = {st["name"]: st["note"] for st in graph["metadata"]["stages"]}
+        for name in ("Device CVEs (NVD)", "CVE vectors (NVD)"):
+            self.assertRegex(notes[name], r", 0 NVD requests; cache \d+ hits?, 0 misses$")
+
+    def test_each_nvd_stage_logs_its_cache_hits_and_misses(self):
+        self.run_pipeline()
+        argv = ["--no-endpoints", "--no-name-lookup", "--network", self.network, "-o", self.graph_path]
+        with contextlib.redirect_stdout(io.StringIO()), \
+                self.assertLogs("vulnmapper.pipeline", "INFO") as logs:
+            Pipeline(nvd_transport=lab_nvd(self.clock), clock=self.clock).run(argv)
+        lines = [r.getMessage() for r in logs.records if r.getMessage().startswith("NVD cache, ")]
+        self.assertEqual([line.split(":")[0] for line in lines],
+                         ["NVD cache, device CVEs", "NVD cache, CVE vectors"])
+        self.assertTrue(all(" 0 miss(es)" in line for line in lines), lines)
 
     def test_explicit_cache_path(self):
         path = os.path.join(self.tmp, "elsewhere.json")
