@@ -121,7 +121,11 @@ failing the scan:
 - `cve_cap_reached`: an agent had more than 20000 documents; the rest were not read.
 - `indexer_unreachable`: the indexer failed; the listed endpoints are unscored.
 - `not_yet_inventoried`: no vulnerability documents and no package inventory
-  either, so Wazuh has not examined the agent yet; it is unscored, not 0.0.
+  either, so Wazuh has not examined the agent yet; it is unscored, not 0.0,
+  and its node carries `unscored_reason: "no_inventory"`. The inventory is the
+  indexer's `wazuh-states-inventory-packages-*` (what vulnerability detection
+  reads); only when no such index exists is the Manager API's syscollector
+  asked instead.
 - `inventory_unavailable`: syscollector data could not be read (after one retry
   3 seconds later for a 5xx or a timeout); the agent's place on the map may be
   incomplete.

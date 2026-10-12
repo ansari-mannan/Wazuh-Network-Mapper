@@ -309,6 +309,7 @@ def _endpoint_node(raw: dict) -> Node:
         top_cves=top_cves,
         cve_summary=raw.get("cve_summary"),
         is_wazuh_server=bool(raw.get("is_wazuh_server")),
+        unscored_reason=raw.get("unscored_reason"),
     )
 
 

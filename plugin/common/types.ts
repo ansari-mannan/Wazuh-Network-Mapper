@@ -192,6 +192,9 @@ export type EndpointNode = GraphNodeBase & {
   cve_summary?: CveSummary | null;
   // Present (true) only on the Wazuh server's own node (agent 000).
   is_wazuh_server?: boolean;
+  // Why it is unscored, when known: "no_inventory" (the Wazuh indexer holds no
+  // package inventory for it, so its CVEs are unknown, not zero).
+  unscored_reason?: string;
   // A Wi-Fi client: the SSID, the access point (node_id) and the radio.
   wifi?: WifiInfo;
   // The VLAN its switch learned it on.

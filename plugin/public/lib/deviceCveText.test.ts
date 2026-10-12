@@ -43,6 +43,13 @@ describe('potentialText', () => {
 describe('unscoredReason', () => {
   const dev = (cve_lookup?: CveLookup, pollable = true) => ({ kind: 'device', pollable, cve_lookup });
 
+  it('says when Wazuh has no software inventory for a host', () => {
+    expect(unscoredReason({ kind: 'endpoint', unscored_reason: 'no_inventory' })).toBe(
+      'Wazuh has no software inventory for this host.'
+    );
+    expect(unscoredReason({ kind: 'endpoint' })).toBe('');
+  });
+
   it('one sentence per status', () => {
     expect(unscoredReason(dev(at({ status: 'unidentified', match: null, product: null })))).toBe(
       'Its software could not be identified: the vendor, software family or version is missing.'

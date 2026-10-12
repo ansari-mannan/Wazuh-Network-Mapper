@@ -303,6 +303,9 @@ class WazuhSource:
 
     # The OpenSearch index pattern that holds all vulnerability states.
     INDEX = "wazuh-states-vulnerabilities-*"
+    # ... and the one holding each agent's package inventory, which the
+    # vulnerability detector works from.
+    PACKAGES_INDEX = "wazuh-states-inventory-packages-*"
 
     def __init__(self, wazuh: "WazuhConfig | None" = None,
                  indexer: "IndexerConfig | None" = None) -> None:
@@ -572,8 +575,9 @@ class WazuhSource:
         left unscored too rather than each waiting out its own timeout.
 
         An agent with no vulnerability documents is only scored 0.0 if Wazuh
-        has a package inventory for it (one Manager API request); without one
-        it has not been examined yet, so it is left unscored and listed in a
+        has a package inventory for it (see :meth:`_has_packages`); without one
+        it has not been examined yet, so it is left unscored with
+        ``unscored_reason`` "no_inventory" and listed in a
         ``not_yet_inventoried`` warning.
         """
         if not self._icfg.password:
@@ -624,6 +628,7 @@ class WazuhSource:
                         if not self._has_packages(agent_id):
                             not_inventoried.append(agent_id)
                             cves = None
+                            agent = {**agent, "unscored_reason": "no_inventory"}
                     except requests.RequestException as e:
                         print(f"  ! package inventory check failed for agent "
                               f"{agent_id}: {e}", file=sys.stderr)
@@ -667,7 +672,24 @@ class WazuhSource:
         return out
 
     def _has_packages(self, agent_id) -> bool:
-        """True if the Manager API holds any package inventory for the agent."""
+        """True if Wazuh holds any package inventory for the agent.
+
+        The indexer's package states are what vulnerability detection reads, so
+        they decide; the Manager API's syscollector is asked only when no index
+        matches (a Wazuh without those states). The Wazuh server itself can
+        have the latter and none of the former.
+        """
+        r = requests.post(
+            f"{self._ibase}/{self.PACKAGES_INDEX}/_count",
+            json={"query": {"term": {"agent.id": agent_id}}},
+            auth=(self._icfg.user, self._icfg.password),
+            verify=self._icfg.verify,
+            timeout=30,
+        )
+        r.raise_for_status()
+        body = r.json()
+        if (body.get("_shards") or {}).get("total"):
+            return body.get("count", 0) > 0
         if self._token is None:
             self._authenticate()
         return bool(self._get_inventory(f"/syscollector/{agent_id}/packages",

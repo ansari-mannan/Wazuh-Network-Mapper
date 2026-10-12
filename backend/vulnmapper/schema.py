@@ -320,6 +320,9 @@ class Node:
     cve_summary: Optional[dict] = None
     # True on the Wazuh server's own node (agent 000); emitted only when true.
     is_wazuh_server: bool = False
+    # Why an endpoint is unscored, when known: "no_inventory" (the Wazuh indexer
+    # holds no package inventory for it). Emitted only when set.
+    unscored_reason: Optional[str] = None
     # A Wi-Fi client: {ssid, access_point (node_id), radio}; None otherwise.
     wifi: Optional[dict] = None
     # The VLAN its switch learned it on (from the forwarding table); lets the
@@ -370,6 +373,8 @@ class Node:
             out["cve_summary"] = self.cve_summary
             if self.is_wazuh_server:
                 out["is_wazuh_server"] = True
+            if self.unscored_reason is not None:
+                out["unscored_reason"] = self.unscored_reason
             if self.wifi is not None:
                 out["wifi"] = self.wifi
             if self.vlan is not None:

@@ -31,17 +31,27 @@ class FakeIndexer:
 
     Serves each agent's documents in the given order, honouring ``size`` and
     ``search_after`` (a hit's sort value is its position). ``fail`` maps an agent
-    id to the exception its query raises.
+    id to the exception its query raises. ``packages`` maps an agent id to its
+    package-inventory document count; None means the indexer has no package
+    index at all (the Manager API is asked instead).
     """
 
-    def __init__(self, docs_by_agent, fail=None):
+    def __init__(self, docs_by_agent, fail=None, packages=None):
         self.docs = docs_by_agent
         self.fail = fail or {}
+        self.packages = packages
         self.bodies = []
 
     def __call__(self, url, json=None, **_kw):
-        self.bodies.append(json)
         agent = json["query"]["term"]["agent.id"]
+        if url.endswith("/_count"):
+            resp = mock.Mock()
+            resp.raise_for_status.return_value = None
+            resp.json.return_value = (
+                {"count": 0, "_shards": {"total": 0}} if self.packages is None else
+                {"count": self.packages.get(agent, 0), "_shards": {"total": 1}})
+            return resp
+        self.bodies.append(json)
         if agent in self.fail:
             raise self.fail[agent]
         docs = self.docs.get(agent, [])

@@ -40,7 +40,13 @@ export function potentialText(l: CveLookup): string {
 }
 
 /** One sentence on why a device is Unscored; empty when it is scored. */
-export function unscoredReason(node: { kind: string; pollable?: boolean; cve_lookup?: CveLookup | null }): string {
+export function unscoredReason(node: {
+  kind: string;
+  pollable?: boolean;
+  cve_lookup?: CveLookup | null;
+  unscored_reason?: string;
+}): string {
+  if (node.unscored_reason === 'no_inventory') return 'Wazuh has no software inventory for this host.';
   // a host has a lookup only when it answered SNMP (vulnmapper.hosts)
   if (node.kind !== 'device' && !node.cve_lookup) return '';
   const l = node.cve_lookup;

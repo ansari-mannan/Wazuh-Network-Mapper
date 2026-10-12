@@ -250,11 +250,52 @@ class TestNotYetInventoried(unittest.TestCase):
         checked = [p for p, _ in manager.calls if p.endswith("/packages")]
         self.assertEqual(checked, ["/syscollector/001/packages", "/syscollector/002/packages"])
 
+    def test_unscored_reason_says_there_is_no_inventory(self):
+        _src, by_id, _m = self.run_score([])
+        self.assertEqual(by_id["001"]["unscored_reason"], "no_inventory")
+        self.assertNotIn("unscored_reason", by_id["003"])
+
     def test_failed_check_leaves_unscored_and_reports(self):
         src, by_id, _m = self.run_score(Outcomes(http_error(500), http_error(503)))
         self.assertIsNone(by_id["001"]["risk_score"])
         self.assertEqual(src.warnings[0]["type"], "inventory_unavailable")
         self.assertEqual(src.warnings[0]["agents"], ["001"])
+
+
+class TestIndexerPackageInventory(unittest.TestCase):
+    """The indexer's package states decide when it has them; the lab's Wazuh
+    server has Manager-API packages but nothing in the indexer."""
+    AGENTS = [{"agent_id": "000", "hostname": "wazuh-server"},
+              {"agent_id": "002", "hostname": "clean"}]
+
+    def run_score(self):
+        indexer = FakeIndexer({}, packages={"002": 412})        # nothing for 000
+        manager = FakeManager()                                 # every agent has packages here
+        src, out = score(self.AGENTS, indexer, manager)
+        return src, {a["agent_id"]: a for a in out}, manager
+
+    def test_no_indexer_inventory_is_unscored_not_zero(self):
+        src, by_id, manager = self.run_score()
+        server = by_id["000"]
+        self.assertIsNone(server["risk_score"])
+        self.assertIsNone(server["cve_summary"])
+        self.assertEqual(server["unscored_reason"], "no_inventory")
+        self.assertEqual(src.warnings, [{"type": "not_yet_inventoried", "agents": ["000"],
+                                         "node_ids": ["endpoint:000"]}])
+        self.assertFalse([p for p, _ in manager.calls if p.endswith("/packages")])
+
+    def test_inventory_and_no_cves_still_scores_zero(self):
+        _src, by_id, _m = self.run_score()
+        self.assertEqual(by_id["002"]["risk_score"], 0.0)
+        self.assertEqual(by_id["002"]["cve_summary"]["total"], 0)
+        self.assertNotIn("unscored_reason", by_id["002"])
+
+    def test_reason_reaches_the_graph_node(self):
+        _src, by_id, _m = self.run_score()
+        node = next(n for n in assemble(list(by_id.values()), {"nodes": [], "edges": []})["nodes"]
+                    if n["node_id"] == "endpoint:000")
+        self.assertEqual(node["unscored_reason"], "no_inventory")
+        self.assertIsNone(node["risk_score"])
 
 
 if __name__ == "__main__":
