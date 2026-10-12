@@ -187,8 +187,8 @@
     }
   ],
   "metadata": {
-    "scan_time": "FROZEN_SCAN_TIME",
-    "network_scan_time": "2026-06-04T12:00:00+00:00",
+    "scan_time": "FROZEN",
+    "network_scan_time": "FROZEN",
     "seed": "172.20.99.2",
     "warnings": [],
     "attack_path_sources": [

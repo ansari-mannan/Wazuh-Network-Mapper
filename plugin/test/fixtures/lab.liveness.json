@@ -1,0 +1,407 @@
+{
+  "passes": [
+    {
+      "checked_at": "2026-10-07T09:00:20+00:00",
+      "threshold": 2,
+      "nodes": {
+        "device:00:23:ac:e5:74:00": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "device:90:6c:ac:d7:43:7f": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "device:00:17:95:be:b2:00": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "device:5c:8a:38:8b:a1:0b": {
+          "state": "unknown",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": []
+        },
+        "device:54:75:d0:ab:bd:1a": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "host:7a:bd:06:18:06:2c": {
+          "state": "active",
+          "method": "wifi",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "wifi"
+          ]
+        },
+        "host:e4:a7:a0:25:ce:ac": {
+          "state": "active",
+          "method": "wifi",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "wifi"
+          ]
+        },
+        "endpoint:101": {
+          "state": "active",
+          "method": "agent",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "agent"
+          ],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "2026-10-07T09:00:15Z"
+          }
+        },
+        "endpoint:102": {
+          "state": "inactive",
+          "method": "agent",
+          "misses": 1,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [],
+          "agent": {
+            "status": "disconnected",
+            "last_keepalive": "2026-10-07T08:00:00Z"
+          }
+        },
+        "endpoint:103": {
+          "state": "unknown",
+          "method": "agent",
+          "misses": 1,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "2026-10-07T08:00:00Z"
+          }
+        },
+        "endpoint:104": {
+          "state": "unknown",
+          "method": null,
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [],
+          "reason": "agent_not_listed"
+        }
+      },
+      "ports": {
+        "device:00:23:ac:e5:74:00": {
+          "Fa1/0/6": "up"
+        },
+        "device:00:17:95:be:b2:00": {},
+        "device:54:75:d0:ab:bd:1a": {}
+      },
+      "graph_scan_time": "FROZEN",
+      "rescan_suggested": true,
+      "rescan_reasons": [
+        "active Wazuh agent 105 is not in the graph"
+      ]
+    },
+    {
+      "checked_at": "2026-10-07T09:00:40+00:00",
+      "threshold": 2,
+      "nodes": {
+        "device:00:23:ac:e5:74:00": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "device:90:6c:ac:d7:43:7f": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 1,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "device:00:17:95:be:b2:00": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 1,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "device:5c:8a:38:8b:a1:0b": {
+          "state": "unknown",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": []
+        },
+        "device:54:75:d0:ab:bd:1a": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 1,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "host:7a:bd:06:18:06:2c": {
+          "state": "active",
+          "method": "wifi",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "wifi"
+          ],
+          "reason": "wifi_unavailable"
+        },
+        "host:e4:a7:a0:25:ce:ac": {
+          "state": "active",
+          "method": "wifi",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "wifi"
+          ],
+          "reason": "wifi_unavailable"
+        },
+        "endpoint:101": {
+          "state": "active",
+          "method": "agent",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "agent"
+          ],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "2026-10-07T09:00:15Z"
+          }
+        },
+        "endpoint:102": {
+          "state": "inactive",
+          "method": "agent",
+          "misses": 2,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [],
+          "agent": {
+            "status": "disconnected",
+            "last_keepalive": "2026-10-07T08:00:00Z"
+          }
+        },
+        "endpoint:103": {
+          "state": "inactive",
+          "method": "agent",
+          "misses": 2,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "2026-10-07T08:00:00Z"
+          }
+        },
+        "endpoint:104": {
+          "state": "unknown",
+          "method": null,
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [],
+          "reason": "agent_not_listed"
+        }
+      },
+      "ports": {
+        "device:00:23:ac:e5:74:00": {
+          "Fa1/0/6": "down"
+        },
+        "device:00:17:95:be:b2:00": {},
+        "device:54:75:d0:ab:bd:1a": {}
+      },
+      "graph_scan_time": "FROZEN",
+      "rescan_suggested": true,
+      "rescan_reasons": [
+        "active Wazuh agent 105 is not in the graph"
+      ]
+    },
+    {
+      "checked_at": "2026-10-07T09:01:00+00:00",
+      "threshold": 2,
+      "nodes": {
+        "device:00:23:ac:e5:74:00": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:01:00+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "device:90:6c:ac:d7:43:7f": {
+          "state": "inactive",
+          "method": "icmp",
+          "misses": 2,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "device:00:17:95:be:b2:00": {
+          "state": "inactive",
+          "method": "snmp",
+          "misses": 2,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "device:5c:8a:38:8b:a1:0b": {
+          "state": "unknown",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": []
+        },
+        "device:54:75:d0:ab:bd:1a": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:01:00+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "host:7a:bd:06:18:06:2c": {
+          "state": "active",
+          "method": "wifi",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "wifi"
+          ],
+          "reason": "wifi_unavailable"
+        },
+        "host:e4:a7:a0:25:ce:ac": {
+          "state": "active",
+          "method": "wifi",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "wifi"
+          ],
+          "reason": "wifi_unavailable"
+        },
+        "endpoint:101": {
+          "state": "active",
+          "method": "agent",
+          "misses": 1,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "agent"
+          ],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "2026-10-07T09:00:15Z"
+          }
+        },
+        "endpoint:102": {
+          "state": "inactive",
+          "method": "agent",
+          "misses": 3,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [],
+          "agent": {
+            "status": "disconnected",
+            "last_keepalive": "2026-10-07T08:00:00Z"
+          }
+        },
+        "endpoint:103": {
+          "state": "inactive",
+          "method": "agent",
+          "misses": 3,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "2026-10-07T08:00:00Z"
+          }
+        },
+        "endpoint:104": {
+          "state": "unknown",
+          "method": null,
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [],
+          "reason": "agent_not_listed"
+        }
+      },
+      "ports": {
+        "device:00:23:ac:e5:74:00": {
+          "Fa1/0/6": "up"
+        },
+        "device:00:17:95:be:b2:00": {},
+        "device:54:75:d0:ab:bd:1a": {}
+      },
+      "graph_scan_time": "FROZEN",
+      "rescan_suggested": true,
+      "rescan_reasons": [
+        "active Wazuh agent 105 is not in the graph"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,545 @@
+{
+  "metadata": {
+    "scan_time": "FROZEN",
+    "counts": {
+      "hosts": 4,
+      "devices": 5,
+      "cves": 27,
+      "findings": 29
+    }
+  },
+  "cves": {
+    "CVE-2000-0486": {
+      "cvss": 5.0,
+      "cvss_version": "2.0",
+      "severity": "Medium",
+      "description": "Buffer overflow in Cisco TACACS+ tac_plus server allows remote attackers to cause a denial of service via a malformed packet with a long length field.",
+      "reference": "http://archives.neohapsis.com/archives/bugtraq/2000-05/0369.html",
+      "published_at": "2000-05-30T04:00:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "LOW",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2005-3921": {
+      "cvss": 2.6,
+      "cvss_version": "2.0",
+      "severity": "Low",
+      "description": "Cross-site scripting (XSS) vulnerability in Cisco IOS Web Server for IOS 12.0(2a) allows remote attackers to inject arbitrary web script or HTML by (1) packets containing HTML that an administrator views via an HTTP interface to the contents of memory buffers, as demonstrated by the URI /level/15/exec/-/buffers/assigned/dump; or (2) sending the router Cisco Discovery Protocol (CDP) packets with HTML payload that an administrator views via the CDP status pages.  NOTE: these vectors were originally reported as being associated with the dump and packet options in /level/15/exec/-/show/buffers.",
+      "reference": "http://secunia.com/advisories/17780",
+      "published_at": "2005-11-30T11:03:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "HIGH",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2006-3906": {
+      "cvss": 5.0,
+      "cvss_version": "2.0",
+      "severity": "Medium",
+      "description": "Internet Key Exchange (IKE) version 1 protocol, as implemented on Cisco IOS, VPN 3000 Concentrators, and PIX firewalls, allows remote attackers to cause a denial of service (resource exhaustion) via a flood of IKE Phase-1 packets that exceed the session expiration rate. NOTE: it has been argued that this is due to a design weakness of the IKE version 1 protocol, in which case other vendors and implementations would also be affected.",
+      "reference": "http://archives.neohapsis.com/archives/bugtraq/2006-07/0531.html",
+      "published_at": "2006-07-27T22:04:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "LOW",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2006-4950": {
+      "cvss": 10.0,
+      "cvss_version": "2.0",
+      "severity": "High",
+      "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
+      "reference": "http://secunia.com/advisories/21974",
+      "published_at": "2006-09-23T10:07:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "LOW",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2007-0199": {
+      "cvss": 5.0,
+      "cvss_version": "2.0",
+      "severity": "Medium",
+      "description": "The Data-link Switching (DLSw) feature in Cisco IOS 11.0 through 12.4 allows remote attackers to cause a denial of service (device reload) via \"an invalid value in a DLSw message... during the capabilities exchange.\"",
+      "reference": "http://osvdb.org/32683",
+      "published_at": "2007-01-11T11:28:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "LOW",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2007-2587": {
+      "cvss": 6.3,
+      "cvss_version": "2.0",
+      "severity": "Medium",
+      "description": "The IOS FTP Server in Cisco IOS 11.3 through 12.4 allows remote authenticated users to cause a denial of service (IOS reload) via unspecified vectors involving transferring files (aka bug ID CSCse29244).",
+      "reference": "http://secunia.com/advisories/25199",
+      "published_at": "2007-05-10T00:19:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "MEDIUM",
+      "privileges_required": "LOW",
+      "user_interaction": "NONE"
+    },
+    "CVE-2007-5547": {
+      "cvss": 4.3,
+      "cvss_version": "2.0",
+      "severity": "Medium",
+      "description": "Cross-site scripting (XSS) vulnerability in Cisco IOS allows remote attackers to inject arbitrary web script or HTML, and execute IOS commands, via unspecified vectors, aka PSIRT-2022590358.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+      "reference": "http://osvdb.org/43742",
+      "published_at": "2007-10-18T20:17:00.000Z",
+      "attack_vector": "NETWORK",
+      "attack_complexity": "MEDIUM",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2007-5548": {
+      "cvss": 6.9,
+      "cvss_version": "2.0",
+      "severity": "Medium",
+      "description": "Multiple stack-based buffer overflows in Command EXEC in Cisco IOS allow local users to gain privileges via unspecified vectors, aka (1) PSIRT-0474975756 and (2) PSIRT-0388256465.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information.  However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
+      "reference": "http://osvdb.org/45360",
+      "published_at": "2007-10-18T20:17:00.000Z",
+      "attack_vector": "LOCAL",
+      "attack_complexity": "MEDIUM",
+      "privileges_required": "NONE",
+      "user_interaction": "NONE"
+    },
+    "CVE-2021-0001": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "An issue.",
+      "reference": "https://example.invalid/a",
+      "published_at": "2020-01-02T03:04:05.000Z"
+    },
+    "CVE-2021-0002": {
+      "cvss": 5.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "An issue.",
+      "reference": "https://example.invalid/a",
+      "published_at": "2020-01-02T03:04:05.000Z"
+    },
+    "CVE-2026-90000": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90000",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90001": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90001",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90002": {
+      "cvss": 9.1,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90002",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90003": {
+      "cvss": 8.8,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90003",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90004": {
+      "cvss": 8.1,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90004",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90005": {
+      "cvss": 7.5,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90005",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90006": {
+      "cvss": 7.5,
+      "cvss_version": "3.1",
+      "severity": "High",
+      "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90006",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90007": {
+      "cvss": 6.5,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90007",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90008": {
+      "cvss": 5.9,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90008",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90009": {
+      "cvss": 5.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90009",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90010": {
+      "cvss": 4.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90010 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90010",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90011": {
+      "cvss": 3.7,
+      "cvss_version": "3.1",
+      "severity": "Low",
+      "description": "Synthetic fixture vulnerability CVE-2026-90011 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90011",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90012": {
+      "cvss": 2.1,
+      "cvss_version": "3.1",
+      "severity": "Low",
+      "description": "Synthetic fixture vulnerability CVE-2026-90012 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90012",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90013": {
+      "cvss": null,
+      "cvss_version": null,
+      "severity": "-",
+      "description": "Synthetic fixture vulnerability CVE-2026-90013 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90013",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90020": {
+      "cvss": 6.1,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90020",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90021": {
+      "cvss": 5.5,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90021",
+      "published_at": "2026-03-01T00:00:00Z"
+    },
+    "CVE-2026-90022": {
+      "cvss": 4.0,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+      "reference": "https://example.invalid/advisories/CVE-2026-90022",
+      "published_at": "2026-03-01T00:00:00Z"
+    }
+  },
+  "hosts": {
+    "endpoint:101": {
+      "kind": "endpoint",
+      "hostname": "web-01",
+      "agent_id": "101",
+      "findings": [
+        {
+          "cve": "CVE-2026-90000",
+          "package": "lib0",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90000",
+          "package": "openssl-legacy",
+          "version": "1.1.1",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90001",
+          "package": "lib1",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90002",
+          "package": "lib2",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90003",
+          "package": "lib3",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90004",
+          "package": "lib4",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90005",
+          "package": "lib0",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90006",
+          "package": "lib1",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90007",
+          "package": "lib2",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90008",
+          "package": "lib3",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90009",
+          "package": "lib4",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90010",
+          "package": "lib0",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90011",
+          "package": "lib1",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90012",
+          "package": "lib2",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90013",
+          "package": "lib3",
+          "version": "1.0",
+          "detected_at": "2026-10-01T08:00:00Z"
+        }
+      ]
+    },
+    "endpoint:102": {
+      "kind": "endpoint",
+      "hostname": "db-01",
+      "agent_id": "102",
+      "findings": [
+        {
+          "cve": "CVE-2026-90020",
+          "package": "postgresql",
+          "version": "14.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90021",
+          "package": "postgresql",
+          "version": "14.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90022",
+          "package": "postgresql",
+          "version": "14.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        },
+        {
+          "cve": "CVE-2026-90000",
+          "package": "openssl",
+          "version": "3.0.2",
+          "detected_at": "2026-10-01T08:00:00Z"
+        }
+      ]
+    },
+    "endpoint:103": {
+      "kind": "endpoint",
+      "hostname": "kiosk-01",
+      "agent_id": "103",
+      "findings": []
+    },
+    "endpoint:104": {
+      "kind": "endpoint",
+      "hostname": "laptop-07",
+      "agent_id": "104",
+      "findings": null
+    },
+    "device:00:23:ac:e5:74:00": {
+      "kind": "device",
+      "hostname": "L3-Switch",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 12.2(55)SE12",
+        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-09T08:00:06+00:00",
+        "stale": false,
+        "total": 8
+      },
+      "findings": [
+        {
+          "cve": "CVE-2000-0486",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2005-3921",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2006-3906",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2006-4950",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2007-0199",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2007-2587",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2007-5547",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2007-5548",
+          "package": "Cisco IOS 12.2(55)SE12",
+          "version": "12.2(55)SE12",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        }
+      ]
+    },
+    "device:90:6c:ac:d7:43:7f": {
+      "kind": "device",
+      "hostname": null,
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "unidentified",
+        "match": null,
+        "product": null,
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": null,
+        "stale": false,
+        "total": null
+      },
+      "findings": null
+    },
+    "device:00:17:95:be:b2:00": {
+      "kind": "device",
+      "hostname": "L2-Switch",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 12.2(58)SE2",
+        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-09T08:00:18+00:00",
+        "stale": false,
+        "total": 2
+      },
+      "findings": [
+        {
+          "cve": "CVE-2021-0001",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "detected_at": "2026-10-09T08:00:18+00:00"
+        },
+        {
+          "cve": "CVE-2021-0002",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "detected_at": "2026-10-09T08:00:18+00:00"
+        }
+      ]
+    },
+    "device:5c:8a:38:8b:a1:0b": {
+      "kind": "device",
+      "hostname": "CYFOR-HP-Switch",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "keyword",
+        "product": "HP Comware 5.20.99 Release 1107",
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": "2026-10-09T08:00:24+00:00",
+        "stale": false,
+        "total": 0
+      },
+      "findings": []
+    },
+    "device:54:75:d0:ab:bd:1a": {
+      "kind": "device",
+      "hostname": "CYFOR-AP1",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 15.3(3)JB",
+        "cpe": "cpe:2.3:o:cisco:ios:15.3\\(3\\)jb:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-09T08:00:36+00:00",
+        "stale": false,
+        "total": 0
+      },
+      "findings": []
+    }
+  }
+}

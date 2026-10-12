@@ -1,0 +1,198 @@
+{
+  "passes": [
+    {
+      "checked_at": "2026-10-07T09:00:20+00:00",
+      "threshold": 2,
+      "nodes": {
+        "device:00:11:22:33:44:01": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "host:00:50:56:bb:00:01": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "host:00:50:56:bb:00:02": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "device:00:17:95:be:b2:00": {
+          "state": "unknown",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": []
+        },
+        "device:00:23:ac:e5:74:00": {
+          "state": "unknown",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": []
+        }
+      },
+      "ports": {
+        "device:00:11:22:33:44:01": {
+          "Fa0/2": "up",
+          "Fa0/3": "up",
+          "Fa0/9": "down"
+        }
+      },
+      "graph_scan_time": "FROZEN",
+      "rescan_suggested": false,
+      "rescan_reasons": []
+    },
+    {
+      "checked_at": "2026-10-07T09:00:40+00:00",
+      "threshold": 2,
+      "nodes": {
+        "device:00:11:22:33:44:01": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "host:00:50:56:bb:00:01": {
+          "state": "inactive",
+          "method": "port",
+          "misses": 1,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "icmp"
+          ],
+          "port_down": {
+            "device": "device:00:11:22:33:44:01",
+            "port": "Fa0/2",
+            "previous_state": "active",
+            "since": "2026-10-07T09:00:40+00:00"
+          }
+        },
+        "host:00:50:56:bb:00:02": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "device:00:17:95:be:b2:00": {
+          "state": "unknown",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": []
+        },
+        "device:00:23:ac:e5:74:00": {
+          "state": "unknown",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": []
+        }
+      },
+      "ports": {
+        "device:00:11:22:33:44:01": {
+          "Fa0/2": "down",
+          "Fa0/3": "up",
+          "Fa0/9": "down"
+        }
+      },
+      "graph_scan_time": "FROZEN",
+      "rescan_suggested": false,
+      "rescan_reasons": []
+    },
+    {
+      "checked_at": "2026-10-07T09:01:00+00:00",
+      "threshold": 2,
+      "nodes": {
+        "device:00:11:22:33:44:01": {
+          "state": "active",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:01:00+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "snmp"
+          ]
+        },
+        "host:00:50:56:bb:00:01": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:01:00+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "host:00:50:56:bb:00:02": {
+          "state": "active",
+          "method": "icmp",
+          "misses": 1,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "icmp"
+          ]
+        },
+        "device:00:17:95:be:b2:00": {
+          "state": "unknown",
+          "method": "snmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": []
+        },
+        "device:00:23:ac:e5:74:00": {
+          "state": "unknown",
+          "method": "icmp",
+          "misses": 0,
+          "last_seen": null,
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": []
+        }
+      },
+      "ports": {
+        "device:00:11:22:33:44:01": {
+          "Fa0/2": "up",
+          "Fa0/3": "up",
+          "Fa0/9": "up"
+        }
+      },
+      "graph_scan_time": "FROZEN",
+      "rescan_suggested": true,
+      "rescan_reasons": [
+        "port Fa0/9 on core came up with nothing linked to it"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "metadata": {
+    "scan_time": "FROZEN",
+    "counts": {
+      "hosts": 1,
+      "devices": 3,
+      "cves": 4,
+      "findings": 4
+    }
+  },
+  "cves": {
+    "CVE-2020-0001": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "An issue.",
+      "reference": "https://example.invalid/a",
+      "published_at": "2020-01-02T03:04:05.000Z"
+    },
+    "CVE-2020-0002": {
+      "cvss": 5.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "An issue.",
+      "reference": "https://example.invalid/a",
+      "published_at": "2020-01-02T03:04:05.000Z"
+    },
+    "CVE-2021-0001": {
+      "cvss": 9.8,
+      "cvss_version": "3.1",
+      "severity": "Critical",
+      "description": "An issue.",
+      "reference": "https://example.invalid/a",
+      "published_at": "2020-01-02T03:04:05.000Z"
+    },
+    "CVE-2021-0002": {
+      "cvss": 5.3,
+      "cvss_version": "3.1",
+      "severity": "Medium",
+      "description": "An issue.",
+      "reference": "https://example.invalid/a",
+      "published_at": "2020-01-02T03:04:05.000Z"
+    }
+  },
+  "hosts": {
+    "device:00:11:22:33:44:01": {
+      "kind": "device",
+      "hostname": "core",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "unidentified",
+        "match": null,
+        "product": null,
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": null,
+        "stale": false,
+        "total": null
+      },
+      "findings": null
+    },
+    "host:00:50:56:bb:00:02": {
+      "kind": "endpoint",
+      "hostname": "L2-Switch",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "OpenSSH 8.2p1",
+        "cpe": "cpe:2.3:a:openbsd:openssh:8.2p1:*:*:*:*:*:*:*",
+        "source": "nmap",
+        "fetched_at": "2026-10-09T08:00:18+00:00",
+        "stale": false,
+        "total": 2,
+        "potential": true
+      },
+      "findings": [
+        {
+          "cve": "CVE-2020-0001",
+          "package": "OpenSSH 8.2p1",
+          "version": "8.2p1",
+          "detected_at": "2026-10-09T08:00:18+00:00"
+        },
+        {
+          "cve": "CVE-2020-0002",
+          "package": "OpenSSH 8.2p1",
+          "version": "8.2p1",
+          "detected_at": "2026-10-09T08:00:18+00:00"
+        }
+      ]
+    },
+    "device:00:17:95:be:b2:00": {
+      "kind": "device",
+      "hostname": "L2-Switch",
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 12.2(58)SE2",
+        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-09T08:00:06+00:00",
+        "stale": false,
+        "total": 2
+      },
+      "findings": [
+        {
+          "cve": "CVE-2021-0001",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2021-0002",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        }
+      ]
+    },
+    "device:00:23:ac:e5:74:00": {
+      "kind": "device",
+      "hostname": null,
+      "agent_id": null,
+      "cve_lookup": {
+        "status": "unidentified",
+        "match": null,
+        "product": null,
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": null,
+        "stale": false,
+        "total": null
+      },
+      "findings": null
+    }
+  }
+}

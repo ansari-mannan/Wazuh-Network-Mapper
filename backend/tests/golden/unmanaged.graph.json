@@ -1,0 +1,734 @@
+{
+  "nodes": [
+    {
+      "node_id": "device:00:11:22:33:44:01",
+      "kind": "device",
+      "ip": "10.0.0.1",
+      "hostname": "core",
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": null,
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "role": "l3-switch",
+      "risk_score": null,
+      "max_cvss": null,
+      "discovery_order": 0,
+      "parent_id": null,
+      "chassis_id": "00:11:22:33:44:01",
+      "pollable": true,
+      "neighbor_ports": [],
+      "uplink_ports": [],
+      "port_status": {},
+      "top_cves": [],
+      "cve_summary": null,
+      "cve_lookup": {
+        "status": "unidentified",
+        "match": null,
+        "product": null,
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": null,
+        "stale": false,
+        "total": null
+      },
+      "reachable_cve": null,
+      "config_checks": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "result": "unknown",
+          "reason": "configuration data was not collected"
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "result": "unknown",
+          "reason": "configuration data was not collected"
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "result": "unknown",
+          "reason": "configuration data was not collected"
+        },
+        {
+          "id": "snmp-default-community",
+          "title": "Default SNMP community name",
+          "result": "unknown",
+          "reason": "configuration data was not collected"
+        },
+        {
+          "id": "spare-ports-in-used-vlan",
+          "title": "Spare access ports in a VLAN in use",
+          "result": "unknown",
+          "reason": "configuration data was not collected"
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "result": "unknown",
+          "reason": "configuration data was not collected"
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "result": "not_applicable",
+          "reason": "no data source for this vendor"
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "result": "not_applicable",
+          "reason": "no data source for this vendor"
+        }
+      ],
+      "config_findings": [],
+      "config_summary": {
+        "checks": 8,
+        "results": {
+          "pass": 0,
+          "fail": 0,
+          "not_applicable": 2,
+          "unknown": 6,
+          "not_checked": 0
+        },
+        "findings": {
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "advisory": 0
+        }
+      }
+    },
+    {
+      "node_id": "host:00:50:56:bb:00:01",
+      "kind": "endpoint",
+      "ip": "10.0.0.60",
+      "hostname": null,
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": "00:50:56:bb:00:01",
+      "discovery_method": "snmp_fdb",
+      "status": "discovered",
+      "role": "host",
+      "risk_score": null,
+      "max_cvss": null,
+      "discovery_order": 1,
+      "parent_id": "device:00:11:22:33:44:01",
+      "agent_id": null,
+      "stale": false,
+      "top_cves": [],
+      "cve_summary": null,
+      "vlan": 10,
+      "unmanaged": true,
+      "mac_type": "global",
+      "mac_vendor": "VMware, Inc.",
+      "open_ports": [
+        {
+          "port": 80,
+          "protocol": "tcp",
+          "service": "http",
+          "product": null,
+          "version": null
+        }
+      ],
+      "reachable_cve": null
+    },
+    {
+      "node_id": "host:00:50:56:bb:00:02",
+      "kind": "endpoint",
+      "ip": "10.0.0.50",
+      "hostname": "L2-Switch",
+      "vendor": "Cisco",
+      "model": "C2960",
+      "firmware": "12.2(58)SE2",
+      "serial": null,
+      "mac": "00:50:56:bb:00:02",
+      "discovery_method": "snmp_fdb",
+      "status": "discovered",
+      "role": "host",
+      "risk_score": 7.7,
+      "max_cvss": 9.8,
+      "discovery_order": 2,
+      "parent_id": "device:00:11:22:33:44:01",
+      "agent_id": null,
+      "stale": false,
+      "top_cves": [
+        {
+          "cve": "CVE-2020-0001",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "OpenSSH 8.2p1",
+          "version": "8.2p1",
+          "description": "An issue.",
+          "reference": "https://example.invalid/a",
+          "published_at": "2020-01-02T03:04:05.000Z",
+          "detected_at": "2026-10-09T08:00:18+00:00"
+        },
+        {
+          "cve": "CVE-2020-0002",
+          "cvss": 5.3,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "OpenSSH 8.2p1",
+          "version": "8.2p1",
+          "description": "An issue.",
+          "reference": "https://example.invalid/a",
+          "published_at": "2020-01-02T03:04:05.000Z",
+          "detected_at": "2026-10-09T08:00:18+00:00"
+        }
+      ],
+      "cve_summary": {
+        "total": 2,
+        "critical": 1,
+        "high": 0,
+        "medium": 1,
+        "low": 0,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "vlan": 10,
+      "unmanaged": true,
+      "mac_type": "global",
+      "mac_vendor": "VMware, Inc.",
+      "snmp": true,
+      "name_source": "snmp",
+      "sys_descr": "Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(58)SE2, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2011 by Cisco Systems, Inc. Compiled Thu 21-Jul-11 02:13 by prod_rel_team",
+      "software_family": "cisco_ios",
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "OpenSSH 8.2p1",
+        "cpe": "cpe:2.3:a:openbsd:openssh:8.2p1:*:*:*:*:*:*:*",
+        "source": "nmap",
+        "fetched_at": "2026-10-09T08:00:18+00:00",
+        "stale": false,
+        "total": 2,
+        "potential": true
+      },
+      "open_ports": [
+        {
+          "port": 22,
+          "protocol": "tcp",
+          "service": "ssh",
+          "product": "OpenSSH",
+          "version": "8.2p1"
+        },
+        {
+          "port": 631,
+          "protocol": "tcp",
+          "service": "ipp",
+          "product": null,
+          "version": null
+        }
+      ],
+      "reachable_cve": {
+        "status": "none_found",
+        "source": "findings"
+      }
+    },
+    {
+      "node_id": "device:00:17:95:be:b2:00",
+      "kind": "device",
+      "ip": "172.20.10.100",
+      "hostname": "L2-Switch",
+      "vendor": "Cisco",
+      "model": "C2960",
+      "firmware": "12.2(58)SE2",
+      "serial": null,
+      "mac": "00:17:95:be:b2:00",
+      "discovery_method": "snmp_lldp",
+      "status": "online",
+      "role": "l2-switch",
+      "risk_score": 7.7,
+      "max_cvss": 9.8,
+      "discovery_order": 3,
+      "parent_id": null,
+      "chassis_id": "00:17:95:be:b2:00",
+      "pollable": true,
+      "neighbor_ports": [
+        "Fa0/1"
+      ],
+      "uplink_ports": [
+        "Fa0/1"
+      ],
+      "port_status": {
+        "Vlan1": "down",
+        "Vlan10": "up",
+        "Vlan20": "up",
+        "Vlan30": "up",
+        "Vlan99": "up",
+        "FastEthernet0/1": "up",
+        "FastEthernet0/2": "down",
+        "FastEthernet0/3": "down",
+        "FastEthernet0/4": "down",
+        "FastEthernet0/5": "down",
+        "FastEthernet0/6": "down",
+        "FastEthernet0/7": "down",
+        "FastEthernet0/8": "down",
+        "FastEthernet0/9": "down",
+        "FastEthernet0/10": "down",
+        "FastEthernet0/11": "down",
+        "FastEthernet0/12": "down",
+        "FastEthernet0/13": "down",
+        "FastEthernet0/14": "down",
+        "FastEthernet0/15": "down",
+        "FastEthernet0/16": "down",
+        "FastEthernet0/17": "down",
+        "FastEthernet0/18": "down",
+        "FastEthernet0/19": "down",
+        "FastEthernet0/20": "down",
+        "FastEthernet0/21": "down",
+        "FastEthernet0/22": "down",
+        "FastEthernet0/23": "down",
+        "FastEthernet0/24": "down",
+        "FastEthernet0/25": "down",
+        "FastEthernet0/26": "down",
+        "FastEthernet0/27": "down",
+        "FastEthernet0/28": "down",
+        "FastEthernet0/29": "down",
+        "FastEthernet0/30": "down",
+        "FastEthernet0/31": "down",
+        "FastEthernet0/32": "down",
+        "FastEthernet0/33": "down",
+        "FastEthernet0/34": "down",
+        "FastEthernet0/35": "down",
+        "FastEthernet0/36": "down",
+        "FastEthernet0/37": "down",
+        "FastEthernet0/38": "down",
+        "FastEthernet0/39": "down",
+        "FastEthernet0/40": "down",
+        "FastEthernet0/41": "down",
+        "FastEthernet0/42": "down",
+        "FastEthernet0/43": "down",
+        "FastEthernet0/44": "down",
+        "FastEthernet0/45": "down",
+        "FastEthernet0/46": "down",
+        "FastEthernet0/47": "down",
+        "FastEthernet0/48": "down",
+        "GigabitEthernet0/1": "down",
+        "GigabitEthernet0/2": "down",
+        "Null0": "up"
+      },
+      "software_family": "cisco_ios",
+      "unmanaged": true,
+      "snmp": true,
+      "sys_descr": "Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(58)SE2, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2011 by Cisco Systems, Inc. Compiled Thu 21-Jul-11 02:13 by prod_rel_team",
+      "top_cves": [
+        {
+          "cve": "CVE-2021-0001",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "An issue.",
+          "reference": "https://example.invalid/a",
+          "published_at": "2020-01-02T03:04:05.000Z",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        },
+        {
+          "cve": "CVE-2021-0002",
+          "cvss": 5.3,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "Cisco IOS 12.2(58)SE2",
+          "version": "12.2(58)SE2",
+          "description": "An issue.",
+          "reference": "https://example.invalid/a",
+          "published_at": "2020-01-02T03:04:05.000Z",
+          "detected_at": "2026-10-09T08:00:06+00:00"
+        }
+      ],
+      "cve_summary": {
+        "total": 2,
+        "critical": 1,
+        "high": 0,
+        "medium": 1,
+        "low": 0,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "cve_lookup": {
+        "status": "ok",
+        "match": "cpe",
+        "product": "Cisco IOS 12.2(58)SE2",
+        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
+        "source": "nvd",
+        "fetched_at": "2026-10-09T08:00:06+00:00",
+        "stale": false,
+        "total": 2
+      },
+      "reachable_cve": {
+        "status": "none_found",
+        "source": "findings"
+      },
+      "config_checks": [
+        {
+          "id": "mgmt-telnet-enabled",
+          "title": "Telnet management enabled",
+          "result": "unknown",
+          "reason": "the device does not list its TCP listeners over SNMP, and the connection test is not enabled"
+        },
+        {
+          "id": "mgmt-http-enabled",
+          "title": "Plain HTTP management enabled",
+          "result": "unknown",
+          "reason": "the device does not list its TCP listeners over SNMP, and the connection test is not enabled"
+        },
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "result": "fail"
+        },
+        {
+          "id": "snmp-default-community",
+          "title": "Default SNMP community name",
+          "result": "not_checked",
+          "reason": "probe not enabled"
+        },
+        {
+          "id": "spare-ports-in-used-vlan",
+          "title": "Spare access ports in a VLAN in use",
+          "result": "unknown",
+          "reason": "the interface table was not read"
+        },
+        {
+          "id": "access-ports-default-vlan",
+          "title": "Access ports in the default VLAN",
+          "result": "unknown",
+          "reason": "the interface table was not read"
+        },
+        {
+          "id": "bpdu-guard-missing",
+          "title": "BPDU guard missing on access ports",
+          "result": "unknown",
+          "reason": "the interface table was not read"
+        },
+        {
+          "id": "port-security-disabled",
+          "title": "Port security disabled on access ports",
+          "result": "unknown",
+          "reason": "the interface table was not read"
+        }
+      ],
+      "config_findings": [
+        {
+          "id": "snmp-no-auth",
+          "title": "SNMP managed with a community string",
+          "severity": "medium",
+          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
+          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
+          "references": [
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220604",
+              "stig_id": "CISC-ND-001130",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
+              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-001967",
+              "nist": "IA-3 (1)",
+              "relation": "requires"
+            },
+            {
+              "source": "DISA",
+              "document": "Cisco IOS Switch NDM STIG",
+              "release": "V3R9 (2026-09-01)",
+              "rule_id": "V-220605",
+              "stig_id": "CISC-ND-001140",
+              "srg_id": "SRG-APP-000395-NDM-000310",
+              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
+              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605",
+              "severity": "medium",
+              "category": "CAT II",
+              "cci": "CCI-000068",
+              "nist": "AC-17 (2)",
+              "relation": "requires"
+            }
+          ],
+          "cwe": "CWE-319",
+          "evidence": {
+            "snmp_version": "v2c"
+          }
+        }
+      ],
+      "config_summary": {
+        "checks": 8,
+        "results": {
+          "pass": 0,
+          "fail": 1,
+          "not_applicable": 0,
+          "unknown": 6,
+          "not_checked": 1
+        },
+        "findings": {
+          "high": 0,
+          "medium": 1,
+          "low": 0,
+          "advisory": 0
+        }
+      }
+    },
+    {
+      "node_id": "device:00:23:ac:e5:74:00",
+      "kind": "device",
+      "ip": "172.20.10.254",
+      "hostname": null,
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": null,
+      "discovery_method": "snmp_lldp",
+      "status": "unreachable",
+      "role": "l3-switch",
+      "risk_score": null,
+      "max_cvss": null,
+      "discovery_order": 4,
+      "parent_id": "device:00:17:95:be:b2:00",
+      "chassis_id": "00:23:ac:e5:74:00",
+      "pollable": false,
+      "neighbor_ports": [],
+      "uplink_ports": [],
+      "port_status": {},
+      "top_cves": [],
+      "cve_summary": null,
+      "cve_lookup": {
+        "status": "unidentified",
+        "match": null,
+        "product": null,
+        "cpe": null,
+        "source": "nvd",
+        "fetched_at": null,
+        "stale": false,
+        "total": null
+      },
+      "reachable_cve": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "device:00:17:95:be:b2:00",
+      "source_name": "L2-Switch",
+      "target": "device:00:23:ac:e5:74:00",
+      "target_name": "172.20.10.254",
+      "type": "lldp",
+      "local_port": "Fa0/1",
+      "remote_port": "Fa1/0/2"
+    },
+    {
+      "source": "host:00:50:56:bb:00:01",
+      "source_name": "10.0.0.60",
+      "target": "device:00:11:22:33:44:01",
+      "target_name": "core",
+      "type": "endpoint_link",
+      "local_port": "Fa0/2",
+      "confidence": "fdb"
+    },
+    {
+      "source": "host:00:50:56:bb:00:02",
+      "source_name": "10.0.0.50",
+      "target": "device:00:11:22:33:44:01",
+      "target_name": "core",
+      "type": "endpoint_link",
+      "local_port": "Fa0/3",
+      "confidence": "fdb"
+    }
+  ],
+  "metadata": {
+    "scan_time": "FROZEN",
+    "network_scan_time": null,
+    "seed": null,
+    "warnings": [
+      {
+        "type": "device_unidentified",
+        "node_ids": [
+          "device:00:11:22:33:44:01"
+        ]
+      },
+      {
+        "type": "checklist_data_missing",
+        "node_ids": [
+          "device:00:11:22:33:44:01"
+        ]
+      }
+    ],
+    "attack_path_sources": [],
+    "counts": {
+      "nodes": 5,
+      "endpoints": 0,
+      "devices": 3,
+      "fdb_discovered_hosts": 2,
+      "lldp_edges": 1,
+      "endpoint_edges": 2,
+      "unparented_endpoints": 0
+    },
+    "confidence": {
+      "fdb": 2
+    },
+    "merged_lldp_endpoints": 0,
+    "fdb_discovered_hosts": 2,
+    "fdb_enriched_nodes": 0,
+    "unparented_endpoints": [],
+    "unreachable_boundaries": [
+      {
+        "node_id": "device:00:23:ac:e5:74:00",
+        "chassis_id": "00:23:ac:e5:74:00",
+        "ip": "172.20.10.254",
+        "status": "unreachable"
+      }
+    ],
+    "coverage": {
+      "hosts": 2,
+      "managed": 0,
+      "unmanaged": 2,
+      "managed_share": 0.0
+    },
+    "snmp_question": {
+      "asked": 3,
+      "answered": 2,
+      "forwarding": 1,
+      "cap": 256,
+      "cap_reached": false
+    },
+    "name_lookup": {
+      "asked": 1,
+      "named": 0,
+      "budget_reached": false
+    },
+    "device_cves": {
+      "looked_up": 4,
+      "by_status": {
+        "ok": 2,
+        "unidentified": 2
+      },
+      "from_cache": 1,
+      "nvd_requests": 2,
+      "stale": 0,
+      "api_key": false,
+      "budget_s": 180.0
+    },
+    "nmap": {
+      "eligible": 2,
+      "scanned": 2,
+      "answered": 2,
+      "named": 0,
+      "with_cves": 1,
+      "nmap_requests": 1,
+      "cap_reached": false,
+      "budget_exceeded": false
+    },
+    "cve_vectors": {
+      "assets": 5,
+      "by_status": {
+        "none_found": 2
+      },
+      "looked_up": 0,
+      "nvd_requests": 0,
+      "api_key": false,
+      "budget_s": 180.0
+    },
+    "checklist": {
+      "devices_checked": 2,
+      "results": {
+        "pass": 0,
+        "fail": 1,
+        "not_applicable": 2,
+        "unknown": 12,
+        "not_checked": 1
+      },
+      "findings": {
+        "high": 0,
+        "medium": 1,
+        "low": 0,
+        "advisory": 0
+      },
+      "probe_enabled": false,
+      "port_test_enabled": false,
+      "source": "scan"
+    },
+    "timing": {
+      "endpoint_collect_s": null,
+      "endpoint_score_s": null,
+      "network_crawl_s": null,
+      "assemble_s": "FROZEN",
+      "device_cves_s": "FROZEN",
+      "total_s": "FROZEN",
+      "started_at": "FROZEN",
+      "finished_at": "FROZEN",
+      "snmp_question_s": "FROZEN",
+      "name_lookup_s": "FROZEN",
+      "nmap_s": "FROZEN",
+      "cve_vectors_s": "FROZEN",
+      "checklist_s": "FROZEN",
+      "attack_paths_s": "FROZEN"
+    },
+    "stages": [
+      {
+        "name": "Wazuh endpoints",
+        "status": "skipped",
+        "seconds": null,
+        "note": "off"
+      },
+      {
+        "name": "Network crawl",
+        "status": "ran",
+        "seconds": null,
+        "note": "1 device polled (from a file)"
+      },
+      {
+        "name": "SNMP question to unmanaged hosts",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "3 hosts asked, 2 answered"
+      },
+      {
+        "name": "Reverse DNS names",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "1 host asked, 0 named"
+      },
+      {
+        "name": "Device CVEs (NVD)",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "4 devices looked up, 2 NVD requests; cache 2 hits, 2 misses"
+      },
+      {
+        "name": "nmap service scan",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "2 hosts scanned, 2 answered, 1 with CVEs"
+      },
+      {
+        "name": "CVE vectors (NVD)",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "0 CVEs looked up, 0 NVD requests; cache 0 hits, 0 misses"
+      },
+      {
+        "name": "Configuration checks",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "2 devices checked"
+      },
+      {
+        "name": "Attack paths",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "0 routes to 1 protected asset"
+      }
+    ]
+  }
+}
