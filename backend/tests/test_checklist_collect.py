@@ -14,7 +14,8 @@ from vulnmapper.checklist import tables as t
 from vulnmapper.checklist import collect as c
 from vulnmapper.checklist.collect import collect_config
 from vulnmapper.network import parse
-from vulnmapper.network.crawl import Crawler, build_document
+from vulnmapper.network.crawl import Crawler
+from vulnmapper.network.document import build_document
 
 IP = "10.0.0.2"
 CISCO_TABLES = {t.VM_VLAN, t.CPS_IF_ENABLE, t.STPX_PORT_MODE, t.STPX_PORT_BPDU_GUARD}

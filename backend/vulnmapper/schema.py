@@ -197,6 +197,16 @@ DISCOVERY_SNMP_FDB = "snmp_fdb"
 EDGE_LLDP = "lldp"                 # device <-> device adjacency (LLDP)
 EDGE_ENDPOINT_LINK = "endpoint_link"  # endpoint -> switch access port
 
+# An endpoint_link's ``confidence``: the evidence that placed the host there.
+CONF_LLDP = "lldp"                        # it announced itself to the switch over LLDP
+CONF_RESOLVED = "resolved"                # one access port's forwarding table holds its MAC
+CONF_TIEBREAK = "tiebreak"                # several did; the port with the fewest MACs won
+CONF_SUBNET_FALLBACK = "subnet_fallback"  # only its /24 matched a device
+CONF_FDB = "fdb"                          # a host known only from a forwarding table
+CONF_WIFI = "wifi"                        # in an access point's client list
+
+ROLE_ACCESS_POINT = "access-point"
+
 
 def endpoint_node_id(agent_id: Any) -> str:
     """Stable node id for an endpoint, from its Wazuh agent id."""

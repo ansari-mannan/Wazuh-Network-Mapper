@@ -3,6 +3,13 @@ import { NodeLiveness } from '../../common';
 // How a node's liveness was last decided, in words, for the detail flyout and
 // the "Inactive (n)" panel.
 
+/** "last seen" time, in the viewer's locale; "never" if not seen. */
+export function formatSeen(iso: string | null | undefined): string {
+  if (!iso) return 'never';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
+}
+
 /** "8 s ago", "5 min ago", "3 h ago", "2 d ago"; null for a missing, bad or future time. */
 export function ago(iso: string | null | undefined, now: number = Date.now()): string | null {
   if (!iso) return null;

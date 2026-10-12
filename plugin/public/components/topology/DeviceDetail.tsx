@@ -1,220 +1,68 @@
-import React, { ReactNode, useState } from 'react';
+// The detail flyout for one node: identity, risk and CVE list (endpoints from
+// Wazuh, devices from NVD), configuration checks and port grid for devices.
+// The panels themselves are in DetailSections.tsx.
+import React, { ReactNode } from 'react';
 import {
   EuiBadge,
-  EuiButtonEmpty,
-  EuiButtonGroup,
-  EuiCallOut,
   EuiDescriptionList,
   EuiFlexGroup,
   EuiFlexItem,
   EuiFlyout,
   EuiFlyoutBody,
   EuiFlyoutHeader,
-  EuiHealth,
-  EuiNotificationBadge,
-  EuiPanel,
   EuiSpacer,
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { CveSummary, GraphNode, Importance, NodeLiveness } from '../../../common';
+import { GraphNode, NodeLiveness } from '../../../common';
 import { useGraph } from '../../lib/graph';
-import { useAttackPaths } from '../../lib/attackPathsData';
-import { useServices } from '../../lib/services';
-import { IMPORTANCE_LEVELS, IMPORTANCE_META, IMPORTANCE_SHORT } from '../../lib/attackPaths';
 import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
-import { livenessMethod } from '../../lib/livenessText';
-import { hasDeviceFindings, potentialText, staleText, unscoredReason } from '../../lib/deviceCveText';
+import { hasDeviceFindings, unscoredReason } from '../../lib/deviceCveText';
 import { deviceHintText, manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
-import { nodeRiskScore, RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
+import { nodeRiskScore, RISK_META, riskLevel } from '../../lib/risk';
 import { ConfigChecks } from './ConfigChecks';
+import { DevicePorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
 import { iconForRole } from './icons';
 import { isOffline, riskLabel } from './nodeStyle';
+import { ProtectControl } from './ProtectControl';
 
-// The detail flyout for one node: identity, risk and CVE list (endpoints from
-// Wazuh, devices from NVD), configuration checks and port grid for devices.
+type Rows = Array<[string, ReactNode]>;
 
-const EMPTY = '—';
-
-function Section({ title, count, children }: { title: string; count?: number; children: ReactNode }) {
-  return (
-    <EuiPanel paddingSize="m" hasShadow={false} hasBorder>
-      <EuiFlexGroup gutterSize="s" alignItems="center" responsive={false}>
-        <EuiFlexItem grow={false}>
-          <EuiTitle size="xxs">
-            <h3>{title}</h3>
-          </EuiTitle>
-        </EuiFlexItem>
-        {count !== undefined && (
-          <EuiFlexItem grow={false}>
-            <EuiNotificationBadge color="subdued">{count}</EuiNotificationBadge>
-          </EuiFlexItem>
-        )}
-      </EuiFlexGroup>
-      <EuiSpacer size="s" />
-      {children}
-    </EuiPanel>
-  );
-}
-
-function fields(pairs: Array<[string, ReactNode]>) {
-  return pairs.map(([title, value]) => ({
-    title,
-    description: value === null || value === undefined || value === '' ? EMPTY : value,
-  }));
-}
-
-// The scanner keeps Windows line breaks as literal "\r\n" text in descriptions.
-function cleanDescription(text: string): string {
-  return text.replace(/\\r\\n|\\n|\\r/g, '\n').trim();
-}
-
-function severityLevel(severity: string | null, cvss: number | null): RiskLevel {
-  const s = (severity || '').toLowerCase();
-  if (s === 'critical' || s === 'high' || s === 'medium' || s === 'low') return s;
-  return riskLevel(cvss);
-}
-
-// Distinct-CVE counts per band, worst first; "unknown" = CVEs with no score.
-const SUMMARY_BANDS: Array<{
-  key: 'critical' | 'high' | 'medium' | 'low' | 'unknown';
-  level: RiskLevel;
-  label: string;
-}> = [
-  { key: 'critical', level: 'critical', label: 'Critical' },
-  { key: 'high', level: 'high', label: 'High' },
-  { key: 'medium', level: 'medium', label: 'Medium' },
-  { key: 'low', level: 'low', label: 'Low' },
-  { key: 'unknown', level: 'unscored', label: 'Unknown' },
-];
-
-function RiskSummary({ score, summary }: { score: number | null; summary: CveSummary }) {
-  return (
-    <Section title="Risk">
-      <EuiDescriptionList
-        type="column"
-        compressed
-        className="vmFields"
-        listItems={fields([
-          ['Risk (base score)', riskLabel(score)],
-          ['Worst CVE (CVSS)', summary.max_cvss],
-        ])}
-      />
-      <EuiSpacer size="s" />
-      <EuiFlexGroup gutterSize="xs" wrap responsive={false} data-test-subj="vmCveCounts">
-        {SUMMARY_BANDS.map((b) => {
-          const n = summary[b.key];
-          return (
-            <EuiFlexItem grow={false} key={b.key}>
-              <EuiBadge color={n > 0 ? RISK_META[b.level].color : 'hollow'}>
-                {b.label} {n}
-              </EuiBadge>
-            </EuiFlexItem>
-          );
-        })}
-      </EuiFlexGroup>
-    </Section>
-  );
-}
-
-// Mark this asset as one to protect: the owner picks its FIPS 199 importance (or
-// unmarks it). Saving runs the recompute on the server, then re-reads the paths.
-function ProtectControl({ nodeId }: { nodeId: string }) {
-  const { doc, reload } = useAttackPaths();
-  const { http } = useServices();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const current = doc?.targets.find((t) => t.id === nodeId)?.importance ?? null;
-
-  const save = async (importance: Importance | null) => {
-    setBusy(true);
-    setError(null);
-    try {
-      await http.post('/api/vulnmapper/targets', { body: JSON.stringify({ id: nodeId, importance }) });
-      await reload();
-    } catch (e) {
-      setError(e.body?.message || e.message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <Section title="Protect this asset">
-      <EuiText size="xs" color="subdued">
-        <p>
-          Mark this asset's importance (FIPS 199) to see the routes that could reach it on the
-          Attack paths page.
-        </p>
-      </EuiText>
-      <EuiSpacer size="s" />
-      <EuiFlexGroup gutterSize="s" alignItems="center" responsive={false} wrap>
-        <EuiFlexItem grow={false}>
-          <EuiButtonGroup
-            legend="Importance"
-            isDisabled={busy}
-            idSelected={current || ''}
-            onChange={(id: string) => save(id as Importance)}
-            options={IMPORTANCE_LEVELS.map((l) => ({
-              id: l,
-              label: IMPORTANCE_SHORT[l],
-              'data-test-subj': `vmProtect-${l}`,
-            }))}
-            data-test-subj="vmProtect"
-          />
-        </EuiFlexItem>
-        {current && (
-          <EuiFlexItem grow={false}>
-            <EuiButtonEmpty size="s" iconType="cross" isDisabled={busy} onClick={() => save(null)} data-test-subj="vmUnprotect">
-              Unmark
-            </EuiButtonEmpty>
-          </EuiFlexItem>
-        )}
-        {current && (
-          <EuiFlexItem grow={false}>
-            <EuiBadge color={IMPORTANCE_META[current].color}>{IMPORTANCE_META[current].label}</EuiBadge>
-          </EuiFlexItem>
-        )}
-      </EuiFlexGroup>
-      {error && (
-        <>
-          <EuiSpacer size="s" />
-          <EuiCallOut color="danger" size="s" iconType="alert" title={error} />
-        </>
-      )}
-    </Section>
-  );
-}
-
-/** "last seen" time for liveness, in the viewer's locale; "never" if not seen. */
-export function formatSeen(iso: string | null | undefined): string {
-  if (!iso) return 'never';
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
-}
-
-const LIVENESS_HEALTH: Record<string, { color: string; label: string }> = {
-  active: { color: 'success', label: 'Active' },
-  inactive: { color: 'danger', label: 'Inactive' },
-  unknown: { color: 'subdued', label: 'Unknown' },
-};
-
-function LivenessValue({ value }: { value: NodeLiveness | undefined }) {
-  if (!value) {
-    return <EuiHealth color="subdued">Unknown · not checked yet</EuiHealth>;
+// The identity rows, in display order; host-only and Wi-Fi rows only where they apply.
+function identityRows(node: GraphNode, nameOf: (id: string) => string, liveness: Rows): Rows {
+  const hostRows: Rows = [];
+  if (node.kind === 'endpoint') {
+    if (node.mac_type) hostRows.push(['Manufacturer', manufacturerText(node)]);
+    if (node.name_source) hostRows.push(['Name from', nameSourceText(node.name_source)]);
+    if (node.device_hint) hostRows.push(['Device type', deviceHintText(node.device_hint)]);
   }
-  const health = LIVENESS_HEALTH[value.state] || LIVENESS_HEALTH.unknown;
-  return (
-    <span data-test-subj="vmLiveness">
-      <EuiHealth color={health.color}>{health.label}</EuiHealth>
-      <EuiText size="xs" color="subdued">
-        <p>
-          last seen {formatSeen(value.last_seen)} · via {livenessMethod(value)}
-        </p>
-      </EuiText>
-    </span>
-  );
+  if (node.snmp) hostRows.push(['SNMP reports', node.sys_descr || 'its name only']);
+  // An access point shows its client count; a Wi-Fi client its SSID and AP.
+  const wifiRows: Rows = [];
+  if (node.kind === 'device' && typeof node.wifi_clients === 'number') {
+    wifiRows.push(['Wi-Fi clients', clientCountText(node.wifi_clients)]);
+  }
+  if (node.kind === 'endpoint' && node.wifi) {
+    wifiRows.push(['Wi-Fi', wifiClientText(node.wifi, nameOf)]);
+  }
+  const lookup = node.cve_lookup;
+  return [
+    ['Hostname', node.hostname],
+    ['IP', node.ip],
+    ['MAC', node.mac],
+    ...hostRows,
+    ['Vendor', node.vendor],
+    ['Model', node.model],
+    ['Firmware', node.firmware],
+    ...(lookup && lookup.product ? ([['Software', lookup.product]] as Rows) : []),
+    ['Serial', node.serial],
+    ['Role', node.role],
+    ['Discovery method', node.discovery_method],
+    ['Status', node.status],
+    ...wifiRows,
+    ...liveness,
+  ];
 }
 
 export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () => void }) {
@@ -223,17 +71,9 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
     const other = graph?.nodes.find((n) => n.node_id === id);
     return (other && (other.hostname || other.ip)) || id;
   };
-  // An access point shows its client count; a Wi-Fi client its SSID and AP.
-  const wifiRows: Array<[string, ReactNode]> = [];
-  if (node.kind === 'device' && typeof node.wifi_clients === 'number') {
-    wifiRows.push(['Wi-Fi clients', clientCountText(node.wifi_clients)]);
-  }
-  if (node.kind === 'endpoint' && node.wifi) {
-    wifiRows.push(['Wi-Fi', wifiClientText(node.wifi, nameOf)]);
-  }
   const { liveness } = useLiveness();
   const livenessOn = Boolean(liveness?.enabled);
-  const nodeLiveness = livenessOn ? liveness?.nodes[node.node_id] : undefined;
+  const nodeLiveness: NodeLiveness | undefined = livenessOn ? liveness?.nodes[node.node_id] : undefined;
   const isDevice = node.kind === 'device';
   const Icon = iconForRole(node.role);
   const score = nodeRiskScore(node);
@@ -247,18 +87,9 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   // do those of a host without an agent that answered SNMP.
   const lookup = node.cve_lookup;
   const unmanaged = unmanagedText(node);
-  const hostRows: Array<[string, ReactNode]> = [];
-  if (node.kind === 'endpoint') {
-    if (node.mac_type) hostRows.push(['Manufacturer', manufacturerText(node)]);
-    if (node.name_source) hostRows.push(['Name from', nameSourceText(node.name_source)]);
-    if (node.device_hint) hostRows.push(['Device type', deviceHintText(node.device_hint)]);
-  }
-  // The service scan's open ports (unmanaged hosts); evidence on its own.
-  const openPorts = node.kind === 'endpoint' ? node.open_ports || [] : [];
-  if (node.snmp) hostRows.push(['SNMP reports', node.sys_descr || 'its name only']);
-  const deviceLookedUp = hasDeviceFindings(lookup);
+  const showCves = !isDevice || hasDeviceFindings(lookup);
   const reason = level === 'unscored' ? unscoredReason(node) : '';
-  const ports = node.kind === 'device' && node.port_status ? Object.entries(node.port_status) : [];
+  const livenessRow: Rows = livenessOn ? [['Liveness', <LivenessValue value={nodeLiveness} />]] : [];
 
   return (
     <EuiFlyout
@@ -320,26 +151,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
             type="column"
             compressed
             className="vmFields"
-            listItems={fields([
-              ['Hostname', node.hostname],
-              ['IP', node.ip],
-              ['MAC', node.mac],
-              ...hostRows,
-              ['Vendor', node.vendor],
-              ['Model', node.model],
-              ['Firmware', node.firmware],
-              ...(lookup && lookup.product
-                ? ([['Software', lookup.product]] as Array<[string, ReactNode]>)
-                : []),
-              ['Serial', node.serial],
-              ['Role', node.role],
-              ['Discovery method', node.discovery_method],
-              ['Status', node.status],
-              ...wifiRows,
-              ...(livenessOn
-                ? ([['Liveness', <LivenessValue value={nodeLiveness} />]] as Array<[string, ReactNode]>)
-                : []),
-            ])}
+            listItems={fields(identityRows(node, nameOf, livenessRow))}
           />
         </Section>
         <EuiSpacer size="m" />
@@ -351,144 +163,21 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
           </>
         )}
 
-        {(!isDevice || deviceLookedUp) && (
-          <Section title="Vulnerabilities" count={cveTotal}>
-            {lookup && (
-              <>
-                <EuiText size="xs" color="subdued" data-test-subj="vmCvePotential">
-                  <p>{potentialText(lookup)}</p>
-                  {lookup.stale && <p>{staleText(lookup)}</p>}
-                </EuiText>
-                <EuiSpacer size="s" />
-              </>
-            )}
-            {cveTotal > cves.length && (
-              <>
-                <EuiText size="xs" color="subdued" data-test-subj="vmCveShowing">
-                  <p>
-                    Showing the {cves.length} worst of {cveTotal}.
-                  </p>
-                </EuiText>
-                <EuiSpacer size="s" />
-              </>
-            )}
-            {cves.length === 0 ? (
-              <EuiText size="s" color="subdued">
-                <p>
-                  {isDevice
-                    ? score === null
-                      ? 'No CVEs found.'
-                      : 'NVD lists no CVEs for this software version.'
-                    : `No CVEs reported${score === null ? ' (host is unscored)' : ''}.`}
-                </p>
-              </EuiText>
-            ) : (
-              cves.map((c, i) => {
-                const sev = severityLevel(c.severity, c.cvss);
-                return (
-                  <React.Fragment key={`${c.cve}:${i}`}>
-                    {i > 0 && <EuiSpacer size="s" />}
-                    <EuiPanel paddingSize="s" hasShadow={false} hasBorder>
-                      <EuiFlexGroup justifyContent="spaceBetween" alignItems="center" responsive={false} gutterSize="s">
-                        <EuiFlexItem grow={false}>
-                          <EuiText size="s">
-                            <strong className="vmMono">{c.cve}</strong>
-                          </EuiText>
-                        </EuiFlexItem>
-                        <EuiFlexItem grow={false}>
-                          <EuiBadge color={RISK_META[sev].color}>
-                            {c.severity}
-                            {c.cvss !== null && ` · ${c.cvss}`}
-                            {c.cvss_version && ` (v${c.cvss_version})`}
-                          </EuiBadge>
-                        </EuiFlexItem>
-                      </EuiFlexGroup>
-                      {(c.package || c.version) && (
-                        <EuiText size="xs" color="subdued">
-                          <p>
-                            {c.package}
-                            {c.version && ` · ${c.version}`}
-                          </p>
-                        </EuiText>
-                      )}
-                      {c.description && (
-                        <EuiText size="xs" className="vmCveDesc">
-                          <p>{cleanDescription(c.description)}</p>
-                        </EuiText>
-                      )}
-                    </EuiPanel>
-                  </React.Fragment>
-                );
-              })
-            )}
-          </Section>
-        )}
+        {showCves && <Vulnerabilities node={node} cves={cves} total={cveTotal} score={score} lookup={lookup} />}
 
         {node.kind === 'endpoint' && node.open_ports && (
           <>
-            {(!isDevice || deviceLookedUp) && <EuiSpacer size="m" />}
-            <Section title="Open ports" count={openPorts.length}>
-              <EuiText size="xs" color="subdued">
-                <p>From the service scan (nmap). The host has no Wazuh agent.</p>
-              </EuiText>
-              <EuiSpacer size="s" />
-              {openPorts.length === 0 ? (
-                <EuiText size="s" color="subdued">
-                  <p>It answered the scan, but no open port was found.</p>
-                </EuiText>
-              ) : (
-                <EuiDescriptionList
-                  type="column"
-                  compressed
-                  className="vmFields"
-                  data-test-subj="vmOpenPorts"
-                  listItems={openPorts.map((p) => ({
-                    title: <span className="vmMono">{`${p.port}/${p.protocol}`}</span>,
-                    description: [p.service, p.product, p.version].filter(Boolean).join(' · ') || EMPTY,
-                  }))}
-                />
-              )}
-            </Section>
+            {showCves && <EuiSpacer size="m" />}
+            <OpenPorts node={node} />
           </>
         )}
 
         {node.kind === 'device' && (
           <>
-            {(!isDevice || deviceLookedUp) && <EuiSpacer size="m" />}
+            {showCves && <EuiSpacer size="m" />}
             <ConfigChecks node={node} meta={graph?.metadata} />
             <EuiSpacer size="m" />
-            <Section title="Ports" count={ports.length}>
-              {ports.length === 0 ? (
-                <EuiText size="s" color="subdued">
-                  <p>No port status reported.</p>
-                </EuiText>
-              ) : (
-                <div className="vmPorts">
-                  {ports.map(([name, state]) => (
-                    <EuiHealth key={name} color={state === 'up' ? 'success' : 'danger'} title={state} textSize="xs">
-                      <span className="vmMono">{name}</span>
-                    </EuiHealth>
-                  ))}
-                </div>
-              )}
-              {node.port_status_note && (
-                <EuiText size="xs" color="subdued">
-                  <p>{node.port_status_note}</p>
-                </EuiText>
-              )}
-            </Section>
-            <EuiSpacer size="m" />
-            <Section title="Topology ports">
-              <EuiDescriptionList
-                type="column"
-                compressed
-                className="vmFields"
-                listItems={fields([
-                  ['Neighbor ports', (node.neighbor_ports || []).join(', ')],
-                  ['Uplink ports', (node.uplink_ports || []).join(', ')],
-                ])}
-              />
-            </Section>
+            <DevicePorts node={node} />
           </>
         )}
       </EuiFlyoutBody>

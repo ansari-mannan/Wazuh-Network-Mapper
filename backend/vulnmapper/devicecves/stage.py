@@ -35,7 +35,8 @@ import logging
 from collections import Counter
 from typing import Optional
 
-from ..endpoints import catalogue_entry, distinct_cves, enrich_agent, slim_findings
+from ..endpoints import distinct_cves, enrich_agent, slim_findings
+from ..schema import KIND_DEVICE
 from . import families
 from .cache import Cache
 from .lookup import STATUS_OK, STATUS_UNAVAILABLE, STATUS_UNIDENTIFIED, Lookup, lookup
@@ -45,7 +46,6 @@ log = logging.getLogger("vulnmapper.devicecves")
 
 DEFAULT_BUDGET_S = 180.0
 SOURCE = "nvd"
-KIND_DEVICE = "device"
 
 
 def _lookup_object(result: Lookup, rows: Optional[list]) -> dict:
@@ -77,17 +77,15 @@ def apply_result(node: dict, result: Lookup) -> Optional[list]:
     return rows
 
 
-def merge_catalogue(catalogue: dict, rows: list) -> None:
-    """Add NVD's text for CVEs the catalogue lacks; when both Wazuh and NVD know
-    a CVE, keep the existing rule (the higher-scored entry wins)."""
-    for row in rows:
-        cve_id = row.get("cve")
-        if not cve_id:
-            continue
-        known = catalogue.get(cve_id)
-        if known is None or (row.get("cvss") is not None and (
-                known.get("cvss") is None or row["cvss"] > known["cvss"])):
-            catalogue[cve_id] = catalogue_entry(row)
+def device_entry(node: dict, rows: Optional[list]) -> dict:
+    """A looked-up node's entry in vulnerabilities.json's ``hosts``."""
+    return {
+        "kind": node["kind"],
+        "hostname": node.get("hostname"),
+        "agent_id": None,
+        "cve_lookup": node["cve_lookup"],
+        "findings": slim_findings(rows) if rows is not None else None,
+    }
 
 
 class StageResult:
@@ -122,13 +120,7 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
             from_cache += 1
         if rows is not None:
             out.rows[nid] = rows
-        out.entries[nid] = {
-            "kind": node["kind"],
-            "hostname": node.get("hostname"),
-            "agent_id": None,
-            "cve_lookup": node["cve_lookup"],
-            "findings": slim_findings(rows) if rows is not None else None,
-        }
+        out.entries[nid] = device_entry(node, rows)
     cache.save()
 
     for kind, ids in (("nvd_unreachable", unreachable), ("nvd_stale_cache", stale),

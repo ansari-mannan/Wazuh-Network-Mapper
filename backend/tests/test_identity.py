@@ -12,7 +12,7 @@ from test_cdp import AP_IP, L2_CID, L3_CID, crawl, lab
 from vulnmapper.assemble import assemble
 from vulnmapper.liveness import liveness_pass
 from vulnmapper.network import parse
-from vulnmapper.network.crawl import base_mac
+from vulnmapper.network.identity import base_mac
 
 AP_MAC = "54:75:d0:ab:bd:1a"        # Gi0 (and its sub-interfaces) of the access point
 AP_NODE = f"device:{AP_MAC}"

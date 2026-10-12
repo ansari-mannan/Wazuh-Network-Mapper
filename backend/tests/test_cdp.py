@@ -10,7 +10,8 @@ import unittest
 from snmp_fakes import FakeSnmpClient, load_rows
 from vulnmapper.assemble import assemble
 from vulnmapper.network import parse
-from vulnmapper.network.crawl import Crawler, build_document
+from vulnmapper.network.crawl import Crawler
+from vulnmapper.network.document import build_document
 
 L3_IPS = ("172.20.20.254", "172.20.10.254", "172.20.80.254")
 L3_CID = "00:23:ac:e5:74:00"

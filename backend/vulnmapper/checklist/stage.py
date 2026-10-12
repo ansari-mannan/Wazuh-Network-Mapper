@@ -20,11 +20,10 @@ import logging
 from collections import Counter
 
 from ..devicecves.families import family_of
+from ..schema import KIND_DEVICE
 from .evaluate import RESULTS, evaluate_device, l3_vlans, normalise
 
 log = logging.getLogger("vulnmapper.checklist")
-
-KIND_DEVICE = "device"
 
 
 class StageResult:

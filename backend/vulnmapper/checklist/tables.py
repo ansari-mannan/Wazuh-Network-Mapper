@@ -30,6 +30,8 @@ from __future__ import annotations
 
 from typing import Optional
 
+from ..network.parse import index_after
+
 # --- TCP-MIB ---------------------------------------------------------------
 # tcpConnState: index <localAddr 4>.<localPort>.<remAddr 4>.<remPort>
 TCP_CONN_STATE = "1.3.6.1.2.1.6.13.1.1"
@@ -76,11 +78,6 @@ GUARD_ENABLE, GUARD_DISABLE, GUARD_DEFAULT = 1, 2, 3
 GLOBAL_PORTFAST_ENABLE = 1
 
 
-def _index(oid: str, base: str) -> Optional[str]:
-    prefix = base + "."
-    return oid[len(prefix):] if oid.startswith(prefix) else None
-
-
 def as_int(value) -> Optional[int]:
     try:
         return int(str(value).strip().split("(")[-1].rstrip(")")) if "(" in str(value) \
@@ -93,7 +90,7 @@ def _column(rows, base: str) -> dict:
     """``{index: value}`` for one column walk; the value as an int where it is one."""
     out = {}
     for oid, value in rows or []:
-        index = _index(oid, base)
+        index = index_after(oid, base)
         if index is not None:
             out[index] = value
     return out

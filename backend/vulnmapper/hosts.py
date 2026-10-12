@@ -177,7 +177,7 @@ def question_targets(graph: dict, cap: int = QUESTION_CAP) -> tuple:
 async def _ask_one(client, ip: str) -> Optional[dict]:
     """The host's identity, and whether it forwards traffic; None when silent."""
     from .network import parse
-    from .network.crawl import fetch
+    from .network.identity import fetch
 
     if await client.resolve_credential(ip) is None:
         return None

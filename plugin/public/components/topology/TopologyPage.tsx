@@ -19,9 +19,9 @@ import { GraphNode, GraphResponse, LivenessResponse } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { useLiveness } from '../../lib/liveness';
 import { useServices } from '../../lib/services';
-import { livenessMethod } from '../../lib/livenessText';
+import { formatSeen, livenessMethod } from '../../lib/livenessText';
 import { TopologyView, TopologyViewHandle } from './TopologyView';
-import { DeviceDetail, formatSeen } from './DeviceDetail';
+import { DeviceDetail } from './DeviceDetail';
 import { hiddenKeyOf, offlineHosts, visibleSelection } from './inactive';
 
 // Counts line, all from the loaded graph. "Unparented" = endpoints the scanner

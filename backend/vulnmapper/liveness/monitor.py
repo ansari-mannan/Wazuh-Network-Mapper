@@ -1,84 +1,25 @@
-"""Liveness heartbeat: re-check whether the nodes already in graph.json answer.
-
-    python -m vulnmapper.liveness --graph PATH [--state PATH] [--threshold 2]
-                                  [--agent-max-age 30]
-
-Reads the graph (never writes it) and the previous state, runs one pass and
-prints the new state document on stdout; logs go to stderr only, the same
-contract as ``pipeline.py``. Exits 0 with a valid document unless the graph
-itself cannot be read.
-
-Only IPs already in the graph are probed: no sweeps, no discovery.
-
-Probe method per node
-  * endpoint with an ``agent_id``, Wazuh credentials available -> ``agent``:
-    one Manager API request per pass lists every agent's status and
-    lastKeepAlive. Active with a check-in no older than ``--agent-max-age``
-    seconds is a reply (agent 000, the manager, always is); active with an
-    older check-in is a miss; disconnected / pending / never_connected makes
-    the node inactive at once. If the login or request fails or takes longer
-    than 5 s, these nodes are left as they were for the pass.
-  * pollable device with an IP, SNMP credentials available -> ``snmp``
-    (a credential that resolves is a reply; a failure is "snmp, no reply")
-  * any other node with an IP (endpoints, devices without credentials or not
-    pollable) -> ``icmp``: ``ping -c 1 -W 1 <ip>``, exit 0 is a reply
-  * no IP, an invalid IP, or an IP shared by more than one non-stale node -> no
-    probe (state ``unknown``, method null)
-
-State rules per node: a reply makes it ``active`` (misses 0, ``last_seen`` now,
-method proven). Silence on a proven method adds a miss and, at ``threshold``
-misses, makes it ``inactive``; below that the state is unchanged. Silence on a
-never-proven method proves nothing (Windows blocks ping), so nothing changes;
-``agent`` counts as proven from the start (a stale check-in is real evidence).
-
-Port layer: each pollable device that answered SNMP in this pass has its port
-status read with the crawler's ``collect_port_status``. An endpoint whose link
-to that device uses a port that is now ``down`` becomes ``inactive`` at once
-with method ``port``, and ``port_down.since`` records when that port was first
-seen down. A ping or SNMP reply in the same pass still wins. An agent check-in
-is a stored time, not a live reply: on a down port it counts only if
-``lastKeepAlive`` is later than ``since`` (the machine reconnected some other
-way). The node gets its earlier state back once the port is up again or a new
-scan places it elsewhere. An ``up`` port never makes a node active by itself.
-
-Rescan suggestion: the port states are remembered between passes (``ports``).
-A pass sets ``rescan_suggested`` (with short ``rescan_reasons``) when a port
-went from down to up and no graph edge uses that port, or when the Manager
-API lists an active agent (other than 000) that is not in the graph. A port
-coming back up for a node already linked there is recovery, not a reason. The
-suggestion stands until a new scan replaces the graph (``graph_scan_time``).
+"""One liveness pass over graph.json: probe every node by its best method,
+read the switch ports and access point client lists, and work out each
+node's new state. Pure apart from the prober it is handed.
 """
 
 from __future__ import annotations
 
-import argparse
 import asyncio
-import ipaddress
-import json
 import logging
-import sys
-import threading
 from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Optional
 
-from .schema import canonical_mac
+from ..schema import CONF_WIFI, EDGE_ENDPOINT_LINK, ROLE_ACCESS_POINT, canonical_mac
+from .records import (AGENT_MAX_AGE_S, MANAGER_AGENT_ID, _agent_verdict, _apply_probe, _carry,
+                      _parse_time, _valid_ip)
 
 log = logging.getLogger("vulnmapper.liveness")
 
 DEFAULT_THRESHOLD = 2
 MAX_IN_FLIGHT = 32
-EDGE_ENDPOINT_LINK = "endpoint_link"
-
-# Wazuh agent check-in (method "agent")
-AGENT_MAX_AGE_S = 30            # a check-in older than this is a miss
 AGENT_TIMEOUT_S = 5.0           # login + agent list, or the method is skipped
-AGENT_DOWN = {"disconnected", "pending", "never_connected"}
-MANAGER_AGENT_ID = "000"        # reports a far-future lastKeepAlive
-# Methods whose silence counts as a miss before any reply was ever seen. The
-# scan found a host's MAC in its switch's table, so its absence there is
-# evidence too.
-PROVEN_FROM_START = {"agent", "mac-table"}
 
 # MAC-table confirmation (method "mac-table"): a wired host that no faster
 # method has ever proven is looked up in its switch's forwarding table. A
@@ -87,150 +28,9 @@ PROVEN_FROM_START = {"agent", "mac-table"}
 FAST_METHODS = {"icmp", "snmp", "agent", "wifi"}
 MAC_TABLE_BUDGET_S = 2.0        # per switch per pass, or it is skipped this pass
 
-# Wi-Fi clients (method "wifi"): a node linked to an access point with
-# confidence "wifi" is checked against the AP's client list. In a port_down
-# mark, a Wi-Fi link has this as its "port".
-CONF_WIFI = "wifi"
+# A Wi-Fi client's "port" in a port_down mark.
 WIFI_LINK = "wifi"
-ROLE_ACCESS_POINT = "access-point"
 MAX_RESCAN_REASONS = 10
-
-
-def _setup_logging() -> None:
-    logging.basicConfig(
-        stream=sys.stderr,
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
-
-
-# ---------------------------------------------------------------------------
-# The real prober (system ping + the crawler's SNMP client)
-# ---------------------------------------------------------------------------
-
-class SystemProber:
-    """Probes through the system ``ping`` binary and the existing SnmpClient.
-
-    The SNMP community comes only from the environment (``load_credentials``)
-    and is never logged or placed in argv.
-    """
-
-    def __init__(self, credentials: list, agent_source=None) -> None:
-        self.has_snmp = bool(credentials)
-        self._snmp = None
-        if credentials:
-            from .network.snmp import SnmpClient
-            self._snmp = SnmpClient(credentials, timeout=1.0, retries=1)
-        # The agent method needs the Wazuh password (WAZUH_PASS, environment only).
-        self._agent_source = agent_source
-        if agent_source is None:
-            from .schema import WazuhConfig
-            self.has_agents = bool(WazuhConfig.from_env().password)
-        else:
-            self.has_agents = True
-
-    async def icmp(self, ip: str) -> bool:
-        ipaddress.ip_address(ip)          # validated again right before argv
-        proc = await asyncio.create_subprocess_exec(
-            "ping", "-c", "1", "-W", "1", ip,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
-        return await proc.wait() == 0
-
-    async def snmp(self, ip: str) -> bool:
-        return await self._snmp.resolve_credential(ip) is not None
-
-    async def port_status(self, ip: str) -> dict:
-        from .network.parse import collect_port_status
-        return await collect_port_status(self._snmp, ip)
-
-    async def mac_lookup(self, ip: str, entries: list, per_vlan_context: bool = False) -> dict:
-        """``{(vlan, mac): port name or None}`` from GETs of those entries only."""
-        from .network.parse import lookup_fdb_ports
-        return await lookup_fdb_ports(self._snmp, ip, entries, per_vlan_context)
-
-    async def wifi_clients(self, ip: str) -> set:
-        """The canonical MACs an access point lists as associated (one column).
-
-        A walk that stops early also returns no rows, so an empty list counts
-        only if the AP's own per-radio client counters say it is empty;
-        otherwise this raises and the pass leaves its clients unchanged.
-        """
-        from .network.parse import (DOT11_ACTIVE_CLIENTS_BASE, DOT11_CLIENT_BASE,
-                                    DOT11_CLIENT_PARENT_COL, parse_wifi_clients)
-        rows = await self._snmp.walk(ip, f"{DOT11_CLIENT_BASE}.{DOT11_CLIENT_PARENT_COL}")
-        macs = {canonical_mac(c["mac"]) for c in parse_wifi_clients(rows, {})}
-        if not macs:
-            counts = await self._snmp.walk(ip, DOT11_ACTIVE_CLIENTS_BASE)
-            if not counts or any(str(v).strip() not in ("0", "") for _o, v in counts):
-                raise RuntimeError("client list unreadable")
-        return macs
-
-    async def agents(self) -> list:
-        """Every agent's id, status and lastKeepAlive from the Manager API.
-
-        The blocking requests run in a daemon thread, so a pass that gives up
-        on them (the time box) neither waits for them nor is kept alive by them.
-        """
-        loop = asyncio.get_running_loop()
-        future = loop.create_future()
-        source = self._agent_source
-        if source is None:
-            from .endpoints import WazuhSource
-            source = WazuhSource()
-
-        def settle(result, error):
-            if not future.done():
-                future.set_exception(error) if error else future.set_result(result)
-
-        def work():
-            try:
-                result, error = source.agent_status(), None
-            except Exception as e:
-                result, error = None, e
-            try:
-                loop.call_soon_threadsafe(settle, result, error)
-            except RuntimeError:
-                pass                # the pass already finished and closed its loop
-
-        threading.Thread(target=work, name="liveness-agents", daemon=True).start()
-        return await future
-
-
-# ---------------------------------------------------------------------------
-# One pass (pure apart from the injected prober)
-# ---------------------------------------------------------------------------
-
-def _valid_ip(ip) -> bool:
-    try:
-        ipaddress.ip_address(ip)
-    except (ValueError, TypeError):
-        return False
-    return True
-
-
-def _parse_time(text) -> Optional[datetime]:
-    if not isinstance(text, str):
-        return None
-    try:
-        t = datetime.fromisoformat(text.replace("Z", "+00:00"))
-    except ValueError:
-        return None
-    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
-
-
-def _agent_verdict(row: dict, now: datetime, max_age: float) -> tuple:
-    """``(replied, down)`` for one Manager API agent row."""
-    status = str(row.get("status") or "").lower()
-    if status in AGENT_DOWN:
-        return False, True
-    if status != "active":
-        return False, False
-    if str(row.get("id")) == MANAGER_AGENT_ID:
-        return True, False
-    seen = _parse_time(row.get("lastKeepAlive"))
-    return seen is not None and (now - seen).total_seconds() <= max_age, False
 
 
 async def _fetch_agents(prober, timeout: float) -> tuple:
@@ -272,40 +72,6 @@ def _method_for(node: dict, has_snmp: bool) -> str:
     if node.get("kind") == "device" and node.get("pollable") and has_snmp:
         return "snmp"
     return "icmp"
-
-
-def _carry(old: dict, now: str) -> dict:
-    """A fresh record carrying the fields that survive across passes."""
-    rec = {
-        "state": old.get("state") or "unknown",
-        "method": old.get("method"),
-        "misses": old.get("misses") if isinstance(old.get("misses"), int) else 0,
-        "last_seen": old.get("last_seen"),
-        "last_checked": now,
-        "proven_methods": list(old.get("proven_methods") or []),   # a copy, never shared
-    }
-    if isinstance(old.get("port_down"), dict):
-        rec["port_down"] = dict(old["port_down"])
-    if isinstance(old.get("agent"), dict):
-        rec["agent"] = dict(old["agent"])       # the last known check-in
-    return rec
-
-
-def _apply_probe(rec: dict, method: str, replied: bool, threshold: int, now: str,
-                 down: bool = False) -> None:
-    rec["method"] = method
-    if replied:
-        rec.update(state="active", misses=0, last_seen=now)
-        if method not in rec["proven_methods"]:
-            rec["proven_methods"].append(method)
-    elif down:                  # the source says outright that it is gone
-        rec["misses"] += 1
-        rec["state"] = "inactive"
-    elif method in rec["proven_methods"] or method in PROVEN_FROM_START:
-        rec["misses"] += 1
-        if rec["misses"] >= threshold:
-            rec["state"] = "inactive"
-    # silence on a never-proven method: nothing changes
 
 
 async def liveness_pass(graph: dict, previous: dict, prober, threshold: int,
@@ -638,76 +404,3 @@ def _port_memory_and_rescan(graph: dict, nodes: list, previous: dict, statuses: 
             and isinstance(previous.get("rescan_reasons"), list):
         reasons = [r for r in previous["rescan_reasons"] if isinstance(r, str)] + reasons
     return remembered, list(dict.fromkeys(reasons))[:MAX_RESCAN_REASONS]
-
-
-# ---------------------------------------------------------------------------
-# CLI: read files, run the pass, print
-# ---------------------------------------------------------------------------
-
-def load_state(path: Optional[str]) -> dict:
-    """The previous state document, or {} when missing or invalid."""
-    if not path:
-        return {}
-    try:
-        with open(path, encoding="utf-8") as f:
-            doc = json.load(f)
-    except (OSError, ValueError):
-        return {}
-    if not isinstance(doc, dict) or not isinstance(doc.get("nodes"), dict):
-        return {}
-    return doc
-
-
-def _threshold(text: str) -> int:
-    value = int(text)
-    if value < 1:
-        raise argparse.ArgumentTypeError("must be at least 1")
-    return value
-
-
-_agent_max_age = _threshold     # whole seconds, at least 1
-
-
-def main(argv: Optional[list] = None) -> int:
-    _setup_logging()
-    parser = argparse.ArgumentParser(
-        prog="vulnmapper.liveness",
-        description="Re-check whether the nodes in graph.json answer; print the "
-                    "liveness state document on stdout.")
-    parser.add_argument("--graph", required=True, metavar="PATH", help="graph.json to read")
-    parser.add_argument("--state", metavar="PATH",
-                        help="previous liveness.json (missing or invalid = empty)")
-    parser.add_argument("--threshold", type=_threshold, default=DEFAULT_THRESHOLD,
-                        help="misses on a proven method before a node is inactive")
-    parser.add_argument("--agent-max-age", type=_agent_max_age, default=AGENT_MAX_AGE_S,
-                        metavar="SECONDS",
-                        help="oldest Wazuh agent check-in that still counts as a reply")
-    args = parser.parse_args(argv)
-
-    try:
-        with open(args.graph, encoding="utf-8") as f:
-            graph = json.load(f)
-        if not isinstance(graph, dict):
-            raise ValueError("not a graph document")
-    except (OSError, ValueError) as e:
-        print(f"vulnmapper.liveness: cannot read graph {args.graph}: {e}", file=sys.stderr)
-        return 1
-
-    from .network.crawl import load_credentials
-    prober = SystemProber(load_credentials(None))
-    doc = asyncio.run(liveness_pass(graph, load_state(args.state), prober, args.threshold,
-                                    agent_max_age=args.agent_max_age))
-    sys.stdout.write(json.dumps(doc, indent=2) + "\n")
-    sys.stdout.flush()
-    counts = defaultdict(int)
-    for rec in doc["nodes"].values():
-        counts[rec["state"]] += 1
-    log.info("liveness pass: %d node(s): %s", len(doc["nodes"]),
-             ", ".join(f"{k} {v}" for k, v in sorted(counts.items())) or "none")
-    if doc["rescan_suggested"]:
-        log.info("rescan suggested: %s", "; ".join(doc["rescan_reasons"]))
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())

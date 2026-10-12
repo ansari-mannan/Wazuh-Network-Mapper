@@ -14,7 +14,7 @@ from unittest import mock
 
 import requests
 
-from vulnmapper import endpoints as ep_mod
+from vulnmapper.endpoints import wazuh as ep_mod
 from vulnmapper.endpoints import WazuhSource
 from vulnmapper.pipeline import Pipeline
 from vulnmapper.schema import IndexerConfig, WazuhConfig
@@ -145,7 +145,7 @@ class TestScanFailsCleanly(unittest.TestCase):
             script = textwrap.dedent(f"""
                 from unittest import mock
                 import requests
-                from vulnmapper import endpoints
+                from vulnmapper.endpoints import wazuh as endpoints
                 from vulnmapper.pipeline import Pipeline
 
                 class Rejected:

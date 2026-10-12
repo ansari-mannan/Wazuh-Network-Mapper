@@ -22,7 +22,8 @@ from vulnmapper.checklist.collect import collect_config
 from vulnmapper.checklist.evaluate import (EVIDENCE_CAP, access_ports, evaluate_device,
                                            l3_vlans, port_key)
 from vulnmapper.checklist.stage import run_stage
-from vulnmapper.network.crawl import Crawler, build_document
+from vulnmapper.network.crawl import Crawler
+from vulnmapper.network.document import build_document
 from vulnmapper.pipeline import Pipeline
 
 IP = "10.0.0.2"

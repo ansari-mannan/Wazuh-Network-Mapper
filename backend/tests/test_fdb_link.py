@@ -2,7 +2,7 @@
 
 import unittest
 
-from vulnmapper.assemble import (
+from vulnmapper.assemble.mactable import (
     CONF_RESOLVED,
     CONF_TIEBREAK,
     build_mac_table,

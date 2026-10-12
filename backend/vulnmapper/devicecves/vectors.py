@@ -48,6 +48,7 @@ import sys
 from collections import Counter
 from typing import Optional
 
+from ..common import setup_logging
 from .. import vulnfile
 from ..endpoints import distinct_cves
 from .__main__ import _load, _write_json_atomic
@@ -183,8 +184,7 @@ def run_stage(graph: dict, hosts: dict, catalogue: dict, client: NvdClient,
 
 
 def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO,
-                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    setup_logging()
     parser = argparse.ArgumentParser(
         prog="vulnmapper.devicecves.vectors",
         description="Refresh the CVSS vector fields of a graph's CVEs from NVD, without a rescan.")

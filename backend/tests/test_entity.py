@@ -10,7 +10,7 @@ import unittest
 
 from snmp_fakes import FakeSnmpClient, load_rows
 from vulnmapper.network import entity
-from vulnmapper.network.crawl import fetch
+from vulnmapper.network.identity import fetch
 
 ENT = entity.ENT_PHYSICAL_ENTRY
 IP = "10.0.0.2"

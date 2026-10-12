@@ -20,13 +20,12 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from ..endpoints import slim_findings
 from ..hosts import question_targets
 from ..devicecves import families
 from ..devicecves.cache import Cache
 from ..devicecves.lookup import STATUS_OK, lookup
 from ..devicecves.nvd import NvdClient
-from ..devicecves.stage import apply_result
+from ..devicecves.stage import apply_result, device_entry
 from .nmap import NmapBudgetExceeded, NmapRunner, parse_nmap_xml
 
 log = logging.getLogger("vulnmapper.servicescan")
@@ -81,13 +80,7 @@ def _apply_host(node: dict, scan: dict, client: NvdClient, cache: Cache,
     nid = node["node_id"]
     if rows is not None:
         out.rows[nid] = rows
-    out.entries[nid] = {
-        "kind": node["kind"],
-        "hostname": node.get("hostname"),
-        "agent_id": None,
-        "cve_lookup": node["cve_lookup"],
-        "findings": slim_findings(rows) if rows is not None else None,
-    }
+    out.entries[nid] = device_entry(node, rows)
 
 
 def run_stage(graph: dict, client: NvdClient, cache: Cache, *,

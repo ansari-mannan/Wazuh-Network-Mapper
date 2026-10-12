@@ -12,7 +12,7 @@ from unittest import mock
 import requests
 
 from test_cves import FakeIndexer, FakeManager, Outcomes, doc, http_error, score, source
-from vulnmapper import endpoints as ep_mod
+from vulnmapper.endpoints import wazuh as ep_mod
 from vulnmapper.assemble import assemble
 from vulnmapper.endpoints import server_ipv4
 from vulnmapper.pipeline import Pipeline

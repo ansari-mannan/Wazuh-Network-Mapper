@@ -20,7 +20,7 @@ whole address space.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Iterable, Optional
+from typing import Iterable, Optional
 
 from pysnmp.hlapi.v3arch.asyncio import (
     CommunityData,
@@ -45,11 +45,8 @@ from pysnmp.hlapi.v3arch.asyncio import (
     usmNoPrivProtocol,
 )
 
-# Credential lives in the crawl module; imported only for type hints (annotations
-# are lazy under ``from __future__ import annotations``), avoiding a runtime
-# import cycle since ``crawl`` imports this module.
-if TYPE_CHECKING:
-    from .crawl import Credential
+from .model import Credential
+
 
 log = logging.getLogger("discovery.snmp")
 

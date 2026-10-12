@@ -857,7 +857,7 @@ class TestMacTable(unittest.TestCase):
         self.assertFalse([c for c in prober.calls if c[0] == "mac_lookup"])
 
     def test_slow_or_failing_device_is_skipped(self):
-        from vulnmapper import liveness
+        from vulnmapper.liveness import monitor as liveness
         state = prev(**{"host:quiet": was("active", proven=("mac-table",), method="mac-table")})
         for table in (0.5, OSError("timeout")):
             with self.subTest(table=table), \

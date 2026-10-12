@@ -11,7 +11,7 @@ from unittest import mock
 
 import requests
 
-from vulnmapper import endpoints as ep_mod
+from vulnmapper.endpoints import wazuh as ep_mod
 from vulnmapper import vulnfile
 from vulnmapper.endpoints import WazuhSource, enrich_agent, parse_hit
 from vulnmapper.schema import IndexerConfig, WazuhConfig

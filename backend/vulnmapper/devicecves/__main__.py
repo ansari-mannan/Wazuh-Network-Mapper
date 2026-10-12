@@ -22,10 +22,12 @@ import sys
 import tempfile
 from typing import Optional
 
+from ..common import setup_logging
 from .. import vulnfile
 from .cache import Cache, default_path
 from .nvd import NvdClient, SystemClock
-from .stage import DEFAULT_BUDGET_S, merge_catalogue, run_stage
+from ..endpoints import merge_catalogue
+from .stage import DEFAULT_BUDGET_S, run_stage
 
 log = logging.getLogger("vulnmapper.devicecves")
 
@@ -88,8 +90,7 @@ def update_vulns(path: str, entries: dict, rows: dict, scan_time: Optional[str])
 
 
 def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO,
-                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    setup_logging()
     parser = argparse.ArgumentParser(
         prog="vulnmapper.devicecves",
         description="Refresh the CVEs of a graph's network devices from NVD, without a rescan.")

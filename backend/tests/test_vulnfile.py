@@ -12,7 +12,7 @@ from unittest import mock
 
 import requests
 
-from vulnmapper import endpoints as ep_mod
+from vulnmapper.endpoints import wazuh as ep_mod
 from vulnmapper.assemble import assemble
 from vulnmapper.pipeline import Pipeline, build_parser
 

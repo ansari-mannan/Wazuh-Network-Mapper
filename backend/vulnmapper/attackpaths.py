@@ -57,6 +57,7 @@ from typing import Optional
 
 import networkx as nx
 
+from .common import setup_logging
 from . import vulnfile
 from .checklist import catalogue
 from .checklist import tables as t
@@ -594,8 +595,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[list[str]] = None) -> int:
-    logging.basicConfig(stream=sys.stderr, level=logging.INFO,
-                        format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+    setup_logging()
     args = build_parser().parse_args(argv)
     try:
         with open(args.graph, encoding="utf-8") as f:

@@ -91,7 +91,8 @@ def _lab(tmp):
     from test_cdp import L3_CID, lab
     from test_device_stage import lab_nvd
     from test_nvd import FakeClock
-    from vulnmapper.network.crawl import Crawler, build_document
+    from vulnmapper.network.crawl import Crawler
+    from vulnmapper.network.document import build_document
 
     async def crawl():
         crawler = Crawler(lab(), concurrency=4, max_nodes=50, queue_maxsize=50,

@@ -57,6 +57,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from . import vulnfile
+from .common import setup_logging
 from .assemble import assemble
 
 log = logging.getLogger("vulnmapper.pipeline")
@@ -96,14 +97,6 @@ def _default_community_note(document: dict) -> Optional[str]:
         return None
     return (f"{_plural(len(tested), 'device')} tested, {tested.count('fail')} answered "
             "the default community")
-
-
-def _setup_logging() -> None:
-    logging.basicConfig(
-        stream=sys.stderr,
-        level=logging.INFO,
-        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -232,7 +225,7 @@ def _load_network(args, timing: dict) -> dict:
         with open(args.network) as f:
             return json.load(f)
     # Live: run the seed-based LLDP crawl.
-    from .network.crawl import Config, load_credentials
+    from .network.config import Config, load_credentials
     from .network.crawl import crawl_document
 
     cfg = Config(
@@ -295,7 +288,9 @@ class Pipeline:
         import asyncio
 
         from .hosts import QUESTION_CAP, apply_answer, ask_hosts, question_targets
-        from .network.crawl import crawl_more, load_credentials, merge_documents
+        from .network.config import load_credentials
+        from .network.crawl import crawl_more
+        from .network.document import merge_documents
 
         warnings: list = []
         client = self._snmp_client
@@ -402,7 +397,7 @@ class Pipeline:
             sys.stdout.flush()
 
     def run(self, argv: Optional[list[str]] = None) -> int:
-        _setup_logging()
+        setup_logging()
         args = build_parser().parse_args(argv)
 
         # Real per-phase timing: monotonic clock for the durations (immune to wall-
@@ -474,7 +469,7 @@ class Pipeline:
             cache_path = args.nvd_cache or (cache_beside(vulns_path) if vulns_path else None)
             budget_s = args.nvd_budget or DEFAULT_BUDGET_S
         if not args.no_device_cves:
-            from .devicecves.stage import merge_catalogue
+            from .endpoints import merge_catalogue
 
             t0 = _begin("Looking up device CVEs in NVD")
             before = self.nvd(cache_path, budget_s)[1].tally()
@@ -495,7 +490,7 @@ class Pipeline:
         # The service scan runs before the vector stage so its CVEs flow through
         # it (vector fields, reachable_cve) and the attack-path engine unchanged.
         if args.nmap_unmanaged:
-            from .devicecves.stage import merge_catalogue
+            from .endpoints import merge_catalogue
             from .servicescan.stage import DEFAULT_BUDGET_S as NMAP_BUDGET_S
             from .servicescan.stage import DEFAULT_HOSTS_CAP
 
