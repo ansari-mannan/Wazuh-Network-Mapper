@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   EuiButton,
@@ -22,7 +22,7 @@ import { useServices } from '../../lib/services';
 import { livenessMethod } from '../../lib/livenessText';
 import { TopologyView, TopologyViewHandle } from './TopologyView';
 import { DeviceDetail, formatSeen } from './DeviceDetail';
-import { hiddenKeyOf, offlineHosts } from './inactive';
+import { hiddenKeyOf, offlineHosts, visibleSelection } from './inactive';
 
 // Counts line, all from the loaded graph. "Unparented" = endpoints the scanner
 // could not attach to a switch port (parent_id null).
@@ -55,9 +55,17 @@ function useFillHeight() {
   return { ref, height };
 }
 
+// Where an offline host's state came from: liveness when it checked the host,
+// else its Wazuh agent's status.
+function offlineVia(n: GraphNode, liveness: LivenessResponse | null): string {
+  const l = liveness?.enabled ? liveness.nodes[n.node_id] : undefined;
+  if (l) return livenessMethod(l);
+  return n.kind === 'endpoint' && n.agent_id ? `Wazuh agent ${(n.status || '').replace('_', ' ')}` : 'not checked';
+}
+
 function InactivePanel({ hosts, liveness, onSelect }: {
   hosts: GraphNode[];
-  liveness: LivenessResponse;
+  liveness: LivenessResponse | null;
   onSelect: (nodeId: string) => void;
 }) {
   return (
@@ -68,7 +76,7 @@ function InactivePanel({ hosts, liveness, onSelect }: {
       <EuiSpacer size="xs" />
       <EuiListGroup flush gutterSize="none" maxWidth={false}>
         {hosts.map((n) => {
-          const l = liveness.nodes[n.node_id];
+          const l = liveness?.nodes[n.node_id];
           return (
             <EuiListGroupItem
               key={n.node_id}
@@ -86,7 +94,7 @@ function InactivePanel({ hosts, liveness, onSelect }: {
                       <br />
                       last seen {formatSeen(l?.last_seen)}
                       <br />
-                      via {l ? livenessMethod(l) : 'not checked'}
+                      via {offlineVia(n, liveness)}
                     </small>
                   </EuiTextColor>
                 </span>
@@ -113,13 +121,16 @@ export function TopologyPage() {
   const { ref, height } = useFillHeight();
   const selected = graph?.nodes.find((n) => n.node_id === selectedId) || null;
 
-  const livenessOn = Boolean(liveness?.enabled);
-  const hidden = useMemo(
-    () => (graph && liveness && livenessOn && hideInactive ? offlineHosts(graph, liveness) : []),
-    [graph, liveness, livenessOn, hideInactive]
-  );
+  // Offline hosts (the shared rule) never sit in the topology: hidden, they
+  // are gone; shown, they are grouped greyed in a column on the right.
+  const offline = useMemo(() => (graph ? offlineHosts(graph, liveness) : []), [graph, liveness]);
   // The canvas re-lays out only when this key changes, not on every poll.
-  const hiddenKey = hiddenKeyOf(hidden);
+  const hiddenKey = hiddenKeyOf(offline);
+  const column = hideInactive ? [] : offline;
+  useEffect(() => {
+    const keep = visibleSelection(selectedId, hideInactive ? offline : []);
+    if (keep !== selectedId) setSelectedId(keep);
+  }, [selectedId, hideInactive, offline]);
 
   return (
     <>
@@ -149,17 +160,15 @@ export function TopologyPage() {
             Reset layout
           </EuiButton>
         </EuiFlexItem>
-        {livenessOn && (
-          <EuiFlexItem grow={false}>
-            <EuiSwitch
-              compressed
-              label="Hide inactive hosts"
-              checked={hideInactive}
-              onChange={(e) => setHideInactive(e.target.checked)}
-              data-test-subj="vmHideInactive"
-            />
-          </EuiFlexItem>
-        )}
+        <EuiFlexItem grow={false}>
+          <EuiSwitch
+            compressed
+            label="Hide inactive hosts"
+            checked={hideInactive}
+            onChange={(e) => setHideInactive(e.target.checked)}
+            data-test-subj="vmHideInactive"
+          />
+        </EuiFlexItem>
         {highlightKey && (
           <EuiFlexItem grow={false}>
             <EuiButton
@@ -183,12 +192,8 @@ export function TopologyPage() {
       <div style={{ height: 12 }} />
       {error && <EuiCallOut color="danger" iconType="alert" title={error} />}
       <div ref={ref} style={{ height }}>
-        {graph && !livenessOn ? (
-          <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '100%' }}>
-            <TopologyView ref={view} graph={graph} selectedId={selectedId} onSelect={setSelectedId} highlightKey={highlightKey} passKey={passKey} />
-          </EuiPanel>
-        ) : graph ? (
-          // Liveness on: the canvas, plus the hidden hosts beside it.
+        {graph ? (
+          // The canvas, plus the offline hosts beside it unless they are hidden.
           <EuiFlexGroup gutterSize="s" responsive={false} style={{ height: '100%' }}>
             <EuiFlexItem style={{ minWidth: 0 }}>
               <EuiPanel paddingSize="none" className="vmTopology" style={{ height: '100%' }}>
@@ -203,9 +208,9 @@ export function TopologyPage() {
                 />
               </EuiPanel>
             </EuiFlexItem>
-            {liveness && hidden.length > 0 && (
+            {column.length > 0 && (
               <EuiFlexItem grow={false}>
-                <InactivePanel hosts={hidden} liveness={liveness} onSelect={setSelectedId} />
+                <InactivePanel hosts={column} liveness={liveness} onSelect={setSelectedId} />
               </EuiFlexItem>
             )}
           </EuiFlexGroup>

@@ -1,5 +1,5 @@
 import { GraphNode, LivenessResponse, NodeLiveness } from '../../../common';
-import { hiddenKeyOf, isOfflineHost, offlineHosts } from './inactive';
+import { hiddenKeyOf, isOfflineHost, offlineHosts, visibleSelection } from './inactive';
 
 function node(node_id: string, kind: 'device' | 'endpoint', discovery_method: string): GraphNode {
   return { node_id, kind, discovery_method, ip: null, hostname: null } as GraphNode;
@@ -66,6 +66,18 @@ describe('isOfflineHost', () => {
   it('never takes a device, whatever its status', () => {
     const sw = { ...node('device:sw', 'device', 'snmp_lldp'), status: 'disconnected' } as GraphNode;
     expect(isOfflineHost(sw, liveness({ 'device:sw': 'inactive' }))).toBe(false);
+  });
+});
+
+describe('visibleSelection', () => {
+  const hidden = [node('endpoint:004', 'endpoint', 'wazuh')];
+  it('closes the panel of a host that leaves the map', () => {
+    expect(visibleSelection('endpoint:004', hidden)).toBeNull();
+  });
+  it('keeps any other panel open, and nothing selected stays nothing', () => {
+    expect(visibleSelection('device:sw', hidden)).toBe('device:sw');
+    expect(visibleSelection('endpoint:004', [])).toBe('endpoint:004');
+    expect(visibleSelection(null, hidden)).toBeNull();
   });
 });
 

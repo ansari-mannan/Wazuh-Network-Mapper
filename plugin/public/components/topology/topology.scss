@@ -138,4 +138,8 @@
   width: 240px;
   height: 100%;
   overflow-y: auto;
+  // offline hosts read as greyed, set apart from the live topology
+  .euiListGroupItem {
+    opacity: 0.6;
+  }
 }

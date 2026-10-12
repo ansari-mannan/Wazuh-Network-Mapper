@@ -27,6 +27,14 @@ export function offlineHosts(
 }
 
 /**
+ * The detail panel's node once `hidden` leaves the map ("Hide inactive hosts"
+ * on): a hidden host's panel closes, any other stays open.
+ */
+export function visibleSelection(selectedId: string | null, hidden: GraphNode[]): string | null {
+  return selectedId && hidden.some((n) => n.node_id === selectedId) ? null : selectedId;
+}
+
+/**
  * The hidden set as a string (sorted node_ids, one per line). The canvas
  * re-lays out only when this changes, not on every liveness poll.
  */

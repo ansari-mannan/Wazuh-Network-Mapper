@@ -312,11 +312,14 @@ An access point found by the scan (over CDP, for a Cisco AP) shows a Wi-Fi
 icon; its clients hang off it on short teal dotted links, and the flyout
 shows its client count, or for a client its SSID, access point and radio.
 
-On the map, inactive devices stay on the canvas, dimmed; every inactive host
-leaves it for an "Inactive (n)" panel (switch "Hide inactive hosts") showing
-its name or IP, MAC, last seen time and how it was checked. The detail flyout
-shows a Liveness row, for example "via Wazuh agent check-in, 8 s ago". With
-liveness disabled the UI is unchanged.
+On the map, inactive devices stay on the canvas, dimmed. An offline host (its
+Wazuh agent disconnected or never connected, or liveness reports it inactive)
+leaves the topology: with "Hide inactive hosts" on it is not shown at all (an
+open detail flyout on it closes); with it off it is listed greyed in an
+"Inactive (n)" column on the right with its name or IP, MAC, last seen time
+and how it was checked. The detail flyout shows a Liveness row, for example
+"via Wazuh agent check-in, 8 s ago". The same offline rule leaves those hosts
+out of the vulnerability report and the recommendations.
 
 ## Building the zip
 
