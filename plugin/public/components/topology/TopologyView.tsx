@@ -17,6 +17,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
+import { highlightClass } from './highlight';
 import { CustomNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
@@ -125,7 +126,7 @@ interface TopologyViewProps {
   hiddenKey?: string;
   /**
    * node_ids of one route to spotlight (comma-separated), from Attack paths
-   * "Show on map". When set, every other node and edge is dimmed.
+   * "Show on map". When set, hosts off the route and edges off it are dimmed.
    */
   highlightKey?: string;
   /**
@@ -247,13 +248,13 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       return <div className="empty">The graph is empty (0 nodes).</div>;
     }
 
-    // Spotlight one route: the taken-over assets full, the pass-through nodes
-    // lighter, everything else faded. An edge stays lit when both its ends are
-    // lit (either set), so the physical path reads as one continuous line.
+    // Spotlight one route: hosts off it fade, devices never do (highlight.ts).
+    // An edge stays lit when both its ends are on the route (either set), so
+    // the physical path reads as one continuous line.
     const lit = (id: string) => highlight!.has(id) || passThrough.has(id);
     const displayNodes = nodes.map((n) => {
       const sel = n.id === selectedId;
-      const className = !highlight ? '' : highlight.has(n.id) ? '' : passThrough.has(n.id) ? 'vmPassThrough' : 'vmDim';
+      const className = highlightClass({ id: n.id, kind: n.data.kind }, highlight, passThrough);
       return n.selected === sel && (n.className || '') === className ? n : { ...n, selected: sel, className };
     });
     const displayEdges = highlight

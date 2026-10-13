@@ -144,6 +144,13 @@ export function RouteDetail({
       </EuiAccordion>
 
       <EuiSpacer size="m" />
+      <EuiText size="xs" color="subdued" data-test-subj="vmTransitNote">
+        <p>
+          Switches, routers and access points along a route only carry the traffic between hosts;
+          they are not compromised unless a step on the route says so.
+        </p>
+      </EuiText>
+      <EuiSpacer size="s" />
       <EuiButton size="s" iconType="graphApp" onClick={onShowOnMap} data-test-subj="vmShowOnMap">
         Show on map
       </EuiButton>
