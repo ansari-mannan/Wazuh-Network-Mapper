@@ -409,7 +409,7 @@ class WazuhSource:
             enriched["findings"] = slim_findings(cves)
         summary = enriched["cve_summary"]
         print(f"  agent {agent.get('agent_id')} ({agent.get('hostname')}): "
-              + (f"{summary['total']} CVE(s), risk={enriched['risk_score']}"
+              + (f"{summary['total']} CVE(s), max CVSS {enriched['max_cvss']}"
                  if summary is not None else "unscored"), file=sys.stderr)
         return enriched
 

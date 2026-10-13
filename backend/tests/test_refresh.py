@@ -11,12 +11,14 @@ import unittest
 from test_cdp import L2_CID, L3_CID, crawl, lab
 from test_device_stage import lab_nvd
 from test_nvd import FakeClock
+from test_scoring import OVSS_NODE_FIELDS, strip_ovss
 from vulnmapper.assemble import assemble
 from vulnmapper.devicecves.__main__ import main
 
 HOST = {"agent_id": "001", "hostname": "pc1", "ip": "172.20.80.3", "status": "active",
         "mac": "e4:a7:a0:25:ce:ac", "risk_score": 7.1, "top_cves": [], "cve_summary": None}
-CVE_FIELDS = {"risk_score", "max_cvss", "cve_summary", "top_cves", "cve_lookup"}
+# the device stage's fields, and OVSS, which a refresh runs again on every node
+CVE_FIELDS = {"risk_score", "max_cvss", "cve_summary", "top_cves", "cve_lookup"} | OVSS_NODE_FIELDS
 
 
 class TestRefresh(unittest.TestCase):
@@ -53,7 +55,8 @@ class TestRefresh(unittest.TestCase):
         for node in after["nodes"]:
             old = before[node["node_id"]]
             if node["kind"] == "endpoint":
-                self.assertEqual(node, old)
+                self.assertEqual(strip_ovss({"nodes": [node]})["nodes"][0],
+                                 {k: v for k, v in old.items() if k != "risk_score"})
             else:
                 changed = {k for k in set(node) | set(old) if node.get(k) != old.get(k)}
                 self.assertLessEqual(changed, CVE_FIELDS, node["node_id"])
@@ -61,7 +64,7 @@ class TestRefresh(unittest.TestCase):
                          [n["node_id"] for n in self.graph["nodes"]])
         meta_before = {k: v for k, v in self.graph["metadata"].items() if k != "warnings"}
         meta_after = {k: v for k, v in after["metadata"].items()
-                      if k not in ("warnings", "device_cves")}
+                      if k not in ("warnings", "device_cves", "ovss", "threat_feeds")}
         self.assertEqual(meta_after, meta_before)
         self.assertIn({"type": "duplicate_ip", "ip": "10.0.0.9"}, after["metadata"]["warnings"])
 
@@ -71,6 +74,16 @@ class TestRefresh(unittest.TestCase):
         self.assertEqual(nodes[f"device:{L3_CID}"]["cve_lookup"]["total"], 8)
         self.assertEqual(nodes[f"device:{L2_CID}"]["max_cvss"], 9.8)
         self.assertIn("refreshed_at", self.load("graph.json")["metadata"]["device_cves"])
+
+    def test_refresh_scores_again_with_ovss(self):
+        self.refresh()
+        graph = self.load("graph.json")
+        l2 = {n["node_id"]: n for n in graph["nodes"]}[f"device:{L2_CID}"]
+        self.assertEqual(l2["ovss_status"], "assessed")
+        self.assertIn("tier", l2["top_cves"][0])
+        self.assertEqual(graph["metadata"]["threat_feeds"]["kev"], "unavailable")  # offline
+        finding = self.load("vulnerabilities.json")["hosts"][f"device:{L2_CID}"]["findings"][0]
+        self.assertEqual(finding["score"], l2["risk_score"])
 
     def test_old_device_warnings_are_replaced(self):
         self.refresh(fake=lab_nvd(self.clock, script=["down"] * 50))
@@ -104,7 +117,8 @@ class TestRefresh(unittest.TestCase):
         self.write(os.path.join(self.tmp, "vulnerabilities.json"), existing)
         self.refresh()
         vulns = self.load("vulnerabilities.json")
-        self.assertEqual(vulns["hosts"]["endpoint:001"], existing["hosts"]["endpoint:001"])
+        self.assertEqual(strip_ovss(vulns)["hosts"]["endpoint:001"],
+                         existing["hosts"]["endpoint:001"])
         self.assertEqual(vulns["cves"]["CVE-2021-0001"]["description"], "Wazuh's text")  # higher score kept
         self.assertEqual(vulns["metadata"]["scan_time"], existing["metadata"]["scan_time"])
         self.assertEqual(vulns["metadata"]["counts"]["hosts"], 1)

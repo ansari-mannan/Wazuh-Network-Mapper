@@ -117,8 +117,10 @@ class TestVulnsFileRules(unittest.TestCase):
         self.assertEqual(code, 0)
         by_id = {n["node_id"]: n for n in self.load(self.graph)["nodes"]}
         web = by_id["endpoint:101"]
-        self.assertEqual(web["risk_score"], 9.8)          # as stored in the old file
+        # no full findings: OVSS scores the three top_cves the old file holds
         self.assertEqual(len(web["top_cves"]), 3)
+        self.assertEqual(web["ovss_status"], "assessed")
+        self.assertEqual(web["risk_score"], max(r["score"] for r in web["top_cves"]))
         self.assertIsNone(web["cve_summary"])
         vulns = self.load(self.default)
         self.assertEqual(vulns["cves"], {})
@@ -132,9 +134,12 @@ class TestVulnsFileRules(unittest.TestCase):
         self.assertEqual(web["cve_summary"]["total"], 14)
         self.assertEqual(len(web["top_cves"]), 10)
         self.assertEqual(web["max_cvss"], 9.8)
-        self.assertEqual(web["risk_score"], 8.2)
+        self.assertEqual(web["ovss_status"], "assessed")
+        self.assertIsNotNone(web["risk_score"])
         self.assertNotIn("findings", web)
-        self.assertEqual(by_id["endpoint:103"]["risk_score"], 0.0)
+        clean = by_id["endpoint:103"]                    # scanned, nothing found: not "clean"
+        self.assertEqual((clean["risk_score"], clean["ovss_status"], clean["ovss_reason"]),
+                         (None, "Unassessed", "no findings returned"))
         types = [w["type"] for w in graph["metadata"]["warnings"]]
         self.assertIn("indexer_unreachable", types)
 
@@ -190,9 +195,9 @@ class TestRiskScoreNull(unittest.TestCase):
         node = next(n for n in doc["nodes"] if n["node_id"] == "endpoint:001")
         self.assertEqual(node["risk_score"], 0.0)
 
-    def test_devices_unchanged(self):
+    def test_devices_unscored_until_the_ovss_stage(self):
         doc = assemble([], self.NET)
-        self.assertEqual(doc["nodes"][0]["risk_score"], 0)
+        self.assertIsNone(doc["nodes"][0]["risk_score"])
 
 
 if __name__ == "__main__":

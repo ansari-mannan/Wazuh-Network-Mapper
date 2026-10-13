@@ -109,14 +109,13 @@ class TestCveNormalize(unittest.TestCase):
     def test_enrich_uses_max_cvss(self):
         agent = {"agent_id": "1", "hostname": "h"}
         enriched = enrich_agent(agent, [{"cvss": 9.8}, {"cvss": 5.0}])
-        # risk_score is now the base score (vulnmapper.scoring); the raw worst
-        # CVSS that risk_score used to be lives on in max_cvss.
+        # risk_score is the OVSS stage's (vulnmapper.scoring), not set here
         self.assertEqual(enriched["max_cvss"], 9.8)
-        self.assertEqual(enriched["risk_score"], 7.7)
+        self.assertNotIn("risk_score", enriched)
         self.assertEqual(len(enriched["top_cves"]), 2)
 
     def test_enrich_no_cves_is_zero(self):
-        self.assertEqual(enrich_agent({"agent_id": "1"}, [])["risk_score"], 0)
+        self.assertEqual(enrich_agent({"agent_id": "1"}, [])["cve_summary"]["total"], 0)
 
 
 if __name__ == "__main__":

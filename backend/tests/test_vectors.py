@@ -18,6 +18,7 @@ from test_nvd import IOS_CPE, FakeClock, FakeNvd, ios_cves, vector
 from vulnmapper.devicecves import nvd, vectors
 from vulnmapper.devicecves.cache import Cache, trim_cve
 from vulnmapper.devicecves.lookup import Unanswered
+from test_scoring import strip_ovss
 from vulnmapper.pipeline import Pipeline
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -255,6 +256,9 @@ class TestPipeline(unittest.TestCase):
         for key in ("scan_time", "network_scan_time", "stages"):
             out["graph"]["metadata"].pop(key)
         out["vulnerabilities"]["metadata"].pop("scan_time")
+        for doc in (out, today):                      # frozen before OVSS
+            for part in doc.values():
+                strip_ovss(part)
         self.assertEqual(out, today)
 
     def test_stage_on_adds_only_its_fields(self):

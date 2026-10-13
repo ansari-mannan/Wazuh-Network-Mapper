@@ -233,11 +233,12 @@ class Node:
     role: Optional[str] = None
     # ---- endpoint extras ----
     agent_id: Optional[str] = None
-    # Endpoints: the base score (vulnmapper.scoring); None = could not be scored.
-    risk_score: Optional[float] = 0
-    # Highest CVSS across ``top_cves`` (null when unscored / no CVEs). Distinct
-    # from ``risk_score``, which remains the field of record for ranking and edge
-    # weights; ``max_cvss`` is exposed for consumers that key on raw CVSS.
+    # The node's OVSS (vulnmapper.scoring), set by the OVSS stage; None until
+    # then, and when the node is not assessed.
+    risk_score: Optional[float] = None
+    # Highest CVSS of the node's CVEs (null when unscored / no CVEs); after the
+    # OVSS stage, the highest CVSS score OVSS used. Distinct from ``risk_score``,
+    # the field of record for ranking.
     max_cvss: Optional[float] = None
     top_cves: list = field(default_factory=list)
     # Distinct-CVE counts per CVSS band + max_cvss; None when not scored.

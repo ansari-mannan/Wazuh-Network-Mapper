@@ -13,7 +13,6 @@ import unittest
 
 from test_cdp import crawl, lab
 from test_nvd import FakeClock, FakeNvd, listed, metric, record
-from vulnmapper import scoring
 from vulnmapper.devicecves import nvd
 from vulnmapper.devicecves.cache import Cache
 from vulnmapper.pipeline import Pipeline
@@ -137,8 +136,6 @@ class TestStage(unittest.TestCase):
     def test_detected_service_becomes_a_potential_cve(self):
         node = endpoint("ep:unmanaged", ip="10.0.0.5")
         self.run_it(graph(node), FakeRunner(nmaprun(host_xml("10.0.0.5", SSH_SERVICE_PORT))))
-        rows = [nvd.parse_cve(v["cve"], package=None, version=None, detected_at=None) for v in SSH_CVES]
-        self.assertEqual(node["risk_score"], scoring.base_score(rows))
         self.assertEqual(node["max_cvss"], 9.8)
         self.assertEqual(node["cve_lookup"]["status"], "ok")
         self.assertEqual(node["cve_lookup"]["source"], "nmap")

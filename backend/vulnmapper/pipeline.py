@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -20,6 +21,7 @@ from .checklist.stage import run_checklist
 from .common import StageResult, plural, setup_logging
 from .devicecves.stage import run_device_cves
 from .devicecves.vectors import run_cve_vectors
+from .scoring.stage import run_ovss
 from .servicescan.stage import run_service_scan
 
 log = logging.getLogger("vulnmapper.pipeline")
@@ -32,7 +34,8 @@ class ScanContext:
     the whole scan, and the stand-ins tests pass for the network)."""
 
     def __init__(self, args: argparse.Namespace, *, nvd_transport=None, clock=None,
-                 resolver=None, snmp_client=None, nmap_runner=None) -> None:
+                 resolver=None, snmp_client=None, nmap_runner=None,
+                 threat_transport=None) -> None:
         self.args = args
         self.resolver = resolver
         self.snmp_client = snmp_client
@@ -40,6 +43,9 @@ class ScanContext:
         self._nvd_transport = nvd_transport
         self._clock = clock
         self._nvd: Optional[tuple] = None
+        self.threat_transport = threat_transport
+        # built by the OVSS stage, used again by the attack path stage
+        self.engine = None
 
         self.endpoints: list[dict] = []
         self.network_doc: dict = {"nodes": [], "edges": []}
@@ -72,20 +78,35 @@ class ScanContext:
         self.targets_path = args.targets or (attackpaths.targets_path(beside_graph)
                                              if beside_graph else None)
 
+    @property
+    def clock(self):
+        from .devicecves.nvd import SystemClock
+
+        if self._clock is None:
+            self._clock = SystemClock()
+        return self._clock
+
+    def nvd_cache_path(self) -> Optional[str]:
+        from .devicecves.cache import default_path
+
+        return self.args.nvd_cache or (default_path(self.vulns_path) if self.vulns_path else None)
+
+    def cache_folder(self) -> Optional[str]:
+        """Where the threat feeds and CVE records are cached: beside nvd-cache.json."""
+        path = self.nvd_cache_path()
+        return os.path.dirname(os.path.abspath(path)) if path else None
+
     def nvd(self) -> tuple:
         """The scan's ``(NvdClient, Cache)``, made on first use: both NVD stages
         and the service scan share one request spacing and one time budget."""
         if self._nvd is None:
-            from .devicecves.cache import Cache, default_path
-            from .devicecves.nvd import NvdClient, SystemClock
+            from .devicecves.cache import Cache
+            from .devicecves.nvd import NvdClient
             from .devicecves.stage import DEFAULT_BUDGET_S
 
-            cache_path = self.args.nvd_cache or (default_path(self.vulns_path)
-                                                 if self.vulns_path else None)
-            clock = self._clock or SystemClock()
-            self._nvd = (NvdClient(transport=self._nvd_transport, clock=clock,
+            self._nvd = (NvdClient(transport=self._nvd_transport, clock=self.clock,
                                    budget_s=self.args.nvd_budget or DEFAULT_BUDGET_S),
-                         Cache(cache_path, clock))
+                         Cache(self.nvd_cache_path(), self.clock))
         return self._nvd
 
     def nvd_tally(self, stage: str, before: tuple) -> tuple:
@@ -308,15 +329,17 @@ class Pipeline:
     graph.json, vulnerabilities.json and attack_paths.json.
 
     ``nvd_transport`` and ``clock`` replace the NVD HTTP layer and the clock
-    (tests serve saved replies); ``resolver`` replaces the reverse DNS lookup,
-    ``snmp_client`` the SNMP client of the question to unmanaged hosts and
-    ``nmap_runner`` nmap.
+    (tests serve saved replies); ``threat_transport`` the downloads of the
+    KEV and EPSS feeds and the CVE records; ``resolver`` replaces the reverse
+    DNS lookup, ``snmp_client`` the SNMP client of the question to unmanaged
+    hosts and ``nmap_runner`` nmap.
     """
 
     def __init__(self, nvd_transport=None, clock=None, resolver=None,
-                 snmp_client=None, nmap_runner=None) -> None:
+                 snmp_client=None, nmap_runner=None, threat_transport=None) -> None:
         self._services = dict(nvd_transport=nvd_transport, clock=clock, resolver=resolver,
-                              snmp_client=snmp_client, nmap_runner=nmap_runner)
+                              snmp_client=snmp_client, nmap_runner=nmap_runner,
+                              threat_transport=threat_transport)
 
     def run(self, argv: Optional[list[str]] = None) -> int:
         setup_logging()
@@ -357,6 +380,9 @@ class Pipeline:
                    skip=_off_unless(not args.no_checklist),
                    label="Evaluating device configuration checks",
                    timing="checklist_s", metadata="checklist")
+        # after every CVE stage, before the attack paths, which rank by its scores
+        _run_stage(scan, "OVSS scoring", run_ovss, skip=None,
+                   label="Scoring findings (OVSS)", timing="ovss_s", metadata="ovss")
 
         finished_at = datetime.now(timezone.utc)
         scan.timing["finished_at"] = finished_at.isoformat()

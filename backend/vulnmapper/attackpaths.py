@@ -149,9 +149,9 @@ def _takeover(node: dict, candidates: list, cross_router: bool) -> Optional[dict
 
 
 def _order_key(route: dict) -> tuple:
-    """Within a target, never a blended score: likelihood, then highest base score,
-    then fewer steps, then start id, then the ids along the route."""
-    return (-route["likelihood"], -route["highest_base_score"], len(route["steps"]),
+    """Within a target, never a blended score: likelihood, then the highest node
+    OVSS along the route, then fewer steps, then start id, then the ids along it."""
+    return (-route["likelihood"], -route["highest_ovss"], len(route["steps"]),
             route["start"], tuple(s["to"] for s in route["steps"]))
 
 
@@ -383,7 +383,7 @@ class AttackPathEngine:
             step = dict(edge["step"])
             likelihood *= step["value"]
             step.update({"from": edge["router"] if edge["cross"] else a, "to": b,
-                         "destination_base_score": dest.get("risk_score"),
+                         "destination_ovss": dest.get("risk_score"),
                          "context_findings": _context_findings(dest)})
             steps.append(step)
 
@@ -394,7 +394,7 @@ class AttackPathEngine:
             "start_kind": start["kind"],
             "steps": steps,
             "likelihood": round(likelihood, 6),
-            "highest_base_score": max([s for s in scores if s is not None], default=0.0),
+            "highest_ovss": max([s for s in scores if s is not None], default=0.0),
             "crosses_router": any(s["kind"] == "transit" for s in steps),
             "narrative": self._narrative(start, steps),
         }
@@ -450,9 +450,9 @@ class AttackPathEngine:
                                    -len(b.get("routes") or []), b["id"]))
         return blocks, all_routes, pairs_with_route
 
-    def _dependants(self) -> dict:
-        """Hosts that depend on each asset (browse-list order only, never route
-        order): a switch counts the hosts attached to it, a router also those in
+    def dependants(self) -> dict:
+        """Hosts that depend on each asset (browse-list order and OVSS
+        Dependency, never route order): a switch counts the hosts attached to it, a router also those in
         the VLANs it routes, a host none. A host is any non-device node."""
         hosts = [n for n in self.by_id.values() if n["kind"] != "device"]
         out = {}
@@ -471,7 +471,7 @@ class AttackPathEngine:
             for nid in {s["from"] for s in r["steps"]} | {s["to"] for s in r["steps"]}:
                 if nid in through:
                     through[nid] += 1
-        dependants = self._dependants()
+        dependants = self.dependants()
         per_asset = []
         for nid, node in self.by_id.items():
             status = (node.get("reachable_cve") or {}).get("status")
@@ -581,10 +581,12 @@ def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],
 
 def run_attack_paths(scan: "ScanContext") -> StageResult:
     """The pipeline's exposure-path stage. It runs last, once the graph's
-    scan_time is final, so attack_paths.json's source_scan names this graph.
+    scan_time is final, so attack_paths.json's source_scan names this graph,
+    on the engine the OVSS stage built and scored the nodes with.
     No liveness here: any liveness.json describes the previous graph."""
-    vulns = vulnfile.build_document(scan.endpoints, scan.cves, None, devices=scan.device_entries)
-    document = run_stage(scan.document, load_targets(scan.targets_path), vulns, scan.paths_out)
+    document = scan.engine.compute()
+    vulnfile.write_atomic(scan.paths_out, document)
+    log.info("wrote attack paths to %s", scan.paths_out)
     c = document["metadata"]["counts"]
     return StageResult(note=f"{plural(c['routes'], 'route')} to "
                             f"{plural(c['targets_present'], 'protected asset')}")

@@ -1,4 +1,4 @@
-"""The device CVE stage: CVEs and a base score for every network device, and for
+"""The device CVE stage: the CVEs of every network device, and of
 a host without an agent that answered SNMP with a known software family.
 Runs after assembly (and in the refresh command, ``python -m
 vulnmapper.devicecves``).
@@ -30,24 +30,24 @@ log = logging.getLogger("vulnmapper.devicecves")
 # crawl, after ``--network PATH`` and in the refresh command
 # (``python -m vulnmapper.devicecves``). Each device gets the fields hosts
 # already have, built with the same helpers (``endpoints.enrich_agent``:
-# distinct_cves, summarize_cves, TOP_CVES, scoring.base_score):
+# distinct_cves, summarize_cves, TOP_CVES); the OVSS stage scores them later:
 #
-#   ``cve_summary``, ``top_cves``, ``max_cvss``, ``risk_score``, and
+#   ``cve_summary``, ``top_cves``, ``max_cvss``, and
 #   ``cve_lookup``: {status, match, product, cpe, source, fetched_at, stale, total}
 #
-# How the lookup's status maps to the score:
+# How the lookup's status maps to the findings:
 #
-#   CPE query answered, CVEs found        ok                    base_score(rows)
-#   CPE query answered, nothing found     ok                    0.0
-#   keyword fallback, CVEs found          ok, match keyword     base_score(rows)
-#   keyword fallback, nothing found       ok, match keyword     null (Unscored)
+#   CPE query answered, CVEs found        ok                    the rows
+#   CPE query answered, nothing found     ok                    [] (total 0)
+#   keyword fallback, CVEs found          ok, match keyword     the rows
+#   keyword fallback, nothing found       ok, match keyword     null
 #   vendor, family or version missing     unidentified          null
 #   NVD unreachable and nothing cached    unavailable           null
 #   NVD could not confirm the query       unverified            null
 #   device not polled                     unidentified          null
 #
-# A 0.0 means "asked precisely, and NVD has nothing"; a failed, guessed or
-# skipped lookup never produces it. Every device finding is potential: the
+# An empty list means "asked precisely, and NVD has nothing"; a failed, guessed
+# or skipped lookup never produces it. Every device finding is potential: the
 # software version matches, which does not prove the affected feature is in use.
 # ``cve_lookup`` marks that; the rows carry no flag of their own.
 
@@ -74,7 +74,6 @@ def apply_result(node: dict, result: Lookup) -> Optional[list]:
     # keyword fallback with nothing accepted: no claim either way (Unscored)
     scored = None if rows is None or (result.match == "keyword" and not rows) else rows
     enriched = enrich_agent({}, scored)
-    node["risk_score"] = enriched["risk_score"]
     node["max_cvss"] = enriched["max_cvss"]
     # the vector fields go on only through the vectors stage (vectors.py)
     node["top_cves"] = [{k: v for k, v in r.items() if k not in VECTOR_KEYS}

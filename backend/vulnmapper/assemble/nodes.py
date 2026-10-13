@@ -66,7 +66,7 @@ def device_node(raw: dict) -> Node:
         neighbor_ports=raw.get("neighbor_ports") or [],
         uplink_ports=raw.get("uplink_ports") or [],
         port_status=raw.get("port_status") or {},
-        risk_score=raw.get("risk_score", 0) or 0,
+        risk_score=raw.get("risk_score"),
         software_family=raw.get("software_family"),
     )
 
@@ -91,7 +91,7 @@ def endpoint_node(raw: dict) -> Node:
         mac=raw.get("mac"),
         status=raw.get("status"),
         agent_id=raw.get("agent_id"),
-        risk_score=raw.get("risk_score", 0),  # None = unscored, kept as null
+        risk_score=raw.get("risk_score"),  # the OVSS stage sets it
         max_cvss=_max_cvss(top_cves),
         top_cves=top_cves,
         cve_summary=raw.get("cve_summary"),

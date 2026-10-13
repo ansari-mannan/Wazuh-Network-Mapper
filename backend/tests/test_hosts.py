@@ -222,6 +222,8 @@ class TestPipeline(unittest.TestCase):
         with open(os.path.join(FIXTURES, "pipeline_lab_13e6ebd.json")) as f:
             today = json.load(f)
         graph = self.run_pipeline("--no-name-lookup")
+        from test_scoring import strip_ovss
+        strip_ovss(graph), strip_ovss(today)                  # frozen before OVSS
         self.assertEqual(graph["edges"], today["edges"])
         self.assertEqual(len(graph["nodes"]), len(today["nodes"]))
         replaced = {"ports-enabled-unused", "spare-ports-in-used-vlan"}    # Part 2

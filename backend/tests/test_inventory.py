@@ -232,7 +232,7 @@ class TestNotYetInventoried(unittest.TestCase):
     def test_no_documents_and_no_packages_is_unscored(self):
         src, by_id, manager = self.run_score([])
         new = by_id["001"]
-        self.assertIsNone(new["risk_score"])
+        self.assertIsNone(new["cve_summary"])
         self.assertIsNone(new["cve_summary"])
         self.assertIsNone(new["findings"])
         self.assertIn(("/syscollector/001/packages", {"limit": 1}), manager.calls)
@@ -241,7 +241,7 @@ class TestNotYetInventoried(unittest.TestCase):
 
     def test_no_documents_with_packages_scores_zero(self):
         src, by_id, _m = self.run_score([{"name": "bash"}])
-        self.assertEqual(by_id["001"]["risk_score"], 0.0)
+        self.assertEqual(by_id["001"]["cve_summary"]["total"], 0)
         self.assertEqual(by_id["001"]["cve_summary"]["total"], 0)
         self.assertEqual(src.warnings, [])
 
@@ -257,7 +257,7 @@ class TestNotYetInventoried(unittest.TestCase):
 
     def test_failed_check_leaves_unscored_and_reports(self):
         src, by_id, _m = self.run_score(Outcomes(http_error(500), http_error(503)))
-        self.assertIsNone(by_id["001"]["risk_score"])
+        self.assertIsNone(by_id["001"]["cve_summary"])
         self.assertEqual(src.warnings[0]["type"], "inventory_unavailable")
         self.assertEqual(src.warnings[0]["agents"], ["001"])
 
@@ -277,7 +277,7 @@ class TestIndexerPackageInventory(unittest.TestCase):
     def test_no_indexer_inventory_is_unscored_not_zero(self):
         src, by_id, manager = self.run_score()
         server = by_id["000"]
-        self.assertIsNone(server["risk_score"])
+        self.assertIsNone(server["cve_summary"])
         self.assertIsNone(server["cve_summary"])
         self.assertEqual(server["unscored_reason"], "no_inventory")
         self.assertEqual(src.warnings, [{"type": "not_yet_inventoried", "agents": ["000"],
@@ -286,7 +286,7 @@ class TestIndexerPackageInventory(unittest.TestCase):
 
     def test_inventory_and_no_cves_still_scores_zero(self):
         _src, by_id, _m = self.run_score()
-        self.assertEqual(by_id["002"]["risk_score"], 0.0)
+        self.assertEqual(by_id["002"]["cve_summary"]["total"], 0)
         self.assertEqual(by_id["002"]["cve_summary"]["total"], 0)
         self.assertNotIn("unscored_reason", by_id["002"])
 

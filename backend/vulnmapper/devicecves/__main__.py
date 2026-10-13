@@ -19,6 +19,8 @@ from .cache import Cache, default_path
 from .nvd import NvdClient, SystemClock
 from ..endpoints import merge_catalogue
 from .stage import DEFAULT_BUDGET_S, run_stage
+from ..attackpaths import load_targets, targets_path
+from ..scoring.stage import WARNING, score
 
 log = logging.getLogger("vulnmapper.devicecves")
 
@@ -53,8 +55,9 @@ def _load(path: str) -> Optional[dict]:
     return doc if isinstance(doc, dict) else None
 
 
-def update_vulns(path: str, entries: dict, rows: dict, scan_time: Optional[str]) -> None:
-    """Replace the device entries of vulnerabilities.json, keeping host entries."""
+def update_vulns(path: str, entries: dict, rows: dict, scan_time: Optional[str]) -> dict:
+    """vulnerabilities.json with its device entries replaced, host entries kept
+    (not written)."""
     doc = _load(path) or {}
     hosts = {k: v for k, v in (doc.get("hosts") or {}).items()
              if isinstance(v, dict) and v.get("kind") != "device"}
@@ -73,11 +76,11 @@ def update_vulns(path: str, entries: dict, rows: dict, scan_time: Optional[str])
     n_devices = sum(1 for v in hosts.values() if v.get("kind") == "device")
     meta["counts"] = {"hosts": len(hosts) - n_devices, "devices": n_devices,
                       "cves": len(used & set(catalogue)), "findings": findings}
-    vulnfile.write_atomic(path, {
+    return {
         "metadata": meta,
         "cves": {c: catalogue[c] for c in sorted(used) if c in catalogue},
         "hosts": hosts,
-    })
+    }
 
 
 def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
@@ -87,10 +90,12 @@ def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
                                         [--vulns PATH] [--budget SECONDS]
 
     Refreshes the device nodes' CVE fields (and the stage's metadata block and
-    warnings), rewrites the graph atomically, and updates the device entries of
-    vulnerabilities.json beside it (creating a devices-only file if there is
-    none, leaving host entries untouched). Nothing else in the graph changes.
-    No SNMP, no Wazuh; only NVD (``NVD_API_KEY`` optional, from the environment).
+    warnings), updates the device entries of vulnerabilities.json beside it
+    (creating a devices-only file if there is none, leaving host entries as
+    they were), then scores every finding and node again with OVSS
+    (vulnmapper.scoring) and rewrites both files atomically. Nothing else in
+    the graph changes. No SNMP, no Wazuh; only NVD (``NVD_API_KEY`` optional,
+    from the environment) and the OVSS threat feeds and CVE records, cached.
     """
     setup_logging()
     parser = argparse.ArgumentParser(
@@ -120,11 +125,19 @@ def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
                         if not (isinstance(w, dict) and w.get("type") in STAGE_WARNINGS)]
     meta["warnings"].extend(result.warnings)
     meta["device_cves"] = {**result.block, "refreshed_at": clock.now().isoformat()}
-    _write_json_atomic(args.graph, graph, indent=2)
-    log.info("refreshed device CVEs in %s", args.graph)
-
     vulns_path = args.vulns or vulnfile.default_path(args.graph)
-    update_vulns(vulns_path, result.entries, result.rows, meta.get("scan_time"))
+    vulns = update_vulns(vulns_path, result.entries, result.rows, meta.get("scan_time"))
+
+    _, scored = score(graph, vulns, load_targets(targets_path(args.graph)),
+                      os.path.dirname(os.path.abspath(cache.path)), clock)
+    meta["ovss"] = scored.block
+    meta["warnings"] = [w for w in meta["warnings"]
+                        if not (isinstance(w, dict) and w.get("type") == WARNING)]
+    meta["warnings"].extend(scored.warnings)
+
+    _write_json_atomic(args.graph, graph, indent=2)
+    log.info("refreshed device CVEs and OVSS in %s", args.graph)
+    vulnfile.write_atomic(vulns_path, vulns)
     log.info("updated device entries in %s", vulns_path)
     return 0
 

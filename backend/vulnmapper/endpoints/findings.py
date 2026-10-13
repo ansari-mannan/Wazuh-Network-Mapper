@@ -1,12 +1,12 @@
 """CVE rows for a host: parsing the indexer's vulnerability documents, one
-row per distinct CVE, the per-band summary and the base score, and the shapes
+row per distinct CVE, the per-band summary, and the shapes
 vulnerabilities.json stores them in. Shared by the Wazuh endpoints and the
 NVD lookups for devices. No I/O.
 """
 
 from __future__ import annotations
 
-from ..scoring import CRITICAL_MIN, HIGH_MIN, MEDIUM_MIN, base_score
+from ..scoring import CRITICAL_MIN, HIGH_MIN, MEDIUM_MIN
 
 # How many of a host's worst distinct CVEs ride on its graph node as ``top_cves``.
 TOP_CVES = 10
@@ -84,20 +84,19 @@ def summarize_cves(distinct):
 
 
 def enrich_agent(agent, cves):
-    """Add ``risk_score``, ``max_cvss``, ``top_cves`` and ``cve_summary`` to an agent.
+    """Add ``max_cvss``, ``top_cves`` and ``cve_summary`` to an agent.
 
     ``cves`` is every CVE row for the agent (one per CVE and package), or None
-    when the agent could not be scored. ``risk_score`` is the base score from
-    :func:`vulnmapper.scoring.base_score`; ``max_cvss`` stays the raw worst CVSS;
+    when the agent could not be scored. ``max_cvss`` is the raw worst CVSS
+    until the OVSS stage (vulnmapper.scoring) sets it, with ``risk_score``;
     ``top_cves`` holds the :data:`TOP_CVES` worst distinct CVEs. An unscored
-    agent gets None for the score, the max and the summary, and no CVEs.
+    agent gets None for the max and the summary, and no CVEs.
     """
     if cves is None:
-        return {**agent, "risk_score": None, "max_cvss": None, "top_cves": [],
-                "cve_summary": None}
+        return {**agent, "max_cvss": None, "top_cves": [], "cve_summary": None}
     distinct = distinct_cves(cves)
     summary = summarize_cves(distinct)
-    return {**agent, "risk_score": base_score(cves), "max_cvss": summary["max_cvss"],
+    return {**agent, "max_cvss": summary["max_cvss"],
             "top_cves": distinct[:TOP_CVES], "cve_summary": summary}
 
 

@@ -1,4 +1,4 @@
-"""The device vulnerability stage: status -> score, pipeline outputs.
+"""The device vulnerability stage: status -> findings, pipeline outputs.
 
 Every NVD reply is served by FakeNvd (test_nvd); nothing touches the network.
 """
@@ -13,11 +13,11 @@ import unittest
 
 from test_cdp import AP_CID, L2_CID, L3_CID, crawl, lab
 from test_nvd import IOS_CPE, FakeClock, FakeNvd, ios_cves, listed, metric, record, saved
-from vulnmapper import scoring
 from vulnmapper.assemble import assemble
 from vulnmapper.devicecves import nvd
 from vulnmapper.devicecves.cache import Cache
 from vulnmapper.devicecves.stage import run_stage
+from test_scoring import strip_ovss
 from vulnmapper.pipeline import Pipeline
 
 L2_CPE = r"cpe:2.3:o:cisco:ios:12.2\(58\)se2:*:*:*:*:*:*:*"
@@ -59,9 +59,6 @@ class TestStatusTable(unittest.TestCase):
 
     def test_cpe_answered_cves_found(self):
         (node,), _ = self.stage(device())
-        rows = [nvd.parse_cve(v["cve"], package=None, version=None, detected_at=None)
-                for v in ios_cves()]
-        self.assertEqual(node["risk_score"], scoring.base_score(rows))
         self.assertEqual(node["cve_lookup"]["status"], "ok")
         self.assertEqual(node["cve_lookup"]["match"], "cpe")
         self.assertEqual(node["cve_lookup"]["total"], 8)
@@ -71,7 +68,6 @@ class TestStatusTable(unittest.TestCase):
 
     def test_cpe_answered_nothing_found_is_a_real_zero(self):
         (node,), _ = self.stage(device(firmware="15.3(3)JB"))
-        self.assertEqual(node["risk_score"], 0.0)
         self.assertEqual((node["cve_lookup"]["status"], node["cve_lookup"]["total"]), ("ok", 0))
         self.assertEqual(node["cve_summary"]["total"], 0)
 
@@ -83,7 +79,7 @@ class TestStatusTable(unittest.TestCase):
                                        firmware="5.20.99 Release 1107",
                                        software_family="hp_comware"), fake=fake)
         self.assertEqual((node["cve_lookup"]["status"], node["cve_lookup"]["match"]), ("ok", "keyword"))
-        self.assertEqual(node["risk_score"], scoring.base_score([{"cve": "CVE-2019-1111", "cvss": 7.5}]))
+        self.assertEqual((node["cve_summary"]["total"], node["max_cvss"]), (1, 7.5))
 
     def test_keyword_fallback_nothing_found_is_unscored(self):
         # the lab's HP 1920: NVD's "1920" CVEs are about other products
@@ -91,7 +87,6 @@ class TestStatusTable(unittest.TestCase):
                                        firmware="5.20.99 Release 1107",
                                        software_family="hp_comware"))
         self.assertEqual((node["cve_lookup"]["status"], node["cve_lookup"]["match"]), ("ok", "keyword"))
-        self.assertIsNone(node["risk_score"])
         self.assertIsNone(node["cve_summary"])
         self.assertEqual(node["cve_lookup"]["total"], 0)
 
@@ -101,7 +96,7 @@ class TestStatusTable(unittest.TestCase):
                                           firmware="1.0"))
         for node in nodes:
             self.assertEqual(node["cve_lookup"]["status"], "unidentified")
-            self.assertIsNone(node["risk_score"])
+            self.assertIsNone(node["cve_summary"])
         self.assertEqual(self.client.requests, 0)
         self.assertIn({"type": "device_unidentified", "node_ids": ["device:a", "device:b"]},
                       result.warnings)
@@ -109,19 +104,18 @@ class TestStatusTable(unittest.TestCase):
     def test_nvd_unreachable_nothing_cached(self):
         (node,), result = self.stage(device(), fake=lab_nvd(self.clock, script=["down"] * 9))
         self.assertEqual(node["cve_lookup"]["status"], "unavailable")
-        self.assertIsNone(node["risk_score"])
         self.assertIsNone(node["cve_summary"])
         self.assertIn({"type": "nvd_unreachable", "node_ids": [node["node_id"]]}, result.warnings)
 
     def test_nvd_could_not_confirm_the_query(self):
         (node,), _ = self.stage(device(firmware="12.2(99)ZZ99"))
         self.assertEqual(node["cve_lookup"]["status"], "unverified")
-        self.assertIsNone(node["risk_score"])
+        self.assertIsNone(node["cve_summary"])
 
     def test_device_not_polled(self):
         (node,), result = self.stage(device(pollable=False, status="discovered"))
         self.assertEqual(node["cve_lookup"]["status"], "unidentified")
-        self.assertIsNone(node["risk_score"])
+        self.assertIsNone(node["cve_summary"])
         self.assertEqual(self.client.requests, 0)
         self.assertEqual(result.warnings, [])          # expected, so no warning
 
@@ -132,7 +126,7 @@ class TestStatusTable(unittest.TestCase):
         (node,), result = self.stage(device(), cache=cache,
                                      fake=lab_nvd(self.clock, script=["down"] * 9))
         self.assertEqual((node["cve_lookup"]["status"], node["cve_lookup"]["stale"]), ("ok", True))
-        self.assertIsNotNone(node["risk_score"])
+        self.assertIsNotNone(node["cve_summary"])
         self.assertIn({"type": "nvd_stale_cache", "node_ids": [node["node_id"]]}, result.warnings)
 
     def test_budget_runs_out_the_rest_wait_for_the_next_scan(self):
@@ -140,7 +134,7 @@ class TestStatusTable(unittest.TestCase):
                                    budget=8.0)
         self.assertEqual(nodes[0]["cve_lookup"]["status"], "ok")
         self.assertEqual(nodes[1]["cve_lookup"]["status"], "unavailable")
-        self.assertIsNone(nodes[1]["risk_score"])
+        self.assertIsNone(nodes[1]["cve_summary"])
         self.assertIn({"type": "nvd_budget_exceeded", "node_ids": ["device:b"]}, result.warnings)
 
     def test_metadata_block(self):
@@ -184,6 +178,7 @@ class TestPipeline(unittest.TestCase):
         graph = self.run_pipeline("--no-device-cves", "--no-checklist", "--no-cve-vectors")
         with open(self.network) as f:
             today = assemble([], json.load(f))
+        strip_ovss(graph), strip_ovss(today)
         self.assertEqual(graph["nodes"], today["nodes"])
         self.assertEqual(graph["edges"], today["edges"])
         self.assertIsNone(graph["metadata"]["timing"]["device_cves_s"])
@@ -199,7 +194,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(list(stages), [
             "Wazuh endpoints", "Network crawl", "SNMP question to unmanaged hosts",
             "Reverse DNS names", "Device CVEs (NVD)", "nmap service scan", "CVE vectors (NVD)",
-            "Configuration checks", "Attack paths"])
+            "Configuration checks", "OVSS scoring", "Attack paths"])
         for name in ("Wazuh endpoints", "SNMP question to unmanaged hosts", "Reverse DNS names",
                      "nmap service scan"):
             self.assertEqual((stages[name]["status"], stages[name]["note"]), ("skipped", "off"))
@@ -215,7 +210,8 @@ class TestPipeline(unittest.TestCase):
         before = {n["node_id"]: n for n in self.run_pipeline("--no-device-cves",
                                                              "--no-cve-vectors")["nodes"]}
         graph = self.run_pipeline("--no-cve-vectors")
-        after = {n["node_id"]: n for n in graph["nodes"]}
+        before = {nid: strip_ovss({"nodes": [n]})["nodes"][0] for nid, n in before.items()}
+        after = {n["node_id"]: n for n in strip_ovss(json.loads(json.dumps(graph)))["nodes"]}
         self.assertEqual(set(after), set(before))
         for nid, node in after.items():
             old = before[nid]
@@ -224,7 +220,7 @@ class TestPipeline(unittest.TestCase):
                 continue
             self.assertEqual(set(node) - set(old), NEW_DEVICE_FIELDS, nid)
             changed = {k for k in old if old[k] != node[k]}
-            self.assertLessEqual(changed, {"risk_score", "max_cvss"}, nid)
+            self.assertLessEqual(changed, {"max_cvss"}, nid)
         self.assertIsInstance(graph["metadata"]["timing"]["device_cves_s"], float)
         self.assertIn("device_cves", graph["metadata"])
 
@@ -235,9 +231,11 @@ class TestPipeline(unittest.TestCase):
             "status": "ok", "match": "cpe", "product": "Cisco IOS 12.2(55)SE12", "cpe": IOS_CPE,
             "source": "nvd", "fetched_at": l3["cve_lookup"]["fetched_at"], "stale": False, "total": 8})
         self.assertEqual((l2["cve_lookup"]["total"], l2["max_cvss"]), (2, 9.8))
-        self.assertEqual((ap["cve_lookup"]["total"], ap["risk_score"]), (0, 0.0))
+        self.assertEqual((ap["cve_lookup"]["total"], ap["risk_score"], ap["ovss_reason"]),
+                         (0, None, "cpe match returned 0 CVEs"))
         hp = next(n for n in nodes.values() if n.get("ip") == "172.20.99.4")
-        self.assertEqual((hp["cve_lookup"]["match"], hp["risk_score"]), ("keyword", None))
+        self.assertEqual((hp["cve_lookup"]["match"], hp["risk_score"], hp["ovss_status"]),
+                         ("keyword", None, "Unassessed"))
 
     def test_vulnerabilities_file_gains_device_entries(self):
         self.run_pipeline()
@@ -248,7 +246,11 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(entry["cve_lookup"]["product"], "Cisco IOS 12.2(58)SE2")
         self.assertEqual(entry["findings"][0], {
             "cve": "CVE-2021-0001", "package": "Cisco IOS 12.2(58)SE2", "version": "12.2(58)SE2",
-            "detected_at": entry["cve_lookup"]["fetched_at"]})
+            "detected_at": entry["cve_lookup"]["fetched_at"],
+            # OVSS, with no threat feeds (offline): 9.8 x 0.625 x 0.5
+            "score": 3.062, "tier": "P2", "cvss_tool": 9.8, "cvss_used": 9.8, "cvss_src": "tool",
+            "cvss_ver": "3.1", "kev": False, "epss": 0.0, "exposure": 0.5, "dependency": 0.0,
+            "confidence": "potential", "conflict": 0})
         self.assertEqual(vulns["cves"]["CVE-2021-0001"]["description"], "An issue.")
         # every device node has an entry; the firewall (not in the fixtures, so
         # unreachable) is one, unidentified, with no findings

@@ -14,6 +14,7 @@ from test_cdp import crawl, lab
 from test_device_stage import lab_nvd
 from test_nvd import FakeClock
 from vulnmapper import attackpaths as ap
+from test_scoring import strip_ovss
 from vulnmapper.pipeline import Pipeline
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -254,7 +255,7 @@ class TestRoutesAndStarts(unittest.TestCase):
 
 class TestOrdering(unittest.TestCase):
     def route(self, likelihood, score, tos, start):
-        return {"likelihood": likelihood, "highest_base_score": score,
+        return {"likelihood": likelihood, "highest_ovss": score,
                 "steps": [{"to": x} for x in tos], "start": start}
 
     def test_each_key_in_turn_and_stable_tail(self):
@@ -267,7 +268,7 @@ class TestOrdering(unittest.TestCase):
         ]
         order = [ap._order_key(r) for r in routes]
         ranked = [routes[i] for i in sorted(range(len(routes)), key=lambda i: order[i])]
-        self.assertEqual([(r["likelihood"], r["highest_base_score"], len(r["steps"]), r["start"])
+        self.assertEqual([(r["likelihood"], r["highest_ovss"], len(r["steps"]), r["start"])
                           for r in ranked],
                          [(0.9, 9.0, 1, "s1"), (0.9, 9.0, 1, "s2"),
                           (0.9, 9.0, 2, "s2"), (0.9, 5.0, 2, "s1"), (0.6, 9.0, 1, "s1")])
@@ -452,6 +453,9 @@ class TestPipeline(unittest.TestCase):
         for key in ("scan_time", "network_scan_time"):
             out["graph"]["metadata"][key] = None
         out["vulnerabilities"]["metadata"]["scan_time"] = None
+        for doc in (out, frozen):                     # frozen before OVSS
+            for part in doc.values():
+                strip_ovss(part)
         self.assertEqual(out, frozen)
 
     def test_source_scan_names_the_graph_it_was_computed_from(self):

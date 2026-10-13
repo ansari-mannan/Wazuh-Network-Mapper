@@ -228,7 +228,7 @@ class TestDistinctAndSummary(unittest.TestCase):
 
     def test_scanned_with_nothing_found(self):
         _src, (agent,) = score([{"agent_id": "001"}], FakeIndexer({}))
-        self.assertEqual(agent["risk_score"], 0.0)
+        self.assertEqual(agent["cve_summary"]["total"], 0)
         self.assertEqual(agent["findings"], [])
         self.assertEqual(agent["cve_summary"]["total"], 0)
         self.assertIsNone(agent["cve_summary"]["max_cvss"])
@@ -273,7 +273,7 @@ class TestIndexerFailure(unittest.TestCase):
 
         self.assertEqual(out[0]["cve_summary"]["total"], 1)        # scored before the failure
         for agent in out[1:]:
-            self.assertIsNone(agent["risk_score"])
+            self.assertIsNone(agent["cve_summary"])
             self.assertIsNone(agent["cve_summary"])
             self.assertIsNone(agent["max_cvss"])
             self.assertIsNone(agent["findings"])
@@ -291,9 +291,9 @@ class TestIndexerFailure(unittest.TestCase):
         fake = FakeIndexer({"001": [doc("CVE-1", 9.8)], "003": [doc("CVE-2", 5.0)]},
                            fail={"002": requests.HTTPError("500 Server Error")})
         src, out = score(self.AGENTS, fake)
-        self.assertIsNone(out[1]["risk_score"])
-        self.assertIsNotNone(out[0]["risk_score"])
-        self.assertIsNotNone(out[2]["risk_score"])
+        self.assertIsNone(out[1]["cve_summary"])
+        self.assertIsNotNone(out[0]["cve_summary"])
+        self.assertIsNotNone(out[2]["cve_summary"])
         self.assertEqual(src.warnings[0]["agents"], ["002"])
 
     def test_failure_mid_paging_leaves_no_partial_score(self):
@@ -308,7 +308,7 @@ class TestIndexerFailure(unittest.TestCase):
             return good(url, json=json, **kw)
 
         src, (agent,) = score([{"agent_id": "001"}], flaky)
-        self.assertIsNone(agent["risk_score"])
+        self.assertIsNone(agent["cve_summary"])
         self.assertEqual(src.cves, {})
 
 

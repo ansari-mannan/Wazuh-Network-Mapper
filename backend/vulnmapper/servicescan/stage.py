@@ -30,8 +30,8 @@ log = logging.getLogger("vulnmapper.servicescan")
 # Each host that answered keeps its ``open_ports`` (the honest evidence, recorded
 # even without a CVE). A detected product+version with an nmap CPE is turned into
 # a CPE lookup and run through :func:`devicecves.lookup.lookup`, so the host gains
-# the same ``cve_summary``, ``top_cves``, ``max_cvss``, ``risk_score`` and
-# ``cve_lookup`` a device gets. The lookup record is marked ``source "nmap"`` and
+# the same ``cve_summary``, ``top_cves``, ``max_cvss`` and ``cve_lookup``
+# a device gets. The lookup record is marked ``source "nmap"`` and
 # ``potential``: a detected version is not proof the vulnerable build is running.
 # The host stays ``unmanaged``; this gives it data, not an agent.
 
