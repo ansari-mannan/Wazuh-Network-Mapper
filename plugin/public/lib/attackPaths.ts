@@ -84,13 +84,13 @@ export function likelihoodText(value: number): string {
 }
 
 /**
- * Tile order within a target group: higher likelihood first, then higher base
- * score (the same order the engine ranks routes in). Target groups themselves
- * are ordered by IMPORTANCE_RANK, so the flattened tiles read importance, then
- * likelihood, then base score.
+ * Tile order within a target group: higher likelihood first, then the higher
+ * node OVSS along the route (the same order the engine ranks routes in). Target
+ * groups themselves are ordered by IMPORTANCE_RANK, so the flattened tiles read
+ * importance, then likelihood, then OVSS.
  */
 export function compareRoutes(a: AttackRoute, b: AttackRoute): number {
-  return b.likelihood - a.likelihood || b.highest_base_score - a.highest_base_score;
+  return b.likelihood - a.likelihood || b.highest_ovss - a.highest_ovss;
 }
 
 /**

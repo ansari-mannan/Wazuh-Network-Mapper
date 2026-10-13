@@ -115,6 +115,12 @@
     right: 8px;
     pointer-events: none;
   }
+  .node__tier {
+    position: absolute;
+    bottom: -10px;
+    left: 8px;
+    pointer-events: none;
+  }
 }
 
 // ---- device detail flyout -------------------------------------------------

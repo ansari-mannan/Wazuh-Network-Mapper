@@ -20,12 +20,14 @@ import { useLiveness } from '../../lib/liveness';
 import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { hasDeviceFindings, unscoredReason } from '../../lib/deviceCveText';
 import { deviceHintText, manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
-import { nodeRiskScore, RISK_META, riskLevel } from '../../lib/risk';
+import { NODE_LEVEL_META, nodeLevel } from '../../lib/risk';
+import { findingsBadge } from '../../lib/findingsBadge';
+import { ovssLine } from '../../lib/ovssText';
 import { roleLabel } from '../../lib/roleLabel';
 import { ConfigChecks } from './ConfigChecks';
 import { DevicePorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
 import { iconForRole } from './icons';
-import { isOffline, riskLabel } from './nodeStyle';
+import { isOffline } from './nodeStyle';
 import { ProtectControl } from './ProtectControl';
 
 type Rows = Array<[string, ReactNode]>;
@@ -77,8 +79,8 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   const nodeLiveness: NodeLiveness | undefined = livenessOn ? liveness?.nodes[node.node_id] : undefined;
   const isDevice = node.kind === 'device';
   const Icon = iconForRole(node.role);
-  const score = nodeRiskScore(node);
-  const level = riskLevel(score);
+  // the map's colour: the OVSS tier, else the worst configuration finding
+  const level = nodeLevel(node, findingsBadge(node)?.severity ?? null);
   const offline = isOffline(node, liveness);
   const cves = node.top_cves || [];
   // Absent in older graph files (and null when unscored): keep the old display.
@@ -89,7 +91,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   const lookup = node.cve_lookup;
   const unmanaged = unmanagedText(node);
   const showCves = !isDevice || hasDeviceFindings(lookup);
-  const reason = level === 'unscored' ? unscoredReason(node) : '';
+  const reason = node.node_tier ? '' : unscoredReason(node);
   const livenessRow: Rows = livenessOn ? [['Liveness', <LivenessValue value={nodeLiveness} />]] : [];
 
   return (
@@ -104,7 +106,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
       <EuiFlyoutHeader hasBorder>
         <EuiFlexGroup alignItems="center" gutterSize="m" responsive={false}>
           <EuiFlexItem grow={false}>
-            <span className="vmDetailIcon" style={{ borderColor: RISK_META[level].color }}>
+            <span className="vmDetailIcon" style={{ borderColor: NODE_LEVEL_META[level].color }}>
               <Icon size={26} strokeWidth={1.5} />
             </span>
           </EuiFlexItem>
@@ -125,8 +127,11 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="s" />
-        <EuiBadge color={RISK_META[level].color} data-test-subj="vmDetailRisk">
-          {level === 'unscored' ? 'Unscored' : `${RISK_META[level].label} · risk ${riskLabel(score)}`}
+        <EuiBadge
+          color={node.node_tier ? NODE_LEVEL_META[node.node_tier].color : 'hollow'}
+          data-test-subj="vmDetailRisk"
+        >
+          {ovssLine(node)}
         </EuiBadge>
         {lookup && lookup.stale && (
           <EuiBadge color="warning" data-test-subj="vmCveStale">
@@ -157,14 +162,14 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
         </Section>
         <EuiSpacer size="m" />
 
-        {summary && (
+        {(summary || node.ovss_status) && (
           <>
-            <RiskSummary score={score} summary={summary} />
+            <RiskSummary node={node} summary={summary} />
             <EuiSpacer size="m" />
           </>
         )}
 
-        {showCves && <Vulnerabilities node={node} cves={cves} total={cveTotal} score={score} lookup={lookup} />}
+        {showCves && <Vulnerabilities node={node} cves={cves} total={cveTotal} unscored={!summary} lookup={lookup} />}
 
         {node.kind === 'endpoint' && node.open_ports && (
           <>

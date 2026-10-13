@@ -1,7 +1,7 @@
 // Overview numbers, all derived from the graph the server returned.
 import { euiPaletteColorBlind } from '@elastic/eui';
 import { GraphResponse } from '../../common';
-import { RISK_META, RiskLevel, riskCounts, SCORED_RISK_LEVELS } from './risk';
+import { TIER_META, tierCounts, TIERS } from './risk';
 import { STATUS_COLORS } from '../components/topology/nodeStyle';
 import { roleLabel } from './roleLabel';
 
@@ -71,17 +71,16 @@ export function endpointStats(graph: GraphResponse) {
 }
 
 /**
- * Endpoints and network devices by risk level, with the one risk rule
- * (riskRule.ts). The four levels plus unscored add up to total; the
- * per-kind split says how many of each are scored.
+ * Endpoints and network devices by OVSS tier (riskRule.ts). The four tiers plus
+ * the untiered (Unrated, Unassessed, or a graph from before OVSS) add up to total.
  */
 export function riskStats(graph: GraphResponse) {
-  const c = riskCounts(graph.nodes);
-  const levels = SCORED_RISK_LEVELS.map((level: RiskLevel) => ({
-    level,
-    label: RISK_META[level].label,
-    color: RISK_META[level].color,
-    value: c[level],
+  const c = tierCounts(graph.nodes);
+  const levels = TIERS.map((tier) => ({
+    level: tier,
+    label: TIER_META[tier].label,
+    color: TIER_META[tier].color,
+    value: c[tier],
   }));
-  return { total: c.total, levels, unscored: c.unscored, devices: c.devices, endpoints: c.endpoints };
+  return { total: c.total, levels, unrated: c.unrated, unassessed: c.unassessed, notScored: c.notScored };
 }

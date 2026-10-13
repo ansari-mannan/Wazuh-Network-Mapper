@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { EuiButtonEmpty, EuiHorizontalRule, EuiLink, EuiText, EuiTitle } from '@elastic/eui';
 import { GraphNode } from '../../../common';
-import { RISK_META, RiskLevel } from '../../lib/risk';
+import { NODE_LEVEL_META, NodeLevel, TIER_META } from '../../lib/risk';
 import { unscoredReason } from '../../lib/deviceCveText';
+import { conflictText, cvssSourceText, epssText } from '../../lib/ovssText';
 import { AssetCve, capCves, RemediationAction, Severity, SEVERITIES, SplitCounts } from '../../lib/report';
 import { SEV_META } from './format';
 
@@ -20,7 +21,7 @@ export function Chip({ color, label }: { color: string; label: string }) {
   );
 }
 
-export const riskChip = (level: RiskLevel) => <Chip color={RISK_META[level].color} label={RISK_META[level].label} />;
+export const riskChip = (level: NodeLevel) => <Chip color={NODE_LEVEL_META[level].color} label={NODE_LEVEL_META[level].label} />;
 
 // Per-severity counts as small chips, within one confidence.
 export function CountRow({ label, counts }: { label: string; counts: Record<Severity, number> }) {
@@ -39,8 +40,10 @@ export function CountRow({ label, counts }: { label: string; counts: Record<Seve
 }
 
 export function CountsSplit({ counts, node }: { counts: SplitCounts; node: GraphNode }) {
-  // An unscored host with no CVEs is unknown, not clean: say why instead.
-  const why = node.kind === 'endpoint' && node.risk_score === null ? unscoredReason(node) : '';
+  // An unscored or Unassessed asset with no CVEs is unknown, not clean: say why instead.
+  const why =
+    (node.kind === 'endpoint' && node.cve_summary === null ? unscoredReason(node) : '') ||
+    (node.ovss_status === 'Unassessed' ? `Unassessed: ${node.ovss_reason || 'no findings returned'}.` : '');
   if (counts.total === 0) return <EuiText size="xs" color="subdued"><p className="vmNoCves">{why || 'No CVEs match the current filters.'}</p></EuiText>;
   return (
     <>
@@ -60,14 +63,26 @@ export function CveTable({ cves, cap, expandAll }: { cves: AssetCve[]; cap: numb
     <div className="vmCveTableWrap">
       <table className="vmTable vmCveTable">
         <thead>
-          <tr><th>Severity</th><th>CVE</th><th>CVSS</th><th>Package</th><th>Confidence</th></tr>
+          <tr><th>Severity</th><th>Tier</th><th>CVE</th><th>CVSS</th><th>KEV / EPSS</th><th>Package</th><th>Confidence</th></tr>
         </thead>
         <tbody>
           {rows.map((c) => (
             <tr key={c.cve}>
               <td><Chip color={SEV_META[c.severity].color} label={SEV_META[c.severity].label} /></td>
+              <td>
+                {c.tier && c.tier !== 'Unrated' ? (
+                  <Chip color={TIER_META[c.tier].color} label={`${c.tier}${typeof c.score === 'number' ? ` · ${c.score}` : ''}`} />
+                ) : (
+                  c.tier || '—'
+                )}
+              </td>
               <td>{c.reference ? <EuiLink href={c.reference} target="_blank">{c.cve}</EuiLink> : c.cve}</td>
-              <td>{c.cvss ?? '—'}{c.cvss != null && c.cvss_version ? ` (v${c.cvss_version})` : ''}</td>
+              <td>
+                {c.cvss ?? '—'}{c.cvss != null && c.cvss_version ? ` (v${c.cvss_version})` : ''}
+                {c.cvss_src && <span className="vmCveSrc"> {cvssSourceText(c)}</span>}
+                {c.conflict === 1 && <span className="vmConflict" title={conflictText(c)} aria-label={conflictText(c)}> ≠</span>}
+              </td>
+              <td>{c.tier ? `${c.kev ? 'KEV · ' : ''}${epssText(c.epss)}` : '—'}</td>
               <td>{c.package || '—'}</td>
               <td>{c.confidence === 'confirmed' ? 'Confirmed' : 'Potential'}</td>
             </tr>

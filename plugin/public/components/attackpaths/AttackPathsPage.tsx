@@ -84,7 +84,7 @@ function RouteTile({
           <EuiText size="xs">Likelihood: {likelihoodText(route.likelihood)}</EuiText>
         </EuiFlexItem>
         <EuiFlexItem grow={false}>
-          <EuiBadge color="hollow">Worst asset severity: {route.highest_base_score} / 10</EuiBadge>
+          <EuiBadge color="hollow">Highest asset OVSS: {route.highest_ovss} / 10</EuiBadge>
         </EuiFlexItem>
       </EuiFlexGroup>
     </EuiPanel>

@@ -1,48 +1,4 @@
-import { CveLookup, CveLookupStatus } from '../../common';
-import { displayRiskLevel, nodeRiskScore, riskCounts, riskLevel, RiskNode } from './riskRule';
-
-const lookup = (status: CveLookupStatus, match: CveLookup['match'] = 'cpe'): CveLookup => ({
-  status,
-  match,
-  product: 'Cisco IOS 12.2(55)SE12',
-  cpe: null,
-  source: 'nvd',
-  fetched_at: '2026-10-09T08:00:06+00:00',
-  stale: false,
-  total: 0,
-});
-
-describe('nodeRiskScore', () => {
-  it('uses an endpoint risk score as it is', () => {
-    expect(nodeRiskScore({ kind: 'endpoint', risk_score: 7.1 })).toBe(7.1);
-    expect(nodeRiskScore({ kind: 'endpoint', risk_score: null })).toBeNull();
-    expect(nodeRiskScore({ kind: 'endpoint', risk_score: 0 })).toBe(0);
-  });
-
-  it('shows a device score when its lookup is ok, a real 0.0 included', () => {
-    expect(nodeRiskScore({ kind: 'device', risk_score: 8.9, cve_lookup: lookup('ok') })).toBe(8.9);
-    expect(nodeRiskScore({ kind: 'device', risk_score: 0, cve_lookup: lookup('ok') })).toBe(0);
-  });
-
-  it('leaves a keyword lookup with nothing found unscored', () => {
-    expect(nodeRiskScore({ kind: 'device', risk_score: null, cve_lookup: lookup('ok', 'keyword') })).toBeNull();
-  });
-
-  it('treats every other status as unscored', () => {
-    const others: CveLookupStatus[] = ['unidentified', 'unavailable', 'unverified'];
-    for (const status of others) {
-      expect(nodeRiskScore({ kind: 'device', risk_score: 0, cve_lookup: lookup(status) })).toBeNull();
-    }
-  });
-
-  it('keeps the old rule for an old graph without cve_lookup', () => {
-    // the scanner used to write 0 for every device
-    expect(nodeRiskScore({ kind: 'device', risk_score: 0 })).toBeNull();
-    expect(nodeRiskScore({ kind: 'device', risk_score: 0, max_cvss: null, top_cves: [] })).toBeNull();
-    expect(nodeRiskScore({ kind: 'device', risk_score: 6.5, max_cvss: 7.2 })).toBe(6.5);
-    expect(nodeRiskScore({ kind: 'device', risk_score: null, max_cvss: 7.2 })).toBe(7.2);
-  });
-});
+import { nodeLevel, riskLevel, tierCounts, tierRank, TierNode } from './riskRule';
 
 describe('riskLevel', () => {
   it('uses the CVSS v3 bands and keeps 0 apart from unscored', () => {
@@ -54,44 +10,40 @@ describe('riskLevel', () => {
   });
 });
 
-describe('displayRiskLevel', () => {
-  it('lifts an unscored device to its worst finding severity', () => {
-    expect(displayRiskLevel(null, 'high')).toBe('high'); // the HP switch: no CVE, two high findings
-    expect(displayRiskLevel(null, 'medium')).toBe('medium');
+describe('nodeLevel', () => {
+  it('shows the OVSS tier when the node has one', () => {
+    expect(nodeLevel({ kind: 'device', node_tier: 'P0' }, null)).toBe('P0');
+    expect(nodeLevel({ kind: 'device', node_tier: 'P3' }, 'high')).toBe('P3');
   });
 
-  it('keeps the CVE band when it already exceeds the findings', () => {
-    expect(displayRiskLevel(9.5, 'medium')).toBe('critical');
-    expect(displayRiskLevel(7.2, 'low')).toBe('high');
+  it('falls back to the worst configuration finding, never grey', () => {
+    expect(nodeLevel({ kind: 'device', node_tier: null, ovss_status: 'Unassessed' }, 'high')).toBe('high');
+    expect(nodeLevel({ kind: 'device' }, 'medium')).toBe('medium');
   });
 
-  it('does not let an advisory (no severity) raise the level', () => {
-    expect(displayRiskLevel(null, null)).toBe('unscored');
-    expect(displayRiskLevel(3.0, null)).toBe('low');
+  it('is none with neither (an advisory finding has no severity)', () => {
+    expect(nodeLevel({ kind: 'endpoint', node_tier: null, ovss_status: 'Unrated' }, null)).toBe('none');
   });
 });
 
-describe('riskCounts', () => {
+describe('tierRank', () => {
+  it('orders P0 first and no tier last', () => {
+    expect([tierRank('P0'), tierRank('P1'), tierRank('P2'), tierRank('P3'), tierRank(null)]).toEqual([4, 3, 2, 1, 0]);
+  });
+});
+
+describe('tierCounts', () => {
   it('counts endpoints and devices together and adds up to the total', () => {
-    const nodes: RiskNode[] = [
-      { kind: 'endpoint', risk_score: 9.5 },
-      { kind: 'endpoint', risk_score: null },
-      { kind: 'device', risk_score: 8.9, cve_lookup: lookup('ok') },
-      { kind: 'device', risk_score: 0, cve_lookup: lookup('ok') },
-      { kind: 'device', risk_score: null, cve_lookup: lookup('ok', 'keyword') },
-      { kind: 'device', risk_score: 0 },
+    const nodes: TierNode[] = [
+      { kind: 'endpoint', node_tier: 'P0', ovss_status: 'assessed' },
+      { kind: 'device', node_tier: 'P0', ovss_status: 'assessed' },
+      { kind: 'device', node_tier: 'P2', ovss_status: 'assessed' },
+      { kind: 'endpoint', node_tier: null, ovss_status: 'Unrated' },
+      { kind: 'endpoint', node_tier: null, ovss_status: 'Unassessed' },
+      { kind: 'device' }, // a graph written before OVSS
     ];
-    const c = riskCounts(nodes);
-    expect(c).toEqual({
-      total: 6,
-      critical: 1,
-      high: 1,
-      medium: 0,
-      low: 1,
-      unscored: 3,
-      devices: { scored: 2, unscored: 2 },
-      endpoints: { scored: 1, unscored: 1 },
-    });
-    expect(c.critical + c.high + c.medium + c.low + c.unscored).toBe(c.total);
+    const c = tierCounts(nodes);
+    expect(c).toEqual({ total: 6, P0: 2, P1: 0, P2: 1, P3: 0, unrated: 1, unassessed: 1, notScored: 1 });
+    expect(c.P0 + c.P1 + c.P2 + c.P3 + c.unrated + c.unassessed + c.notScored).toBe(c.total);
   });
 });

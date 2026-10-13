@@ -5,6 +5,8 @@ import { EuiBadge, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { GraphNode } from '../../../common';
 import { AssetReport } from '../../lib/report';
 import { roleLabel } from '../../lib/roleLabel';
+import { exposureText, ovssLine } from '../../lib/ovssText';
+import { TIERS } from '../../lib/risk';
 import { ConfigFindings, CountsSplit, CveTable, riskChip } from './parts';
 
 interface AssetProps {
@@ -23,16 +25,30 @@ function AssetHead({ report, title }: { report: AssetReport; title: React.ReactE
   return (
     <div className="vmAssetBlock__head">
       {title}
-      {riskChip(report.displayRisk)}
+      {riskChip(report.level)}
       {report.onPath && <EuiBadge color="hollow">On an attack path</EuiBadge>}
     </div>
   );
+}
+
+// The asset's OVSS: score and tier (or why it has none), its tier histogram
+// and the inputs it was scored with.
+function OvssLine({ node, tiers }: { node: GraphNode; tiers: AssetReport['tiers'] }) {
+  const parts = [ovssLine(node)];
+  if (node.ovss_status === 'assessed') parts.push(TIERS.map((t) => `${t} ${tiers[t]}`).join(' · '));
+  if (node.ovss_status) {
+    parts.push(`exposure ${exposureText(node.exposure, node.exposure_flag)}`);
+    parts.push(`dependency ${node.dependency ?? 0}`);
+    parts.push(`importance ${node.importance || 'not marked'}`);
+  }
+  return <EuiText size="xs" data-test-subj="vmAssetOvss"><p>{parts.join(' · ')}</p></EuiText>;
 }
 
 // The counts, the CVE table and the configuration findings, shared by both views.
 function AssetFindings({ report, cap, expandAll }: AssetProps) {
   return (
     <>
+      <OvssLine node={report.node} tiers={report.tiers} />
       <CountsSplit counts={report.counts} node={report.node} />
       <EuiSpacer size="xs" />
       <CveTable cves={report.cves} cap={cap} expandAll={expandAll} />

@@ -89,12 +89,12 @@
               },
               "from": "host:7a:bd:06:18:06:2c",
               "to": "device:00:23:ac:e5:74:00",
-              "destination_base_score": 8.0,
+              "destination_ovss": 7.5,
               "context_findings": []
             }
           ],
           "likelihood": 0.9,
-          "highest_base_score": 8.0,
+          "highest_ovss": 7.5,
           "crosses_router": false,
           "narrative": "From host:7a:bd:06:18:06:2c (unmanaged, state unknown), take over L3-Switch using CVE-2006-4950 (low complexity).",
           "rank": 1,
@@ -117,12 +117,12 @@
               },
               "from": "host:e4:a7:a0:25:ce:ac",
               "to": "device:00:23:ac:e5:74:00",
-              "destination_base_score": 8.0,
+              "destination_ovss": 7.5,
               "context_findings": []
             }
           ],
           "likelihood": 0.9,
-          "highest_base_score": 8.0,
+          "highest_ovss": 7.5,
           "crosses_router": false,
           "narrative": "From host:e4:a7:a0:25:ce:ac (unmanaged, state unknown), take over L3-Switch using CVE-2006-4950 (low complexity).",
           "rank": 2,

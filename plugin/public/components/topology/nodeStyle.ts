@@ -1,14 +1,9 @@
 // Node styling helpers: a subtle risk border + liveness dot + offline dimming.
 // Risk is shown by the border, never by recoloring the whole node.
-// The risk bands come from the shared riskLevel() so the map agrees with the overview.
-import { RISK_META, RiskLevel } from '../../lib/risk';
+// The level comes from the shared nodeLevel() so the map agrees with the overview.
+import { NODE_LEVEL_META, NodeLevel } from '../../lib/risk';
 import { GraphNode, LivenessResponse, NodeLiveness } from '../../../common';
 import { isOfflineHost } from './inactive';
-
-export function riskLabel(score: number | null | undefined): string {
-  if (score === null || score === undefined) return 'unknown';
-  return String(score);
-}
 
 /**
  * LIVENESS -> corner dot color. This is the dot's ONLY meaning — it must never
@@ -34,17 +29,20 @@ export function statusDot(status: string | null | undefined, liveness?: NodeLive
 
 export type RiskBorder = { color: string; width: number };
 
-const BORDER_WIDTH: Record<RiskLevel, number> = {
-  critical: 3,
+const BORDER_WIDTH: Record<NodeLevel, number> = {
+  P0: 3,
+  P1: 2,
+  P2: 2,
+  P3: 1,
   high: 2,
   medium: 2,
   low: 1,
-  unscored: 1,
+  none: 1,
 };
 
-/** A risk level's border (outline) colour and width. */
-export function riskBorderForLevel(level: RiskLevel): RiskBorder {
-  return { color: RISK_META[level].color, width: BORDER_WIDTH[level] };
+/** A node level's border (outline) colour and width. */
+export function borderForLevel(level: NodeLevel): RiskBorder {
+  return { color: NODE_LEVEL_META[level].color, width: BORDER_WIDTH[level] };
 }
 
 /**

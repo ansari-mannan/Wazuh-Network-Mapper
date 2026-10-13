@@ -44,7 +44,7 @@ const graph: GraphResponse = {
     device({ node_id: 'sw5', hostname: 'sw5', config_findings: [weakpw] }),
     device({ node_id: 'sw6', hostname: 'sw6', config_findings: [badsnmp] }),
     device({ node_id: 'sw7', hostname: 'sw7', config_findings: [badsnmp] }),
-    endpoint({ node_id: 'web', hostname: 'web', agent_id: '1' }),
+    endpoint({ node_id: 'web', hostname: 'web', agent_id: '1', risk_score: 3.1, node_tier: 'P2', ovss_status: 'assessed' }),
     endpoint({ node_id: 'printer', hostname: 'printer', unmanaged: true, agent_id: null }),
   ],
   edges: [],
@@ -77,9 +77,9 @@ describe('buildRecommendations', () => {
     expect(rec.category).toBe('CAT II');
   });
 
-  it('ranks worst-first: critical before high, then more affected, then more on-path', () => {
+  it('ranks by OVSS tier first, then the untiered by severity, more affected, more on-path', () => {
     expect(build().map((r) => r.key)).toEqual([
-      'cve:os-updates',       // critical
+      'cve:os-updates',       // P2
       'config:telnet-enabled', // high, 3 affected
       'config:weak-password',  // high, 2 affected, 1 on-path
       'config:bad-snmp',       // high, 2 affected, 0 on-path
@@ -95,6 +95,11 @@ describe('buildRecommendations', () => {
 
   it('uses the finding id for a stable key', () => {
     expect(byKey('config:telnet-enabled').key).toBe('config:telnet-enabled');
+  });
+
+  it('carries the tier and OVSS of its assets on a CVE item, none on the others', () => {
+    expect([byKey('cve:os-updates').tier, byKey('cve:os-updates').ovss]).toEqual(['P2', 3.1]);
+    expect([byKey('config:telnet-enabled').tier, byKey('config:telnet-enabled').ovss]).toEqual([null, null]);
   });
 
   it('sets the worst CVE severity on the OS-updates bucket', () => {

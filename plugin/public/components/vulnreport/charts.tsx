@@ -1,7 +1,7 @@
 // The report's charts. Inline SVG, so the colours survive the print stylesheet.
 import React from 'react';
 import { EuiText } from '@elastic/eui';
-import { RISK_META, RiskLevel } from '../../lib/risk';
+import { NODE_LEVEL_META, NodeLevel, TIER_META, TIERS } from '../../lib/risk';
 import { ExecutiveSummary, Severity, SEVERITIES, SplitCounts } from '../../lib/report';
 import { SEV_META } from './format';
 import { Chip } from './parts';
@@ -15,6 +15,7 @@ export function StatBand({ exec }: { exec: ExecutiveSummary }) {
     { value: `${exec.managed} of ${exec.totalHosts}`, label: 'Hosts with an agent' },
     { value: `${sevTotal(exec.counts.confirmed)}`, label: 'Confirmed findings' },
     { value: `${sevTotal(exec.counts.potential)}`, label: 'Potential findings' },
+    ...TIERS.map((t) => ({ value: `${exec.tiers[t]}`, label: `${t} findings` })),
     { value: `${exec.onPathAssets}`, label: 'Assets on an attack path' },
   ];
   return (
@@ -78,8 +79,27 @@ export function SeverityBar({ counts, split = true }: { counts: SplitCounts; spl
   );
 }
 
-// Top assets by total CVE count, each bar coloured by its displayed risk band.
-export function MostAtRisk({ items }: { items: Array<{ name: string; total: number; risk: RiskLevel }> }) {
+// Findings per OVSS tier as chips (colour and word), across every asset.
+export function TierRow({ tiers }: { tiers: ExecutiveSummary['tiers'] }) {
+  return (
+    <div className="vmCountRow">
+      <span className="vmCountRow__label">By OVSS tier:</span>
+      {TIERS.map((t) => (
+        <span key={t} className="vmCountChip">
+          <Chip color={TIER_META[t].color} label={`${tiers[t]} ${t}`} />
+        </span>
+      ))}
+      {tiers.Unrated > 0 && (
+        <span className="vmCountChip">
+          <Chip color={NODE_LEVEL_META.none.color} label={`${tiers.Unrated} unrated`} />
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Top assets by total CVE count, each bar in the asset's map colour (its tier).
+export function MostAtRisk({ items }: { items: Array<{ name: string; total: number; level: NodeLevel }> }) {
   const max = Math.max(...items.map((i) => i.total), 1);
   return (
     <div className="vmBarChart">
@@ -87,7 +107,7 @@ export function MostAtRisk({ items }: { items: Array<{ name: string; total: numb
         <div className="vmBarChart__row" key={i.name}>
           <span className="vmBarChart__name" title={i.name}>{i.name}</span>
           <svg className="vmChart vmBarChart__track" viewBox="0 0 100 10" preserveAspectRatio="none" width="100%" height="12" role="presentation">
-            <rect className="vmChartSeg" x="0" y="0" width={(i.total / max) * 100} height="10" fill={RISK_META[i.risk].color} />
+            <rect className="vmChartSeg" x="0" y="0" width={(i.total / max) * 100} height="10" fill={NODE_LEVEL_META[i.level].color} />
           </svg>
           <span className="vmBarChart__value">{i.total}</span>
         </div>

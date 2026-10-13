@@ -7,8 +7,10 @@ import {
   GraphResponse,
   RecommendationStatus,
   RecommendationsFile,
+  Tier,
   VulnerabilitiesDoc,
 } from '../../common';
+import { tierRank } from './riskRule';
 import {
   AssetReport,
   buildAssetReports,
@@ -28,6 +30,10 @@ export type Recommendation = {
   title: string; // short action label
   action: string; // the honest remediation text
   severity: Severity | null; // what it addresses; null = informational
+  // CVE items: the most urgent OVSS tier and the highest node OVSS among the
+  // affected assets; null for configuration and coverage items
+  tier: Tier | null;
+  ovss: number | null;
   source: RecommendationSource;
   reference: { title: string; url: string } | null;
   category: string | null; // DISA CAT I/II/III for a config finding
@@ -83,6 +89,8 @@ export function buildRecommendations(
     if (existing) {
       existing.affected.push(affectedOf(r));
       existing.severity = worseSeverity(existing.severity, base.severity);
+      if (tierRank(base.tier) > tierRank(existing.tier)) existing.tier = base.tier;
+      if ((base.ovss ?? -1) > (existing.ovss ?? -1)) existing.ovss = base.ovss;
     } else {
       recs.set(base.key, { ...base, affected: [affectedOf(r)], affectedCount: 0, onPathCount: 0, status: 'open' });
     }
@@ -99,6 +107,8 @@ export function buildRecommendations(
           title: f.title,
           action: f.remediation,
           severity: f.severity, // null → Advisory
+          tier: null,
+          ovss: null,
           source: 'config',
           reference: ref ? { title: ref.title, url: ref.url } : null,
           category: ref?.category ?? null,
@@ -110,7 +120,8 @@ export function buildRecommendations(
     // CVEs — the asset's generic bucket, severity = its worst CVE.
     const bucket = cveBucket(r);
     if (bucket) {
-      add({ ...bucket, severity: r.cves[0].severity, reference: null, category: null }, r);
+      const severity = r.cves.reduce<Severity | null>((w, c) => worseSeverity(w, c.severity), null);
+      add({ ...bucket, severity, tier: r.node.node_tier ?? null, ovss: r.ovss, reference: null, category: null }, r);
     }
 
     // Coverage — unmanaged endpoints.
@@ -121,6 +132,8 @@ export function buildRecommendations(
           title: 'Deploy Wazuh agents',
           action: COVERAGE_GUIDANCE,
           severity: null,
+          tier: null,
+          ovss: null,
           source: 'coverage',
           reference: null,
           category: null,
@@ -137,9 +150,12 @@ export function buildRecommendations(
     rec.status = file?.statuses[rec.key]?.status ?? 'open';
   }
 
-  // Worst-first: severity, then more affected, then more on-path, then key.
+  // Most urgent first: OVSS tier, then OVSS (items with no tier after every
+  // tiered one), then severity, then more affected, then more on-path, then key.
   return out.sort(
     (a, b) =>
+      tierRank(b.tier) - tierRank(a.tier) ||
+      (b.ovss ?? -1) - (a.ovss ?? -1) ||
       sevRank(b.severity) - sevRank(a.severity) ||
       b.affectedCount - a.affectedCount ||
       b.onPathCount - a.onPathCount ||

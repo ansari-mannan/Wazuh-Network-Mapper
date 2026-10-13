@@ -23,6 +23,7 @@ import { useServices } from '../../lib/services';
 import { ThemeToggle } from '../layout/ThemeToggle';
 import { SummaryPanels } from './SummaryPanels';
 import { SinceLastScan } from './SinceLastScan';
+import { threatFeedWarning } from '../../lib/ovssText';
 
 function PageCards() {
   const { history } = useServices();
@@ -77,6 +78,12 @@ export function Overview() {
                 Retry
               </EuiButton>
             </EuiCallOut>
+            <EuiSpacer size="m" />
+          </>
+        )}
+        {threatFeedWarning(graph?.metadata.threat_feeds) && (
+          <>
+            <EuiCallOut color="warning" iconType="alert" title={threatFeedWarning(graph?.metadata.threat_feeds)} data-test-subj="vmThreatFeeds" />
             <EuiSpacer size="m" />
           </>
         )}

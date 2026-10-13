@@ -16,8 +16,8 @@ import {
 import { CveLookup, CveSummary, CVE, DeviceNode, GraphNode, NodeLiveness } from '../../../common';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
 import { potentialText, staleText } from '../../lib/deviceCveText';
-import { RISK_META, riskLevel, RiskLevel } from '../../lib/risk';
-import { riskLabel } from './nodeStyle';
+import { conflictText, cvssSourceText, epssText, exposureText, ovssLine } from '../../lib/ovssText';
+import { RISK_META, riskLevel, RiskLevel, TIER_META, TIERS } from '../../lib/risk';
 
 const EMPTY = '—';
 
@@ -63,32 +63,96 @@ const SUMMARY_BANDS: Array<{
   { key: 'unknown', level: 'unscored', label: 'Unknown' },
 ];
 
-export function RiskSummary({ score, summary }: { score: number | null; summary: CveSummary }) {
+/** The node's OVSS (score, tier, the inputs it was scored with) and its CVEs by CVSS band. */
+export function RiskSummary({ node, summary }: { node: GraphNode; summary: CveSummary | null }) {
+  const hist = node.ovss_hist;
   return (
     <Section title="Risk">
       <EuiDescriptionList
         type="column"
         compressed
         className="vmFields"
+        data-test-subj="vmOvss"
         listItems={fields([
-          ['Risk (base score)', riskLabel(score)],
-          ['Worst CVE (CVSS)', summary.max_cvss],
+          ['OVSS', ovssLine(node)],
+          ...((node.ovss_status
+            ? [
+                ['Exposure', exposureText(node.exposure, node.exposure_flag)],
+                ['Dependency', node.dependency],
+                ['Importance', node.importance ? node.importance : 'not marked'],
+                ['KEV CVEs', node.kev_count],
+              ]
+            : []) as Array<[string, ReactNode]>),
+          ['Worst CVE (CVSS)', node.max_cvss ?? summary?.max_cvss],
         ])}
       />
-      <EuiSpacer size="s" />
-      <EuiFlexGroup gutterSize="xs" wrap responsive={false} data-test-subj="vmCveCounts">
-        {SUMMARY_BANDS.map((b) => {
-          const n = summary[b.key];
-          return (
-            <EuiFlexItem grow={false} key={b.key}>
-              <EuiBadge color={n > 0 ? RISK_META[b.level].color : 'hollow'}>
-                {b.label} {n}
-              </EuiBadge>
+      {hist && (
+        <>
+          <EuiSpacer size="s" />
+          <EuiFlexGroup gutterSize="xs" wrap responsive={false} data-test-subj="vmTierCounts">
+            {TIERS.map((t) => (
+              <EuiFlexItem grow={false} key={t}>
+                <EuiBadge color={hist[t] > 0 ? TIER_META[t].color : 'hollow'}>
+                  {t} {hist[t]}
+                </EuiBadge>
+              </EuiFlexItem>
+            ))}
+            <EuiFlexItem grow={false}>
+              <EuiBadge color="hollow">Unrated {hist.Unrated}</EuiBadge>
             </EuiFlexItem>
-          );
-        })}
-      </EuiFlexGroup>
+          </EuiFlexGroup>
+        </>
+      )}
+      {summary && (
+        <>
+          <EuiSpacer size="s" />
+          <EuiFlexGroup gutterSize="xs" wrap responsive={false} data-test-subj="vmCveCounts">
+            {SUMMARY_BANDS.map((b) => {
+              const n = summary[b.key];
+              return (
+                <EuiFlexItem grow={false} key={b.key}>
+                  <EuiBadge color={n > 0 ? RISK_META[b.level].color : 'hollow'}>
+                    {b.label} {n}
+                  </EuiBadge>
+                </EuiFlexItem>
+              );
+            })}
+          </EuiFlexGroup>
+        </>
+      )}
     </Section>
+  );
+}
+
+/** A CVE's OVSS tier, KEV, EPSS and CVSS source, and a mark when its scores conflict. */
+export function CveOvss({ cve: c }: { cve: CVE }) {
+  if (!c.tier) return null;
+  return (
+    <EuiFlexGroup gutterSize="xs" wrap responsive={false} alignItems="center" data-test-subj="vmCveOvss">
+      <EuiFlexItem grow={false}>
+        <EuiBadge color={c.tier === 'Unrated' ? 'hollow' : TIER_META[c.tier].color}>
+          {c.tier}
+          {typeof c.score === 'number' && ` · ${c.score}`}
+        </EuiBadge>
+      </EuiFlexItem>
+      {c.kev && (
+        <EuiFlexItem grow={false}>
+          <EuiBadge color="danger" title="In CISA's Known Exploited Vulnerabilities catalogue">
+            KEV
+          </EuiBadge>
+        </EuiFlexItem>
+      )}
+      <EuiFlexItem grow={false}>
+        <EuiText size="xs" color="subdued">
+          {[epssText(c.epss), cvssSourceText(c)].filter(Boolean).join(' · ')}
+          {c.conflict === 1 && (
+            <span className="vmConflict" title={conflictText(c)} aria-label={conflictText(c)}>
+              {' '}≠
+            </span>
+          )}
+        </EuiText>
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 }
 
@@ -144,6 +208,7 @@ function CveCard({ cve: c }: { cve: CVE }) {
           </EuiBadge>
         </EuiFlexItem>
       </EuiFlexGroup>
+      <CveOvss cve={c} />
       {(c.package || c.version) && (
         <EuiText size="xs" color="subdued">
           <p>
@@ -165,11 +230,11 @@ interface VulnerabilitiesProps {
   node: GraphNode;
   cves: CVE[];
   total: number;
-  score: number | null;
+  unscored: boolean; // no CVE summary: the host or lookup could not be scored
   lookup: CveLookup | null | undefined;
 }
 
-export function Vulnerabilities({ node, cves, total, score, lookup }: VulnerabilitiesProps) {
+export function Vulnerabilities({ node, cves, total, unscored, lookup }: VulnerabilitiesProps) {
   const isDevice = node.kind === 'device';
   return (
     <Section title="Vulnerabilities" count={total}>
@@ -196,10 +261,10 @@ export function Vulnerabilities({ node, cves, total, score, lookup }: Vulnerabil
         <EuiText size="s" color="subdued">
           <p>
             {isDevice
-              ? score === null
+              ? unscored
                 ? 'No CVEs found.'
                 : 'NVD lists no CVEs for this software version.'
-              : `No CVEs reported${score === null ? ' (host is unscored)' : ''}.`}
+              : `No CVEs reported${unscored ? ' (host is unscored)' : ''}.`}
           </p>
         </EuiText>
       ) : (

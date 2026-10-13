@@ -78,9 +78,9 @@ describe('scanChanges', () => {
     expect(scanChanges(scan([host('a')], vulnsFor({}), offline), scan([host('a')])).backOnline.map((a) => a.id)).toEqual(['a']);
   });
 
-  it('lists risk band changes', () => {
-    const c = scanChanges(scan([host('a', { risk_score: 5 })]), scan([host('a', { risk_score: 9.8 })]));
-    expect(c.riskChanged).toEqual([{ asset: { id: 'a', name: 'a', kind: 'endpoint' }, from: 'medium', to: 'critical' }]);
+  it('lists OVSS tier changes', () => {
+    const c = scanChanges(scan([host('a', { node_tier: 'P2' })]), scan([host('a', { node_tier: 'P0' })]));
+    expect(c.riskChanged).toEqual([{ asset: { id: 'a', name: 'a', kind: 'endpoint' }, from: 'P2', to: 'P0' }]);
   });
 
   it('does not compare CVEs when a scan has no vulnerabilities file', () => {

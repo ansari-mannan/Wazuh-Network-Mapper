@@ -1,10 +1,11 @@
 // What changed between two archived scans (the scan history), computed only
 // from their files: assets added, removed, gone offline or back, CVEs newly
-// found or no longer present per asset, and risk-band changes.
+// found or no longer present per asset, and risk changes (OVSS tier, or the
+// worst configuration finding when there is no tier: what the map colours by).
 import { ArchivedScan, GraphNode } from '../../common';
 import { isOfflineHost } from '../components/topology/inactive';
 import { findingsBadge } from './findingsBadge';
-import { displayRiskLevel, nodeRiskScore, RiskLevel } from './riskRule';
+import { NodeLevel, nodeLevel } from './riskRule';
 
 export type ChangedAsset = { id: string; name: string; kind: GraphNode['kind'] };
 export type CveChange = { asset: ChangedAsset; cves: string[] };
@@ -17,7 +18,7 @@ export type ScanChanges = {
   /** null when either scan has no vulnerabilities.json to compare */
   newCves: CveChange[] | null;
   goneCves: CveChange[] | null;
-  riskChanged: Array<{ asset: ChangedAsset; from: RiskLevel; to: RiskLevel }>;
+  riskChanged: Array<{ asset: ChangedAsset; from: NodeLevel; to: NodeLevel }>;
 };
 
 type Scan = Pick<ArchivedScan, 'graph' | 'vulns' | 'attackPaths'>;
@@ -35,7 +36,7 @@ function offlineSet(scan: Scan): Set<string> {
   return out;
 }
 
-const displayedRisk = (n: GraphNode) => displayRiskLevel(nodeRiskScore(n), findingsBadge(n)?.severity ?? null);
+const displayedRisk = (n: GraphNode) => nodeLevel(n, findingsBadge(n)?.severity ?? null);
 
 function cvesOf(scan: Scan, id: string): Set<string> {
   return new Set((scan.vulns?.hosts[id]?.findings || []).map((f) => f.cve).filter(Boolean));

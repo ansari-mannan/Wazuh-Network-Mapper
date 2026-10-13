@@ -5,8 +5,9 @@ import { EuiBadge } from '@elastic/eui';
 import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';
 import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
-import { isOffline, riskBorderForLevel, riskLabel, statusDot } from './nodeStyle';
-import { displayRiskLevel, nodeRiskScore, RISK_META } from '../../lib/risk';
+import { borderForLevel, isOffline, statusDot } from './nodeStyle';
+import { nodeLevel, RISK_META, TIER_META } from '../../lib/risk';
+import { ovssLine } from '../../lib/ovssText';
 import { findingsBadge, findingsBadgeText } from '../../lib/findingsBadge';
 import { roleLabel } from '../../lib/roleLabel';
 import { RouteMark } from './highlight';
@@ -19,7 +20,8 @@ export type TopologyFlowNode = Node<TopologyNodeData>;
 
 // One graph node. Two INDEPENDENT visual channels:
 //   * the corner dot  -> LIVENESS (statusDot): green up / grey unconfirmed / red down
-//   * the node border -> RISK     (riskBorder): thicker + redder = more critical
+//   * the node border -> RISK     (borderForLevel): the OVSS tier, thicker + redder
+//                        = more urgent; the tier also rides as a badge
 // A stale endpoint (duplicate IP of a live host) is dimmed. Offline nodes keep
 // the dashed/dim treatment too.
 export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
@@ -27,11 +29,10 @@ export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
   const liveness = livenessContext?.nodes?.[data.node_id];
   const Icon = iconForRole(data.role);
   const dot = statusDot(data.status, liveness);
-  const risk = nodeRiskScore(data);
   const findings = findingsBadge(data);
-  // At-a-glance colour = worse of the CVE band and the worst config finding, so a
-  // device with no CVE score but a high finding is not shown grey (see displayRiskLevel).
-  const border = riskBorderForLevel(displayRiskLevel(risk, findings?.severity ?? null));
+  // At-a-glance colour = the OVSS tier; with none, the worst config finding, so a
+  // device with findings but no tier is not shown grey (see nodeLevel).
+  const border = borderForLevel(nodeLevel(data, findings?.severity ?? null));
   const dimmed = data.stale || isOffline(data, livenessContext);
   const label = data.hostname || data.ip || data.node_id;
 
@@ -46,13 +47,18 @@ export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
           borderWidth: border.width,
           opacity: data.stale ? 0.55 : undefined,
         }}
-        title={`${label} · ${data.status || '?'} · risk ${riskLabel(risk)}`}
+        title={`${label} · ${data.status || '?'} · ${ovssLine(data)}`}
       >
         <Handle type="target" position={Position.Top} className="handle" />
         <span className="node__dot" style={{ background: dot }} />
         <Icon className="node__icon" size={26} strokeWidth={1.5} />
         <div className="node__label">{label}</div>
         {data.role && <div className="node__role">{roleLabel(data.role, data.kind)}</div>}
+        {data.node_tier && (
+          <span className="node__tier" title={ovssLine(data)}>
+            <EuiBadge color={TIER_META[data.node_tier].color}>{data.node_tier}</EuiBadge>
+          </span>
+        )}
         {findings && (
           <span className="node__findings" title={`${findingsBadgeText(findings)}-severity configuration finding(s)`}>
             <EuiBadge color={RISK_META[findings.severity].color}>{findingsBadgeText(findings)}</EuiBadge>

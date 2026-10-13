@@ -1,6 +1,6 @@
 // Colours and dark-mode detection for what is drawn from code (map, charts).
 import { darkMode, euiThemeVars } from '@osd/ui-shared-deps/theme';
-import type { RiskLevel } from './riskRule';
+import type { Tier } from './riskRule';
 
 // The dashboard's dark mode setting (theme:darkMode), as resolved by the server
 // when it rendered this page (it also honours a YAML override or ?themeTag=).
@@ -26,15 +26,9 @@ const LIGHT = {
     // the step number written on the route colour
     routeText: '#ffffff',
   },
-  // a risk band's colour when it is text (lib/risk colours are for fills and
-  // borders; yellow and green on a light page are too faint to read)
-  riskText: {
-    critical: '#b91c1c',
-    high: '#c2410c',
-    medium: '#a16207',
-    low: '#15803d',
-    unscored: '#69707d',
-  } as Record<RiskLevel, string>,
+  // an OVSS tier's colour when it is text (lib/risk colours are for fills and
+  // borders; yellow on a light page is too faint to read)
+  tierText: { P0: '#b91c1c', P1: '#c2410c', P2: '#a16207', P3: '#1d4ed8' } as Record<Tier, string>,
 };
 
 const DARK: typeof LIGHT = {
@@ -48,7 +42,7 @@ const DARK: typeof LIGHT = {
     route: '#a78bfa',
     routeText: '#1d1e24',
   },
-  riskText: { critical: '#f87171', high: '#fb923c', medium: '#facc15', low: '#4ade80', unscored: '#98a2b3' },
+  tierText: { P0: '#f87171', P1: '#fb923c', P2: '#facc15', P3: '#60a5fa' },
 };
 
 /** The plugin's own colours for a dark or a light dashboard. */
@@ -56,4 +50,4 @@ export const paletteFor = (dark: boolean) => (dark ? DARK : LIGHT);
 
 const palette = paletteFor(isDarkMode);
 export const graphColors = palette.graph;
-export const riskTextColors = palette.riskText;
+export const tierTextColors = palette.tierText;

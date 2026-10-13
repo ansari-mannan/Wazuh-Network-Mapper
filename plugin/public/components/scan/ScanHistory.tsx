@@ -17,7 +17,7 @@ import { HistoryEntry, ScanTrigger } from '../../../common';
 import { useHistoryChanges, useHistoryIndex } from '../../lib/history';
 import { ChangedAsset, CveChange, scanChanges } from '../../lib/scanChanges';
 import { useServices } from '../../lib/services';
-import { RISK_META } from '../../lib/risk';
+import { NODE_LEVEL_META } from '../../lib/risk';
 import { ScanStages } from './GraphSource';
 import { formatTime } from './ScanStatus';
 
@@ -53,7 +53,7 @@ function Changes({ id }: { id: string }) {
   add('No longer present', cveLines(changes.goneCves || []));
   add(
     'Risk changed',
-    changes.riskChanged.map((r) => `${r.asset.name}: ${RISK_META[r.from].label} → ${RISK_META[r.to].label}`)
+    changes.riskChanged.map((r) => `${r.asset.name}: ${NODE_LEVEL_META[r.from].label} → ${NODE_LEVEL_META[r.to].label}`)
   );
   return (
     <>

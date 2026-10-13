@@ -6,14 +6,11 @@ import {
   ConfigFinding,
   GraphNode,
   GraphResponse,
+  OvssFinding,
+  Tier,
   VulnerabilitiesDoc,
 } from '../../common';
-import {
-  displayRiskLevel,
-  nodeRiskScore,
-  RiskLevel,
-  riskLevel,
-} from './riskRule';
+import { NodeLevel, nodeLevel, riskLevel, tierRank, TIERS } from './riskRule';
 
 
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'unknown';
@@ -22,7 +19,6 @@ export const SEVERITIES: Severity[] = ['critical', 'high', 'medium', 'low', 'unk
 export type Confidence = 'confirmed' | 'potential';
 
 const SEVERITY_RANK: Record<Severity, number> = { critical: 5, high: 4, medium: 3, low: 2, unknown: 1 };
-const LEVEL_RANK: Record<RiskLevel, number> = { critical: 4, high: 3, medium: 2, low: 1, unscored: 0 };
 
 // A CVE's severity band. The CVSS score is the one rule (as everywhere else); a
 // CVE with no score but a qualitative severity falls back to that word.
@@ -35,7 +31,9 @@ export function severityBand(cvss: number | null, severity?: string | null): Sev
     : 'unknown';
 }
 
-export type AssetCve = {
+// The OVSS fields a report row shows (tier, score, KEV, EPSS, CVSS source, conflict).
+const OVSS_KEYS = ['score', 'tier', 'kev', 'epss', 'cvss_src', 'cvss_ver', 'conflict'] as const;
+export type AssetCve = Pick<OvssFinding, typeof OVSS_KEYS[number]> & {
   cve: string;
   cvss: number | null;
   cvss_version: string | null;
@@ -57,7 +55,9 @@ export type AssetReport = {
   id: string;
   name: string;
   managed: boolean; // reports from a Wazuh agent
-  displayRisk: RiskLevel;
+  level: NodeLevel; // the map's colour: OVSS tier, else worst config finding
+  ovss: number | null; // node OVSS (risk_score); null unless assessed
+  tiers: Record<Tier | 'Unrated', number>; // the node's findings per tier
   counts: SplitCounts;
   cves: AssetCve[]; // distinct, worst-first
   configFindings: ConfigFinding[];
@@ -116,7 +116,9 @@ export function buildAssetReports(
       if (!f.cve || seen.has(f.cve)) continue;
       seen.add(f.cve);
       const cat = vulns.cves[f.cve];
+      const ovss = Object.fromEntries(OVSS_KEYS.filter((k) => k in f).map((k) => [k, f[k]]));
       cves.push({
+        ...ovss,
         cve: f.cve,
         cvss: cat?.cvss ?? null,
         cvss_version: cat?.cvss_version ?? null,
@@ -128,9 +130,11 @@ export function buildAssetReports(
         version: f.version,
       });
     }
-    // Worst-first: by CVSS (nulls last), then CVE id for a stable order.
+    // Worst-first: by OVSS tier and score, then CVSS (nulls last), then CVE id.
     cves.sort(
       (a, b) =>
+        tierRank(b.tier === 'Unrated' ? null : b.tier) - tierRank(a.tier === 'Unrated' ? null : a.tier) ||
+        (b.score ?? -1) - (a.score ?? -1) ||
         (b.cvss ?? -1) - (a.cvss ?? -1) ||
         SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity] ||
         a.cve.localeCompare(b.cve)
@@ -144,7 +148,9 @@ export function buildAssetReports(
       id: node.node_id,
       name: nameOf(node),
       managed: confidence === 'confirmed',
-      displayRisk: displayRiskLevel(nodeRiskScore(node), worstConfigSeverity(node)),
+      level: nodeLevel(node, worstConfigSeverity(node)),
+      ovss: node.ovss_status === 'assessed' ? node.risk_score : null,
+      tiers: { P0: 0, P1: 0, P2: 0, P3: 0, Unrated: 0, ...node.ovss_hist },
       counts,
       cves,
       configFindings: (node.kind === 'device' ? node.config_findings : undefined) || [],
@@ -156,15 +162,17 @@ export function buildAssetReports(
 }
 
 /**
- * Worst-first ranking: by displayed risk level, then confirmed-critical count,
- * then total CVE count, then name (stable). Ranking uses the asset's intrinsic
- * figures, not the active filters.
+ * Worst-first ranking: by node OVSS (unassessed last), then the tier
+ * histogram (more P0, then more P1, ...), then total CVE count, then name
+ * (stable). Ranking uses the asset's intrinsic figures, not the active filters.
  */
 export function rankAssetReports(reports: AssetReport[]): AssetReport[] {
+  const byHist = (a: AssetReport, b: AssetReport) =>
+    TIERS.reduce((d, t) => d || b.tiers[t] - a.tiers[t], 0);
   return reports.slice().sort(
     (a, b) =>
-      LEVEL_RANK[b.displayRisk] - LEVEL_RANK[a.displayRisk] ||
-      b.counts.confirmed.critical - a.counts.confirmed.critical ||
+      (b.ovss ?? -1) - (a.ovss ?? -1) ||
+      byHist(a, b) ||
       b.counts.total - a.counts.total ||
       a.name.localeCompare(b.name)
   );
@@ -265,7 +273,8 @@ export function remediationActions(report: AssetReport): RemediationAction[] {
 
   // 2) CVEs — one generic line by asset kind, if the asset has any CVEs.
   if (report.cves.length > 0) {
-    const worst = report.cves[0].severity;
+    // the rows are in OVSS order, so find the worst CVSS band among them
+    const worst = report.cves.reduce((w, c) => (SEVERITY_RANK[c.severity] > SEVERITY_RANK[w] ? c.severity : w), report.cves[0].severity);
     if (node.kind === 'device') {
       actions.push({ severity: worst, source: 'cve', text: CVE_GUIDANCE.firmware });
     } else if (report.managed) {
@@ -307,6 +316,7 @@ export type ExecutiveSummary = {
   managed: number;
   totalHosts: number;
   counts: SplitCounts; // severity split across every asset
+  tiers: Record<Tier | 'Unrated', number>; // findings per OVSS tier across every asset
   onPathAssets: number;
   worstAssets: string[]; // names of the handful of worst assets
 };
@@ -315,7 +325,9 @@ export type ExecutiveSummary = {
 // report are left out of the summary too.
 export function executiveSummary(reports: AssetReport[], worstNames = 5): ExecutiveSummary {
   const counts: SplitCounts = { confirmed: zeroCounts(), potential: zeroCounts(), total: 0 };
+  const tiers = { P0: 0, P1: 0, P2: 0, P3: 0, Unrated: 0 };
   for (const r of reports) {
+    for (const t of [...TIERS, 'Unrated' as const]) tiers[t] += r.tiers[t];
     for (const sev of SEVERITIES) {
       counts.confirmed[sev] += r.counts.confirmed[sev];
       counts.potential[sev] += r.counts.potential[sev];
@@ -328,14 +340,16 @@ export function executiveSummary(reports: AssetReport[], worstNames = 5): Execut
     managed: hosts.filter((r) => r.managed).length,
     totalHosts: hosts.length,
     counts,
+    tiers,
     onPathAssets: reports.filter((r) => r.onPath).length,
     worstAssets: rankAssetReports(reports).slice(0, worstNames).map((r) => r.name),
   };
 }
 
 /**
- * The "Most at risk (by CVE count)" chart: the assets with the most distinct
- * CVEs, most first, so the bar order matches the bar lengths (ties by name).
+ * The "Most CVEs" chart: the assets with the most distinct CVEs, most first,
+ * so the bar order matches the bar lengths (ties by name). Not the risk
+ * ranking, which is by OVSS.
  */
 export function mostCves(reports: AssetReport[], limit = 7): AssetReport[] {
   return reports

@@ -18,6 +18,19 @@
   flex-shrink: 0;
 }
 
+// a CNA/ADP CVSS score that disagrees with the scanner's (OVSS conflict)
+.vmConflict {
+  font-weight: $euiFontWeightBold;
+  color: $euiColorWarningText;
+  cursor: help;
+}
+.vmCveSrc {
+  color: $euiColorDarkShade;
+}
+.vmFormula {
+  font-family: $euiCodeFontFamily;
+}
+
 .vmTable {
   width: 100%;
   border-collapse: collapse;

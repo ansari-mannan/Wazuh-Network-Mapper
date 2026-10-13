@@ -1,6 +1,48 @@
 // Graph types, modelled on the real graph.json shape.
 
-export type CVE = {
+// --- OVSS (backend/vulnmapper/scoring): a score per finding (one CVE on one
+// node) and its tier, rolled up per node. Absent in graphs written before it.
+export type Tier = 'P0' | 'P1' | 'P2' | 'P3';
+
+// The OVSS fields of one finding: on vulnerabilities.json findings and on the
+// graph's top_cves rows. score is null (tier "Unrated") when no CVSS score exists.
+export type OvssFinding = {
+  score?: number | null;
+  tier?: Tier | 'Unrated';
+  cvss_tool?: number | null;  // what the scanner reported (Wazuh indexer / NVD)
+  cvss_used?: number | null;  // the CVSS score OVSS used
+  cvss_src?: 'CNA' | 'ADP' | 'tool' | null;
+  cvss_ver?: string | null;
+  kev?: boolean;              // in CISA's Known Exploited Vulnerabilities
+  epss?: number;              // FIRST EPSS probability, 0 when not listed
+  exposure?: number;
+  dependency?: number;
+  confidence?: 'confirmed' | 'potential';
+  conflict?: 0 | 1;           // CNA/ADP and tool scores (same version) differ by 1.0+
+};
+
+export type OvssStatus = 'assessed' | 'Unrated' | 'Unassessed';
+
+// A node's OVSS roll-up. risk_score (on every node) is its OVSS: the highest of
+// its findings', null unless assessed. Unassessed is not clean: nothing was found
+// or looked up, and ovss_reason says which.
+export type OvssNode = {
+  node_tier?: Tier | null;
+  ovss_hist?: Record<Tier | 'Unrated', number>;
+  ovss_status?: OvssStatus;
+  ovss_reason?: string | null;
+  exposure?: number;
+  exposure_flag?: 'exposure_unknown' | null;
+  dependency?: number;
+  importance?: number;        // the FIPS 199 weight from targets.json, 0 when unmarked
+  kev_count?: number;
+};
+
+// metadata.threat_feeds: whether KEV and EPSS were fresh, stale or unavailable.
+export type FeedState = 'fresh' | 'stale' | 'unavailable';
+export type ThreatFeeds = { kev: FeedState; epss: FeedState; kev_date: string | null; epss_date: string | null };
+
+export type CVE = OvssFinding & {
   cve: string;
   severity: string;
   cvss: number | null;
@@ -26,7 +68,7 @@ export type CveSummary = {
 };
 
 // Common fields shared by both kinds of node.
-type GraphNodeBase = {
+type GraphNodeBase = OvssNode & {
   node_id: string;
   kind: "device" | "endpoint";
   ip: string | null;
@@ -265,6 +307,7 @@ export type Metadata = {
   attack_path_sources?: string[];
   checklist?: ChecklistMeta;
   coverage?: Coverage;
+  threat_feeds?: ThreatFeeds;
   // the optional SNMP question to unmanaged hosts, when it ran
   snmp_question?: { asked: number; answered: number; forwarding: number; cap: number; cap_reached: boolean };
   name_lookup?: { asked: number; named: number; budget_reached: boolean };
@@ -443,8 +486,8 @@ export type AttackStep = {
   // transit
   through?: string;
   note?: string;
-  // takeover steps carry the reached asset's base score and its other findings
-  destination_base_score?: number | null;
+  // takeover steps carry the reached asset's OVSS and its other findings
+  destination_ovss?: number | null;
   context_findings?: AttackFinding[];
 };
 
@@ -454,7 +497,7 @@ export type AttackRoute = {
   start_kind: AttackStartKind;
   steps: AttackStep[];
   likelihood: number;
-  highest_base_score: number;
+  highest_ovss: number; // the highest node OVSS along the route
   crosses_router: boolean;
   narrative: string;
   rank: number;
@@ -534,8 +577,9 @@ export type CatalogueCve = {
   published_at?: string | null;
 };
 
-// One finding on a host: the CVE id, the affected package and its version.
-export type VulnFinding = {
+// One finding on a host: the CVE id, the affected package and its version,
+// and its OVSS fields.
+export type VulnFinding = OvssFinding & {
   cve: string;
   package: string | null;
   version: string | null;

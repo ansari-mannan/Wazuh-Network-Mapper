@@ -3,10 +3,10 @@
 import React from 'react';
 import { EuiLink, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { AttackPathsDoc, GraphNode, GraphResponse } from '../../../common';
-import { RiskLevel } from '../../lib/risk';
+import { NodeLevel } from '../../lib/risk';
 import { addressRanges, AssetReport, ExecutiveSummary, remediationActions } from '../../lib/report';
 import { AssetBlock, AssetDetail } from './AssetSections';
-import { MostAtRisk, SeverityBar, StatBand } from './charts';
+import { MostAtRisk, SeverityBar, StatBand, TierRow } from './charts';
 import { prettyDate, TOOL } from './format';
 import { CountRow, Remediation, Section } from './parts';
 import { ReportMode } from './ReportControls';
@@ -38,7 +38,7 @@ export function Cover({ graph, org, exec }: { graph: GraphResponse; org: string;
 interface SummaryProps {
   exec: ExecutiveSummary | null;
   offline: GraphNode[];
-  topRisk: Array<{ name: string; total: number; risk: RiskLevel }>;
+  topRisk: Array<{ name: string; total: number; level: NodeLevel }>;
 }
 
 export function ExecutiveSummarySection({ exec, offline, topRisk }: SummaryProps) {
@@ -73,13 +73,14 @@ export function ExecutiveSummarySection({ exec, offline, topRisk }: SummaryProps
             <div className="vmExecCounts">
               <CountRow label="Confirmed" counts={exec.counts.confirmed} />
               <CountRow label="Potential" counts={exec.counts.potential} />
+              <TierRow tiers={exec.tiers} />
             </div>
           </div>
           {topRisk.length > 0 && (
             <>
               <EuiSpacer size="l" />
               <div className="vmChartBlock">
-                <EuiText size="xs"><strong>Most at risk (by CVE count)</strong></EuiText>
+                <EuiText size="xs"><strong>Most CVEs</strong></EuiText>
                 <EuiSpacer size="xs" />
                 <MostAtRisk items={topRisk} />
               </div>
@@ -102,6 +103,35 @@ export function Methodology({ attackPaths }: { attackPaths: AttackPathsDoc | nul
           <strong>potential</strong>: a version match does not prove the affected feature is in use. Device
           configuration is checked against DISA STIG and CCSS rules; attack-path likelihood follows NIST IR 7788.
         </p>
+        <p><strong>OVSS: how findings are scored and ranked</strong></p>
+        <p>
+          Each finding (one CVE on one asset) gets an OVSS score from 0 to 10, never above its CVSS base score:
+        </p>
+        <ul className="vmFormula">
+          <li>OVSS = CVSS × Context × ThreatMult</li>
+          <li>Context = 0.5 + 0.5 × (Exposure + Dependency) / 2</li>
+          <li>ThreatMult = 0.5 + 0.5 × T, where T = 1.0 for a CVE in CISA KEV, else min(EPSS / 0.1, 1.0)</li>
+        </ul>
+        <p>
+          The CVSS score is the CVE&apos;s CNA score, else an ADP&apos;s, else the scanner&apos;s (highest CVSS
+          version within each); with none the finding is Unrated. Exposure is 1.0 for the egress router, 0.3 in a
+          VLAN no router connects to another, 0.5 otherwise (and 0.5, flagged, when the asset&apos;s VLAN is
+          unknown). Dependency is the larger of the share of other assets that depend on it and its marked
+          importance (FIPS 199: high 1.0, moderate 0.5, low 0.25). An asset&apos;s OVSS is its highest
+          finding&apos;s; assets are ranked by it.
+        </p>
+        <p>
+          Tiers: <strong>P0</strong> at 6.75 and above, <strong>P1</strong> at 4.5, <strong>P2</strong> at 2.5,
+          else <strong>P3</strong>. Then, in order: a potential finding not in KEV is capped at P1; a KEV finding on
+          the egress router is P0; any KEV finding is at least P1. An asset with nothing found or looked up is
+          Unassessed, which is not the same as clean.
+        </p>
+        <p><strong>OVSS sources</strong></p>
+        <ul>
+          <li><EuiLink href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank">CISA Known Exploited Vulnerabilities (KEV) catalog</EuiLink></li>
+          <li><EuiLink href="https://www.first.org/epss/" target="_blank">FIRST Exploit Prediction Scoring System (EPSS)</EuiLink></li>
+          <li><EuiLink href="https://www.cve.org/" target="_blank">CVE records (CNA and ADP scores), CVE Program</EuiLink></li>
+        </ul>
         {meta?.reachability?.length ? (
           <>
             <p><strong>Reachability</strong></p>

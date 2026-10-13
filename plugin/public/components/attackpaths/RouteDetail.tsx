@@ -49,10 +49,10 @@ function TakeoverStep({ step, nameOf }: { step: AttackStep; nameOf: (id: string)
             <h4>{text.heading}</h4>
           </EuiTitle>
         </EuiFlexItem>
-        {typeof step.destination_base_score === 'number' && (
+        {typeof step.destination_ovss === 'number' && (
           <EuiFlexItem grow={false}>
             <EuiBadge color="hollow" data-test-subj="vmStepScore">
-              severity {step.destination_base_score} / 10
+              OVSS {step.destination_ovss} / 10
             </EuiBadge>
           </EuiFlexItem>
         )}
@@ -121,8 +121,9 @@ export function RouteDetail({
         <EuiText size="xs" color="subdued">
           <p>
             Likelihood is NIST IR 7788&apos;s coarse three-value model (low / medium / high step
-            complexity), shown as a percentage for legibility — not a precise probability. Severity is
-            the asset&apos;s worst CVSS base score, out of 10. Higher is worse on both.
+            complexity), shown as a percentage for legibility — not a precise probability. OVSS is
+            the asset&apos;s highest finding score, out of 10, and breaks ties between equally likely
+            routes. Higher is worse on both.
           </p>
           <p>Sources</p>
           <ul>

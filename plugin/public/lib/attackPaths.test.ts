@@ -16,8 +16,8 @@ import {
 
 const upper = (id: string) => id.toUpperCase();
 
-function route(likelihood: number, highest_base_score: number): AttackRoute {
-  return { likelihood, highest_base_score } as AttackRoute;
+function route(likelihood: number, highest_ovss: number): AttackRoute {
+  return { likelihood, highest_ovss } as AttackRoute;
 }
 
 describe('likelihoodLabel', () => {

@@ -18,7 +18,7 @@ import { plural } from '../../lib/deviceCveText';
 import { CONFIG_SEVERITIES, configFindingCounts, severityLabel } from '../../lib/checklistText';
 import { coverageText } from '../../lib/hostText';
 import { RISK_META } from '../../lib/risk';
-import { riskTextColors } from '../../lib/theme';
+import { tierTextColors } from '../../lib/theme';
 import { configSeverityColor } from '../topology/ConfigChecks';
 import { Donut } from './Donut';
 
@@ -167,7 +167,7 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
         </SummaryPanel>
       </EuiFlexItem>
       <EuiFlexItem>
-        <SummaryPanel title="Risk level">
+        <SummaryPanel title="Risk (OVSS tier)">
           <EuiFlexGrid columns={2} gutterSize="m">
             {risk.levels.map((l) => (
               <EuiFlexItem key={l.level}>
@@ -176,7 +176,7 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
                     title={l.value}
                     description={l.label}
                     titleSize="m"
-                    titleColor={riskTextColors[l.level]}
+                    titleColor={tierTextColors[l.level]}
                     reverse
                   />
                 </div>
@@ -186,15 +186,12 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
           <EuiSpacer size="s" />
           <EuiText size="xs" color="subdued" data-test-subj="vmRiskNote">
             <p>
-              {plural(risk.endpoints.scored + risk.endpoints.unscored, 'endpoint')} and{' '}
-              {plural(risk.devices.scored + risk.devices.unscored, 'network device')}.
-              {risk.unscored > 0 &&
-                ` ${risk.unscored} unscored (${plural(risk.endpoints.unscored, 'endpoint')}, ${plural(
-                  risk.devices.unscored,
-                  'device'
-                )}): no CVE data.`}
+              Assets by the tier of their most urgent finding, of {plural(risk.total, 'asset')}.
+              {risk.unassessed > 0 && ` ${risk.unassessed} Unassessed: nothing was found or looked up, which is not clean.`}
+              {risk.unrated > 0 && ` ${risk.unrated} Unrated: no CVSS score for their CVEs.`}
+              {risk.notScored > 0 && ` ${risk.notScored} not scored: this graph was written before OVSS.`}
             </p>
-            {risk.devices.scored > 0 && <p>Device findings are potential: matched by software version.</p>}
+            <p>Device findings are potential: matched by software version.</p>
           </EuiText>
         </SummaryPanel>
       </EuiFlexItem>
