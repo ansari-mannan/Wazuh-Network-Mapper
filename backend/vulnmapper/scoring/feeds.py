@@ -1,7 +1,8 @@
 """The two threat feeds OVSS reads: CISA's Known Exploited Vulnerabilities
 catalogue (KEV) and FIRST's Exploit Prediction Scoring System (EPSS).
 
-Each feed is downloaded at most once a day and kept as downloaded beside
+Each feed is downloaded at most once a day, in one attempt with its own time
+budget (FEED_BUDGET_S), and kept as downloaded beside
 nvd-cache.json (``kev.json``, ``epss_scores-current.csv.gz``); the file's
 modification time is when it was fetched. When a download fails the copy on
 disk is used however old it is (``stale``). With no copy at all the feed is
@@ -21,6 +22,7 @@ import json
 import logging
 import os
 import tempfile
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
@@ -35,7 +37,8 @@ EPSS_URL = "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz"
 KEV_FILENAME = "kev.json"
 EPSS_FILENAME = "epss_scores-current.csv.gz"
 REFRESH = timedelta(days=1)
-DOWNLOAD_TIMEOUT_S = 30.0
+FEED_BUDGET_S = 20.0       # the whole of one feed's download, then it is abandoned
+READ_TIMEOUT_S = 10.0      # connect, and each read of the body
 
 FRESH, STALE, UNAVAILABLE = "fresh", "stale", "unavailable"
 
@@ -45,13 +48,23 @@ class FeedUnavailable(VulnmapperError):
 
 
 def http_get(url: str, timeout: float) -> tuple:
-    """GET ``url`` -> ``(status, body bytes)``; raises FeedUnavailable on no answer."""
+    """GET ``url`` -> ``(status, body bytes)``. ``timeout`` is the whole
+    download's budget: connecting and each read wait at most READ_TIMEOUT_S, and
+    a body still arriving when the budget is spent is abandoned, so a trickling
+    link cannot hold a scan. Raises FeedUnavailable on no answer or over budget."""
     import requests
+    start = time.monotonic()
+    wait = min(timeout, READ_TIMEOUT_S)
     try:
-        r = requests.get(url, timeout=timeout)
+        with requests.get(url, timeout=(wait, wait), stream=True) as r:
+            chunks = []
+            for chunk in r.iter_content(64 * 1024):
+                chunks.append(chunk)
+                if time.monotonic() - start > timeout:
+                    raise FeedUnavailable(f"still downloading after {timeout:.0f} s")
+            return r.status_code, b"".join(chunks)
     except requests.RequestException as e:
         raise FeedUnavailable(type(e).__name__) from None
-    return r.status_code, r.content
 
 
 def parse_kev(raw: bytes) -> tuple:
@@ -110,17 +123,21 @@ def load_feed(name: str, url: str, path: Optional[str], parse: Callable, clock,
             return data, FRESH, date
         except (OSError, ValueError, KeyError) as e:
             log.warning("%s copy %s is unreadable (%s); downloading again", name, path, e)
+    # one attempt, never retried: a dead or slow link falls back to the copy on disk
+    started = clock.monotonic()
     try:
-        status, raw = transport(url, DOWNLOAD_TIMEOUT_S)
+        status, raw = transport(url, FEED_BUDGET_S)
         if status != 200:
             raise FeedUnavailable(f"HTTP {status}")
         data, date = parse(raw)
         if path:
             _write_bytes_atomic(path, raw, clock.now())
-        log.info("%s downloaded (%s)", name, date)
+        log.info("%s downloaded in %.1f s, %d bytes (%s)", name, clock.monotonic() - started,
+                 len(raw), date)
         return data, FRESH, date
     except (FeedUnavailable, OSError, ValueError, KeyError) as e:
-        log.warning("%s could not be downloaded (%s)", name, e)
+        log.warning("%s could not be downloaded after %.1f s (%s)", name,
+                    clock.monotonic() - started, e)
     if fetched:
         try:
             with open(path, "rb") as f:

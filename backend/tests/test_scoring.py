@@ -7,12 +7,14 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 from test_nvd import FakeClock
 from vulnmapper.scoring import cvss_select, feeds, ovss, stage
 from vulnmapper.scoring.cvss_select import CveRecords, records_cache, select, trim_record
 
 KEV_URL, EPSS_URL = feeds.KEV_URL, feeds.EPSS_URL
+REAL_HTTP_GET = feeds.http_get      # bound before conftest makes downloads fail
 
 
 def finding(cvss, exposure=0.5, dependency=0.0, kev=False, epss=0.0, confidence="confirmed",
@@ -216,6 +218,99 @@ class TestFeeds(unittest.TestCase):
                               FakeFeeds({KEV_URL: b"<html>", EPSS_URL: b"no,columns\n"}))
         self.assertEqual((t.block["kev"], t.block["epss"]), ("unavailable", "unavailable"))
         self.assertFalse(os.listdir(self.dir))                 # nothing bad was kept
+
+
+class SlowLink:
+    """A feed transport on a dead or slow link: every call gives no answer
+    (as http_get does after its read timeout or its budget), and is recorded."""
+
+    def __init__(self):
+        self.asked = []
+
+    def __call__(self, url, timeout):
+        self.asked.append((url, timeout))
+        raise feeds.FeedUnavailable("ReadTimeout")
+
+
+class TestFeedDownloadsNeverStall(unittest.TestCase):
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.clock = FakeClock()
+
+    def tearDown(self):
+        shutil.rmtree(self.dir)
+
+    def test_one_attempt_per_feed_within_its_budget(self):
+        slow = SlowLink()
+        t = feeds.load_threat(self.dir, self.clock, slow)
+        self.assertEqual(slow.asked, [(KEV_URL, 20.0), (EPSS_URL, 20.0)])     # no retry
+        self.assertEqual((t.block["kev"], t.block["epss"]), ("unavailable", "unavailable"))
+
+    def test_a_slow_link_falls_back_to_the_stale_copy(self):
+        feeds.load_threat(self.dir, self.clock, FakeFeeds())
+        self.clock.advance(days=2)
+        t = feeds.load_threat(self.dir, self.clock, SlowLink())
+        self.assertEqual((t.block["kev"], t.block["epss"], t.kev), ("stale", "stale", {"CVE-2019-5591"}))
+
+    def test_logs_the_download_time_and_size(self):
+        with self.assertLogs("vulnmapper.scoring", "INFO") as logs:
+            feeds.load_threat(self.dir, self.clock, FakeFeeds())
+        self.assertIn(f"CISA KEV downloaded in 0.0 s, {len(KEV_BODY)} bytes", "\n".join(logs.output))
+
+
+class FakeResponse:
+    """A streamed reply whose every chunk takes ``per_chunk`` seconds to arrive."""
+
+    def __init__(self, chunks, per_chunk, clock):
+        self.chunks, self.per_chunk, self.clock, self.status_code = chunks, per_chunk, clock, 200
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def iter_content(self, size):
+        for c in self.chunks:
+            self.clock[0] += self.per_chunk
+            yield c
+
+
+class TestHttpGet(unittest.TestCase):
+    """The real transport, with requests and the monotonic clock faked."""
+
+    def get(self, chunks, per_chunk, budget):
+        now = [0.0]
+        calls = []
+
+        def fake_get(url, timeout, stream):
+            calls.append(timeout)
+            return FakeResponse(chunks, per_chunk, now)
+        with mock.patch("requests.get", fake_get), \
+                mock.patch.object(feeds.time, "monotonic", lambda: now[0]):
+            try:
+                return REAL_HTTP_GET("https://feed", budget), calls
+            except feeds.FeedUnavailable as e:
+                return e, calls
+
+    def test_a_trickling_body_is_abandoned_at_the_budget(self):
+        out, calls = self.get([b"x"] * 100, per_chunk=8.0, budget=20.0)
+        self.assertIsInstance(out, feeds.FeedUnavailable)
+        self.assertEqual(calls, [(10.0, 10.0)])           # connect and read timeout
+
+    def test_a_body_inside_the_budget_is_returned_whole(self):
+        out, calls = self.get([b"ab", b"cd"], per_chunk=1.0, budget=20.0)
+        self.assertEqual(out, (200, b"abcd"))
+
+    def test_the_read_timeout_never_exceeds_the_budget(self):
+        _, calls = self.get([b"a"], per_chunk=0.0, budget=5.0)
+        self.assertEqual(calls, [(5.0, 5.0)])
+
+    def test_no_answer_is_feed_unavailable(self):
+        import requests
+        with mock.patch("requests.get", side_effect=requests.ConnectTimeout()):
+            with self.assertRaises(feeds.FeedUnavailable):
+                REAL_HTTP_GET("https://feed", 20.0)
 
 
 def cve_record(score):

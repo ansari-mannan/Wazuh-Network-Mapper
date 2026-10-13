@@ -491,8 +491,11 @@ else `potential`) and `conflict`. Each node gains `risk_score` (its OVSS),
 
 **Threat feeds.** CISA's KEV catalogue (JSON) and FIRST's EPSS daily scores
 (CSV) are downloaded at most once a day and kept beside `nvd-cache.json`
-(`kev.json`, `epss_scores-current.csv.gz`). When a download fails the copy on
-disk is used however old; with no copy every CVE scores as not in KEV with EPSS
+(`kev.json`, `epss_scores-current.csv.gz`). Each download is one attempt,
+never retried, with its own 20-second budget: connecting and each read wait at
+most 10 seconds, and a body still arriving at 20 seconds is abandoned. The log
+gives each download's time and size. When a download fails the copy on disk is
+used however old; with no copy every CVE scores as not in KEV with EPSS
 0, and `metadata.threat_feeds` says `"unavailable"` so the dashboard warns that
 scores may be understated. `metadata.threat_feeds` also gives the feed dates.
 
