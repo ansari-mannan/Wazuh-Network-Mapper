@@ -75,15 +75,35 @@
     box-shadow: 0 0 0 3px rgba($euiColorPrimary, 0.45), var(--vm-shadow);
   }
 
-  // showing one route (Attack paths "Show on map"): nodes off the route fade back
+  // Showing one route (Attack paths "Show on map"). Hosts off the route fade
+  // back. A node on it gets an outer ring, a step number and, at either end, a
+  // Start or Target tag, all in a colour no risk band uses (lib/theme.ts
+  // graphColors.route), so its risk border keeps its meaning.
+  $vmRoute: if(lightness($euiColorEmptyShade) < 50%, #a78bfa, #7c3aed);
   .react-flow__node.vmDim {
     opacity: 0.18;
   }
-
-  // a device the route only passes through (a switch/router on the physical path):
-  // lit, but lighter than the taken-over assets so the two read differently.
-  .react-flow__node.vmPassThrough {
-    opacity: 0.5;
+  .react-flow__node.vmOnRoute .node {
+    box-shadow: 0 0 0 3px $euiColorEmptyShade, 0 0 0 6px $vmRoute, var(--vm-shadow);
+  }
+  .node__step {
+    position: absolute; top: 50%; left: -13px;
+    transform: translateY(-50%);
+    min-width: 24px; height: 24px; padding: 0 6px; border-radius: 12px;
+    font-size: 12px; line-height: 24px; font-weight: 700; text-align: center;
+    color: #fff;
+    background: $vmRoute;
+    box-shadow: 0 0 0 2px $euiColorEmptyShade;
+    pointer-events: none;
+  }
+  .node__end {
+    position: absolute; bottom: -10px; left: 10px;
+    padding: 0 7px; border-radius: 9px;
+    font-size: 11px; line-height: 17px; font-weight: 700;
+    color: $vmRoute;
+    background: $euiColorEmptyShade;
+    border: 1px solid $vmRoute;
+    pointer-events: none;
   }
 
   // worst configuration-finding severity, so a device with no CVE score but a

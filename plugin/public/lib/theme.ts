@@ -20,6 +20,8 @@ export const graphColors = isDarkMode
       edgeWifi: '#2dd4bf',
       edgeInferred: '#f59e0b',
       labelInferred: '#fbbf24',
+      // the route on "Show on map": a colour no risk band uses
+      route: '#a78bfa',
     }
   : {
       edgeLldp: '#475569',
@@ -28,4 +30,5 @@ export const graphColors = isDarkMode
       edgeWifi: '#0d9488',
       edgeInferred: '#f59e0b',
       labelInferred: '#b45309',
+      route: '#7c3aed',
     };

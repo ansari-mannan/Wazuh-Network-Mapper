@@ -17,7 +17,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
-import { highlightClass } from './highlight';
+import { highlightClass, routeArrows, routeMarks } from './highlight';
 import { CustomNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
@@ -131,10 +131,28 @@ interface TopologyViewProps {
   highlightKey?: string;
   /**
    * node_ids the route only passes through (comma-separated): switches/routers on
-   * the physical path between its assets. Lit, but lighter than the taken-over
-   * assets in highlightKey. Edges between any two lit nodes (either set) stay lit.
+   * the physical path between its assets. Together with highlightKey, the set
+   * of nodes on the route.
    */
   passKey?: string;
+  /**
+   * The route's nodes in travel order, start to target (comma-separated; see
+   * attackPaths.physicalPathWalk). Numbers the nodes and orients the arrows.
+   */
+  routeKey?: string;
+}
+
+// A link the route travels along: in the route colour, with the arrowhead at
+// the end the route goes to. The link keeps the direction it is drawn in (from
+// the upper node to the lower), so going "up" puts the arrow at its start.
+function routeEdge(e: Edge, arrow: 'start' | 'end'): Edge {
+  const marker = { type: MarkerType.ArrowClosed, color: graphColors.route, width: 18, height: 18 };
+  return {
+    ...e,
+    style: { ...e.style, stroke: graphColors.route, strokeWidth: 3, strokeDasharray: undefined, opacity: 1 },
+    markerEnd: arrow === 'end' ? marker : undefined,
+    markerStart: arrow === 'start' ? { ...marker, orient: 'auto-start-reverse' } : undefined,
+  };
 }
 
 // The graph without the hidden nodes and any edge that touches one.
@@ -149,13 +167,14 @@ function withoutHidden(graph: GraphResponse, hiddenKey: string): GraphResponse {
 }
 
 export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
-  ({ graph, onSelect, selectedId, hiddenKey = '', highlightKey = '', passKey = '' }, ref) => {
+  ({ graph, onSelect, selectedId, hiddenKey = '', highlightKey = '', passKey = '', routeKey = '' }, ref) => {
     const highlight = useMemo(
       () => (highlightKey ? new Set(highlightKey.split(',')) : null),
       [highlightKey]
     );
-    // Pass-through nodes are lit (so their edges stay lit) but styled lighter.
     const passThrough = useMemo(() => new Set(passKey ? passKey.split(',') : []), [passKey]);
+    const walk = useMemo(() => (routeKey ? routeKey.split(',') : []), [routeKey]);
+    const marks = useMemo(() => (walk.length ? routeMarks(walk) : null), [walk]);
     const { layoutNodes, edges } = useMemo(() => {
       // layoutGraph is the pure layout-prep module: it computes positions/ranks
       // from the real edges and returns the edges to draw (incl. dashed "inferred"
@@ -208,6 +227,7 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
 
       return { layoutNodes: rfNodes, edges: rfEdges };
     }, [graph, hiddenKey]);
+    const arrows = useMemo(() => (walk.length ? routeArrows(walk, edges) : null), [walk, edges]);
 
     const moved = useMemo(() => {
       let m = movedPositions.get(graph);
@@ -248,20 +268,27 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       return <div className="empty">The graph is empty (0 nodes).</div>;
     }
 
-    // Spotlight one route: hosts off it fade, devices never do (highlight.ts).
-    // An edge stays lit when both its ends are on the route (either set), so
-    // the physical path reads as one continuous line.
+    // Spotlight one route (highlight.ts): its nodes ringed and numbered in
+    // travel order, its links pointing the way it travels; hosts off it fade,
+    // devices never do.
     const lit = (id: string) => highlight!.has(id) || passThrough.has(id);
     const displayNodes = nodes.map((n) => {
       const sel = n.id === selectedId;
-      const className = highlightClass({ id: n.id, kind: n.data.kind }, highlight, passThrough);
-      return n.selected === sel && (n.className || '') === className ? n : { ...n, selected: sel, className };
+      const className = highlightClass({ id: n.id, kind: n.data.kind }, highlight, passThrough, marks);
+      const route = (highlight && marks?.get(n.id)) || undefined;
+      return n.selected === sel && (n.className || '') === className && n.data.route === route
+        ? n
+        : { ...n, selected: sel, className, data: { ...n.data, route } };
     });
-    const displayEdges = highlight
-      ? edges.map((e) =>
-          lit(e.source) && lit(e.target) ? e : { ...e, style: { ...e.style, opacity: 0.12 } }
-        )
-      : edges;
+    const displayEdges = !highlight
+      ? edges
+      : edges.map((e) => {
+          const arrow = arrows?.get(e.id);
+          if (arrow) return routeEdge(e, arrow);
+          // a link off the route fades; an old link without the walk lights
+          // every edge between two lit nodes instead
+          return !arrows && lit(e.source) && lit(e.target) ? e : { ...e, style: { ...e.style, opacity: 0.12 } };
+        });
 
     return (
       <div className="canvas">

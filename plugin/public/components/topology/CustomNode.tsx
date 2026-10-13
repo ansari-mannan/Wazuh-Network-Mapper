@@ -9,17 +9,20 @@ import { isOffline, riskBorderForLevel, riskLabel, statusDot } from './nodeStyle
 import { displayRiskLevel, nodeRiskScore, RISK_META } from '../../lib/risk';
 import { findingsBadge, findingsBadgeText } from '../../lib/findingsBadge';
 import { roleLabel } from '../../lib/roleLabel';
+import { RouteMark } from './highlight';
 import { useLiveness } from '../../lib/liveness';
 
-// A React Flow node whose `data` payload is a real graph node.
-export type TopologyFlowNode = Node<GraphNode>;
+// A React Flow node whose `data` payload is a real graph node, plus its place
+// on the route being shown (Attack paths "Show on map").
+export type TopologyNodeData = GraphNode & { route?: RouteMark };
+export type TopologyFlowNode = Node<TopologyNodeData>;
 
 // One graph node. Two INDEPENDENT visual channels:
 //   * the corner dot  -> LIVENESS (statusDot): green up / grey unconfirmed / red down
 //   * the node border -> RISK     (riskBorder): thicker + redder = more critical
 // A stale endpoint (duplicate IP of a live host) is dimmed. Offline nodes keep
 // the dashed/dim treatment too.
-export function CustomNode({ data }: NodeProps<GraphNode>) {
+export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
   const { liveness: livenessContext } = useLiveness();
   const liveness = livenessContext?.nodes?.[data.node_id];
   const Icon = iconForRole(data.role);
@@ -57,6 +60,16 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
         )}
         <Handle type="source" position={Position.Bottom} className="handle" />
       </div>
+      {data.route && (
+        <span className="node__step" title={`Step ${data.route.step} of the route`}>
+          {data.route.step}
+        </span>
+      )}
+      {data.route?.end && (
+        <span className={`node__end node__end--${data.route.end}`}>
+          {data.route.end === 'start' ? 'Start' : 'Target'}
+        </span>
+      )}
       {data.unmanaged && (
         <span className="node__badge" title="No Wazuh agent reports from this machine">
           Unmanaged

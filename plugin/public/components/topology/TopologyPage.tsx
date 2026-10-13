@@ -117,6 +117,7 @@ export function TopologyPage() {
   const params = new URLSearchParams(location.search);
   const highlightKey = params.get('highlight') || '';
   const passKey = params.get('pass') || '';
+  const routeKey = params.get('route') || '';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hideInactive, setHideInactive] = useState(true);
   const view = useRef<TopologyViewHandle>(null);
@@ -192,6 +193,14 @@ export function TopologyPage() {
         </EuiFlexItem>
       </EuiFlexGroup>
       <div style={{ height: 12 }} />
+      {routeKey && (
+        <>
+          <EuiText size="xs" color="subdued" data-test-subj="vmRouteLegend">
+            <p>Numbered ring = on this route; arrows show the direction of travel; risk colour is unchanged.</p>
+          </EuiText>
+          <div style={{ height: 8 }} />
+        </>
+      )}
       {error && <EuiCallOut color="danger" iconType="alert" title={error} />}
       <div ref={ref} style={{ height }}>
         {graph ? (
@@ -207,6 +216,7 @@ export function TopologyPage() {
                   hiddenKey={hiddenKey}
                   highlightKey={highlightKey}
                   passKey={passKey}
+                  routeKey={routeKey}
                 />
               </EuiPanel>
             </EuiFlexItem>

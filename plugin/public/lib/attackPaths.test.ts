@@ -7,6 +7,7 @@ import {
   isStale,
   pageState,
   physicalPathNodeIds,
+  physicalPathWalk,
   routeWalk,
   startKindLabel,
   stepText,
@@ -196,5 +197,23 @@ describe('startKindLabel', () => {
     expect(startKindLabel('managed_host')).toBe('a managed host');
     expect(startKindLabel('unmanaged_host')).toBe('an unmanaged host');
     expect(startKindLabel('spare_ports')).toBe('spare switch ports');
+  });
+});
+
+describe('physicalPathWalk', () => {
+  // hostA — hpSwitch — l3 — hostB, recorded parent to child (l3 first)
+  const edges = [
+    { source: 'hpSwitch', target: 'hostA' },
+    { source: 'l3', target: 'hpSwitch' },
+    { source: 'l3', target: 'hostB' },
+  ];
+
+  it('orders the path start to target, switches in the order crossed', () => {
+    expect(physicalPathWalk(['hostA', 'l3', 'hostB'], edges)).toEqual(['hostA', 'hpSwitch', 'l3', 'hostB']);
+  });
+
+  it('crosses the same nodes as physicalPathNodeIds', () => {
+    const walk = ['hostA', 'hostB'];
+    expect(new Set(physicalPathWalk(walk, edges))).toEqual(new Set(physicalPathNodeIds(walk, edges)));
   });
 });

@@ -24,6 +24,7 @@ import {
   likelihoodText,
   pageState,
   physicalPathNodeIds,
+  physicalPathWalk,
   routeNodeIds,
   routeWalk,
   targetState,
@@ -155,9 +156,9 @@ export function AttackPathsPage() {
   if (state !== 'ok' || !doc) return header;
   const offlineStarts = doc.offline_starts || [];
 
-  // Light the physical path, not just the named assets: the taken-over assets
-  // (start, target and each takeover step's destination) are the full highlight;
-  // the switches/routers the hops really cross are pass-through (lighter).
+  // Show the physical path, not just the named assets: the taken-over assets
+  // (start, target and each takeover step's destination), the switches and
+  // routers the hops really cross, and all of them in travel order.
   const onShowOnMap = (route: AttackRoute) => {
     const full = new Set<string>([route.start, route.target]);
     for (const s of route.steps) if (s.kind !== 'transit') full.add(s.to);
@@ -167,7 +168,9 @@ export function AttackPathsPage() {
     const physical = physicalPathNodeIds(walk, graph?.edges || [], graph?.nodes || []);
     const lit = new Set([...physical, ...routeNodeIds(route)]);
     const pass = [...lit].filter((id) => !full.has(id));
-    const q = new URLSearchParams({ highlight: [...full].join(','), pass: pass.join(',') });
+    // the same path in travel order: the map numbers it and points its arrows
+    const ordered = physicalPathWalk(walk, graph?.edges || [], graph?.nodes || []);
+    const q = new URLSearchParams({ highlight: [...full].join(','), pass: pass.join(','), route: ordered.join(',') });
     history.push(`/topology?${q.toString()}`);
   };
 

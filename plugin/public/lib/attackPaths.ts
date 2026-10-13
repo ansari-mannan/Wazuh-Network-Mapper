@@ -179,6 +179,33 @@ function attachPoint(node: GraphNode | undefined, nodes: GraphNode[], adj: Map<s
  * but not in `walk`) are the pass-through set.
  */
 export function physicalPathNodeIds(walk: string[], edges: Edge[], nodes: GraphNode[] = []): string[] {
+  const lit = new Set<string>(walk);
+  for (const segment of physicalSegments(walk, edges, nodes)) for (const id of segment) lit.add(id);
+  return [...lit];
+}
+
+/**
+ * The same path as one ordered walk, start to target: each asset of `walk`,
+ * with the devices between it and the next one in between, in the order the
+ * traffic crosses them. A node met twice in a row appears once. The map numbers
+ * the route's nodes and points its arrows from this.
+ */
+export function physicalPathWalk(walk: string[], edges: Edge[], nodes: GraphNode[] = []): string[] {
+  const segments = physicalSegments(walk, edges, nodes);
+  const out: string[] = [];
+  const push = (id: string) => {
+    if (out[out.length - 1] !== id) out.push(id);
+  };
+  walk.forEach((id, i) => {
+    push(id);
+    for (const step of segments[i] || []) push(step);
+  });
+  return out;
+}
+
+// The shortest physical path from each asset of `walk` to the next (empty when
+// there is none). An asset with no edges joins at its attach point.
+function physicalSegments(walk: string[], edges: Edge[], nodes: GraphNode[]): string[][] {
   const adj = new Map<string, string[]>();
   const link = (a: string, b: string) => (adj.get(a) || adj.set(a, []).get(a)!).push(b);
   for (const e of edges) {
@@ -187,11 +214,11 @@ export function physicalPathNodeIds(walk: string[], edges: Edge[], nodes: GraphN
   }
   const byId = new Map(nodes.map((n) => [n.node_id, n]));
   const joinAt = (id: string) => (adj.has(id) ? id : attachPoint(byId.get(id), nodes, adj) || id);
-  const lit = new Set<string>(walk);
+  const segments: string[][] = [];
   for (let i = 0; i + 1 < walk.length; i++) {
-    for (const id of shortestPath(joinAt(walk[i]), joinAt(walk[i + 1]), adj)) lit.add(id);
+    segments.push(shortestPath(joinAt(walk[i]), joinAt(walk[i + 1]), adj));
   }
-  return [...lit];
+  return segments;
 }
 
 // One step rendered as plain text: a takeover step reaches an asset and names
