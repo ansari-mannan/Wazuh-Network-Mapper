@@ -3,6 +3,7 @@ import { euiPaletteColorBlind } from '@elastic/eui';
 import { GraphResponse } from '../../common';
 import { RISK_META, RiskLevel, riskCounts, SCORED_RISK_LEVELS } from './risk';
 import { STATUS_COLORS } from '../components/topology/nodeStyle';
+import { roleLabel } from './roleLabel';
 
 
 export interface Slice {
@@ -37,7 +38,7 @@ export function deviceStats(graph: GraphResponse) {
   const devices = graph.nodes.filter((n) => n.kind === 'device');
   const palette = euiPaletteColorBlind();
   const slices = toSlices(
-    countBy(devices, (d) => d.role || 'unknown'),
+    countBy(devices, (d) => roleLabel(d.role || 'unknown')),
     (_label, i) => palette[i % palette.length]
   );
   const responding = devices.filter((d) => (d.status || '').toLowerCase() === 'online').length;

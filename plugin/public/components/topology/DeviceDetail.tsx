@@ -21,6 +21,7 @@ import { clientCountText, wifiClientText } from '../../lib/wifiText';
 import { hasDeviceFindings, unscoredReason } from '../../lib/deviceCveText';
 import { deviceHintText, manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
 import { nodeRiskScore, RISK_META, riskLevel } from '../../lib/risk';
+import { roleLabel } from '../../lib/roleLabel';
 import { ConfigChecks } from './ConfigChecks';
 import { DevicePorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
 import { iconForRole } from './icons';
@@ -57,7 +58,7 @@ function identityRows(node: GraphNode, nameOf: (id: string) => string, liveness:
     ['Firmware', node.firmware],
     ...(lookup && lookup.product ? ([['Software', lookup.product]] as Rows) : []),
     ['Serial', node.serial],
-    ['Role', node.role],
+    ['Role', node.role && roleLabel(node.role, node.kind)],
     ['Discovery method', node.discovery_method],
     ['Status', node.status],
     ...wifiRows,
@@ -112,7 +113,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
               <h2 id="vmDetailTitle">{node.hostname || node.ip || node.node_id}</h2>
             </EuiTitle>
             <EuiText size="xs" color="subdued">
-              {node.role || node.kind} · {node.discovery_method}{' '}
+              {node.role ? roleLabel(node.role, node.kind) : node.kind} · {node.discovery_method}{' '}
               {offline && <EuiBadge color="hollow">offline</EuiBadge>}
               {node.stale && <EuiBadge color="hollow">stale</EuiBadge>}
               {node.unmanaged && (

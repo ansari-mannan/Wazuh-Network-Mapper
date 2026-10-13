@@ -35,7 +35,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">L2-Switch</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">l2-switch · snmp_lldp <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 2 switch · snmp_lldp <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">offline</span>
 </span>
@@ -126,7 +126,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">l2-switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -1162,7 +1162,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">L3-Switch</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">l3-switch · snmp_lldp </div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 3 switch · snmp_lldp </div>
 </div>
 </div>
 </div>
@@ -1266,7 +1266,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">l3-switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -2250,7 +2250,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">CYFOR-HP-Switch</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">l3-switch · snmp_lldp </div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 3 switch · snmp_lldp </div>
 </div>
 </div>
 </div>
@@ -2341,7 +2341,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">l3-switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -2516,7 +2516,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">CYFOR-AP1</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">access-point · snmp_cdp </div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">Access point · snmp_cdp </div>
 </div>
 </div>
 </div>
@@ -2602,7 +2602,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">SERIAL-PLACEHOLDER-1</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">access-point</dd>
+<dd class=\\"euiDescriptionList__description\\">Access point</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_cdp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -2982,7 +2982,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">172.20.100.1</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">router · snmp_lldp <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">Router / firewall · snmp_lldp <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">offline</span>
 </span>
@@ -3076,7 +3076,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">router</dd>
+<dd class=\\"euiDescriptionList__description\\">Router / firewall</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -4836,7 +4836,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">core</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">l3-switch · snmp_lldp </div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 3 switch · snmp_lldp </div>
 </div>
 </div>
 </div>
@@ -4925,7 +4925,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">l3-switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -5056,7 +5056,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">L2-Switch</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">l2-switch · snmp_lldp <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 2 switch · snmp_lldp <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">offline</span>
 </span>
@@ -5154,7 +5154,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">l2-switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -6191,7 +6191,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">172.20.10.254</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">l3-switch · snmp_lldp </div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 3 switch · snmp_lldp </div>
 </div>
 </div>
 </div>
@@ -6298,7 +6298,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">l3-switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -9752,7 +9752,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>l3-switch · 172.20.20.254 · Unmanaged</p>
+<p>Layer 3 switch · 172.20.20.254 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -9966,7 +9966,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>l2-switch · 172.20.10.100 · Unmanaged</p>
+<p>Layer 2 switch · 172.20.10.100 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -10067,7 +10067,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>access-point · 172.20.99.21 · Unmanaged</p>
+<p>Access point · 172.20.99.21 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -10109,7 +10109,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>l3-switch · 172.20.99.4 · Unmanaged</p>
+<p>Layer 3 switch · 172.20.99.4 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -10151,7 +10151,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>router · 172.20.100.1 · Unmanaged</p>
+<p>Router / firewall · 172.20.100.1 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -11251,7 +11251,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>l3-switch · 172.20.20.254 · Unmanaged</p>
+<p>Layer 3 switch · 172.20.20.254 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -11465,7 +11465,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>l2-switch · 172.20.10.100 · Unmanaged</p>
+<p>Layer 2 switch · 172.20.10.100 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -11566,7 +11566,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>access-point · 172.20.99.21 · Unmanaged</p>
+<p>Access point · 172.20.99.21 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -11608,7 +11608,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>l3-switch · 172.20.99.4 · Unmanaged</p>
+<p>Layer 3 switch · 172.20.99.4 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">
@@ -11672,7 +11672,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>router · 172.20.100.1 · Unmanaged</p>
+<p>Router / firewall · 172.20.100.1 · Unmanaged</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--xs\\">

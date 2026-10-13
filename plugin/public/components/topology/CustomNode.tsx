@@ -8,6 +8,7 @@ import { iconForRole } from './icons';
 import { isOffline, riskBorderForLevel, riskLabel, statusDot } from './nodeStyle';
 import { displayRiskLevel, nodeRiskScore, RISK_META } from '../../lib/risk';
 import { findingsBadge, findingsBadgeText } from '../../lib/findingsBadge';
+import { roleLabel } from '../../lib/roleLabel';
 import { useLiveness } from '../../lib/liveness';
 
 // A React Flow node whose `data` payload is a real graph node.
@@ -48,7 +49,7 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
         <span className="node__dot" style={{ background: dot }} />
         <Icon className="node__icon" size={26} strokeWidth={1.5} />
         <div className="node__label">{label}</div>
-        {data.role && <div className="node__role">{data.role}</div>}
+        {data.role && <div className="node__role">{roleLabel(data.role, data.kind)}</div>}
         {findings && (
           <span className="node__findings" title={`${findingsBadgeText(findings)}-severity configuration finding(s)`}>
             <EuiBadge color={RISK_META[findings.severity].color}>{findingsBadgeText(findings)}</EuiBadge>

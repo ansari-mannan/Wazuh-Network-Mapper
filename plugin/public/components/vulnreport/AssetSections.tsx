@@ -4,6 +4,7 @@ import React from 'react';
 import { EuiBadge, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { GraphNode } from '../../../common';
 import { AssetReport } from '../../lib/report';
+import { roleLabel } from '../../lib/roleLabel';
 import { ConfigFindings, CountsSplit, CveTable, riskChip } from './parts';
 
 interface AssetProps {
@@ -14,7 +15,7 @@ interface AssetProps {
 
 function assetMeta(r: AssetReport) {
   const n = r.node;
-  const role = n.role || n.kind;
+  const role = n.role ? roleLabel(n.role, n.kind) : n.kind;
   return `${role}${n.ip ? ` · ${n.ip}` : ''} · ${r.managed ? 'Managed' : 'Unmanaged'}`;
 }
 
