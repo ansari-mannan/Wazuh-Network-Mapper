@@ -1,7 +1,8 @@
 // The background liveness check (off unless vulnmapper.liveness.enabled): every
 // intervalSeconds, run `python -m vulnmapper.liveness` over the current graph
 // and save liveness.json. It only reads graph.json, whose sole writer is a scan;
-// a suggested rescan starts within the limits in autoRescan.ts.
+// a suggested rescan starts within the limits in autoRescan.ts, and attack
+// paths are recomputed when the inactive hosts change (livenessRecompute.ts).
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -9,7 +10,9 @@ import { Logger } from '../../../src/core/server';
 import { VulnmapperConfig } from './config';
 import { createAutoRescan } from './autoRescan';
 import { configuredChecks } from './config';
-import { getLastChecks, getLastCommunity, getScan, startScan } from './scan';
+import { getLastChecks, getLastCommunity, getScan, runExclusive, startScan } from './scan';
+import { createLivenessRecompute } from './livenessRecompute';
+import { recomputeAttackPaths } from './targets';
 
 
 let timer: NodeJS.Timeout | null = null;
@@ -108,7 +111,7 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
     `liveness check every ${liveness.intervalSeconds}s` +
       (liveness.autoRescan ? `; automatic rescan at most every ${liveness.minRescanIntervalSeconds}s` : '')
   );
-  const onPass = createAutoRescan({
+  const autoRescan = createAutoRescan({
     enabled: liveness.autoRescan,
     minIntervalSeconds: liveness.minRescanIntervalSeconds,
     getScan,
@@ -121,6 +124,18 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
         logger }),
     logger,
   });
+  const recompute = createLivenessRecompute({
+    enabled: liveness.enabled,
+    runExclusive,
+    recompute: () =>
+      recomputeAttackPaths({ pythonBin, backendDir, graphPath, livenessFile: livenessPath(config), logger }),
+    logger,
+  });
+  // a rescan first: a recompute it refuses is retried by the next pass
+  const onPass = (doc: unknown) => {
+    autoRescan(doc);
+    recompute(doc);
+  };
   const tick = () => {
     runPass(config, logger, onPass).catch((e) => logger.warn(`liveness pass failed: ${e.message}`));
   };

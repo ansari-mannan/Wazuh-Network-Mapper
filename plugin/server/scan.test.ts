@@ -1,7 +1,7 @@
 import { mkdtempSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
-import { failureMessage, getScan, latestStage, onPath, scanArgs, startScan } from './scan';
+import { failureMessage, getScan, latestStage, onPath, runExclusive, scanArgs, startScan } from './scan';
 
 const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
 const FILES = ['--vulns-out', '/tmp/v.json', '--paths-out', '/tmp/p.json', '--targets', '/data/targets.json'];
@@ -82,5 +82,25 @@ describe('startScan', () => {
     const [ok] = await ended;
     expect(ok).toBe(false);
     expect(getScan().status).toBe('failed');
+  });
+});
+
+describe('runExclusive', () => {
+  it('shares the scan lock both ways', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-lock-'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const opts = { pythonBin: process.execPath, backendDir: dir, graphPath: path.join(dir, 'graph.json'), logger };
+    let release: () => void = () => undefined;
+    const task = runExclusive(() => new Promise<void>((r) => (release = r)));
+    expect(task).not.toBeNull();
+    expect(startScan(opts)).toBe(false); // no scan during the task
+    expect(runExclusive(async () => undefined)).toBeNull(); // nor a second task
+    release();
+    await task;
+    const ended = new Promise<void>((resolve) => {
+      expect(startScan({ ...opts, onDone: () => resolve() })).toBe(true);
+    });
+    expect(runExclusive(async () => undefined)).toBeNull(); // no task during a scan
+    await ended;
   });
 });

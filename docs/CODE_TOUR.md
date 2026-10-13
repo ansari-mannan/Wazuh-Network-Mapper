@@ -18,7 +18,7 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 | Attack paths | The most likely routes to each asset the owner marked important (NIST IR 7788). With `--liveness`, hosts a liveness pass made for this graph marks inactive are not used as starts | `attackpaths.py` |
 | Liveness | Between scans, re-checks whether the nodes on the map still answer | `liveness/monitor.py`, `liveness/records.py`, `liveness/prober.py`, `liveness/cli.py` |
 | Pipeline | Runs a scan: the inputs, assembly, then each stage in turn | `pipeline.py`, `common.py`, `__main__.py` |
-| Plugin server | The dashboard's HTTP API; starts scans, the timed liveness check and attack-path recomputes as Python processes | `server/routes/index.ts`, `server/scan.ts`, `server/liveness.ts`, `server/autoRescan.ts`, `server/targets.ts`, `server/recommendations.ts`, `server/config.ts` |
+| Plugin server | The dashboard's HTTP API; starts scans, the timed liveness check and attack-path recomputes as Python processes | `server/routes/index.ts`, `server/scan.ts`, `server/liveness.ts`, `server/autoRescan.ts`, `server/livenessRecompute.ts`, `server/targets.ts`, `server/recommendations.ts`, `server/config.ts` |
 | Scheduler | Scans on a timer the owner sets: every 1/3/6/12 hours on the server's local clock, or daily at an hour | `server/schedule.ts` (choice, next-run time, timer), started from `server/plugin.ts` |
 | Scan history | Keeps the last 10 successful scans and compares each with the one before | `server/history.ts` (archive, index, pruning), `public/lib/scanChanges.ts` (what changed), `public/components/scan/ScanHistory.tsx`, `public/components/overview/SinceLastScan.tsx` |
 | Plugin pages | Overview, topology map, scan settings, attack paths, vulnerability report, recommendations | `public/components/<page>/`, shared data hooks and pure helpers in `public/lib/`, file types in `common/types.ts` |
@@ -45,8 +45,10 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 8. The pages read those files through the server's API. While liveness is
    on, the server re-checks the nodes on a timer and writes `liveness.json`;
    the map greys out what has gone, and a change can trigger a new scan.
-   When a protected asset is marked, the server recomputes `attack_paths.json`
-   with `--liveness`: a host that liveness pass marks inactive is listed under
+   When a protected asset is marked, and after a liveness pass whose inactive
+   hosts differ from the last pass's (or the first pass for a new graph), the
+   server recomputes `attack_paths.json` with `--liveness`
+   (`server/livenessRecompute.ts`, never during a scan): a host that liveness pass marks inactive is listed under
    `offline_starts` instead of being a start, but only if the pass was made for
    this graph (its `graph_scan_time` is the graph's `scan_time`). A scan
    itself never uses liveness.json, which always describes the previous graph.

@@ -21,6 +21,19 @@ export function getScan(): ScanState {
   return scan;
 }
 
+// A file-only task that must not overlap a scan (the liveness pass's
+// attack-path recompute). It holds the same lock: no scan starts while it runs.
+let exclusiveTask = false;
+
+/** Run task unless a scan or another such task is running; null if refused. */
+export function runExclusive(task: () => Promise<void>): Promise<void> | null {
+  if (scan.status === 'running' || exclusiveTask) return null;
+  exclusiveTask = true;
+  return task().finally(() => {
+    exclusiveTask = false;
+  });
+}
+
 export function getLastCommunity(): string | undefined {
   return lastCommunity;
 }
@@ -111,8 +124,8 @@ function finish(status: ScanState['status'], message: string) {
 }
 
 /**
- * Start `<pythonBin> -m vulnmapper` in backendDir. Returns false if a scan is
- * already running. The graph JSON arrives on stdout; it is validated and then
+ * Start `<pythonBin> -m vulnmapper` in backendDir. Returns false if a scan (or
+ * a runExclusive task) is already running. The graph JSON arrives on stdout; it is validated and then
  * written to a temp file and renamed over graphPath, so a failed or partial scan
  * always leaves the previous graph in place. The full CVE list goes to
  * vulnerabilities.json beside graphPath: the scanner writes it to a temp path,
@@ -133,7 +146,7 @@ export function startScan({
   onDone,
   logger,
 }: ScanOptions) {
-  if (scan.status === 'running') return false;
+  if (scan.status === 'running' || exclusiveTask) return false;
   scan = { status: 'running', trigger, message: null, stage: null, startedAt: new Date().toISOString(), finishedAt: null };
   onScanDone = onDone;
   // A scan started without one falls back to the environment; keep the last
