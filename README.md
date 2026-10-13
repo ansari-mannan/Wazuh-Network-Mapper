@@ -21,7 +21,13 @@ instead of reading CVE lists per host in isolation.
   likely routes to it from a place assumed already compromised (NIST IR 7788).
 - **Recommendations**: one prioritised, trackable action plan for the network.
 - **Liveness** (optional): between scans, nodes that stop answering are greyed
-  out, and a new device or agent can start a rescan.
+  out, and a new device or agent can start a rescan. A host liveness marks
+  inactive is not used as an attack-path starting point either.
+- **Scheduled scans**: the server can scan on its own every 1, 3, 6 or 12
+  hours or daily at a chosen hour, read-only and with every active check off.
+- **Scan history**: the last 10 successful scans are kept, each with what
+  changed since the one before (hosts and devices added, removed or gone
+  offline, CVEs new and fixed, risk changes) and how long each stage took.
 - **Hosts without an agent** are found in the switches' tables; optional
   checks can ask them over SNMP or service-scan them with nmap.
 
@@ -58,6 +64,16 @@ checkout of OpenSearch Dashboards, or a packaged one on a server) and loads
 `~/.vulnmapper.env`. The plugin is then at http://localhost:5601/app/vulnmapper.
 See `plugin/README.md` for the development setup, the plugin's settings and
 building the zip.
+
+Scheduled scans and the scan history are on the plugin's Scan settings page.
+A schedule is kept in `schedule.json` beside the graph and survives dashboard
+restarts. Scheduled scans take the SNMP credential from the dashboard server's
+environment (`SNMP_COMMUNITIES`, `SNMP_COMMUNITY` or the `SNMP_V3_*`
+variables), never from the scan form, and fail with a message on that page if
+none is set. Times are the server's local time. The history is kept in
+`history/` beside the graph; like the graph, it holds MAC addresses and
+serial numbers, so keep it out of version control (`.gitignore` covers
+`data/history/` and `data/schedule.json`).
 
 ## Documentation
 

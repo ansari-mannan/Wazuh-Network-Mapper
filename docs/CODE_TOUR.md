@@ -15,10 +15,12 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 | CVE lookup | Finds CVEs for network devices in NVD by software version, then the CVSS vector fields of every CVE found | `devicecves/stage.py`, `devicecves/families.py`, `devicecves/lookup.py`, `devicecves/nvd.py`, `devicecves/cache.py`, `devicecves/vectors.py`, `vulnfile.py` |
 | Checklist | Checks each switch's configuration against DISA STIG / SRG rules | `checklist/collect.py`, `checklist/tables.py` (read during the crawl), `checklist/catalogue.py`, `checklist/evaluate.py`, `checklist/stage.py` |
 | Service scan | Optional: nmap service detection on hosts without an agent, then the same NVD lookup | `servicescan/nmap.py`, `servicescan/stage.py` |
-| Attack paths | The most likely routes to each asset the owner marked important (NIST IR 7788) | `attackpaths.py` |
+| Attack paths | The most likely routes to each asset the owner marked important (NIST IR 7788). With `--liveness`, hosts a liveness pass made for this graph marks inactive are not used as starts | `attackpaths.py` |
 | Liveness | Between scans, re-checks whether the nodes on the map still answer | `liveness/monitor.py`, `liveness/records.py`, `liveness/prober.py`, `liveness/cli.py` |
 | Pipeline | Runs a scan: the inputs, assembly, then each stage in turn | `pipeline.py`, `common.py`, `__main__.py` |
 | Plugin server | The dashboard's HTTP API; starts scans, the timed liveness check and attack-path recomputes as Python processes | `server/routes/index.ts`, `server/scan.ts`, `server/liveness.ts`, `server/autoRescan.ts`, `server/targets.ts`, `server/recommendations.ts`, `server/config.ts` |
+| Scheduler | Scans on a timer the owner sets: every 1/3/6/12 hours on the server's local clock, or daily at an hour | `server/schedule.ts` (choice, next-run time, timer), started from `server/plugin.ts` |
+| Scan history | Keeps the last 10 successful scans and compares each with the one before | `server/history.ts` (archive, index, pruning), `public/lib/scanChanges.ts` (what changed), `public/components/scan/ScanHistory.tsx`, `public/components/overview/SinceLastScan.tsx` |
 | Plugin pages | Overview, topology map, scan settings, attack paths, vulnerability report, recommendations | `public/components/<page>/`, shared data hooks and pure helpers in `public/lib/`, file types in `common/types.ts` |
 
 ## How data moves through a scan
@@ -38,9 +40,41 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 6. The scanner writes `graph.json`, `vulnerabilities.json` (every CVE
    finding) and `attack_paths.json` (routes to the protected assets). The
    server swaps them in only if the scan succeeded.
-7. The pages read those files through the server's API. While liveness is
+7. On success the server also archives the three files in the scan history
+   (below). A failed scan is not archived.
+8. The pages read those files through the server's API. While liveness is
    on, the server re-checks the nodes on a timer and writes `liveness.json`;
    the map greys out what has gone, and a change can trigger a new scan.
+   When a protected asset is marked, the server recomputes `attack_paths.json`
+   with `--liveness`: a host that liveness pass marks inactive is listed under
+   `offline_starts` instead of being a start, but only if the pass was made for
+   this graph (its `graph_scan_time` is the graph's `scan_time`). A scan
+   itself never uses liveness.json, which always describes the previous graph.
+
+Three things start a scan, and all go through `startScan` in `server/scan.ts`,
+which runs one scan at a time: the scan form (`manual`), the liveness check's
+automatic rescan (`automatic`) and the schedule (`scheduled`). A scheduled
+slot that finds a scan running is skipped and logged, and the next slot is
+armed. Scheduled scans run with every active check off and take the SNMP
+credential from the server environment only.
+
+## Files beside the graph
+
+| File | Written by | Holds |
+|---|---|---|
+| `graph.json`, `vulnerabilities.json`, `attack_paths.json` | a scan; attack paths also by a recompute | the scan's output |
+| `targets.json` | the protected-asset control | the owner's important assets |
+| `recommendations.json` | the Recommendations page | each action's status |
+| `liveness.json` | the liveness check | each node's last liveness state, and the graph's `scan_time` it was made for |
+| `schedule.json` | `server/schedule.ts` | the schedule choice and the last scheduled run (time, result, message); never a credential. Read when the server starts, which re-arms the timer |
+| `history/index.json` | `server/history.ts` | one summary per archived scan, newest first: id, time, trigger, files, counts, `metadata.stages`. The newest 10 are kept |
+| `history/<id>/` | `server/history.ts` | copies of that scan's three output files; the folder is deleted when its entry is pruned |
+
+`GET /api/vulnmapper/history/:id/changes` returns one archived scan's files
+and the previous scan's; the id must have the history id format and be in the
+index. The browser computes what changed (`public/lib/scanChanges.ts`) with
+the shared offline rule, so a host whose agent disconnected shows as gone
+offline, not removed.
 
 ## Stages, in pipeline order
 
