@@ -1,8 +1,7 @@
 // How the map shows one route ("Show on map" from Attack paths). The route's
 // nodes get a numbered ring in travel order, with Start and Target tags, and
-// its links an arrowhead pointing the way the route travels. Nothing else
-// changes for a device: a switch, router or access point off the route is
-// drawn as on the normal map. Only hosts off the route fade.
+// its links an arrowhead pointing the way the route travels. Every node off the
+// route fades, devices and hosts alike.
 
 /** A node's place on the route: its step number (1 = start) and end tag. */
 export interface RouteMark {
@@ -50,20 +49,18 @@ export function routeArrows(
 
 /**
  * The node's extra class in the spotlight: 'vmOnRoute' (the ring) for a node
- * on the route, 'vmDim' for a host off it, '' for everything else (devices
- * off the route, and every node when no route is shown).
+ * on the route, 'vmDim' for any node off it, '' when no route is shown.
  *
  * ``onRoute`` comes from the route walk; links from older bookmarks carry only
  * the highlight and pass-through sets, which then decide it.
  */
 export function highlightClass(
-  node: { id: string; kind: string },
+  id: string,
   highlight: Set<string> | null,
   passThrough: Set<string>,
   marks: Map<string, RouteMark> | null = null
 ): string {
   if (!highlight) return '';
-  const onRoute = marks ? marks.has(node.id) : highlight.has(node.id) || passThrough.has(node.id);
-  if (onRoute) return 'vmOnRoute';
-  return node.kind === 'device' ? '' : 'vmDim';
+  const onRoute = marks ? marks.has(id) : highlight.has(id) || passThrough.has(id);
+  return onRoute ? 'vmOnRoute' : 'vmDim';
 }

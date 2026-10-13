@@ -269,12 +269,12 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
     }
 
     // Spotlight one route (highlight.ts): its nodes ringed and numbered in
-    // travel order, its links pointing the way it travels; hosts off it fade,
-    // devices never do.
+    // travel order, its links pointing the way it travels; every node off it
+    // fades.
     const lit = (id: string) => highlight!.has(id) || passThrough.has(id);
     const displayNodes = nodes.map((n) => {
       const sel = n.id === selectedId;
-      const className = highlightClass({ id: n.id, kind: n.data.kind }, highlight, passThrough, marks);
+      const className = highlightClass(n.id, highlight, passThrough, marks);
       const route = (highlight && marks?.get(n.id)) || undefined;
       return n.selected === sel && (n.className || '') === className && n.data.route === route
         ? n

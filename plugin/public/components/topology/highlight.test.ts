@@ -47,17 +47,22 @@ describe('highlightClass', () => {
   const pass = new Set(['device:hp']);
 
   it('leaves every node as drawn when no route is shown', () => {
-    expect(highlightClass({ id: 'host:x', kind: 'endpoint' }, null, new Set(), null)).toBe('');
+    expect(highlightClass('host:x', null, new Set(), null)).toBe('');
   });
 
   it('rings every node on the route, devices and hosts alike', () => {
-    expect(highlightClass({ id: 'device:hp', kind: 'device' }, route, pass, marks)).toBe('vmOnRoute');
-    expect(highlightClass({ id: 'host:cyfor4', kind: 'endpoint' }, route, pass, marks)).toBe('vmOnRoute');
+    expect(highlightClass('device:hp', route, pass, marks)).toBe('vmOnRoute');
+    expect(highlightClass('host:cyfor4', route, pass, marks)).toBe('vmOnRoute');
   });
 
-  it('draws a device off the route as on the normal map and dims a host off it', () => {
-    expect(highlightClass({ id: 'device:l2', kind: 'device' }, route, pass, marks)).toBe('');
+  it('fades every node off the route, devices and hosts alike', () => {
+    expect(highlightClass('device:l2', route, pass, marks)).toBe('vmDim');
     expect(marks.has('device:l2')).toBe(false); // so no step badge or tag either
-    expect(highlightClass({ id: 'host:x', kind: 'endpoint' }, route, pass, marks)).toBe('vmDim');
+    expect(highlightClass('host:x', route, pass, marks)).toBe('vmDim');
+  });
+
+  it('fades an off-route device on old links without the walk too', () => {
+    expect(highlightClass('device:l2', route, pass, null)).toBe('vmDim');
+    expect(highlightClass('device:hp', route, pass, null)).toBe('vmOnRoute');
   });
 });

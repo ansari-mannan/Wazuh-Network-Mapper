@@ -75,7 +75,7 @@
     box-shadow: 0 0 0 3px rgba($euiColorPrimary, 0.45), var(--vm-shadow);
   }
 
-  // Showing one route (Attack paths "Show on map"). Hosts off the route fade
+  // Showing one route (Attack paths "Show on map"). Every node off it fades
   // back. A node on it gets an outer ring, a step number and, at either end, a
   // Start or Target tag, all in a colour no risk band uses (lib/theme.ts
   // graphColors.route), so its risk border keeps its meaning.
