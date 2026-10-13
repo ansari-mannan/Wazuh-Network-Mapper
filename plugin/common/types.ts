@@ -338,6 +338,33 @@ export type ScheduleResponse = ScheduleFile & {
   timeZone: string; // the server's IANA time zone, for display
 };
 
+// Scan history (history/index.json beside the graph, newest first, last 10;
+// GET /api/vulnmapper/history and /api/vulnmapper/history/:id/changes).
+export type HistoryEntry = {
+  id: string; // the finish time, folder-safe: 2026-10-13T10-30-00-000Z
+  time: string; // ISO
+  trigger: ScanTrigger;
+  files: string[]; // which of graph.json, vulnerabilities.json, attack_paths.json were archived
+  counts: {
+    devices: number;
+    endpoints: number;
+    cvesConfirmed: number; // distinct CVEs per asset, summed
+    cvesPotential: number;
+    configFindings: number;
+  };
+  stages: ScanStageOutcome[]; // the scan's metadata.stages
+};
+
+export type ArchivedScan = {
+  entry: HistoryEntry;
+  graph: GraphResponse;
+  vulns: VulnerabilitiesDoc | null;
+  attackPaths: AttackPathsDoc | null;
+};
+
+// GET /api/vulnmapper/history/:id/changes: the scan and the one before it.
+export type HistoryChangesResponse = { current: ArchivedScan; previous: ArchivedScan | null };
+
 // The scan's optional active checks, each off unless the owner turns it on
 // (config vulnmapper.<key>; the scan form's choice wins per scan).
 export type ActiveChecks = {

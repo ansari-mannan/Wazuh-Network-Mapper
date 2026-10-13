@@ -6,6 +6,7 @@ import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { ActiveChecks, ScanState, ScanTrigger } from '../common';
 import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
+import { archiveScan } from './history';
 
 // One module-level state object: the server process runs one scan at a time.
 let scan: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
@@ -118,7 +119,8 @@ function finish(status: ScanState['status'], message: string) {
  * which is moved into place only after the graph has been saved and deleted if
  * the scan or the save fails, so the two files always come from the same scan.
  * attack_paths.json (computed from targets.json beside the graph) is handled
- * the same way.
+ * the same way. A scan whose three files were all saved is then archived in
+ * the scan history (history.ts); a failed one is not.
  */
 export function startScan({
   pythonBin,
@@ -205,6 +207,9 @@ export function startScan({
       });
       finish('idle', 'Scan completed; graph updated.');
       logger.info('scan completed; graph updated');
+      archiveScan(graphPath, trigger).catch((e) =>
+        logger.warn(`scan completed, but it could not be added to the scan history: ${(e as Error).message}`)
+      );
     } catch (e) {
       // The graph is saved; only the full CVE list is stale.
       finish('idle', `Scan completed; graph updated, but vulnerabilities.json or attack_paths.json was not: ${(e as Error).message}`);

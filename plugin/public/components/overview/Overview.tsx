@@ -22,6 +22,7 @@ import { useGraph } from '../../lib/graph';
 import { useServices } from '../../lib/services';
 import { ThemeToggle } from '../layout/ThemeToggle';
 import { SummaryPanels } from './SummaryPanels';
+import { SinceLastScan } from './SinceLastScan';
 
 function PageCards() {
   const { history } = useServices();
@@ -79,6 +80,7 @@ export function Overview() {
             <EuiSpacer size="m" />
           </>
         )}
+        <SinceLastScan />
         {graph ? (
           <SummaryPanels graph={graph} />
         ) : (

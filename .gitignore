@@ -34,6 +34,8 @@ data/targets.json
 data/nvd-cache.json
 # the scan schedule (plugin: the choice and the last scheduled run)
 data/schedule.json
+# scan history: copies of each scan's files (MACs, serials) and their index
+data/history/
 
 # Serena (editor agent) project files
 .serena/

@@ -6,12 +6,12 @@ import { ScanStageOutcome } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { formatTime } from './ScanStatus';
 
-function ScanStages({ stages }: { stages: ScanStageOutcome[] }) {
+export function ScanStages({ stages, title = 'Last scan, stage by stage' }: { stages: ScanStageOutcome[]; title?: string }) {
   return (
     <>
       <EuiSpacer size="m" />
       <EuiTitle size="xxs">
-        <h3>Last scan, stage by stage</h3>
+        <h3>{title}</h3>
       </EuiTitle>
       <EuiSpacer size="s" />
       <EuiBasicTable<ScanStageOutcome>

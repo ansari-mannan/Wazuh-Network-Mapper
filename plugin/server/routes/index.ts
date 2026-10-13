@@ -1,6 +1,6 @@
 // The plugin's HTTP API: the graph and the other files beside it, starting a
-// scan, its status and schedule, liveness, protected assets and recommendation
-// statuses.
+// scan, its status, schedule and history, liveness, protected assets and
+// recommendation statuses.
 import { promises as fs } from 'fs';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';
@@ -9,6 +9,7 @@ import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, onPath, startScan } from '../scan';
 import { scheduleBody, Scheduler } from '../schedule';
+import { historyDir, historyParams, readChanges, readIndex } from '../history';
 import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 
@@ -298,6 +299,38 @@ export function defineRoutes(
       if (!scheduler) return response.customError(notConfigured(config.backendDir ? 'graphPath' : 'backendDir'));
       await scheduler.set(request.body);
       return response.ok({ body: scheduler.get() });
+    }
+  );
+
+  // The scan history's index (newest first; [] before the first archived scan).
+  router.get(
+    { path: '/api/vulnmapper/history', validate: false },
+    async (context, request, response) => {
+      if (!config.graphPath) return response.customError(notConfigured('graphPath'));
+      return response.ok({ body: await readIndex(historyDir(config.graphPath)) });
+    }
+  );
+
+  // One archived scan's files and the previous scan's, for "what changed".
+  // The id must match the id format and be in the index (readChanges), so it
+  // can never name another path.
+  router.get(
+    {
+      path: '/api/vulnmapper/history/{id}/changes',
+      validate: { params: historyParams },
+    },
+    async (context, request, response) => {
+      if (!config.graphPath) return response.customError(notConfigured('graphPath'));
+      try {
+        const body = await readChanges(config.graphPath, request.params.id);
+        if (!body) return response.notFound({ body: { message: 'no such scan in the history' } });
+        return response.ok({ body });
+      } catch (e) {
+        return response.customError({
+          statusCode: 500,
+          body: { message: `could not read the archived scan: ${(e as Error).message}` },
+        });
+      }
     }
   );
 

@@ -7107,6 +7107,20 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmScanHistory\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scan history</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The last 10 successful scans. Select one to see what changed since the scan before it.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
@@ -7536,6 +7550,20 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmScanHistory\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scan history</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The last 10 successful scans. Select one to see what changed since the scan before it.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
@@ -7955,6 +7983,20 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmScanHistory\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scan history</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The last 10 successful scans. Select one to see what changed since the scan before it.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
@@ -8364,6 +8406,20 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
 <p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmScanHistory\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scan history</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The last 10 successful scans. Select one to see what changed since the scan before it.</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -8797,6 +8853,20 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
 <p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmScanHistory\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scan history</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The last 10 successful scans. Select one to see what changed since the scan before it.</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--m\\">

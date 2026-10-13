@@ -6,16 +6,15 @@ import ReactDOM from 'react-dom';
 import { act } from 'react-dom/test-utils';
 import { ScheduleResponse } from '../../../common';
 
-const schedule: ScheduleResponse = {
+const mockSchedule: ScheduleResponse = {
   frequency: 'daily',
   dailyHour: 2,
   nextRun: '2026-10-14T02:00:00.000Z',
   timeZone: 'UTC',
   lastRun: { at: '2026-10-13T02:00:00.000Z', status: 'failed', message: 'No SNMP credential is set in the dashboard server environment' },
 };
-jest.mock('../../lib/services', () => ({
-  useServices: () => ({ http: { get: async () => schedule }, notifications: {} }),
-}));
+const mockServices = { http: { get: async () => mockSchedule }, notifications: {} };
+jest.mock('../../lib/services', () => ({ useServices: () => mockServices }));
 jest.mock('../../lib/scan', () => ({ useScan: () => ({ scan: null }) }));
 
 import { ScheduledScans } from './ScheduledScans';
