@@ -28,7 +28,7 @@ export function CustomNode({ data }: NodeProps<GraphNode>) {
   // At-a-glance colour = worse of the CVE band and the worst config finding, so a
   // device with no CVE score but a high finding is not shown grey (see displayRiskLevel).
   const border = riskBorderForLevel(displayRiskLevel(risk, findings?.severity ?? null));
-  const dimmed = data.stale || isOffline(data.status, liveness);
+  const dimmed = data.stale || isOffline(data, livenessContext);
   const label = data.hostname || data.ip || data.node_id;
 
   return (

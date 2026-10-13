@@ -78,7 +78,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   const Icon = iconForRole(node.role);
   const score = nodeRiskScore(node);
   const level = riskLevel(score);
-  const offline = isOffline(node.status, nodeLiveness);
+  const offline = isOffline(node, liveness);
   const cves = node.top_cves || [];
   // Absent in older graph files (and null when unscored): keep the old display.
   const summary = node.cve_summary || null;

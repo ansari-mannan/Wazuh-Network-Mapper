@@ -2,7 +2,8 @@
 // Risk is shown by the border, never by recoloring the whole node.
 // The risk bands come from the shared riskLevel() so the map agrees with the overview.
 import { RISK_META, RiskLevel } from '../../lib/risk';
-import { NodeLiveness } from '../../../common';
+import { GraphNode, LivenessResponse, NodeLiveness } from '../../../common';
+import { isOfflineHost } from './inactive';
 
 export function riskLabel(score: number | null | undefined): string {
   if (score === null || score === undefined) return 'unknown';
@@ -47,13 +48,17 @@ export function riskBorderForLevel(level: RiskLevel): RiskBorder {
 }
 
 /**
- * Offline = a host/device that isn't currently present. Endpoints report
- * "disconnected", FDB-discovered hosts "discovered"; online states are "online"
- * (devices) and "active" (endpoints). Offline nodes are dimmed + dashed.
+ * Whether the map dims a node (dashed, faded). A host follows the shared offline
+ * rule (inactive.ts), so the map, the report and the recommendations agree. A
+ * device is never offline under that rule, since it stays on the map: it is
+ * dimmed when liveness reports it inactive, or when it is only known from a
+ * neighbour's table.
  */
-export function isOffline(status: string | null | undefined, liveness?: NodeLiveness): boolean {
-  if (liveness && liveness.state === 'active') return false;
-  if (liveness && liveness.state === 'inactive') return true;
-  const s = (status || '').toLowerCase();
+export function isOffline(node: GraphNode, liveness: LivenessResponse | null | undefined): boolean {
+  if (node.kind === 'endpoint') return isOfflineHost(node, liveness);
+  const state = liveness?.nodes?.[node.node_id]?.state;
+  if (state === 'active') return false;
+  if (state === 'inactive') return true;
+  const s = (node.status || '').toLowerCase();
   return s === 'disconnected' || s === 'discovered';
 }

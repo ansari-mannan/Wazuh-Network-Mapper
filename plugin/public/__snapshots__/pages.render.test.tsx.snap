@@ -6419,12 +6419,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">10.0.0.60</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">host · snmp_fdb <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">offline</span>
-</span>
-</span>
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(241, 216, 111); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmUnmanaged\\" title=\\"Unmanaged\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">host · snmp_fdb <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(241, 216, 111); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmUnmanaged\\" title=\\"Unmanaged\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">Unmanaged</span>
 </span>
@@ -6628,12 +6623,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 <div class=\\"euiFlexItem\\">
 <h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">L2-Switch</h2>
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">host · snmp_fdb <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"offline\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">offline</span>
-</span>
-</span>
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(241, 216, 111); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmUnmanaged\\" title=\\"Unmanaged\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">host · snmp_fdb <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(241, 216, 111); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmUnmanaged\\" title=\\"Unmanaged\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">Unmanaged</span>
 </span>
