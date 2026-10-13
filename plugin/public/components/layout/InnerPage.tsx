@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { EuiButtonEmpty, EuiPage, EuiPageBody, EuiPageHeader, EuiSpacer } from '@elastic/eui';
 import { PageDef, PAGES } from '../../pages';
 import { useServices } from '../../lib/services';
+import { ThemeToggle } from './ThemeToggle';
 
 interface InnerPageProps {
   page: PageDef;
@@ -32,7 +33,7 @@ export function InnerPage({ page, children, rightSideItems, className }: InnerPa
         </div>
         <EuiPageHeader
           pageTitle={page.title}
-          rightSideItems={rightSideItems}
+          rightSideItems={[<ThemeToggle key="theme" />, ...(rightSideItems || [])]}
           tabs={PAGES.map((p) => ({
             label: p.title,
             isSelected: p.id === page.id,

@@ -6,11 +6,11 @@ import { AppMountParameters, CoreStart } from '../../../src/core/public';
 import { VulnmapperApp } from './components/app';
 
 export const renderApp = (
-  { http, chrome, notifications }: CoreStart,
+  { http, chrome, notifications, uiSettings }: CoreStart,
   { element, history }: AppMountParameters
 ) => {
   ReactDOM.render(
-    <VulnmapperApp services={{ http, chrome, notifications, history }} />,
+    <VulnmapperApp services={{ http, chrome, notifications, uiSettings, history }} />,
     element
   );
 

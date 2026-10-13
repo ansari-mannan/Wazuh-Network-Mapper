@@ -291,7 +291,10 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
         });
 
     return (
-      <div className="canvas">
+      <div
+        className="canvas"
+        style={{ '--vm-route': graphColors.route, '--vm-route-text': graphColors.routeText } as CSSProperties}
+      >
         <ReactFlow
           nodes={displayNodes}
           edges={displayEdges}

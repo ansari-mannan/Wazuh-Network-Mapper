@@ -242,6 +242,10 @@
     background: #fff !important;
     color: #000 !important;
   }
+  /* the chart track follows the theme on screen; on paper it is always light */
+  .vmReport .vmChartTrack {
+    fill: #eef0f3 !important;
+  }
   .vmReport *:not(.vmChip__dot):not(.vmChartSeg):not(.vmChartTrack) {
     background: transparent !important;
     color: #000 !important;

@@ -20,6 +20,7 @@ import { PLUGIN_NAME } from '../../../common';
 import { PAGE_GROUPS, PAGES } from '../../pages';
 import { useGraph } from '../../lib/graph';
 import { useServices } from '../../lib/services';
+import { ThemeToggle } from '../layout/ThemeToggle';
 import { SummaryPanels } from './SummaryPanels';
 
 function PageCards() {
@@ -65,7 +66,7 @@ export function Overview() {
   return (
     <EuiPage>
       <EuiPageBody component="main">
-        <EuiPageHeader pageTitle={PLUGIN_NAME} />
+        <EuiPageHeader pageTitle={PLUGIN_NAME} rightSideItems={[<ThemeToggle key="theme" />]} />
         <EuiSpacer size="m" />
         {error && (
           <>

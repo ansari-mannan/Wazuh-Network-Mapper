@@ -18,6 +18,7 @@ import { plural } from '../../lib/deviceCveText';
 import { CONFIG_SEVERITIES, configFindingCounts, severityLabel } from '../../lib/checklistText';
 import { coverageText } from '../../lib/hostText';
 import { RISK_META } from '../../lib/risk';
+import { riskTextColors } from '../../lib/theme';
 import { configSeverityColor } from '../topology/ConfigChecks';
 import { Donut } from './Donut';
 
@@ -175,7 +176,7 @@ export function SummaryPanels({ graph }: { graph: GraphResponse }) {
                     title={l.value}
                     description={l.label}
                     titleSize="m"
-                    titleColor={l.color}
+                    titleColor={riskTextColors[l.level]}
                     reverse
                   />
                 </div>
