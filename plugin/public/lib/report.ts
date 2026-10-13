@@ -10,7 +10,7 @@ import {
   Tier,
   VulnerabilitiesDoc,
 } from '../../common';
-import { NodeLevel, nodeLevel, riskLevel, tierRank, TIERS } from './riskRule';
+import { NodeLevel, nodeLevel, riskLevel, TIERS } from './riskRule';
 
 
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'unknown';
@@ -130,10 +130,10 @@ export function buildAssetReports(
         version: f.version,
       });
     }
-    // Worst-first: by OVSS tier and score, then CVSS (nulls last), then CVE id.
+    // Worst-first: by OVSS, then CVSS (nulls last), then CVE id, as the
+    // graph's top_cves; the CVE that sets the asset's score comes first.
     cves.sort(
       (a, b) =>
-        tierRank(b.tier === 'Unrated' ? null : b.tier) - tierRank(a.tier === 'Unrated' ? null : a.tier) ||
         (b.score ?? -1) - (a.score ?? -1) ||
         (b.cvss ?? -1) - (a.cvss ?? -1) ||
         SEVERITY_RANK[b.severity] - SEVERITY_RANK[a.severity] ||

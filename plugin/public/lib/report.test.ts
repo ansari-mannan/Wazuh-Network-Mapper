@@ -186,7 +186,7 @@ describe('ranking by tier histogram', () => {
 });
 
 describe('OVSS on CVE rows', () => {
-  it('carries each finding\'s tier, KEV, EPSS and source, ordered by tier then score', () => {
+  it('carries each finding\'s tier, KEV, EPSS and source, ordered by OVSS then CVSS', () => {
     const web = byId('endpoint:web');
     expect(web.cves.map((c) => c.cve)).toEqual(['CVE-A', 'CVE-C', 'CVE-B']);
     expect(web.cves[0]).toMatchObject({ tier: 'P0', score: 7.35, kev: true, epss: 0.2, cvss_src: 'CNA', cvss_ver: '3.1', conflict: 0 });

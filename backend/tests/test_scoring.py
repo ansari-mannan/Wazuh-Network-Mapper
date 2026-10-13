@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 from test_nvd import FakeClock
-from vulnmapper.scoring import cvss_select, feeds, ovss
+from vulnmapper.scoring import cvss_select, feeds, ovss, stage
 from vulnmapper.scoring.cvss_select import CveRecords, records_cache, select, trim_record
 
 KEV_URL, EPSS_URL = feeds.KEV_URL, feeds.EPSS_URL
@@ -297,6 +297,47 @@ class TestCveRecords(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestTopCves(unittest.TestCase):
+    """top_cves: the node's worst CVEs by OVSS, then CVSS, built from the findings."""
+
+    def setUp(self):
+        # eleven 9.x CVEs fill the old CVSS top 10; a 5.0 KEV CVE sets the node's score
+        self.catalogue = {f"CVE-H{i}": {"cvss": 9.0 + i / 100, "cvss_version": "3.1",
+                                        "severity": "Critical", "description": "d",
+                                        "reference": None, "published_at": None}
+                          for i in range(11)}
+        self.catalogue["CVE-KEV"] = {"cvss": 5.0, "cvss_version": "3.1", "severity": "Medium",
+                                     "description": "kev", "reference": "https://x",
+                                     "published_at": None, "attack_vector": "NETWORK"}
+        self.findings = [{"cve": c, "package": "p", "version": "1", "detected_at": None}
+                         for c in self.catalogue]
+        self.per_cve = {c: finding(e["cvss"], cve=c, kev=c == "CVE-KEV")
+                        for c, e in self.catalogue.items()}
+        old_top = [{"cve": c, **self.catalogue[c], **self.per_cve[c]}
+                   for c in sorted(self.catalogue, key=lambda c: -self.catalogue[c]["cvss"])[:10]]
+        self.rows = stage.top_cves(old_top, self.findings, self.per_cve, self.catalogue)
+
+    def test_the_cve_that_sets_the_score_is_listed_first(self):
+        self.assertEqual(len(self.rows), 10)
+        self.assertEqual(self.rows[0]["cve"], "CVE-KEV")
+        self.assertEqual(self.rows[0]["score"], max(r["score"] for r in self.per_cve.values()))
+
+    def test_a_new_row_has_the_row_shape(self):
+        self.assertEqual(list(self.rows[0])[:10], ["cve", "cvss", "cvss_version", "severity",
+                                                   "package", "version", "description",
+                                                   "reference", "published_at", "detected_at"])
+        self.assertEqual((self.rows[0]["attack_vector"], self.rows[0]["kev"]), ("NETWORK", True))
+
+    def test_then_by_cvss(self):
+        rest = self.rows[1:]
+        self.assertEqual([r["cvss"] for r in rest], sorted((r["cvss"] for r in rest), reverse=True))
+
+    def test_without_findings_rows_are_only_reordered(self):
+        rows = [{"cve": "A", "score": 1.0, "cvss": 9.8}, {"cve": "B", "score": 4.0, "cvss": 5.0},
+                {"cve": "C", "score": None, "cvss": None}]
+        self.assertEqual([r["cve"] for r in stage.top_cves(rows, None, {}, {})], ["B", "A", "C"])
 
 
 # --- for the tests that compare a pipeline run with output frozen before OVSS ---

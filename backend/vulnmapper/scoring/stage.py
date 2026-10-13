@@ -15,6 +15,8 @@ from collections import Counter
 from typing import TYPE_CHECKING, Optional
 
 from ..common import StageResult, plural
+from ..devicecves.nvd import VECTOR_FIELDS
+from ..endpoints.findings import TOP_CVES
 from .cvss_select import FILENAME as RECORDS_FILENAME, CveRecords, records_cache
 from .feeds import UNAVAILABLE, Threat, load_threat
 from .ovss import (CONFIRMED, POTENTIAL, TIERS, UNRATED, dependency_of, exposure_of,
@@ -25,6 +27,41 @@ if TYPE_CHECKING:
     from ..pipeline import ScanContext
 
 WARNING = "threat_feeds_unavailable"
+
+
+def ovss_order(row: dict) -> tuple:
+    """Highest OVSS first (Unrated last), then highest CVSS, then CVE id."""
+    score, cvss = row.get("score"), row.get("cvss")
+    return (score is None, -(score or 0), cvss is None, -(cvss or 0), row.get("cve") or "")
+
+
+# A top_cves row as the CVE stages write it (endpoints.parse_hit), in key order.
+_CATALOGUE_KEYS = ("cvss", "cvss_version", "severity")
+_TEXT_KEYS = ("description", "reference", "published_at")
+
+
+def top_cves(current: list, findings: Optional[list], per_cve: dict, catalogue: dict) -> list:
+    """The node's TOP_CVES rows by OVSS, then CVSS, so the CVE that sets the
+    node's score is always listed. With the full findings, a CVE not yet among
+    the rows is built from its first finding and the catalogue, in the row
+    shape the CVE stages use; without them, the rows are only reordered."""
+    if findings is None:
+        return sorted(current, key=ovss_order)[:TOP_CVES]
+    have = {r.get("cve"): r for r in current}
+    first: dict = {}
+    for f in findings:
+        first.setdefault(f.get("cve"), f)
+    rows = []
+    for cve, record in per_cve.items():
+        row = have.get(cve)
+        if row is None:
+            f, c = first[cve], catalogue.get(cve) or {}
+            row = {"cve": cve, **{k: c.get(k) for k in _CATALOGUE_KEYS},
+                   "package": f.get("package"), "version": f.get("version"),
+                   **{k: c.get(k) for k in _TEXT_KEYS}, "detected_at": f.get("detected_at"),
+                   **{k: c[k] for k in VECTOR_FIELDS if k in c}, **record}
+        rows.append(row)
+    return sorted(rows, key=ovss_order)[:TOP_CVES]
 
 
 def score_graph(graph: dict, vulns: dict, targets: Optional[dict], engine: "AttackPathEngine",
@@ -66,6 +103,8 @@ def score_graph(graph: dict, vulns: dict, targets: Optional[dict], engine: "Atta
             f.update(per_cve[cve])
         for r in node.get("top_cves") or []:      # the rows the dashboard lists
             r.update(per_cve.get(r.get("cve")) or {})
+        if "top_cves" in node:
+            node["top_cves"] = top_cves(node["top_cves"], findings, per_cve, catalogue)
         rollup = node_record(list(per_cve.values()), cve_lookup=node.get("cve_lookup"),
                              exposure=exposure, exposure_flag=flag, dependency=dependency,
                              importance=weight)

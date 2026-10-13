@@ -3943,48 +3943,6 @@ Not a real advisory.</p>
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2026-90002</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.1 (v3.1)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Critical · 9.1 (v3.1)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.344\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 2.344</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · CNA · v3.1<span class=\\"vmConflict\\" title=\\"The CNA score (7.5) differs from the scanner's (9.1) by 1.0 or more; OVSS uses the CNA score.\\" aria-label=\\"The CNA score (7.5) differs from the scanner's (9.1) by 1.0 or more; OVSS uses the CNA score.\\"> ≠</span>
-</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>lib2 · 1.0</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.
-Not a real advisory.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
 <strong class=\\"vmMono\\">CVE-2026-90003</strong>
 </div>
 </div>
@@ -4058,6 +4016,48 @@ Not a real advisory.</p>
 </div>
 <div class=\\"euiText euiText--extraSmall vmCveDesc\\">
 <p>Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.
+Not a real advisory.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2026-90002</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.1 (v3.1)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical · 9.1 (v3.1)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.344\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 2.344</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · CNA · v3.1<span class=\\"vmConflict\\" title=\\"The CNA score (7.5) differs from the scanner's (9.1) by 1.0 or more; OVSS uses the CNA score.\\" aria-label=\\"The CNA score (7.5) differs from the scanner's (9.1) by 1.0 or more; OVSS uses the CNA score.\\"> ≠</span>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>lib2 · 1.0</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.
 Not a real advisory.</p>
 </div>
 </div>
