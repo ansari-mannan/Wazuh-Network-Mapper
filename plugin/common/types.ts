@@ -459,8 +459,9 @@ export type AttackPathsDoc = {
   starting_points: AttackStartingPoint[];
   per_asset: AttackAsset[];
   not_placed: Array<{ id: string; reason: string }>;
-  // managed hosts not used as starts because their Wazuh agent is offline;
-  // absent in older files
+  // hosts not used as starts because their Wazuh agent is offline or (when
+  // the recompute had a liveness pass for this graph) liveness marks them
+  // inactive; absent in older files
   offline_starts?: Array<{ id: string; kind: AttackStartKind; reason: 'offline'; detail: string }>;
 };
 

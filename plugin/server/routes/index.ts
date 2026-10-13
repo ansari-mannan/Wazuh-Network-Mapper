@@ -149,7 +149,13 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
         });
       }
       try {
-        await recomputeAttackPaths({ pythonBin, backendDir, graphPath, logger });
+        await recomputeAttackPaths({
+          pythonBin,
+          backendDir,
+          graphPath,
+          livenessFile: config.liveness.enabled ? livenessPath(config) : null,
+          logger,
+        });
       } catch (e) {
         return response.customError({
           statusCode: 500,

@@ -41,22 +41,27 @@ export function applyTarget(current: TargetsFile, id: string, importance: Import
 /**
  * Run `<pythonBin> -m vulnmapper.attackpaths --graph <graphPath>` in backendDir,
  * which rewrites attack_paths.json (and reads targets.json) beside the graph.
- * No credential is passed: the path is the only argument. Resolves on success,
- * rejects with the scanner's last stderr line otherwise.
+ * With livenessFile (liveness on), hosts its pass marks inactive are not used
+ * as starts, provided the pass was made for this graph. No credential is
+ * passed: paths are the only arguments. Resolves on success, rejects with the
+ * scanner's last stderr line otherwise.
  */
 export function recomputeAttackPaths({
   pythonBin,
   backendDir,
   graphPath,
+  livenessFile,
   logger,
 }: {
   pythonBin: string;
   backendDir: string;
   graphPath: string;
+  livenessFile?: string | null;
   logger: Logger;
 }): Promise<void> {
   return new Promise((resolve, reject) => {
     const args = ['-m', 'vulnmapper.attackpaths', '--graph', graphPath];
+    if (livenessFile) args.push('--liveness', livenessFile);
     logger.info(`attack-paths recompute: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
     const child = spawn(pythonBin, args, { cwd: backendDir });
     let stderr = '';

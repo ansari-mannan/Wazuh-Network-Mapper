@@ -191,6 +191,38 @@ class TestRoutesAndStarts(unittest.TestCase):
         self.assertEqual(doc["metadata"]["counts"]["offline_starts"], 2)
         self.assertEqual({r["start"] for r in doc["targets"][0]["routes"]}, {"endpoint:004"})
 
+    # liveness.json beside the graph: used only when made for this graph
+    def _liveness_case(self, graph_scan_time):
+        mannan = host("endpoint:005", 10, cves=[cve("C", 9.0)], agent="005")
+        mannan["status"] = "active"                     # Wazuh still says active
+        nodes = [mannan, host("endpoint:009", 10, cves=[cve("C", 9.0)], agent="009")]
+        live = None if graph_scan_time is False else {
+            "graph_scan_time": graph_scan_time,
+            "nodes": {"endpoint:005": {"state": "inactive"}, "endpoint:009": {"state": "active"}}}
+        return ap.compute(graph(nodes), {"endpoint:009": {"importance": "high"}}, None,
+                          liveness=live)
+
+    def test_fresh_liveness_makes_an_inactive_host_offline(self):
+        doc = self._liveness_case("2026-10-10T00:00:00+00:00")
+        self.assertEqual(doc["offline_starts"], [
+            {"id": "endpoint:005", "kind": "managed_host", "reason": "offline",
+             "detail": "not answering the liveness check"}])
+        self.assertEqual([s["id"] for s in doc["starting_points"]], ["endpoint:009"])
+
+    def test_stale_liveness_changes_nothing(self):
+        stale = self._liveness_case("2026-10-09T00:00:00+00:00")
+        absent = self._liveness_case(False)
+        for doc in (stale, absent):
+            del doc["metadata"]["computed_at"]
+        self.assertEqual(stale, absent)
+        self.assertEqual(stale["offline_starts"], [])
+        self.assertIn("endpoint:005", [s["id"] for s in stale["starting_points"]])
+
+    def test_absent_liveness_changes_nothing(self):
+        doc = self._liveness_case(False)
+        self.assertEqual(doc["offline_starts"], [])
+        self.assertEqual(doc["metadata"]["counts"]["offline_starts"], 0)
+
     def test_step_kinds_and_values_on_a_route(self):
         # a switch whose only takeover is a misconfiguration, reached from its own
         # spare ports in the same VLAN
@@ -324,6 +356,27 @@ class TestRecompute(unittest.TestCase):
         with open(os.path.join(self.tmp, "attack_paths.json")) as f:
             out = json.load(f)
         self.assertEqual(out["metadata"]["counts"]["routes"], 1)
+
+    def test_recompute_reads_liveness_when_given(self):
+        gpath = os.path.join(self.tmp, "graph.json")
+        nodes = [host("endpoint:001", 10, cves=[cve("C", 9.0)], agent="001"),
+                 host("endpoint:002", 10, cves=[cve("C", 9.0)], risk=5.0)]
+        with open(gpath, "w") as f:
+            json.dump(graph(nodes), f)
+        with open(os.path.join(self.tmp, "targets.json"), "w") as f:
+            json.dump({"endpoint:002": {"importance": "high"}}, f)
+        lpath = os.path.join(self.tmp, "liveness.json")
+        with open(lpath, "w") as f:
+            json.dump({"graph_scan_time": graph(nodes)["metadata"]["scan_time"],
+                       "nodes": {"endpoint:001": {"state": "inactive"}}}, f)
+        out_path = os.path.join(self.tmp, "attack_paths.json")
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(ap.main(["--graph", gpath]), 0)      # no flag: not read
+            with open(out_path) as f:
+                self.assertEqual(json.load(f)["offline_starts"], [])
+            self.assertEqual(ap.main(["--graph", gpath, "--liveness", lpath]), 0)
+        with open(out_path) as f:
+            self.assertEqual([o["id"] for o in json.load(f)["offline_starts"]], ["endpoint:001"])
 
 
 # --- the pipeline stage against the frozen baseline -------------------------

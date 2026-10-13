@@ -179,8 +179,9 @@ class AttackPathEngine:
     """
 
     def __init__(self, graph: dict, targets: Optional[dict], vulns: Optional[dict],
-                 keep: int = KEEP_PER_TARGET) -> None:
+                 keep: int = KEEP_PER_TARGET, liveness: Optional[dict] = None) -> None:
         self.graph = graph
+        self.inactive = inactive_hosts(graph, liveness)
         self.targets = targets or {}
         self.vulns = vulns
         self.keep = keep
@@ -310,8 +311,9 @@ class AttackPathEngine:
     def find_starts(self) -> tuple[list, list]:
         """``(starts, offline)``. A start is a placed managed host with a CVE, a
         placed unmanaged host, or the spare ports of one VLAN on a switch. A
-        managed host whose Wazuh agent is disconnected or never connected is
-        no start; it is listed in ``offline`` instead."""
+        managed host whose Wazuh agent is disconnected or never connected, or a
+        host a fresh liveness pass marks inactive, is no start; it is listed in
+        ``offline`` instead."""
         starts, offline = [], []
         for nid, node in self.by_id.items():
             if node["kind"] == "device" or nid not in self.placed:
@@ -326,6 +328,10 @@ class AttackPathEngine:
             if kind == "managed_host" and status in AGENT_OFFLINE:
                 offline.append({"id": nid, "kind": kind, "reason": "offline",
                                 "detail": f"Wazuh agent {status.replace('_', ' ')}"})
+                continue
+            if nid in self.inactive:
+                offline.append({"id": nid, "kind": kind, "reason": "offline",
+                                "detail": "not answering the liveness check"})
                 continue
             starts.append({"id": nid, "kind": kind, "vlans": sorted(self.placed[nid])})
         return starts + self._spare_starts(), offline
@@ -525,10 +531,23 @@ class AttackPathEngine:
         }
 
 
+def inactive_hosts(graph: dict, liveness: Optional[dict]) -> set:
+    """The endpoints a liveness pass marks inactive, if that pass was made for
+    this graph (its graph_scan_time is the graph's scan_time); else none, so a
+    stale or missing liveness.json changes nothing."""
+    scan_time = (graph.get("metadata") or {}).get("scan_time")
+    if not liveness or not scan_time or liveness.get("graph_scan_time") != scan_time:
+        return set()
+    nodes = liveness.get("nodes") if isinstance(liveness.get("nodes"), dict) else {}
+    return {nid for nid, rec in nodes.items()
+            if isinstance(rec, dict) and rec.get("state") == "inactive"}
+
+
 def compute(graph: dict, targets: Optional[dict], vulns: Optional[dict],
-            keep: int = KEEP_PER_TARGET) -> dict:
-    """Build the attack_paths document from the graph, targets and CVE findings."""
-    return AttackPathEngine(graph, targets, vulns, keep).compute()
+            keep: int = KEEP_PER_TARGET, liveness: Optional[dict] = None) -> dict:
+    """Build the attack_paths document from the graph, targets, CVE findings
+    and (optionally) the liveness state."""
+    return AttackPathEngine(graph, targets, vulns, keep, liveness).compute()
 
 
 # --- files, the pipeline stage and the CLI -----------------------------------
@@ -549,10 +568,11 @@ def load_targets(path: Optional[str]) -> Optional[dict]:
 
 
 def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],
-              paths_out: Optional[str], keep: int = KEEP_PER_TARGET) -> dict:
+              paths_out: Optional[str], keep: int = KEEP_PER_TARGET,
+              liveness: Optional[dict] = None) -> dict:
     """Compute the document and, when ``paths_out`` is set, write it there.
     The graph gains no fields."""
-    document = compute(graph, targets, vulns, keep)
+    document = compute(graph, targets, vulns, keep, liveness)
     if paths_out:
         vulnfile.write_atomic(paths_out, document)
         log.info("wrote attack paths to %s", paths_out)
@@ -561,7 +581,8 @@ def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],
 
 def run_attack_paths(scan: "ScanContext") -> StageResult:
     """The pipeline's exposure-path stage. It runs last, once the graph's
-    scan_time is final, so attack_paths.json's source_scan names this graph."""
+    scan_time is final, so attack_paths.json's source_scan names this graph.
+    No liveness here: any liveness.json describes the previous graph."""
     vulns = vulnfile.build_document(scan.endpoints, scan.cves, None, devices=scan.device_entries)
     document = run_stage(scan.document, load_targets(scan.targets_path), vulns, scan.paths_out)
     c = document["metadata"]["counts"]
@@ -583,6 +604,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--vulns", metavar="PATH",
                         help="vulnerabilities.json for the full CVE list (default: beside the "
                              "graph if present; else each node's top_cves are used).")
+    parser.add_argument("--liveness", metavar="PATH",
+                        help="liveness.json; hosts it marks inactive are not used as starts "
+                             "when it was made for this graph (default: not used).")
     return parser
 
 
@@ -604,8 +628,15 @@ def main(argv: Optional[list[str]] = None) -> int:
     if os.path.exists(vulns_path):
         with open(vulns_path, encoding="utf-8") as f:
             vulns = json.load(f)
+    liveness = None
+    if args.liveness and os.path.exists(args.liveness):
+        try:
+            with open(args.liveness, encoding="utf-8") as f:
+                liveness = json.load(f)
+        except (OSError, ValueError) as exc:
+            log.warning("ignoring liveness state %s: %s", args.liveness, exc)
     out = args.paths_out or default_path(args.graph)
-    document = run_stage(graph, targets, vulns, out)
+    document = run_stage(graph, targets, vulns, out, liveness=liveness)
     log.info("attack paths: %d route(s) to %d target(s) from %d starting point(s)",
              document["metadata"]["counts"]["routes"],
              document["metadata"]["counts"]["targets_present"],
