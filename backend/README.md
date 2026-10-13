@@ -112,7 +112,7 @@ the role `access-point`. Its clients are read from its association table
 - A host learned from a switch's forwarding table carries the `"vlan"` it was
   learned on.
 
-### CVEs and the base score
+### Endpoint CVEs
 
 The score stage reads every vulnerability document for each agent (paged, at
 most 20000 per agent). Problems are reported in `metadata.warnings` rather than
@@ -143,26 +143,16 @@ out of that scan with a `wazuh_server_skipped` note.
 
 Each endpoint node in the graph carries:
 
-- `risk_score`: the base score, 0.0 to 10.0. `null` means the endpoint could
-  not be scored; `0.0` means it was scanned and nothing was found.
-- `max_cvss`: the highest CVSS among its CVEs.
+- `risk_score`: its OVSS, 0.0 to 10.0 (see "OVSS"); `null` when it is not
+  assessed. Whether it could be scored at all is `cve_summary`: `null` means
+  it could not; a `total` of 0 means it was scanned and nothing was found.
+- `max_cvss`: the highest CVSS score OVSS used for its CVEs.
 - `cve_summary`: `{total, critical, high, medium, low, unknown, max_cvss}`,
   counting distinct CVEs by CVSS v3 band (critical 9.0+, high 7.0-8.9,
   medium 4.0-6.9, low below 4.0, unknown = no score). `null` when not scored.
 - `top_cves`: the 10 worst distinct CVEs, each with `cve`, `cvss`,
   `cvss_version`, `severity`, `package`, `version`, `description` and, when the
   indexer has them, `reference`, `published_at`, `detected_at`.
-
-The base score (`vulnmapper/scoring.py`, a placeholder to be replaced) is:
-
-```
-weighted = 10*critical + 5*high + 2*medium + 1*low      (distinct CVEs)
-volume   = min(1, log10(1 + weighted) / log10(1 + 10000))
-score    = 0.7 * max_cvss + 0.3 * 10 * volume
-```
-
-A single 9.8 scores 7.6; a hundred criticals with a 9.8 worst score 9.1; the
-volume term saturates at a thousand criticals (9.9).
 
 The complete list goes to a second file, `vulnerabilities.json`. It is written
 to `--vulns-out PATH`, else next to the `-o` file; when the graph goes to stdout
@@ -190,7 +180,7 @@ came from an old `--scored` file, or a device lookup did not succeed.
 
 `--scored PATH` reads `{"endpoints": [...], "cves": {...}, "warnings": [...]}`
 (what `python -m vulnmapper.endpoints.score` writes) or the older plain list of
-endpoints, which keeps its stored `risk_score` and has no full findings.
+endpoints, which has no full findings; OVSS then scores the `top_cves` it holds.
 
 ### Device CVEs
 
@@ -225,26 +215,28 @@ line as a whole word ("1920" never matches "1920S"), and, where its versions can
 be compared with the device's, the version falls inside them.
 
 **Potential findings.** A device finding means the software version matches.
-It does not prove the affected feature is enabled on that device. Findings
-count fully in the score; `cve_lookup` marks them as potential.
+It does not prove the affected feature is enabled on that device. `cve_lookup`
+marks them as potential, and OVSS caps a potential finding below P0 unless it
+is in CISA KEV.
 
-**On each device node:** `cve_summary`, `top_cves`, `max_cvss` and `risk_score`,
-built exactly as for hosts, and `cve_lookup` (`status`, `match`, `product`,
-`cpe`, `source`, `fetched_at`, `stale`, `total`).
+**On each device node:** `cve_summary`, `top_cves` and `max_cvss`, built
+exactly as for hosts, and `cve_lookup` (`status`, `match`, `product`, `cpe`,
+`source`, `fetched_at`, `stale`, `total`). The OVSS stage then scores them.
 
-| Situation | `status` | `risk_score` |
+| Situation | `status` | findings |
 |---|---|---|
-| CPE query answered, CVEs found | `ok` | base score |
-| CPE query answered, nothing found | `ok` | 0.0 |
-| keyword search, CVEs found | `ok`, `match: keyword` | base score |
+| CPE query answered, CVEs found | `ok` | the CVEs |
+| CPE query answered, nothing found | `ok` | none (`total` 0) |
+| keyword search, CVEs found | `ok`, `match: keyword` | the CVEs |
 | keyword search, nothing found | `ok`, `match: keyword` | null |
 | vendor, family or version missing | `unidentified` | null |
 | NVD unreachable and nothing cached | `unavailable` | null |
 | NVD could not confirm the query | `unverified` | null |
 | device not polled | `unidentified` | null |
 
-A 0.0 means "asked precisely, and NVD has nothing"; a failed, guessed or
-skipped lookup never gives it. Problems go to `metadata.warnings`
+An empty list means "asked precisely, and NVD has nothing"; a failed, guessed
+or skipped lookup never gives it. Either way OVSS calls the device Unassessed,
+since nothing scored is not the same as clean. Problems go to `metadata.warnings`
 (`nvd_unreachable`, `nvd_stale_cache`, `nvd_budget_exceeded`,
 `device_unidentified`, each with node ids); `metadata.device_cves` counts the
 devices looked up, by status, served from the cache, and the NVD requests made.
@@ -274,8 +266,9 @@ python -m vulnmapper.devicecves --graph ../data/graph.json
 ```
 
 re-runs only this stage on an existing graph, rewrites the graph's device CVE
-fields and updates the device entries of `vulnerabilities.json` beside it. It
-needs no SNMP and no Wazuh. For a graph written before software families were
+fields and updates the device entries of `vulnerabilities.json` beside it,
+then scores every node and finding again with OVSS (using the cached threat
+feeds and CVE records). It needs no SNMP and no Wazuh. For a graph written before software families were
 recorded, the family is inferred only when unambiguous (a classic IOS version
 string, a FortiGate, the Comware version format).
 
@@ -441,8 +434,7 @@ reason}` per check), `config_findings` (one per failed check: `id`, `title`,
 `severity`, `why`, `remediation`, `references`, `cwe`, `evidence`; port lists
 hold at most 20 names plus `total`) and `config_summary` (`checks`, `results`
 by result, `findings` by `high`, `medium`, `low`, `advisory`). A device that
-was not polled gets none of them. `risk_score` and the base score are not
-touched. `metadata.checklist` counts the devices checked, the results and the
+was not polled gets none of them. `risk_score` is not touched. `metadata.checklist` counts the devices checked, the results and the
 findings, and says whether the probe (`probe_enabled`) and the connection
 test (`port_test_enabled`) were on and where the data came from (`source`:
 `scan`). Warnings: `checklist_data_missing` and
@@ -453,6 +445,72 @@ stage's duration.
 captures (`snmpwalk -On` output) of devices already in a graph and writes the
 results onto them, with `metadata.checklist.source` set to say so. It contacts
 no device.
+
+### OVSS
+
+OVSS scores every finding (one CVE on one node) and every node, after every
+CVE stage and before the attack paths (`vulnmapper/scoring/`):
+
+```
+OVSS       = CVSS_B x Context x ThreatMult        (0 to 10, never above CVSS_B)
+Context    = 0.5 + 0.5 x (Exposure + Dependency) / 2
+ThreatMult = 0.5 + 0.5 x T
+T          = 1.0 if the CVE is in CISA KEV, else min(EPSS / 0.1, 1.0)
+Node score = max(OVSS of the node's scored findings)
+```
+
+Every constant is in one block at the top of `scoring/ovss.py`.
+
+- **CVSS_B**: the CVE record's CNA score, else an ADP's, else the scanner's
+  (the Wazuh indexer's, or NVD's for devices); within the CNA, and within the
+  ADPs, the block with the highest CVSS version. No score anywhere: the finding
+  is Unrated. Each finding records `cvss_used`, `cvss_src` (`CNA`, `ADP`,
+  `tool`), `cvss_ver`, and `conflict: 1` when a CNA/ADP score and the
+  scanner's, of the same version, differ by 1.0 or more (informational).
+- **Exposure**: 1.0 for the egress device (role `router`, checked first); 0.3
+  for a node whose VLANs no router routes to another VLAN; 0.5 otherwise; 0.5
+  with `exposure_flag: "exposure_unknown"` when the attack-path engine could
+  not place it in a VLAN.
+- **Dependency**: the larger of the share of the other nodes that depend on it
+  (the attack-path engine's dependants) and its FIPS 199 importance in
+  `targets.json` (high 1.0, moderate 0.5, low 0.25, unmarked 0).
+- **Tiers**: P0 at 6.75 and above, P1 at 4.5, P2 at 2.5, else P3, taken from
+  the score as written (3 decimals). Then, on the tier only and in order: a
+  potential finding (devices, hosts without an agent, nmap services) not in
+  KEV is capped at P1; a KEV finding on the egress device is P0; any KEV
+  finding is at least P1.
+
+Each finding in `vulnerabilities.json`, and each `top_cves` row on the graph,
+gains `score`, `tier`, `cvss_tool`, `cvss_used`, `cvss_src`, `cvss_ver`, `kev`,
+`epss`, `exposure`, `dependency`, `confidence` (`confirmed` for a Wazuh agent,
+else `potential`) and `conflict`. Each node gains `risk_score` (its OVSS),
+`node_tier`, `ovss_hist` (findings per tier), `ovss_status` (`assessed`,
+`Unrated`, or `Unassessed` with `ovss_reason`: "cpe match returned 0 CVEs" or
+"no findings returned"), `exposure`, `exposure_flag`, `dependency`,
+`importance`, `kev_count` and `max_cvss`. Unassessed is not clean.
+
+**Threat feeds.** CISA's KEV catalogue (JSON) and FIRST's EPSS daily scores
+(CSV) are downloaded at most once a day and kept beside `nvd-cache.json`
+(`kev.json`, `epss_scores-current.csv.gz`). When a download fails the copy on
+disk is used however old; with no copy every CVE scores as not in KEV with EPSS
+0, and `metadata.threat_feeds` says `"unavailable"` so the dashboard warns that
+scores may be understated. `metadata.threat_feeds` also gives the feed dates.
+
+**CVE records.** CNA and ADP scores come from CVE JSON 5 records, one request
+per CVE to the CVE Services API (`https://cveawg.mitre.org/api/cve/<id>`),
+four at a time within a 60-second budget per scan, worst scanner score first.
+They are cached in `cve-records.json` beside `nvd-cache.json`, trimmed to their
+scores: a record for 30 days, a CVE the API does not know for 1 day. A request
+that gets no answer, or a rate limit, stops all requests for that scan with no
+retry; what was not fetched uses its expired entry if there is one, else the
+scanner's score, and fills in on later scans. The first scan of a large network
+may get only part of its CVEs' records; later scans are served from the cache.
+The log says how many came from the cache, were fetched, were not found, used
+an expired entry or fell back. cve.org being slow or down never fails a scan.
+
+`metadata.ovss` counts the findings by tier, the nodes by status and the CVE
+record lookups. The KEV, EPSS and CVE Services downloads are the only network
+calls OVSS makes, and they carry no credential.
 
 ### Attack paths
 
@@ -510,7 +568,7 @@ scale. A target id not in the graph is reported missing; no targets gives zero
 routes and the state `no_targets`. For each target+start pair the single
 highest-likelihood route is found with NetworkX (Dijkstra on the negative log of
 the step values). A target's routes are ordered — never blended — by importance,
-then likelihood, then the highest base score on the route, then fewer steps,
+then likelihood, then the highest node OVSS on the route, then fewer steps,
 then the start id and the ids along the route; up to ten are kept per target
 (configurable).
 
@@ -549,8 +607,8 @@ an LLDP or CDP announcement, or in an access point's client list, but nothing
 reports its software, so its vulnerabilities are not known. It is a blind
 spot. Network devices are not hosts.
 
-Every host has `unmanaged` (true or false). There is no severity and no
-score: `risk_score` stays null on an unmanaged host. `metadata.coverage` gives
+Every host has `unmanaged` (true or false). An unmanaged host that is not
+looked up has no findings, so OVSS leaves it Unassessed and `risk_score` null. `metadata.coverage` gives
 `hosts`, `managed`, `unmanaged` and `managed_share` (null with no hosts).
 
 **Three passive clues.** None of them touches the host.
@@ -587,7 +645,7 @@ switch. It gets `snmp: true`, its system name as `hostname` when it has none
 (`name_source: "snmp"`), `sys_descr`, and `vendor`, `model`, `firmware` and
 `software_family` where the vendor code recognises it. With a software family
 it goes through the device CVE stage like a device (`cve_summary`,
-`top_cves`, `max_cvss`, `cve_lookup`, `risk_score`). A host that has LLDP or
+`top_cves`, `max_cvss`, `cve_lookup`), then OVSS. A host that has LLDP or
 CDP neighbours or a forwarding table of its own is crawled as a device from
 its address, so it is placed and checked like any other device. Either way it
 keeps `unmanaged: true`. A host that does not answer is unchanged.
@@ -624,7 +682,7 @@ is found, because the ports are useful on their own and are the honest
 evidence. When nmap detected a product with a version (through the CPE it
 emits), that version is turned into a CPE lookup and run through the same
 device-CVE NVD path (same client, cache and time budget), so the host gains
-`cve_summary`, `top_cves`, `max_cvss`, `risk_score` and a `cve_lookup` like a
+`cve_summary`, `top_cves`, `max_cvss` and a `cve_lookup` like a
 device's — with `source: "nmap"` and `potential: true`. **Potential** means a
 detected service version is not proof the vulnerable build is running, the same
 caution as a device's version match. A host that answered with no identifiable

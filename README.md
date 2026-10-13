@@ -11,9 +11,11 @@ instead of reading CVE lists per host in isolation.
 
 - **Topology map**: every device and host, each host placed on the switch port
   it sits on, with a detail panel per node.
-- **Vulnerabilities**: CVEs and a base score for endpoints (from Wazuh) and for
-  network devices (from NVD, matched by software version), and a ranked
-  vulnerability report that exports to PDF.
+- **Vulnerabilities**: CVEs for endpoints (from Wazuh) and for network devices
+  (from NVD, matched by software version), each scored with OVSS: its CVSS
+  score weighted by where the asset sits, what depends on it, and whether the
+  CVE is exploited (CISA KEV, FIRST EPSS), then placed in a tier from P0 (act
+  now) to P3. A vulnerability report ranked by OVSS exports to PDF.
 - **Configuration checks**: switch settings checked against DISA STIG and SRG
   rules (telnet or HTTP management, SNMP without authentication, default
   communities, spare ports, the default VLAN, BPDU guard, port security).

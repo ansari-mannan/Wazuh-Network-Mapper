@@ -5,7 +5,7 @@ by the Python scanner in `../backend`. It appears in the dashboard's left menu
 as **Network Topology Mapper** and has:
 
 - **Overview**: network devices by type, endpoints by status, endpoints and
-  devices by risk level, failed device configuration checks by severity, how
+  devices by OVSS tier, failed device configuration checks by severity, how
   many hosts have a Wazuh agent, and cards for every page.
 - **Topology map**: the graph, with draggable nodes, reload and reset, and a
   detail flyout for each device or endpoint. A link between two devices shows
@@ -81,11 +81,23 @@ could not be reached, NVD does not list its version, or (for a product with no
 exact identifier) no NVD entry names it. A result served from an old cached
 answer because NVD could not be reached is marked stale.
 
-One risk rule drives the node border, the flyout and the overview: a device
-with a successful lookup shows its score, a real 0.0 included; anything else
-is Unscored. A graph written before device lookups behaves as before (a device
-is Unscored unless it carries CVE data). The overview's "Risk level" panel
-counts endpoints and devices together.
+## OVSS on the pages
+
+Every node carries its OVSS (`risk_score`) and tier (`node_tier`, P0 to P3; see
+"OVSS" in `../backend/README.md`). One rule (`public/lib/riskRule.ts`) drives
+the map, the flyout, the overview and the scan history: a node is coloured and
+badged by its tier (P0 red, P1 orange, P2 yellow, P3 blue); a node with no
+tier but with configuration findings takes the colour of its worst finding,
+so it never falls back to grey; anything else is grey. The flyout's Risk
+panel shows the OVSS line ("P1 · OVSS 6.125", or "Unassessed: cpe match
+returned 0 CVEs" — Unassessed is not clean), the tier histogram, exposure,
+dependency, importance and KEV count. Each CVE keeps its CVSS severity and
+adds its tier and score, a KEV badge, EPSS, where its CVSS score came from
+(CNA, ADP or the scanner, with the version) and a ≠ mark when the CNA/ADP
+and scanner scores disagree. The overview's risk panel counts assets by
+tier. When the scan could not get the KEV or EPSS feed, the overview and the
+report warn that scores may be understated. A graph written before OVSS has
+no tiers; its nodes show as not scored.
 
 ## Configuration checks
 
@@ -105,7 +117,8 @@ flyout shows a **Configuration checks** section below the vulnerabilities:
 
 A device without checks says why: it was never polled, the graph predates the
 checks, or the graph's checks came from captures that did not include it.
-Configuration findings do not change the risk colour or score. The overview's
+Configuration findings do not change a node's OVSS; they colour it only when it
+has no tier. The overview's
 "Device configuration" panel counts the failed checks of every checked device
 by severity.
 
@@ -174,10 +187,11 @@ no scanner or engine.
 
 Two modes, chosen by a switch at the top:
 
-- **Most vulnerable assets**: assets ranked worst-first (by displayed risk
-  level, then confirmed-critical count, then total CVEs), each a compact block
-  with its counts by severity split into confirmed and potential, its worst
-  CVEs and its configuration findings. A configurable top N (default 10) shows;
+- **Most vulnerable assets**: assets ranked worst-first (by node OVSS, then
+  how many P0, P1, P2 and P3 findings, then total CVEs), each a compact block
+  with its OVSS line, its counts by severity split into confirmed and
+  potential, its CVEs in OVSS order (tier, KEV/EPSS and CVSS source on each)
+  and its configuration findings. A configurable top N (default 10) shows;
   the rest are collapsed.
 - **Single asset**: one asset's full detail — identity, open ports and detected
   services, every CVE, every configuration finding with its remediation, and
@@ -194,7 +208,9 @@ asset's CVE table at a configurable number (default 200) with a "showing the
 200 worst of N" line.
 
 **Export PDF** calls the browser's print; its "Save as PDF" writes a multi-page
-A4 file with a cover, executive summary, methodology and sources, findings and
+A4 file with a cover, executive summary (with findings per tier, and a "Most
+CVEs" chart by CVE count), methodology and sources (including how OVSS is
+computed and its sources: CISA KEV, FIRST EPSS and CVE records), findings and
 remediation. A print stylesheet hides the dashboard and plugin chrome, forces a
 light document, and starts each section on its own page. Keep the print
 dialog's "Headers and footers" on for page numbers. The organisation name on
@@ -205,8 +221,10 @@ the cover comes from `vulnmapper.reportOrg`.
 The **Recommendations** page aggregates every asset's honest recommended action
 (the same logic as the vulnerability report's remediation) into one
 network-wide, prioritised plan. Instead of reading fixes asset by asset, each
-distinct action appears once, listing the assets it affects, ranked worst-first
-(severity, then how many assets, then how many lie on an attack path). It
+distinct action appears once, listing the assets it affects, ranked most urgent
+first: by OVSS tier, then OVSS (CVE items carry the worst of their assets'),
+then for the items with no tier (configuration and coverage) by severity, then
+how many assets, then how many lie on an attack path. It
 invents nothing: configuration fixes use the checklist's stored remediation text
 verbatim, and CVE guidance stays generic and never names an invented fixed
 version. There is no PDF export; it is on screen only.

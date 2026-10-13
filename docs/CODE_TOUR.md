@@ -10,11 +10,12 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 | Part | What it does | Files |
 |---|---|---|
 | Discovery | Crawls the network over SNMP from a seed, following LLDP and CDP neighbour tables; reads each device's identity, forwarding table, ARP table and port states | `network/crawl.py` (the crawler), `network/seeds.py`, `network/identity.py`, `network/vendors/`, `network/entity.py`, `network/roles.py`, `network/parse/` (table parsers), `network/snmp.py` (the only pysnmp user), `network/model.py`, `network/config.py`, `network/document.py` |
-| Wazuh endpoints | Lists the agents and their inventory from the Manager API, and each agent's CVEs from the Indexer | `endpoints/wazuh.py`, `endpoints/inventory.py`, `endpoints/findings.py`, `scoring.py` |
+| Wazuh endpoints | Lists the agents and their inventory from the Manager API, and each agent's CVEs from the Indexer | `endpoints/wazuh.py`, `endpoints/inventory.py`, `endpoints/findings.py` |
 | Assembler | Joins both sides into one graph and hangs each host off the switch port it sits on | `assemble/graph.py`, `assemble/mactable.py`, `assemble/nodes.py`, `hosts.py` (managed/unmanaged labels), `schema.py` |
 | CVE lookup | Finds CVEs for network devices in NVD by software version, then the CVSS vector fields of every CVE found | `devicecves/stage.py`, `devicecves/families.py`, `devicecves/lookup.py`, `devicecves/nvd.py`, `devicecves/cache.py`, `devicecves/vectors.py`, `vulnfile.py` |
 | Checklist | Checks each switch's configuration against DISA STIG / SRG rules | `checklist/collect.py`, `checklist/tables.py` (read during the crawl), `checklist/catalogue.py`, `checklist/evaluate.py`, `checklist/stage.py` |
 | Service scan | Optional: nmap service detection on hosts without an agent, then the same NVD lookup | `servicescan/nmap.py`, `servicescan/stage.py` |
+| OVSS | Scores every finding and node: CVSS (CNA, then ADP, then the scanner's) weighted by exposure, dependency and threat (CISA KEV, FIRST EPSS), and a P0-P3 tier | `scoring/ovss.py` (formula, tiers, records; every constant in one block), `scoring/cvss_select.py` (CVE records from cve.org, cached), `scoring/feeds.py` (KEV and EPSS, daily), `scoring/stage.py` |
 | Attack paths | The most likely routes to each asset the owner marked important (NIST IR 7788). With `--liveness`, hosts a liveness pass made for this graph marks inactive are not used as starts | `attackpaths.py` |
 | Liveness | Between scans, re-checks whether the nodes on the map still answer | `liveness/monitor.py`, `liveness/records.py`, `liveness/prober.py`, `liveness/cli.py` |
 | Pipeline | Runs a scan: the inputs, assembly, then each stage in turn | `pipeline.py`, `common.py`, `__main__.py` |
@@ -27,7 +28,7 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 
 1. The plugin server starts `python -m vulnmapper` with the options the user
    picked; credentials come from the environment.
-2. The scanner collects the Wazuh agents and scores each one from its CVEs.
+2. The scanner collects the Wazuh agents and each one's CVEs.
 3. It crawls the network from a seed. Each device it reaches is polled once:
    identity, neighbours, forwarding and ARP tables, port states and, for the
    checklist, its configuration tables.
@@ -37,6 +38,9 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
    added from the same tables and from access points' client lists.
 5. The optional stages add to that graph in place: names, device CVEs from
    NVD, service scan results, CVE vector fields and configuration findings.
+   Then the OVSS stage builds the attack-path engine (VLAN placement and each
+   asset's dependants), scores every finding and node with it, and the attack
+   path stage reuses that engine, ranking equally likely routes by node OVSS.
 6. The scanner writes `graph.json`, `vulnerabilities.json` (every CVE
    finding) and `attack_paths.json` (routes to the protected assets). The
    server swaps them in only if the scan succeeded.
@@ -65,7 +69,8 @@ credential from the server environment only.
 | File | Written by | Holds |
 |---|---|---|
 | `graph.json`, `vulnerabilities.json`, `attack_paths.json` | a scan; attack paths also by a recompute | the scan's output |
-| `targets.json` | the protected-asset control | the owner's important assets |
+| `targets.json` | the protected-asset control | the owner's important assets (also OVSS's importance) |
+| `nvd-cache.json`, `cve-records.json`, `kev.json`, `epss_scores-current.csv.gz` | a scan | NVD answers, CVE records (30 days; 1 day for not found), and the KEV and EPSS feeds (refreshed at most daily); all optional caches |
 | `recommendations.json` | the Recommendations page | each action's status |
 | `liveness.json` | the liveness check | each node's last liveness state, and the graph's `scan_time` it was made for |
 | `schedule.json` | `server/schedule.ts` | the schedule choice and the last scheduled run (time, result, message); never a credential. Read when the server starts, which re-arms the timer |
@@ -93,9 +98,10 @@ These are the names `graph.json` lists in `metadata.stages`.
 | 6 | nmap service scan | `servicescan.stage.run_service_scan` | off |
 | 7 | CVE vectors (NVD) | `devicecves.vectors.run_cve_vectors` | on |
 | 8 | Configuration checks | `checklist.stage.run_checklist` | on |
-| 9 | Attack paths | `attackpaths.run_attack_paths` | on |
+| 9 | OVSS scoring | `scoring.stage.run_ovss` | always |
+| 10 | Attack paths | `attackpaths.run_attack_paths` | on |
 
-Every optional stage (3 to 9) has the same shape:
+Every stage from 3 to 10 has the same shape:
 `run_<stage>(scan: ScanContext) -> StageResult`. `Pipeline.run` calls them in
 this order through `_run_stage`, which times each one, stores its block in
 `metadata` and records its line in `metadata.stages`.
@@ -132,7 +138,9 @@ this order through `_run_stage`, which times each one, stores its block in
 | `assemble.graph.GraphAssembler` | Joins endpoints and the network into the graph |
 | `devicecves.nvd.NvdClient` | Rate-limited, time-boxed NVD queries |
 | `devicecves.nvd.SystemClock` | The real clock, replaced by a fake in tests |
-| `devicecves.cache.Cache` | NVD answers kept between scans |
+| `devicecves.cache.Cache` | NVD answers kept between scans; also the CVE record cache |
+| `scoring.cvss_select.CveRecords` | One scan's CVE records: from the cache, else cve.org, a few at a time within a time budget |
+| `scoring.feeds.Threat` | The KEV set and EPSS scores a scan scores with, and `metadata.threat_feeds` |
 | `checklist.evaluate.DeviceChecker` | The configuration checks for one device |
 | `servicescan.nmap.NmapRunner` | Runs nmap |
 | `attackpaths.AttackPathEngine` | Placement, reachability, starts and routes for one graph |
