@@ -66,6 +66,9 @@ function load(graph: any) {
 }
 
 describe('page rendering on the golden lab outputs', () => {
+  // "last check-in 5 d ago" is relative to now: pin now so the snapshot holds.
+  beforeAll(() => jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-12T12:00:00Z')));
+  afterAll(() => jest.restoreAllMocks());
   beforeEach(() => load(labGraph));
 
   it('vulnerability report', () => {
