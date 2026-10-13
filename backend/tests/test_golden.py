@@ -85,9 +85,31 @@ def _run_pipeline(tmp, argv, **fakes):
     return out
 
 
+def _threat():
+    """KEV, EPSS and CVE records for the lab: two KEV CVEs (one on the L3
+    switch, one on two hosts), two EPSS scores, a CNA score that conflicts
+    with the tool's and an ADP CVSS v4 score; every other CVE has no record."""
+    from test_scoring import record
+    from vulnmapper.scoring import feeds
+
+    kev = json.dumps({"dateReleased": "2026-10-06T15:00:00Z", "vulnerabilities": [
+        {"cveID": "CVE-2006-4950"}, {"cveID": "CVE-2026-90000"}]}).encode()
+    epss = (b"#model_version:v2025.03.14,score_date:2026-10-06T00:00:00Z\n"
+            b"cve,epss,percentile\nCVE-2021-0001,0.05,0.9\nCVE-2026-90020,0.5,0.99\n")
+    records = {"CVE-2026-90002": record(cna=[("cvssV3_1", 7.5)]),
+               "CVE-2021-0002": record(adp=[("cvssV4_0", 6.9)])}
+
+    def transport(url, timeout):
+        if url in (feeds.KEV_URL, feeds.EPSS_URL):
+            return 200, kev if url == feeds.KEV_URL else epss
+        cve = url.rsplit("/", 1)[1]
+        return (200, json.dumps(records[cve]).encode()) if cve in records else (404, b"")
+    return transport
+
+
 def _lab(tmp):
     """The lab crawl (checklist and default-community probe on), the saved
-    Wazuh endpoints and every NVD stage, with two protected assets."""
+    Wazuh endpoints, every NVD stage and OVSS, with two protected assets."""
     from test_cdp import L3_CID, lab
     from test_device_stage import lab_nvd
     from test_nvd import FakeClock
@@ -115,7 +137,7 @@ def _lab(tmp):
                               "--network", network_path, "--targets", targets,
                               "--check-default-communities"],
                         nvd_transport=lab_nvd(clock), clock=clock,
-                        resolver=lambda ip: None)
+                        resolver=lambda ip: None, threat_transport=_threat())
     return {"lab.network.json": network, **{f"lab.{k}.json": v for k, v in out.items()}}
 
 
@@ -159,7 +181,7 @@ def _unmanaged(tmp):
                         nvd_transport=nvd, clock=clock,
                         resolver=lambda ip: "printer.lab" if ip == answers[1] else None,
                         snmp_client=FakeSnmpClient({answers[1]: system, forwards[1]: l2}),
-                        nmap_runner=runner)
+                        nmap_runner=runner, threat_transport=_threat())
     return {f"unmanaged.{k}.json": v for k, v in out.items()}
 
 

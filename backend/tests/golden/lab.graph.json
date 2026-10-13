@@ -13,7 +13,7 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l3-switch",
-      "risk_score": 8.0,
+      "risk_score": 7.5,
       "max_cvss": 10.0,
       "discovery_order": 0,
       "parent_id": null,
@@ -88,7 +88,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "LOW",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 7.5,
+          "tier": "P0",
+          "cvss_tool": 10.0,
+          "cvss_used": 10.0,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": true,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2007-5548",
@@ -104,7 +116,19 @@
           "attack_vector": "LOCAL",
           "attack_complexity": "MEDIUM",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 2.588,
+          "tier": "P2",
+          "cvss_tool": 6.9,
+          "cvss_used": 6.9,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2007-2587",
@@ -120,7 +144,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "MEDIUM",
           "privileges_required": "LOW",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 2.362,
+          "tier": "P3",
+          "cvss_tool": 6.3,
+          "cvss_used": 6.3,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2000-0486",
@@ -136,7 +172,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "LOW",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 1.875,
+          "tier": "P3",
+          "cvss_tool": 5.0,
+          "cvss_used": 5.0,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2006-3906",
@@ -152,7 +200,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "LOW",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 1.875,
+          "tier": "P3",
+          "cvss_tool": 5.0,
+          "cvss_used": 5.0,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2007-0199",
@@ -168,7 +228,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "LOW",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 1.875,
+          "tier": "P3",
+          "cvss_tool": 5.0,
+          "cvss_used": 5.0,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2007-5547",
@@ -184,7 +256,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "MEDIUM",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 1.612,
+          "tier": "P3",
+          "cvss_tool": 4.3,
+          "cvss_used": 4.3,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2005-3921",
@@ -200,7 +284,19 @@
           "attack_vector": "NETWORK",
           "attack_complexity": "HIGH",
           "privileges_required": "NONE",
-          "user_interaction": "NONE"
+          "user_interaction": "NONE",
+          "score": 0.975,
+          "tier": "P3",
+          "cvss_tool": 2.6,
+          "cvss_used": 2.6,
+          "cvss_src": "tool",
+          "cvss_ver": "2.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.5,
+          "confidence": "potential",
+          "conflict": 0
         }
       ],
       "cve_summary": {
@@ -340,7 +436,22 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "node_tier": "P0",
+      "ovss_hist": {
+        "P0": 1,
+        "P1": 0,
+        "P2": 1,
+        "P3": 6,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.5,
+      "exposure_flag": null,
+      "dependency": 0.5,
+      "importance": 0.5,
+      "kev_count": 1
     },
     {
       "node_id": "device:90:6c:ac:d7:43:7f",
@@ -376,7 +487,22 @@
         "stale": false,
         "total": null
       },
-      "reachable_cve": null
+      "reachable_cve": null,
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 1.0,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "device:00:17:95:be:b2:00",
@@ -391,7 +517,7 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l2-switch",
-      "risk_score": 7.7,
+      "risk_score": 4.594,
       "max_cvss": 9.8,
       "discovery_order": 2,
       "parent_id": "device:00:23:ac:e5:74:00",
@@ -473,7 +599,19 @@
           "description": "An issue.",
           "reference": "https://example.invalid/a",
           "published_at": "2020-01-02T03:04:05.000Z",
-          "detected_at": "2026-10-09T08:00:18+00:00"
+          "detected_at": "2026-10-09T08:00:18+00:00",
+          "score": 4.594,
+          "tier": "P1",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.05,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2021-0002",
@@ -485,7 +623,19 @@
           "description": "An issue.",
           "reference": "https://example.invalid/a",
           "published_at": "2020-01-02T03:04:05.000Z",
-          "detected_at": "2026-10-09T08:00:18+00:00"
+          "detected_at": "2026-10-09T08:00:18+00:00",
+          "score": 2.156,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 6.9,
+          "cvss_src": "ADP",
+          "cvss_ver": "4.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         }
       ],
       "cve_summary": {
@@ -619,7 +769,22 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "node_tier": "P1",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 1,
+        "P2": 0,
+        "P3": 1,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.5,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "device:5c:8a:38:8b:a1:0b",
@@ -750,7 +915,22 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "keyword match returned 0 CVEs",
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "device:54:75:d0:ab:bd:1a",
@@ -765,7 +945,7 @@
       "discovery_method": "snmp_cdp",
       "status": "online",
       "role": "access-point",
-      "risk_score": 0.0,
+      "risk_score": null,
       "max_cvss": null,
       "discovery_order": 4,
       "parent_id": "device:00:23:ac:e5:74:00",
@@ -922,7 +1102,22 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "cpe match returned 0 CVEs",
+      "exposure": 0.5,
+      "exposure_flag": null,
+      "dependency": 0.2,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "host:7a:bd:06:18:06:2c",
@@ -953,7 +1148,22 @@
       "unmanaged": true,
       "mac_type": "local",
       "mac_vendor": null,
-      "reachable_cve": null
+      "reachable_cve": null,
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "host:e4:a7:a0:25:ce:ac",
@@ -984,7 +1194,22 @@
       "unmanaged": true,
       "mac_type": "global",
       "mac_vendor": "Intel Corporate",
-      "reachable_cve": null
+      "reachable_cve": null,
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "endpoint:101",
@@ -999,7 +1224,7 @@
       "discovery_method": "wazuh",
       "status": "active",
       "role": "host",
-      "risk_score": 8.2,
+      "risk_score": 6.125,
       "max_cvss": 9.8,
       "discovery_order": 7,
       "parent_id": null,
@@ -1016,7 +1241,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90000",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 6.125,
+          "tier": "P1",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": true,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90001",
@@ -1028,7 +1265,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90001",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 3.062,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90002",
@@ -1040,7 +1289,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90002",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.344,
+          "tier": "P3",
+          "cvss_tool": 9.1,
+          "cvss_used": 7.5,
+          "cvss_src": "CNA",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 1
         },
         {
           "cve": "CVE-2026-90003",
@@ -1052,7 +1313,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90003",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.75,
+          "tier": "P2",
+          "cvss_tool": 8.8,
+          "cvss_used": 8.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90004",
@@ -1064,7 +1337,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90004",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.531,
+          "tier": "P2",
+          "cvss_tool": 8.1,
+          "cvss_used": 8.1,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90005",
@@ -1076,7 +1361,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90005",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.344,
+          "tier": "P3",
+          "cvss_tool": 7.5,
+          "cvss_used": 7.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90006",
@@ -1088,7 +1385,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90006",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.344,
+          "tier": "P3",
+          "cvss_tool": 7.5,
+          "cvss_used": 7.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90007",
@@ -1100,7 +1409,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90007",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.031,
+          "tier": "P3",
+          "cvss_tool": 6.5,
+          "cvss_used": 6.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90008",
@@ -1112,7 +1433,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90008",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.844,
+          "tier": "P3",
+          "cvss_tool": 5.9,
+          "cvss_used": 5.9,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90009",
@@ -1124,7 +1457,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90009",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.656,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 5.3,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
         }
       ],
       "cve_summary": {
@@ -1142,7 +1487,22 @@
       "reachable_cve": {
         "status": "none_found",
         "source": "findings"
-      }
+      },
+      "node_tier": "P1",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 1,
+        "P2": 3,
+        "P3": 9,
+        "Unrated": 1
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 1
     },
     {
       "node_id": "endpoint:102",
@@ -1157,7 +1517,7 @@
       "discovery_method": "wazuh",
       "status": "active",
       "role": "host",
-      "risk_score": 7.8,
+      "risk_score": 8.575,
       "max_cvss": 9.8,
       "discovery_order": 8,
       "parent_id": null,
@@ -1174,7 +1534,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90000 in openssl: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90000",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 8.575,
+          "tier": "P0",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": true,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90020",
@@ -1186,7 +1558,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90020",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 5.337,
+          "tier": "P1",
+          "cvss_tool": 6.1,
+          "cvss_used": 6.1,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.5,
+          "exposure": 0.5,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90021",
@@ -1198,7 +1582,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90021",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.406,
+          "tier": "P3",
+          "cvss_tool": 5.5,
+          "cvss_used": 5.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
         },
         {
           "cve": "CVE-2026-90022",
@@ -1210,7 +1606,19 @@
           "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
           "reference": "https://example.invalid/advisories/CVE-2026-90022",
           "published_at": "2026-03-01T00:00:00Z",
-          "detected_at": "2026-10-01T08:00:00Z"
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.75,
+          "tier": "P3",
+          "cvss_tool": 4.0,
+          "cvss_used": 4.0,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
         }
       ],
       "cve_summary": {
@@ -1228,7 +1636,22 @@
       "reachable_cve": {
         "status": "none_found",
         "source": "findings"
-      }
+      },
+      "node_tier": "P0",
+      "ovss_hist": {
+        "P0": 1,
+        "P1": 1,
+        "P2": 0,
+        "P3": 2,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 1.0,
+      "importance": 1.0,
+      "kev_count": 1
     },
     {
       "node_id": "endpoint:103",
@@ -1243,7 +1666,7 @@
       "discovery_method": "wazuh",
       "status": "active",
       "role": "host",
-      "risk_score": 0.0,
+      "risk_score": null,
       "max_cvss": null,
       "discovery_order": 9,
       "parent_id": null,
@@ -1265,7 +1688,22 @@
       "reachable_cve": {
         "status": "none_found",
         "source": "findings"
-      }
+      },
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "endpoint:104",
@@ -1291,7 +1729,22 @@
       "unmanaged": false,
       "mac_type": "global",
       "mac_vendor": "Dell Inc.",
-      "reachable_cve": null
+      "reachable_cve": null,
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     }
   ],
   "edges": [
@@ -1471,6 +1924,32 @@
       "port_test_enabled": false,
       "source": "scan"
     },
+    "threat_feeds": {
+      "kev": "fresh",
+      "epss": "fresh",
+      "kev_date": "2026-10-06T15:00:00Z",
+      "epss_date": "2026-10-06T00:00:00Z"
+    },
+    "ovss": {
+      "findings_by_tier": {
+        "P0": 2,
+        "P1": 3,
+        "P2": 4,
+        "P3": 18,
+        "Unrated": 1
+      },
+      "nodes_by_status": {
+        "Unassessed": 7,
+        "assessed": 4
+      },
+      "cve_records": {
+        "hits": 0,
+        "fetched": 2,
+        "not_found": 25,
+        "expired_used": 0,
+        "unanswered": 0
+      }
+    },
     "timing": {
       "endpoint_collect_s": null,
       "endpoint_score_s": null,
@@ -1483,6 +1962,7 @@
       "name_lookup_s": "FROZEN",
       "cve_vectors_s": "FROZEN",
       "checklist_s": "FROZEN",
+      "ovss_s": "FROZEN",
       "attack_paths_s": "FROZEN"
     },
     "stages": [
@@ -1533,6 +2013,12 @@
         "status": "ran",
         "seconds": "FROZEN",
         "note": "4 devices checked; 4 devices tested, 0 answered the default community"
+      },
+      {
+        "name": "OVSS scoring",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "27 findings scored on 4 assets; KEV fresh, EPSS fresh"
       },
       {
         "name": "Attack paths",

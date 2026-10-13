@@ -101,7 +101,22 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 1.0,
+      "importance": 1.0,
+      "kev_count": 0
     },
     {
       "node_id": "host:00:50:56:bb:00:01",
@@ -137,7 +152,22 @@
           "version": null
         }
       ],
-      "reachable_cve": null
+      "reachable_cve": null,
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "host:00:50:56:bb:00:02",
@@ -152,7 +182,7 @@
       "discovery_method": "snmp_fdb",
       "status": "discovered",
       "role": "host",
-      "risk_score": 7.7,
+      "risk_score": 2.817,
       "max_cvss": 9.8,
       "discovery_order": 2,
       "parent_id": "device:00:11:22:33:44:01",
@@ -169,7 +199,19 @@
           "description": "An issue.",
           "reference": "https://example.invalid/a",
           "published_at": "2020-01-02T03:04:05.000Z",
-          "detected_at": "2026-10-09T08:00:18+00:00"
+          "detected_at": "2026-10-09T08:00:18+00:00",
+          "score": 2.817,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2020-0002",
@@ -181,7 +223,19 @@
           "description": "An issue.",
           "reference": "https://example.invalid/a",
           "published_at": "2020-01-02T03:04:05.000Z",
-          "detected_at": "2026-10-09T08:00:18+00:00"
+          "detected_at": "2026-10-09T08:00:18+00:00",
+          "score": 1.524,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 5.3,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         }
       ],
       "cve_summary": {
@@ -231,7 +285,22 @@
       "reachable_cve": {
         "status": "none_found",
         "source": "findings"
-      }
+      },
+      "node_tier": "P2",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 1,
+        "P3": 1,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "device:00:17:95:be:b2:00",
@@ -246,7 +315,7 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l2-switch",
-      "risk_score": 7.7,
+      "risk_score": 4.226,
       "max_cvss": 9.8,
       "discovery_order": 3,
       "parent_id": null,
@@ -331,7 +400,19 @@
           "description": "An issue.",
           "reference": "https://example.invalid/a",
           "published_at": "2020-01-02T03:04:05.000Z",
-          "detected_at": "2026-10-09T08:00:06+00:00"
+          "detected_at": "2026-10-09T08:00:06+00:00",
+          "score": 4.226,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.05,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2021-0002",
@@ -343,7 +424,19 @@
           "description": "An issue.",
           "reference": "https://example.invalid/a",
           "published_at": "2020-01-02T03:04:05.000Z",
-          "detected_at": "2026-10-09T08:00:06+00:00"
+          "detected_at": "2026-10-09T08:00:06+00:00",
+          "score": 1.984,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 6.9,
+          "cvss_src": "ADP",
+          "cvss_ver": "4.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         }
       ],
       "cve_summary": {
@@ -478,7 +571,22 @@
           "low": 0,
           "advisory": 0
         }
-      }
+      },
+      "node_tier": "P2",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 1,
+        "P3": 1,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
       "node_id": "device:00:23:ac:e5:74:00",
@@ -514,7 +622,22 @@
         "stale": false,
         "total": null
       },
-      "reachable_cve": null
+      "reachable_cve": null,
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     }
   ],
   "edges": [
@@ -658,6 +781,32 @@
       "port_test_enabled": false,
       "source": "scan"
     },
+    "threat_feeds": {
+      "kev": "fresh",
+      "epss": "fresh",
+      "kev_date": "2026-10-06T15:00:00Z",
+      "epss_date": "2026-10-06T00:00:00Z"
+    },
+    "ovss": {
+      "findings_by_tier": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "P3": 2,
+        "Unrated": 0
+      },
+      "nodes_by_status": {
+        "Unassessed": 3,
+        "assessed": 2
+      },
+      "cve_records": {
+        "hits": 0,
+        "fetched": 1,
+        "not_found": 3,
+        "expired_used": 0,
+        "unanswered": 0
+      }
+    },
     "timing": {
       "endpoint_collect_s": null,
       "endpoint_score_s": null,
@@ -672,6 +821,7 @@
       "nmap_s": "FROZEN",
       "cve_vectors_s": "FROZEN",
       "checklist_s": "FROZEN",
+      "ovss_s": "FROZEN",
       "attack_paths_s": "FROZEN"
     },
     "stages": [
@@ -722,6 +872,12 @@
         "status": "ran",
         "seconds": "FROZEN",
         "note": "2 devices checked"
+      },
+      {
+        "name": "OVSS scoring",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "4 findings scored on 2 assets; KEV fresh, EPSS fresh"
       },
       {
         "name": "Attack paths",

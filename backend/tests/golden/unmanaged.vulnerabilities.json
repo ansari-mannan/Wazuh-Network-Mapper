@@ -79,13 +79,37 @@
           "cve": "CVE-2020-0001",
           "package": "OpenSSH 8.2p1",
           "version": "8.2p1",
-          "detected_at": "2026-10-09T08:00:18+00:00"
+          "detected_at": "2026-10-09T08:00:18+00:00",
+          "score": 2.817,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2020-0002",
           "package": "OpenSSH 8.2p1",
           "version": "8.2p1",
-          "detected_at": "2026-10-09T08:00:18+00:00"
+          "detected_at": "2026-10-09T08:00:18+00:00",
+          "score": 1.524,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 5.3,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         }
       ]
     },
@@ -108,13 +132,37 @@
           "cve": "CVE-2021-0001",
           "package": "Cisco IOS 12.2(58)SE2",
           "version": "12.2(58)SE2",
-          "detected_at": "2026-10-09T08:00:06+00:00"
+          "detected_at": "2026-10-09T08:00:06+00:00",
+          "score": 4.226,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.05,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         },
         {
           "cve": "CVE-2021-0002",
           "package": "Cisco IOS 12.2(58)SE2",
           "version": "12.2(58)SE2",
-          "detected_at": "2026-10-09T08:00:06+00:00"
+          "detected_at": "2026-10-09T08:00:06+00:00",
+          "score": 1.984,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 6.9,
+          "cvss_src": "ADP",
+          "cvss_ver": "4.0",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "potential",
+          "conflict": 0
         }
       ]
     },
