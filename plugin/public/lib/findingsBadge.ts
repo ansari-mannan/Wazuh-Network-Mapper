@@ -1,8 +1,8 @@
-import { GraphNode } from '../../common';
-
 // The worst configuration-finding severity on a device, for a small node badge
 // (e.g. "2 high") so a device with no CVE score but open telnet does not look
 // clean. Null when there is nothing to show. advisory (no severity) is left off.
+import { GraphNode } from '../../common';
+
 export type FindingsBadge = { count: number; severity: 'high' | 'medium' | 'low' };
 
 const SEVERITIES = ['high', 'medium', 'low'] as const;

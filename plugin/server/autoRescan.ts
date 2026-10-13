@@ -1,10 +1,9 @@
+// Automatic rescan: when a liveness pass suggests one (a port came up with
+// nothing linked to it, or an active agent is missing from the graph), start a
+// scan as a manual one starts. Never while a scan runs, and never within
+// minIntervalSeconds of the last scan's start, automatic or manual.
 import { ScanState } from '../common';
 
-// Automatic rescan: when a liveness pass suggests one (a port came up with
-// nothing linked to it, or an active Wazuh agent is not in the graph), start a
-// scan the same way a manual scan starts. Never while a scan runs, and never
-// sooner than minIntervalSeconds after the last scan started, whether that one
-// was automatic or manual.
 
 export interface AutoRescanOptions {
   /** vulnmapper.liveness.autoRescan */

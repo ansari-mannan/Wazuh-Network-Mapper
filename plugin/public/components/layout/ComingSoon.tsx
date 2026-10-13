@@ -1,9 +1,9 @@
+// Route body for pages whose feature does not exist yet.
 import React from 'react';
 import { EuiButton, EuiEmptyPrompt, EuiPanel } from '@elastic/eui';
 import { PageDef } from '../../pages';
 import { useServices } from '../../lib/services';
 
-// Route body for pages whose feature does not exist yet.
 export function ComingSoon({ page }: { page: PageDef }) {
   const { history } = useServices();
   return (

@@ -1,3 +1,5 @@
+// The recommendations page: the network-wide action plan (lib/recommendations)
+// with a shared status per item.
 import React, { useMemo, useState } from 'react';
 import {
   EuiBadge,
@@ -26,24 +28,8 @@ import { useAttackPaths } from '../../lib/attackPathsData';
 import { useRecommendations } from '../../lib/recommendationsData';
 import { useOfflineHosts } from '../../lib/liveness';
 import { buildRecommendations, Recommendation, recommendationProgress } from '../../lib/recommendations';
-
-const SEV_META: Record<Severity, { label: string; color: string }> = {
-  critical: RISK_META.critical,
-  high: RISK_META.high,
-  medium: RISK_META.medium,
-  low: RISK_META.low,
-  unknown: { label: 'Unknown', color: RISK_META.unscored.color },
-};
-
-// Severity/risk shown as a colour AND a word (never colour alone); same as the report page.
-function Chip({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="vmChip">
-      <span className="vmChip__dot" style={{ backgroundColor: color }} />
-      {label}
-    </span>
-  );
-}
+import { SEV_META } from '../vulnreport/format';
+import { Chip } from '../vulnreport/parts';
 
 const severityChip = (sev: Severity | null) =>
   sev ? <Chip color={SEV_META[sev].color} label={SEV_META[sev].label} /> : <Chip color={RISK_META.unscored.color} label="Advisory" />;

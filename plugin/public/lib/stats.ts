@@ -1,9 +1,9 @@
+// Overview numbers, all derived from the graph the server returned.
 import { euiPaletteColorBlind } from '@elastic/eui';
 import { GraphResponse } from '../../common';
 import { RISK_META, RiskLevel, riskCounts, SCORED_RISK_LEVELS } from './risk';
 import { STATUS_COLORS } from '../components/topology/nodeStyle';
 
-// Overview numbers, all derived from the graph the server returned.
 
 export interface Slice {
   label: string;

@@ -1,32 +1,7 @@
-"""The device vulnerability stage: CVEs and a base score for every network device.
-
-A host without an agent that answered the optional SNMP question with a
-software family the lookup knows (vulnmapper.hosts) is looked up the same way.
-
-Works on an assembled graph's device nodes, so it runs the same after a live
-crawl, after ``--network PATH`` and in the refresh command
-(``python -m vulnmapper.devicecves``). Each device gets the fields hosts
-already have, built with the same helpers (``endpoints.enrich_agent``:
-distinct_cves, summarize_cves, TOP_CVES, scoring.base_score):
-
-  ``cve_summary``, ``top_cves``, ``max_cvss``, ``risk_score``, and
-  ``cve_lookup``: {status, match, product, cpe, source, fetched_at, stale, total}
-
-How the lookup's status maps to the score:
-
-  CPE query answered, CVEs found        ok                    base_score(rows)
-  CPE query answered, nothing found     ok                    0.0
-  keyword fallback, CVEs found          ok, match keyword     base_score(rows)
-  keyword fallback, nothing found       ok, match keyword     null (Unscored)
-  vendor, family or version missing     unidentified          null
-  NVD unreachable and nothing cached    unavailable           null
-  NVD could not confirm the query       unverified            null
-  device not polled                     unidentified          null
-
-A 0.0 means "asked precisely, and NVD has nothing"; a failed, guessed or
-skipped lookup never produces it. Every device finding is potential: the
-software version matches, which does not prove the affected feature is in use.
-``cve_lookup`` marks that; the rows carry no flag of their own.
+"""The device CVE stage: CVEs and a base score for every network device, and for
+a host without an agent that answered SNMP with a known software family.
+Runs after assembly (and in the refresh command, ``python -m
+vulnmapper.devicecves``).
 """
 
 from __future__ import annotations
@@ -47,6 +22,34 @@ if TYPE_CHECKING:
     from ..pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.devicecves")
+
+# A host without an agent that answered the optional SNMP question with a
+# software family the lookup knows (vulnmapper.hosts) is looked up the same way.
+#
+# Works on an assembled graph's device nodes, so it runs the same after a live
+# crawl, after ``--network PATH`` and in the refresh command
+# (``python -m vulnmapper.devicecves``). Each device gets the fields hosts
+# already have, built with the same helpers (``endpoints.enrich_agent``:
+# distinct_cves, summarize_cves, TOP_CVES, scoring.base_score):
+#
+#   ``cve_summary``, ``top_cves``, ``max_cvss``, ``risk_score``, and
+#   ``cve_lookup``: {status, match, product, cpe, source, fetched_at, stale, total}
+#
+# How the lookup's status maps to the score:
+#
+#   CPE query answered, CVEs found        ok                    base_score(rows)
+#   CPE query answered, nothing found     ok                    0.0
+#   keyword fallback, CVEs found          ok, match keyword     base_score(rows)
+#   keyword fallback, nothing found       ok, match keyword     null (Unscored)
+#   vendor, family or version missing     unidentified          null
+#   NVD unreachable and nothing cached    unavailable           null
+#   NVD could not confirm the query       unverified            null
+#   device not polled                     unidentified          null
+#
+# A 0.0 means "asked precisely, and NVD has nothing"; a failed, guessed or
+# skipped lookup never produces it. Every device finding is potential: the
+# software version matches, which does not prove the affected feature is in use.
+# ``cve_lookup`` marks that; the rows carry no flag of their own.
 
 DEFAULT_BUDGET_S = 180.0
 SOURCE = "nvd"

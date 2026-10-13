@@ -1,3 +1,5 @@
+// The dashboard's core services (HTTP, chrome, notifications, history), handed
+// down to every component through a React context.
 import { createContext, useContext } from 'react';
 import { CoreStart, ScopedHistory } from '../../../../src/core/public';
 

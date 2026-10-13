@@ -1,18 +1,6 @@
-"""Vendor identification plug-ins.
-
-Each vendor exposes::
-
-    async def identify(sys_descr, sys_object_id, snmp_client, ip) -> dict
-
-returning the device-specific fields (model, firmware, serial), and is registered
-by its enterprise number (the arc after ``1.3.6.1.4.1.``) in
-:data:`VENDOR_BY_ENTERPRISE`.
-
-Cisco and Fortinet are small enough to live here as module-level ``identify``
-strategy functions; they are exposed under the ``cisco`` / ``fortinet`` names
-(via a tiny namespace) so the registry stays ``(name, module-like)`` and existing
-references are unchanged. Comware stays its own module (it carries a model table
-and is independently imported as ``vulnmapper.network.vendors.comware``).
+"""Vendor identification: model, firmware and serial from the system description
+and sysObjectID, one ``identify`` per vendor, chosen by the enterprise number
+in sysObjectID (``VENDOR_BY_ENTERPRISE``). Called by network/identity.py.
 """
 
 from __future__ import annotations
@@ -33,6 +21,20 @@ from . import comware
 # ===========================================================================
 
 # Model token: the platform word that precedes "Software", e.g. "C2960S".
+# Each vendor exposes::
+#
+#     async def identify(sys_descr, sys_object_id, snmp_client, ip) -> dict
+#
+# returning the device-specific fields (model, firmware, serial), and is registered
+# by its enterprise number (the arc after ``1.3.6.1.4.1.``) in
+# :data:`VENDOR_BY_ENTERPRISE`.
+#
+# Cisco and Fortinet are small enough to live here as module-level ``identify``
+# strategy functions; they are exposed under the ``cisco`` / ``fortinet`` names
+# (via a tiny namespace) so the registry stays ``(name, module-like)`` and existing
+# references are unchanged. Comware stays its own module (it carries a model table
+# and is independently imported as ``vulnmapper.network.vendors.comware``).
+
 _CISCO_MODEL_RE = re.compile(r"\b([A-Z0-9][A-Z0-9\-]+)\s+Software\b")
 # Version string after the literal "Version", e.g. "12.2(55)SE5" or "15.0(2)".
 _CISCO_VERSION_RE = re.compile(r"\bVersion\s+([0-9][0-9A-Za-z.()\-]*)")
@@ -133,7 +135,7 @@ async def _fortinet_identify(sys_descr, sys_object_id, snmp_client, ip) -> dict:
 
 
 # Expose Cisco/Fortinet under the same ``<vendor>.identify`` shape as the comware
-# module, so the registry below and its consumer (sysinfo) treat all three alike.
+# module, so the registry below and its consumer (network/identity.py) treat all three alike.
 cisco = SimpleNamespace(identify=_cisco_identify)
 fortinet = SimpleNamespace(identify=_fortinet_identify)
 

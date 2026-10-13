@@ -1,3 +1,7 @@
+// Liveness state from GET /api/vulnmapper/liveness: fetched once on mount (that
+// is how the UI learns whether liveness is on), then polled every
+// intervalSeconds while on and the tab is visible. It never re-lays out the map;
+// the graph is reloaded only when its file changed (an automatic scan).
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { GraphNode, LivenessResponse } from '../../common';
 import { offlineHosts } from '../components/topology/inactive';
@@ -5,11 +9,6 @@ import { useGraph } from './graph';
 import { shouldReloadGraph } from './graphReload';
 import { useServices } from './services';
 
-// Liveness state from GET /api/vulnmapper/liveness. Fetched once on mount (that
-// is how the UI learns whether liveness is enabled at all); after that it is
-// polled every intervalSeconds, but only while enabled and the tab is visible.
-// Liveness changes alone never reload the graph or re-lay it out; the graph is
-// reloaded only when the graph file itself changed (an automatic scan).
 
 interface LivenessContextValue {
   /** null until the first fetch answers; enabled false when the feature is off */

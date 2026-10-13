@@ -1,13 +1,5 @@
-"""Running nmap against a host list, and parsing its XML.
-
-The only active part of the tool. One ``nmap -sV`` invocation (service/version
-detection, nmap's default ports and timing) over a host-list file, with the
-benign nbstat discovery script for a Windows host's NetBIOS name. No OS
-detection, no vuln scripts, no aggressive options. The host list carries only
-IP addresses; nmap's arguments carry no secret.
-
-The XML parse and the service/product/version extraction follow
-github.com/AhmadNaaem/hev-scan. ElementTree only; no dependency added.
+"""Running nmap against a host list and parsing its XML: the only part of the
+tool that actively scans, used by the service-scan stage.
 """
 
 from __future__ import annotations
@@ -24,6 +16,15 @@ from typing import Optional
 from ..common import VulnmapperError
 
 log = logging.getLogger("vulnmapper.servicescan")
+
+# The only active part of the tool. One ``nmap -sV`` invocation (service/version
+# detection, nmap's default ports and timing) over a host-list file, with the
+# benign nbstat discovery script for a Windows host's NetBIOS name. No OS
+# detection, no vuln scripts, no aggressive options. The host list carries only
+# IP addresses; nmap's arguments carry no secret.
+#
+# The XML parse and the service/product/version extraction follow
+# github.com/AhmadNaaem/hev-scan. ElementTree only; no dependency added.
 
 PER_HOST_TIMEOUT_S = 60.0
 # Service names that, on their own, name the kind of appliance answering.

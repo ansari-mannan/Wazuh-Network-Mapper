@@ -1,8 +1,6 @@
-"""Who a polled device is: name, vendor, model, firmware, serial and MAC.
-
-The vendor comes from the enterprise number in sysObjectID and picks the
-vendor module (``network/vendors``) that reads the rest; the standard
-inventory table (``entity.py``) fills what that module leaves open.
+"""Who a polled device is (name, vendor, model, firmware, serial, MAC), read
+for each device the crawl reaches. The sysObjectID's enterprise number picks
+the vendor module; the standard inventory table (entity.py) fills the rest.
 """
 
 from __future__ import annotations

@@ -1,37 +1,41 @@
-"""The configuration check catalogue: what each check looks for and why it matters.
-
-No severity here is our own. Each one is the severity a recognised body
-published for the rule cited with relation "requires":
-
-  * DISA STIG rules for Cisco IOS switches (Cisco IOS Switch NDM STIG V3R9 and
-    Cisco IOS Switch L2S STIG V3R3, both dated 2026-09-01), and for every other
-    vendor the vendor-neutral requirement each of them implements (Network
-    Device Management SRG V5R5, 2026-05-23; Layer 2 Switch SRG V3R4,
-    2026-02-12). DISA's categories map CAT I = high, CAT II = medium,
-    CAT III = low.
-  * NVD for CVE-1999-0517 (default SNMP community names): NVD's own (primary)
-    score, CVSS 2.0 7.5 HIGH.
-
-A check with no published severity has severity None and is shown as
-Advisory. A reference with relation "related" is shown for context but does
-not set the severity: its rule's finding condition is not what the check
-tests.
-
-Every rule id, title, severity and CCI below was read on 10 October 2026 from
-the rule records of those releases (cyber.trackr.live, which republishes
-DISA's XCCDF); the urls point to the same rules on stigviewer.com. NIST SP 800-53 Rev. 5 controls come from
-DISA's CCI list (U_CCI_List, 2025-01-23). CWE ids were checked on
-cwe.mitre.org, and only ids MITRE allows for mapping are used.
-
-``scope`` says which devices a reference is cited for: "cisco_ios" for the
-Cisco IOS software family, "any" for every device (a vendor-neutral SRG
-requirement is cited for devices outside the Cisco scope; see
-:func:`references_for`).
+"""The configuration check catalogue: each check, what it looks for, why it
+matters and the published rule that sets its severity (DISA STIG / SRG, NVD,
+CCSS). Read by the checklist stage and by the attack-path step values.
 """
 
 from __future__ import annotations
 
 from typing import Optional
+
+# Where the severities come from.
+#
+# No severity here is our own. Each one is the severity a recognised body
+# published for the rule cited with relation "requires":
+#
+#   * DISA STIG rules for Cisco IOS switches (Cisco IOS Switch NDM STIG V3R9 and
+#     Cisco IOS Switch L2S STIG V3R3, both dated 2026-09-01), and for every other
+#     vendor the vendor-neutral requirement each of them implements (Network
+#     Device Management SRG V5R5, 2026-05-23; Layer 2 Switch SRG V3R4,
+#     2026-02-12). DISA's categories map CAT I = high, CAT II = medium,
+#     CAT III = low.
+#   * NVD for CVE-1999-0517 (default SNMP community names): NVD's own (primary)
+#     score, CVSS 2.0 7.5 HIGH.
+#
+# A check with no published severity has severity None and is shown as
+# Advisory. A reference with relation "related" is shown for context but does
+# not set the severity: its rule's finding condition is not what the check
+# tests.
+#
+# Every rule id, title, severity and CCI below was read on 10 October 2026 from
+# the rule records of those releases (cyber.trackr.live, which republishes
+# DISA's XCCDF); the urls point to the same rules on stigviewer.com. NIST SP 800-53 Rev. 5 controls come from
+# DISA's CCI list (U_CCI_List, 2025-01-23). CWE ids were checked on
+# cwe.mitre.org, and only ids MITRE allows for mapping are used.
+#
+# ``scope`` says which devices a reference is cited for: "cisco_ios" for the
+# Cisco IOS software family, "any" for every device (a vendor-neutral SRG
+# requirement is cited for devices outside the Cisco scope; see
+# :func:`references_for`).
 
 SEVERITIES = ("high", "medium", "low")
 

@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 """Developer helper: build the MAC manufacturer registry the scan ships with.
 
-Reads IEEE's public registries of MAC address blocks (MA-L, 24-bit; MA-M,
-28-bit; MA-S, 36-bit) and writes ``vulnmapper/oui.tsv.gz``: one
-``<hex prefix>\\t<organisation>`` line per block, after a header naming the
-source files and the date. The scan reads that file and never downloads
-anything; run this again to refresh it.
-
     python3 scripts/build_oui.py                  # download from IEEE
     python3 scripts/build_oui.py oui.csv mam.csv oui36.csv   # local copies
 """
@@ -54,6 +48,11 @@ def parse(text: str) -> dict:
     return out
 
 
+# Reads IEEE's public registries of MAC address blocks (MA-L, 24-bit; MA-M,
+# 28-bit; MA-S, 36-bit) and writes ``vulnmapper/oui.tsv.gz``: one
+# ``<hex prefix>\t<organisation>`` line per block, after a header naming the
+# source files and the date. The scan reads that file and never downloads
+# anything; run this again to refresh it.
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("sources", nargs="*", default=list(URLS),

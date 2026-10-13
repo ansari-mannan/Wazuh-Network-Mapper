@@ -1,15 +1,6 @@
-"""Shared, dependency-light foundations for the whole package.
-
-Consolidates the three former ``common/`` modules into one place — these are the
-contracts every other layer agrees on, with no lab I/O:
-
-  * MAC canonicalisation — the single source of truth (``canonical_mac`` for
-    comparison, ``format_mac``/``normalize_mac`` for display).
-  * Environment / TLS config — ``WazuhConfig`` / ``IndexerConfig`` and the env
-    var conventions (names preserved for deployment compatibility).
-  * The graph schema — ``Node`` / ``Edge`` / ``CVE`` and the ``node_id`` helpers.
-
-Nothing here imports the network/endpoint layers, so it stays import-cycle-free.
+"""What every part of the scanner agrees on: one MAC form for comparing and one
+for display, the Wazuh connection settings read from the environment, and the
+graph's node and edge shapes with their node ids. No I/O.
 """
 
 from __future__ import annotations
@@ -21,16 +12,11 @@ from typing import Any, Optional, Union
 
 import urllib3
 
-# ===========================================================================
-# MAC address handling — the single source of truth.
-#
-# Two worlds feed MACs into this pipeline and they must compare identically:
-#   * Endpoints (Wazuh syscollector) report ``e4:a7:a0:25:ce:ad``.
-#   * Switch forwarding tables (SNMP dot1q/dot1d) return raw hex such as
-#     ``"E4 A7 A0 25 CE AD"``, ``"0xe4a7a025cead"`` or a 6-byte OctetString.
-# All comparison happens on :func:`canonical_mac` (separator-stripped, lowercase
-# 12-hex) and all display uses :func:`format_mac` (the colon form).
-# ===========================================================================
+# --- MAC addresses ------------------------------------------------------------
+# Wazuh reports ``e4:a7:a0:25:ce:ad``; a switch's forwarding table gives raw hex
+# such as ``"E4 A7 A0 25 CE AD"``, ``"0xe4a7a025cead"`` or six raw bytes. Both
+# must compare equal, so every comparison uses canonical_mac (12 lowercase hex
+# digits) and everything shown uses format_mac (the colon form).
 
 MacInput = Union[bytes, bytearray, str, None]
 
@@ -82,28 +68,18 @@ def format_mac(value: MacInput) -> Optional[str]:
     return ":".join(canonical[i : i + 2] for i in range(0, 12, 2))
 
 
-# The network crawler historically imported ``normalize_mac`` expecting the
-# colon form; keep that name pointed at the single implementation.
-normalize_mac = format_mac
+normalize_mac = format_mac   # the name the network parsers use
 
 
-# ===========================================================================
-# Environment / credentials / TLS config.
-#
-# All credentials come from the environment — the env var *names* are preserved
-# from the original scripts so existing deployments keep working:
-#   Wazuh Manager API:  WAZUH_HOST / WAZUH_PORT / WAZUH_USER / WAZUH_PASS
-#   Wazuh Indexer:      INDEXER_HOST / INDEXER_PORT / INDEXER_USER / INDEXER_PASS
-#   File paths:         AGENTS_OUT / AGENTS_IN / SCORED_OUT
-# TLS verification is off by default (the lab uses self-signed certs); set
-# ``VULNMAPPER_VERIFY_TLS=1`` or point ``*_CA_BUNDLE`` at a CA file to turn it on.
-# ===========================================================================
-
-# The lab uses self-signed certs; suppress the noisy warning that verify=False
-# would otherwise emit on every request.
+# --- Wazuh connection settings -------------------------------------------------
+# Credentials only ever come from the environment: WAZUH_HOST / _PORT / _USER /
+# _PASS for the Manager API and INDEXER_HOST / _PORT / _USER / _PASS for the
+# Indexer. The lab's certificates are self-signed, so TLS verification is off
+# unless VULNMAPPER_VERIFY_TLS=1 or a *_CA_BUNDLE names a CA file, and the
+# warning requests would print on every unverified call is silenced.
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# Sensible lab defaults — both code and docs agree on these. Override via env.
+# The lab's defaults; the environment overrides each one.
 DEFAULT_WAZUH_HOST = "localhost"
 DEFAULT_WAZUH_PORT = "55000"
 DEFAULT_WAZUH_USER = "wazuh-wui"
@@ -174,28 +150,22 @@ class IndexerConfig:
         )
 
 
-# ===========================================================================
-# The graph schema — Node / Edge / CVE and the node_id helpers.
-#
-# Every node carries exactly one stable, unique ``node_id`` that edges reference;
-# we never key on hostname or IP (both are soft and collide):
-#   * endpoints  -> ``endpoint:<agent_id>``   (the Wazuh agent id; hard + unique)
-#   * devices    -> ``device:<chassis_id>``   (the LLDP/SNMP chassis id)
-#   * fdb hosts  -> ``host:<mac>``            (reconstructed from switch tables)
-# ===========================================================================
+# --- The graph ---------------------------------------------------------------
+# Edges name nodes by node_id, never by hostname or IP, which change and
+# collide. The id says where the node came from:
+#   endpoint:<agent_id>   a Wazuh agent (the agent id is unique)
+#   device:<chassis_id>   a switch, router or access point (LLDP/SNMP chassis id)
+#   host:<mac>            a host with no agent, known from the switches' tables
 
 KIND_ENDPOINT = "endpoint"
 KIND_DEVICE = "device"
 
-# discovery_method values stamped by each source.
 DISCOVERY_WAZUH = "wazuh"
 DISCOVERY_SNMP_LLDP = "snmp_lldp"
-# discovery_method for a host reconstructed purely from switch/router tables.
-DISCOVERY_SNMP_FDB = "snmp_fdb"
+DISCOVERY_SNMP_FDB = "snmp_fdb"    # a host found only in switch and router tables
 
-# edge relationship types.
-EDGE_LLDP = "lldp"                 # device <-> device adjacency (LLDP)
-EDGE_ENDPOINT_LINK = "endpoint_link"  # endpoint -> switch access port
+EDGE_LLDP = "lldp"                    # device to device
+EDGE_ENDPOINT_LINK = "endpoint_link"  # host to the switch port (or access point) it is on
 
 # An endpoint_link's ``confidence``: the evidence that placed the host there.
 CONF_LLDP = "lldp"                        # it announced itself to the switch over LLDP
@@ -225,14 +195,8 @@ def host_node_id(mac: Any) -> str:
 
 @dataclass
 class Edge:
-    """A graph edge referencing nodes by ``node_id`` (never hostname/IP).
-
-    ``type`` is :data:`EDGE_LLDP` for an inter-device adjacency or
-    :data:`EDGE_ENDPOINT_LINK` for an endpoint hanging off a switch access port.
-    For an endpoint link, ``local_port`` is the switch access port and
-    ``confidence`` records how certain the placement is
-    (``resolved`` / ``tiebreak`` / ``fallback``).
-    """
+    """A graph edge. For an endpoint link, ``local_port`` is the switch port
+    (or access point radio) and ``confidence`` one of the CONF_* values above."""
 
     source: str            # node_id
     target: str            # node_id
@@ -243,31 +207,12 @@ class Edge:
     # A device link found only over CDP says so ("cdp"); None means LLDP.
     protocol: Optional[str] = None
 
-    def to_dict(self) -> dict:
-        out: dict[str, Any] = {
-            "source": self.source,
-            "target": self.target,
-            "type": self.type,
-        }
-        if self.local_port is not None:
-            out["local_port"] = self.local_port
-        if self.remote_port is not None:
-            out["remote_port"] = self.remote_port
-        if self.confidence is not None:
-            out["confidence"] = self.confidence
-        if self.protocol is not None:
-            out["protocol"] = self.protocol
-        return out
-
 
 @dataclass
 class Node:
-    """A unified graph node — an endpoint or a network device.
-
-    The dataclass is the superset of both worlds' fields; a field that does not
-    apply to a given kind stays ``None`` / its default. ``to_dict`` emits a
-    stable shape with ``node_id`` first.
-    """
+    """One graph node, endpoint or device. It has the fields of both; those
+    that do not apply to its kind keep their defaults. ``to_dict`` gives its
+    graph.json shape, ``node_id`` first."""
 
     node_id: str
     kind: str
@@ -318,7 +263,6 @@ class Node:
     neighbor_ports: Optional[list] = None
     uplink_ports: Optional[list] = None
     port_status: Optional[dict] = None
-    fdb: Optional[list] = None
     # The software family the crawler recognised (devicecves.families); None
     # when not known, and then not emitted.
     software_family: Optional[str] = None

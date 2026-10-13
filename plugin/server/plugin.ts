@@ -1,3 +1,4 @@
+// Registers the plugin's routes and starts the background liveness check.
 import { first } from 'rxjs/operators';
 import {
   PluginInitializerContext,

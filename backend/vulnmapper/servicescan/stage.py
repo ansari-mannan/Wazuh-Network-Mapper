@@ -1,18 +1,6 @@
-"""The service-scan stage: nmap the unmanaged hosts, then look their service
-versions up through the existing device-CVE NVD path.
-
-Eligibility is exactly the unmanaged hosts with a known IP that the scan has
-already discovered (``hosts.question_targets``): never a managed host, never a
-network device, never an address the scan did not see. The stage is bounded by
-a host cap and a time budget; over either, the rest are left for the next run.
-
-Each host that answered keeps its ``open_ports`` (the honest evidence, recorded
-even without a CVE). A detected product+version with an nmap CPE is turned into
-a CPE lookup and run through :func:`devicecves.lookup.lookup`, so the host gains
-the same ``cve_summary``, ``top_cves``, ``max_cvss``, ``risk_score`` and
-``cve_lookup`` a device gets. The lookup record is marked ``source "nmap"`` and
-``potential``: a detected version is not proof the vulnerable build is running.
-The host stays ``unmanaged``; this gives it data, not an agent.
+"""The service-scan stage: nmap the unmanaged hosts, then look the service
+versions found up in NVD through the device-CVE path. Runs after the device CVE
+stage and before the vectors, so its CVEs flow on to the attack paths.
 """
 
 from __future__ import annotations
@@ -33,6 +21,19 @@ if TYPE_CHECKING:
     from ..pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.servicescan")
+
+# Eligibility is exactly the unmanaged hosts with a known IP that the scan has
+# already discovered (``hosts.question_targets``): never a managed host, never a
+# network device, never an address the scan did not see. The stage is bounded by
+# a host cap and a time budget; over either, the rest are left for the next run.
+#
+# Each host that answered keeps its ``open_ports`` (the honest evidence, recorded
+# even without a CVE). A detected product+version with an nmap CPE is turned into
+# a CPE lookup and run through :func:`devicecves.lookup.lookup`, so the host gains
+# the same ``cve_summary``, ``top_cves``, ``max_cvss``, ``risk_score`` and
+# ``cve_lookup`` a device gets. The lookup record is marked ``source "nmap"`` and
+# ``potential``: a detected version is not proof the vulnerable build is running.
+# The host stays ``unmanaged``; this gives it data, not an agent.
 
 DEFAULT_HOSTS_CAP = 256
 DEFAULT_BUDGET_S = 300.0

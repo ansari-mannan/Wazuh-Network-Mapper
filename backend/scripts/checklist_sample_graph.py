@@ -1,22 +1,7 @@
 #!/usr/bin/env python3
 """Developer helper: put configuration-check results from captures into a graph.
 
-The sample graph (data/graph.json) was written before the checklist existed
-and the lab cannot be rescanned from here. This reads the raw SNMP captures
-of the lab devices (``scripts/captures.py``), runs them through the same
-collection and evaluation code the pipeline uses, and writes the results onto
-the matching device nodes. It is not a scan: nothing touches the network, and
-``metadata.checklist.source`` says where the data came from.
-
-A device is matched by its sysName in the capture against the node's
-hostname. Device nodes without a capture get no checklist; nothing else in
-the graph changes.
-
-The captures do not say which credential the scan used, so its SNMP version
-is given on the command line; whether that credential is a factory name is
-not known, so the default-community check stays "not checked".
-
-    python3 scripts/checklist_sample_graph.py ~/dev/captures ../data/graph.json \\
+    python3 scripts/checklist_sample_graph.py ~/dev/captures ../data/graph.json \
         --snmp-version v2c --source "captures 2026-10-08"
 """
 
@@ -95,6 +80,20 @@ def apply(graph: dict, captures: str, version: str, source: str) -> dict:
     return matched
 
 
+# The sample graph (data/graph.json) was written before the checklist existed
+# and the lab cannot be rescanned from here. This reads the raw SNMP captures
+# of the lab devices (``scripts/captures.py``), runs them through the same
+# collection and evaluation code the pipeline uses, and writes the results onto
+# the matching device nodes. It is not a scan: nothing touches the network, and
+# ``metadata.checklist.source`` says where the data came from.
+#
+# A device is matched by its sysName in the capture against the node's
+# hostname. Device nodes without a capture get no checklist; nothing else in
+# the graph changes.
+#
+# The captures do not say which credential the scan used, so its SNMP version
+# is given on the command line; whether that credential is a factory name is
+# not known, so the default-community check stays "not checked".
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("captures", help="folder with <device>-<table>.txt captures")

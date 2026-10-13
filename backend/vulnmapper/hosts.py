@@ -1,27 +1,7 @@
-"""Hosts without a Wazuh agent: label them, and learn what they probably are.
-
-A host is an endpoint-kind node. One with an ``agent_id`` is managed (active
-or disconnected alike; the Wazuh server is agent 000); one without came from
-a switch's forwarding table, an LLDP or CDP announcement, or an access
-point's client list, and is unmanaged: nothing reports its software, so its
-vulnerabilities are not known. Network devices are not hosts.
-
-Passive clues, from data already in the graph (:func:`label`):
-
-  mac_type    "global" (the first three bytes name a manufacturer in IEEE's
-              registry) or "local" (locally administered: randomised or
-              virtual, with no manufacturer)
-  mac_vendor  the registry's organisation for a global MAC (None if absent)
-
-Clues that ask someone else, run by the pipeline:
-
-  :func:`lookup_names`  reverse DNS through the system resolver (on by
-                        default; it asks the site's DNS server, not the host)
-  :func:`ask_hosts`     one SNMP read of each unmanaged host's system group
-                        with the owner's credentials (off by default: it sends
-                        the credential to machines nobody has vouched for)
-
-risk_score is not touched by any of these.
+"""Hosts without a Wazuh agent: labelled managed or unmanaged with their MAC
+clues during assembly (``label``), named by reverse DNS, and optionally asked
+over SNMP what they are; the last two are pipeline stages. risk_score is
+never touched here.
 """
 
 from __future__ import annotations
@@ -43,6 +23,29 @@ if TYPE_CHECKING:
     from .pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.hosts")
+
+# A host is an endpoint-kind node. One with an ``agent_id`` is managed (active
+# or disconnected alike; the Wazuh server is agent 000); one without came from
+# a switch's forwarding table, an LLDP or CDP announcement, or an access
+# point's client list, and is unmanaged: nothing reports its software, so its
+# vulnerabilities are not known. Network devices are not hosts.
+#
+# Passive clues, from data already in the graph (:func:`label`):
+#
+#   mac_type    "global" (the first three bytes name a manufacturer in IEEE's
+#               registry) or "local" (locally administered: randomised or
+#               virtual, with no manufacturer)
+#   mac_vendor  the registry's organisation for a global MAC (None if absent)
+#
+# Clues that ask someone else, run by the pipeline:
+#
+#   :func:`lookup_names`  reverse DNS through the system resolver (on by
+#                         default; it asks the site's DNS server, not the host)
+#   :func:`ask_hosts`     one SNMP read of each unmanaged host's system group
+#                         with the owner's credentials (off by default: it sends
+#                         the credential to machines nobody has vouched for)
+#
+# risk_score is not touched by any of these.
 
 REGISTRY = os.path.join(os.path.dirname(os.path.abspath(__file__)), "oui.tsv.gz")
 # IEEE blocks are 24 (MA-L), 28 (MA-M) or 36 (MA-S) bits: longest first.

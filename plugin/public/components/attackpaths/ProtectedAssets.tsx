@@ -1,3 +1,7 @@
+// A discoverable second entry to the same action as the Topology panel's "Protect
+// this asset": it lists the marked targets and lets the owner add, re-rank or
+// remove one. Reuses POST /api/vulnmapper/targets and the attack-paths provider
+// (which reloads the computed routes after the server recompute); no new server logic.
 import React, { useState } from 'react';
 import {
   EuiButton,
@@ -19,10 +23,6 @@ import { useGraph } from '../../lib/graph';
 import { useServices } from '../../lib/services';
 import { IMPORTANCE_LEVELS, IMPORTANCE_SHORT } from '../../lib/attackPaths';
 
-// A discoverable second entry to the same action as the Topology panel's "Protect
-// this asset": it lists the marked targets and lets the owner add, re-rank or
-// remove one. Reuses POST /api/vulnmapper/targets and the attack-paths provider
-// (which reloads the computed routes after the server recompute); no new server logic.
 
 function ImportanceButtons({
   idSelected,

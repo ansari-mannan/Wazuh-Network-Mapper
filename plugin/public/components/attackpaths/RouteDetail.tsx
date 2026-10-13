@@ -1,3 +1,5 @@
+// One route in full: each step, its likelihood and source, and the findings
+// on the assets it crosses.
 import React from 'react';
 import {
   EuiAccordion,

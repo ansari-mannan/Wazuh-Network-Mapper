@@ -1,42 +1,7 @@
-"""The CVE vector stage: how each asset's most easily reached CVE can be reached.
-
-Each CVE has four exploitability fields in its CVSS vector (nvd.vector_fields):
-attack_vector, attack_complexity, privileges_required, user_interaction. Device
-CVEs come from NVD with them; host CVEs come from the Wazuh indexer with only a
-score, so this stage asks NVD for them by id (lookup.lookup_cve), through the
-NVD cache and within the client's time budget.
-
-An asset's most easily reached CVE is, among its CVEs with attack vector
-NETWORK or ADJACENT, no privileges required and no user interaction, the one
-with the lowest attack complexity (LOW, then MEDIUM (v2 only), then HIGH),
-ties going to the higher score. To keep requests few, an asset's CVEs are
-looked at highest score first, and the asset is done as soon as one is
-NETWORK, LOW, no privileges and no interaction: nothing can rank above it. A
-CVE is looked up once for every asset that has it, and CVE records the device
-stage already cached are read from the cache, so a warm cache makes no request.
-
-Each asset (endpoint or device node) gets ``reachable_cve``:
-
-  {status: "found", source, cve, attack_vector, attack_complexity,
-   privileges_required, user_interaction, cvss}
-  {status: "none_found", source}   every candidate looked at, none qualifies
-  {status: "unverified", source}   a lookup did not finish inside the budget
-                                   (or NVD could not be reached): no claim
-  null                             the asset has no CVE data (unscored)
-
-``source`` says where the candidates came from: ``findings`` (every CVE of the
-asset, from vulnerabilities.json) or ``top_cves`` (only the worst few, when the
-full list is not available). The four fields are also written, when known, on
-the graph's top_cves rows and on the CVE catalogue of vulnerabilities.json.
-
-Refresh an existing graph without a rescan::
-
-    python -m vulnmapper.devicecves.vectors --graph data/graph.json [--vulns PATH]
-                                            [--nvd-cache PATH] [--budget SECONDS]
-
-Only the fields above, metadata.cve_vectors and this stage's warning change; the
-catalogue of an existing vulnerabilities.json beside the graph (or --vulns) is
-updated, and none is created.
+"""The CVE vector stage: for every asset, its most easily reached CVE
+(``reachable_cve``), from the four exploitability fields of each CVE's CVSS
+vector. Runs after the device CVE and service-scan stages; the attack-path
+stage builds on its fields.
 """
 
 from __future__ import annotations
@@ -61,6 +26,35 @@ if TYPE_CHECKING:
     from ..pipeline import ScanContext
 
 log = logging.getLogger("vulnmapper.devicecves")
+
+# Each CVE has four exploitability fields in its CVSS vector (nvd.vector_fields):
+# attack_vector, attack_complexity, privileges_required, user_interaction. Device
+# CVEs come from NVD with them; host CVEs come from the Wazuh indexer with only a
+# score, so this stage asks NVD for them by id (lookup.lookup_cve), through the
+# NVD cache and within the client's time budget.
+#
+# An asset's most easily reached CVE is, among its CVEs with attack vector
+# NETWORK or ADJACENT, no privileges required and no user interaction, the one
+# with the lowest attack complexity (LOW, then MEDIUM (v2 only), then HIGH),
+# ties going to the higher score. To keep requests few, an asset's CVEs are
+# looked at highest score first, and the asset is done as soon as one is
+# NETWORK, LOW, no privileges and no interaction: nothing can rank above it. A
+# CVE is looked up once for every asset that has it, and CVE records the device
+# stage already cached are read from the cache, so a warm cache makes no request.
+#
+# Each asset (endpoint or device node) gets ``reachable_cve``:
+#
+#   {status: "found", source, cve, attack_vector, attack_complexity,
+#    privileges_required, user_interaction, cvss}
+#   {status: "none_found", source}   every candidate looked at, none qualifies
+#   {status: "unverified", source}   a lookup did not finish inside the budget
+#                                    (or NVD could not be reached): no claim
+#   null                             the asset has no CVE data (unscored)
+#
+# ``source`` says where the candidates came from: ``findings`` (every CVE of the
+# asset, from vulnerabilities.json) or ``top_cves`` (only the worst few, when the
+# full list is not available). The four fields are also written, when known, on
+# the graph's top_cves rows and on the CVE catalogue of vulnerabilities.json.
 
 FIELD = "reachable_cve"
 FOUND, NONE_FOUND, UNVERIFIED = "found", "none_found", "unverified"
@@ -195,6 +189,15 @@ def run_cve_vectors(scan: "ScanContext") -> StageResult:
 
 
 def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
+    """Refresh an existing graph without a rescan::
+
+        python -m vulnmapper.devicecves.vectors --graph data/graph.json [--vulns PATH]
+                                                [--nvd-cache PATH] [--budget SECONDS]
+
+    Only reachable_cve, the vector fields, metadata.cve_vectors and this stage's
+    warning change; the catalogue of an existing vulnerabilities.json beside the
+    graph (or --vulns) is updated, and none is created.
+    """
     setup_logging()
     parser = argparse.ArgumentParser(
         prog="vulnmapper.devicecves.vectors",

@@ -1,3 +1,5 @@
+// The overview's panels: risk, configuration findings and agent coverage,
+// counted from the graph.
 import React from 'react';
 import {
   EuiFlexGrid,

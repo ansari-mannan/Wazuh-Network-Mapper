@@ -1,20 +1,6 @@
-"""Async SNMP wrapper around pysnmp 7.x — the only module that imports pysnmp.
-
-pysnmp 7.x exposes only the asyncio v3arch HLAPI: ``get_cmd`` / ``bulk_cmd`` are
-coroutines and even ``UdpTransportTarget.create`` is awaitable. This wrapper
-hides that and exposes a small surface:
-
-  * :meth:`resolve_credential` — try the operator-supplied credentials against a
-    device once and remember the first that works (no brute-forcing).
-  * :meth:`get_many` / :meth:`get` — GET scalars using the device's resolved
-    credential.
-  * :meth:`walk` — GETBULK-backed table walk.
-
-A *single* shared :class:`SnmpEngine` is reused for the whole crawl. The engine
-carries MIB and datastore state and is heavy, so one is built per run and shared
-across all workers — never one per target. This is safe here because the crawl
-is a bounded worker pool (~32) over the real topology, not a wide sweep of a
-whole address space.
+"""Async SNMP client over pysnmp 7.x, the only module that imports pysnmp:
+resolve a working credential per device, then GETs and GETBULK walks.
+Used by the crawl, the checklist reads, the SNMP question and liveness.
 """
 
 from __future__ import annotations
@@ -51,6 +37,22 @@ from .model import Credential
 log = logging.getLogger("discovery.snmp")
 
 # ---- Common OIDs (exported so nothing else sprinkles magic strings) --------
+
+# pysnmp 7.x exposes only the asyncio v3arch HLAPI: ``get_cmd`` / ``bulk_cmd`` are
+# coroutines and even ``UdpTransportTarget.create`` is awaitable. This wrapper
+# hides that and exposes a small surface:
+#
+#   * :meth:`resolve_credential` — try the operator-supplied credentials against a
+#     device once and remember the first that works (no brute-forcing).
+#   * :meth:`get_many` / :meth:`get` — GET scalars using the device's resolved
+#     credential.
+#   * :meth:`walk` — GETBULK-backed table walk.
+#
+# A *single* shared :class:`SnmpEngine` is reused for the whole crawl. The engine
+# carries MIB and datastore state and is heavy, so one is built per run and shared
+# across all workers — never one per target. This is safe here because the crawl
+# is a bounded worker pool (~32) over the real topology, not a wide sweep of a
+# whole address space.
 
 OID_SYS_DESCR = "1.3.6.1.2.1.1.1.0"
 OID_SYS_OBJECT_ID = "1.3.6.1.2.1.1.2.0"

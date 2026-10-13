@@ -1,10 +1,9 @@
+// The one risk-level rule (overview counts, map node border, detail flyout), on
+// the CVSS v3 bands: Critical 9.0-10.0, High 7.0-8.9, Medium 4.0-6.9, Low < 4.0.
+// Unscored (no score at all) is not the same as 0. No theme imports, so it is
+// unit tested on its own.
 import { CveLookup } from '../../common';
 
-// The ONE risk-level rule, used by the overview counts, the map node border and
-// the detail flyout. CVSS v3 severity bands:
-//   Critical 9.0-10.0 · High 7.0-8.9 · Medium 4.0-6.9 · Low < 4.0
-// Unscored = no score at all (null/undefined), which is NOT the same as 0.
-// Kept free of theme imports so it can be unit tested on its own.
 export type RiskLevel = 'critical' | 'high' | 'medium' | 'low' | 'unscored';
 
 export const SCORED_RISK_LEVELS: RiskLevel[] = ['critical', 'high', 'medium', 'low'];

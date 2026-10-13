@@ -1,49 +1,7 @@
-"""Top-level run: collect -> score -> crawl -> assemble -> device CVEs ->
-CVE vectors -> configuration checks -> one graph.
-
-    python -m vulnmapper --community <community> > graph.json
-
-stdout is the unified ``{nodes, edges, metadata}`` JSON document and nothing
-else; every log line goes to stderr (the Node layer reads stdout to get the
-result). Each stage tolerates per-item failures and the run always emits a valid
-document.
-
-Stages can be fed from cached files instead of run live, which is how the
-sample graph in data/ is rebuilt without touching the lab:
-
-  --scored PATH    use an existing scored endpoints JSON (skip collect + score)
-  --network PATH   use an existing network topology JSON (skip the crawl)
-  --no-endpoints / --no-network   build a one-sided graph
-  --vulns-out PATH every CVE finding (vulnerabilities.json); defaults to the
-                   folder of -o, skipped when the graph goes to stdout
-  --no-device-cves skip the device vulnerability stage (NVD lookups)
-  --no-cve-vectors skip the CVE vector stage (each asset's most easily reached
-                   CVE; NVD lookups by CVE id)
-  --nvd-cache PATH where NVD answers are kept; default nvd-cache.json beside
-                   the vulnerabilities file (or beside -o); both NVD stages
-                   share it, and share one time budget (--nvd-budget)
-  --no-checklist   skip the configuration checks (no extra SNMP reads)
-  --check-default-communities
-                   also try the factory SNMP names public and private (two
-                   read-only requests per device; off by default)
-  --check-management-ports
-                   on devices that do not list their TCP listeners, open one
-                   connection to TCP 23 and 80 and close it (off by default)
-  --no-name-lookup skip the reverse DNS lookup of hosts that have no name
-  --probe-unmanaged-snmp
-                   ask each host without an agent (at most 256) for its SNMP
-                   system group with the scan's own credentials; this sends
-                   them to machines nobody has vouched for (off by default)
-  --nmap-unmanaged service-scan the discovered unmanaged hosts with nmap -sV
-                   (open ports, service versions -> NVD CVEs); actively probes
-                   them, never managed hosts or devices. Off by default.
-                   --nmap-hosts-cap / --nmap-budget bound it
-
-Live stages read credentials from the environment (``WAZUH_*`` for collect,
-``INDEXER_*`` for score, ``--community`` / ``SNMP_COMMUNITIES`` for the crawl,
-``NVD_API_KEY``, optional, for the device CVE stage). The device CVE stage runs
-on the assembled graph's devices whether they were crawled live or loaded with
-``--network``; NVD failing never fails the scan.
+"""The scan from start to finish: Wazuh endpoints and the network crawl, then
+assembly and each optional stage in turn, writing graph.json (stdout or -o),
+vulnerabilities.json and attack_paths.json. Log lines go to stderr only, and
+a stage that fails for one host or device never fails the scan.
 """
 
 from __future__ import annotations
@@ -167,6 +125,9 @@ def _begin(label: str) -> float:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """The scan's options. Credentials never come from here except the SNMP
+    community: live stages read ``WAZUH_*``, ``INDEXER_*``, ``SNMP_*`` and the
+    optional ``NVD_API_KEY`` from the environment (backend/.env.example)."""
     parser = argparse.ArgumentParser(
         prog="vulnmapper",
         description="Unify Wazuh endpoints + SNMP/LLDP network discovery into one "

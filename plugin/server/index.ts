@@ -1,3 +1,4 @@
+// The server side's entry point: the plugin's config schema and its constructor.
 import { PluginConfigDescriptor, PluginInitializerContext } from '../../../src/core/server';
 import { configSchema, VulnmapperConfig } from './config';
 import { VulnmapperPlugin } from './plugin';

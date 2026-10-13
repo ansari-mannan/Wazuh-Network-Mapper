@@ -1,8 +1,8 @@
+// The shared recommendations tracker lives beside the graph, like targets.json
+// and attack_paths.json. It records only the items a user has moved off Open.
 import path from 'path';
 import { RecommendationStatus, RecommendationsFile } from '../common';
 
-// The shared recommendations tracker lives beside the graph, like targets.json
-// and attack_paths.json. It records only the items a user has moved off Open.
 export function recommendationsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'recommendations.json');
 }

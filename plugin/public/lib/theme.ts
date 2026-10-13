@@ -1,3 +1,4 @@
+// Colours and dark-mode detection for what is drawn from code (map, charts).
 import { darkMode, euiThemeVars } from '@osd/ui-shared-deps/theme';
 
 // The dashboard's dark mode setting (theme:darkMode), as resolved by the server

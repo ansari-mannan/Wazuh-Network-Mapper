@@ -1,10 +1,10 @@
+// The shared recommendations tracker, loaded once on mount. setStatus posts one
+// item's status and refreshes from the server's returned file. A missing file
+// comes back as { statuses: {} }.
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { RecommendationStatus, RecommendationsFile } from '../../common';
 import { useServices } from './services';
 
-// The shared recommendations tracker, loaded once on mount. setStatus posts one
-// item's status and refreshes from the server's returned file. A missing file
-// comes back as { statuses: {} }.
 interface RecommendationsState {
   file: RecommendationsFile | null;
   loading: boolean;

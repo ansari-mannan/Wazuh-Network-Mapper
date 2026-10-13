@@ -1,3 +1,5 @@
+// The topology page: the map, its toolbar and counts, the inactive hosts
+// column and the detail flyout of the selected node.
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {

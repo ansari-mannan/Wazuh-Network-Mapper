@@ -1,9 +1,9 @@
+// Graph data shared by every page. Loaded once on mount; `reload` re-reads the
+// file (after a scan, or from the topology toolbar).
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 import { GraphResponse } from '../../common';
 import { useServices } from './services';
 
-// Graph data shared by every page. Loaded once on mount; `reload` re-reads the
-// file (after a scan, or from the topology toolbar).
 interface GraphState {
   graph: GraphResponse | null;
   /** last-modified time of the graph file on the server (ISO string) */

@@ -1,31 +1,33 @@
-"""Exact model and serial from the standard inventory table (ENTITY-MIB).
-
-``entPhysicalTable`` (1.3.6.1.2.1.47.1.1.1.1) is a standard every vendor may
-implement. A system description names only the software image family
-("C3750"); this table names the product ("WS-C3750-48TS-S") and carries the
-serial number.
-
-Only the columns needed are read, and only their first rows: the table can be
-large (about 950 rows on an HP 1920), but the chassis entry comes first or
-near it. The cost per device is two requests (one GETBULK page of the class
-column, one GET of the chosen entry's serial and model), or three for a device
-with no class column (a page of the model column instead).
-
-Which entry is the device:
-
-  * the chassis entry (entPhysicalClass 3) with the lowest index;
-  * in a stack every member is a chassis, so this is the first member (the
-    stack itself is class 11 and names no product);
-  * a table with no class column: the lowest-index entry that has a model
-    name.
-
-A device that does not answer the table gives ``{}`` and loses nothing.
+"""Exact model and serial number from the standard inventory table
+(ENTITY-MIB entPhysicalTable), read for each polled device after the vendor
+module, which only knows the software image family ("C3750").
 """
 
 from __future__ import annotations
 
 import re
 from typing import Optional
+
+# ``entPhysicalTable`` (1.3.6.1.2.1.47.1.1.1.1) is a standard every vendor may
+# implement. A system description names only the software image family
+# ("C3750"); this table names the product ("WS-C3750-48TS-S") and carries the
+# serial number.
+#
+# Only the columns needed are read, and only their first rows: the table can be
+# large (about 950 rows on an HP 1920), but the chassis entry comes first or
+# near it. The cost per device is two requests (one GETBULK page of the class
+# column, one GET of the chosen entry's serial and model), or three for a device
+# with no class column (a page of the model column instead).
+#
+# Which entry is the device:
+#
+#   * the chassis entry (entPhysicalClass 3) with the lowest index;
+#   * in a stack every member is a chassis, so this is the first member (the
+#     stack itself is class 11 and names no product);
+#   * a table with no class column: the lowest-index entry that has a model
+#     name.
+#
+# A device that does not answer the table gives ``{}`` and loses nothing.
 
 ENT_PHYSICAL_ENTRY = "1.3.6.1.2.1.47.1.1.1.1"
 COL_CLASS = 5

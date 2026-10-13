@@ -1,3 +1,4 @@
+// Where every node goes on the map: a top-down layered layout from dagre.
 import * as dagre from "@dagrejs/dagre";
 import { GraphNode, GraphEdge, GraphResponse } from "../../../common";
 

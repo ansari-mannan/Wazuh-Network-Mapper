@@ -1,14 +1,13 @@
-"""Reading SNMP tables into plain Python values, one module per MIB family:
-
-  text      chassis ids, whitespace and OID index helpers the others share
-  bridge    forwarding table, ARP, interface names, MACs and link state
-  lldp      LLDP neighbours, and port ids that arrive as a MAC or a number
-  cdp       Cisco CDP neighbours, as the same records as LLDP
-  wifi      wireless access points and their associated clients
-  collect   the SNMP walks that feed the parsers (the only module doing I/O)
-
+"""Reading SNMP tables into plain Python values, one module per MIB family.
 Callers import from ``vulnmapper.network.parse``; everything public is here.
 """
+
+#   text      chassis ids, whitespace and OID index helpers the others share
+#   bridge    forwarding table, ARP, interface names, MACs and link state
+#   lldp      LLDP neighbours, and port ids that arrive as a MAC or a number
+#   cdp       Cisco CDP neighbours, as the same records as LLDP
+#   wifi      wireless access points and their associated clients
+#   collect   the SNMP walks that feed the parsers (the only module doing I/O)
 
 from .text import (
     collapse_whitespace,

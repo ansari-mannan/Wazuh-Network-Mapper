@@ -1,37 +1,7 @@
-"""vulnerabilities.json — every CVE finding for every scanned endpoint and device.
+"""vulnerabilities.json: every CVE finding of every scanned host and device.
 
-The graph carries only each node's summary and its worst CVEs; the complete
-list goes here. Hosts on one network mostly share the same CVEs, so a CVE's text
-is stored once and each entry lists slim findings that point at it::
-
-    {
-      "metadata": {"scan_time": ...,
-                   "counts": {"hosts", "devices", "cves", "findings"}},
-      "cves":  {"<CVE id>": {cvss, cvss_version, severity, description,
-                             reference, published_at}},
-      "hosts": {"<node_id>": {kind: "endpoint", hostname, agent_id,
-                              findings: [{cve, package, version, detected_at}]},
-                "<node_id>": {kind: "device", hostname, agent_id: null,
-                              cve_lookup: {status, match, product, cpe, source,
-                                           fetched_at, stale, total},
-                              findings: [...]}}
-    }
-
-Keys of ``hosts`` are the graph's ``node_id`` values; endpoints (Wazuh agents)
-and network devices share the map so a page can list them together, and
-``kind`` tells them apart. ``counts.hosts`` counts the endpoint entries and
-``counts.devices`` the device entries. A host without an agent that answered
-SNMP is looked up like a device: its entry has the device shape and kind
-"endpoint". A device's findings come from NVD
-(vulnmapper.devicecves): the package is the product label ("Cisco IOS
-12.2(55)SE12"), the version is the firmware and ``detected_at`` is when NVD was
-asked. ``cves`` takes NVD's text for CVEs Wazuh did not report; when both know
-a CVE, the higher-scored entry is kept.
-
-``findings`` is null when the full list is not available: the host could not
-be scored, it came from an old-shape ``--scored`` file, or the device lookup did
-not succeed. The file is compact JSON (no indentation) because it grows with
-hosts x CVEs.
+Written by the pipeline beside graph.json; the vulnerability report and the
+attack-path stage read the full lists from it.
 """
 
 from __future__ import annotations
@@ -53,9 +23,33 @@ def default_path(graph_path: str) -> str:
 
 def build_document(endpoints: list[dict], cves: Optional[dict], scan_time: str,
                    devices: Optional[dict] = None) -> dict:
-    """Build the document from scored endpoint dicts and the shared CVE catalogue.
+    """The document, from scored endpoints, the shared CVE catalogue and the
+    entries of everything looked up in NVD (``devices``, by node_id)::
 
-    ``devices`` maps a device node_id to its entry (devicecves.stage).
+        {
+          "metadata": {"scan_time": ...,
+                       "counts": {"hosts", "devices", "cves", "findings"}},
+          "cves":  {"<CVE id>": {cvss, cvss_version, severity, description,
+                                 reference, published_at}},
+          "hosts": {"<node_id>": {kind: "endpoint", hostname, agent_id,
+                                  findings: [{cve, package, version, detected_at}]},
+                    "<node_id>": {kind: "device", hostname, agent_id: null,
+                                  cve_lookup: {status, match, product, cpe, source,
+                                               fetched_at, stale, total},
+                                  findings: [...]}}
+        }
+
+    Hosts on one network mostly share their CVEs, so a CVE's text is stored
+    once, in ``cves``, and each finding only points at it. Endpoints and
+    devices share ``hosts`` so a page can list them together; ``kind`` tells
+    them apart. A host without an agent that answered SNMP was looked up like
+    a device, so its entry has the device shape with kind "endpoint". For a
+    device the package is the product ("Cisco IOS 12.2(55)SE12"), the version
+    its firmware and ``detected_at`` when NVD was asked.
+
+    ``findings`` is null when the full list is not known: the host could not
+    be scored, it came from an old-shape ``--scored`` file, or the device
+    lookup failed.
     """
     catalogue = cves or {}
     hosts: dict = {}
@@ -95,7 +89,8 @@ def build_document(endpoints: list[dict], cves: Optional[dict], scan_time: str,
 
 
 def write_atomic(path: str, document: dict) -> None:
-    """Write via a temp file in the same folder, then rename over ``path``."""
+    """Write via a temp file in the same folder, then rename over ``path``.
+    Compact JSON: the file grows with hosts times CVEs."""
     folder = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(prefix=".vulnerabilities.", suffix=".tmp", dir=folder)
     try:

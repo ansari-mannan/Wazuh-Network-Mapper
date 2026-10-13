@@ -1,3 +1,5 @@
+// Running a scan: spawns `python -m vulnmapper` with the configured options,
+// follows its stage lines on stderr, and swaps in the new files only on success.
 import { spawn } from 'child_process';
 import { accessSync, constants, promises as fs } from 'fs';
 import path from 'path';

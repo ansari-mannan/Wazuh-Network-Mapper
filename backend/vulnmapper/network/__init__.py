@@ -1,9 +1,5 @@
-"""Seed-based SNMP/LLDP infrastructure crawler (routers/switches only).
-
-Crawls LLDP neighbor tables outward from a seed, polling each device's identity
-and — new in the unified pipeline — its MAC forwarding table (FDB) and uplink
-ports, which the endpoint linker needs to resolve which switch/port each
-endpoint hangs off. Endpoints themselves are out of scope here; they come from
-the Wazuh side. See :mod:`vulnmapper.network.runner` for the programmatic entry
-point and ``python -m vulnmapper.network`` for the CLI.
+"""The network side of a scan: a crawl outward from a seed over LLDP and CDP
+neighbour tables (crawl.py), reading each switch's, router's and access
+point's identity, forwarding table, ARP table and port states over SNMP. Hosts
+come from the Wazuh side and from these tables, during assembly.
 """

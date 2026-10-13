@@ -1,3 +1,7 @@
+// A network-wide, prioritised action plan: every asset's honest recommended
+// action, deduplicated across assets into distinct items, each listing the
+// assets it affects. It reuses report.ts's logic and wording and invents
+// nothing. Kept free of React/theme imports so it unit-tests on its own.
 import {
   AttackPathsDoc,
   GraphResponse,
@@ -14,10 +18,6 @@ import {
   SEVERITIES,
 } from './report';
 
-// A network-wide, prioritised action plan: every asset's honest recommended
-// action, deduplicated across assets into distinct items, each listing the
-// assets it affects. It reuses report.ts's logic and wording and invents
-// nothing. Kept free of React/theme imports so it unit-tests on its own.
 
 export type RecommendationSource = 'config' | 'firmware' | 'os-updates' | 'service' | 'coverage';
 

@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-"""Standalone entry point — the NTM collect stage.
-
-    python -m vulnmapper.endpoints.collect   ->   agents.json
-
-Thin shim over :class:`vulnmapper.endpoints.WazuhSource`; the output filename and
-env var names (``WAZUH_*``, ``AGENTS_OUT``) are preserved. Progress goes to stderr.
+"""``python -m vulnmapper.endpoints.collect``: the collect step alone, writing the
+normalised agents to agents.json (or $AGENTS_OUT). Progress goes to stderr.
 """
 
 from __future__ import annotations

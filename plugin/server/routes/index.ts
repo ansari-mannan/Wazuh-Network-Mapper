@@ -1,3 +1,5 @@
+// The plugin's HTTP API: the graph and the other files beside it, starting a
+// scan, its status, liveness, protected assets and recommendation statuses.
 import { promises as fs } from 'fs';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';

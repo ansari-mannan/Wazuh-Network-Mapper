@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
-"""Standalone entry point — the APA score stage.
-
-    python -m vulnmapper.endpoints.score   ->   scored_agents.json
-
-Thin shim over :class:`vulnmapper.endpoints.WazuhSource`; the output filename and
-env var names (``INDEXER_*``, ``AGENTS_IN``, ``SCORED_OUT``) are preserved.
-Progress goes to stderr.
-
-The output is ``{"endpoints": [...], "cves": {...}, "warnings": [...]}``, which
-``python -m vulnmapper --scored PATH`` reads back (it also still accepts the old
-plain list of endpoints).
+"""``python -m vulnmapper.endpoints.score``: the score step alone, reading
+agents.json ($AGENTS_IN) and writing ``{endpoints, cves, warnings}`` to
+scored_agents.json ($SCORED_OUT), which ``python -m vulnmapper --scored`` reads.
 """
 
 from __future__ import annotations

@@ -1,20 +1,6 @@
-"""Evaluate the configuration checks for one polled device (``DeviceChecker``).
-
-Each check ends in exactly one result:
-
-  pass            the data was read and the device complies
-  fail            the data was read and the device does not comply
-  not_applicable  the check does not apply to this kind of device or vendor
-  unknown         the check applies but the data could not be read
-  not_checked     the owner did not enable it (the default-community probe)
-
-Missing data is never a pass. One definition of an access port is used by
-every port check (:func:`access_ports`): a physical Ethernet port that is a
-switch port and not an uplink. On Cisco, membership in the VLAN membership
-table (which lists access ports and leaves trunks out) decides "switch port";
-elsewhere, being a bridge port does. VLAN interfaces, port channels,
-loopbacks, null, radio and routed or management-only ports fall out because
-of their type or because they are not switch ports.
+"""Evaluates the configuration checks for one polled device (``DeviceChecker``)
+from the config_data the crawl read. Called by the checklist stage, and by
+the attack-path engine for a device's routed VLANs (``l3_vlans``).
 """
 
 from __future__ import annotations
@@ -25,6 +11,12 @@ from typing import Optional
 from . import tables as t
 from .catalogue import CATALOGUE, references_for
 
+# Each check ends in exactly one result, and missing data is never a pass:
+#   pass            the data was read and the device complies
+#   fail            the data was read and the device does not comply
+#   not_applicable  the check does not apply to this kind of device or vendor
+#   unknown         the check applies but the data could not be read
+#   not_checked     the owner did not enable it (the default-community probe)
 PASS, FAIL, NOT_APPLICABLE, UNKNOWN, NOT_CHECKED = (
     "pass", "fail", "not_applicable", "unknown", "not_checked")
 RESULTS = (PASS, FAIL, NOT_APPLICABLE, UNKNOWN, NOT_CHECKED)
@@ -79,7 +71,15 @@ def _evidence_ports(names: list, extra: Optional[dict] = None) -> dict:
 
 
 def access_ports(config: dict, uplinks, vendor: Optional[str]):
-    """``(sorted ifIndexes, None)`` or ``(None, reason)`` when they cannot be told."""
+    """``(sorted ifIndexes, None)``, or ``(None, reason)`` when they cannot be told.
+
+    Every port check uses this one definition: a physical Ethernet port that
+    is a switch port and not an uplink. On Cisco the VLAN membership table
+    (which lists access ports and leaves trunks out) decides "switch port";
+    elsewhere being a bridge port does. VLAN interfaces, port channels,
+    loopbacks, radios and routed or management-only ports fall out by type or
+    because they are no switch port.
+    """
     ifs = config.get("interfaces")
     if not ifs:
         return None, "the interface table was not read"

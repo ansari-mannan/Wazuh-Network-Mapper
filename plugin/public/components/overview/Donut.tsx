@@ -1,3 +1,4 @@
+// A small SVG donut chart for the overview panels.
 import React from 'react';
 import { Slice } from '../../lib/stats';
 

@@ -1,7 +1,7 @@
-import { CveLookup } from '../../common';
-
 // Plain words for a network device's CVE lookup (backend/vulnmapper/devicecves),
 // for the detail flyout.
+import { CveLookup } from '../../common';
+
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

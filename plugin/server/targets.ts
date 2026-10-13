@@ -1,10 +1,10 @@
+// The owner's protected assets (targets.json) and the computed routes
+// (attack_paths.json) both live beside the graph, as the Python engine expects.
 import { spawn } from 'child_process';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { Importance } from '../common';
 
-// The owner's protected assets (targets.json) and the computed routes
-// (attack_paths.json) both live beside the graph, as the Python engine expects.
 export function targetsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'targets.json');
 }

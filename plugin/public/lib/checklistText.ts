@@ -1,7 +1,7 @@
-import { ConfigEvidence, ConfigFinding, ConfigReference, ConfigSummary, GraphNode, Metadata } from '../../common';
-
 // Plain words for a device's configuration checks (backend/vulnmapper/checklist),
 // for the detail flyout and the overview. No theme imports: unit tested.
+import { ConfigEvidence, ConfigFinding, ConfigReference, ConfigSummary, GraphNode, Metadata } from '../../common';
+
 
 export type ConfigSeverity = 'high' | 'medium' | 'low' | 'advisory';
 export const CONFIG_SEVERITIES: ConfigSeverity[] = ['high', 'medium', 'low', 'advisory'];

@@ -1,34 +1,17 @@
-"""Derive a device *role* (what a node IS) from LLDP capabilities + fallbacks.
-
-This is pure (no I/O, no SNMP) so the bitmap decode and the fallback ladder are
-trivially unit-testable. It is read from two places:
-
-  * :mod:`vulnmapper.network.crawl` — to decide whether an LLDP neighbor is
-    *infrastructure* (a switch/router) versus an *end host/station*, which is the
-    neighbor-port -> uplink-port split.
-  * :mod:`vulnmapper.assemble.merge` — to stamp a ``role`` on every node.
-
-``role`` is deliberately distinct from ``kind`` (which records *which track*
-found the node: endpoint=Wazuh, device=SNMP/LLDP, host=FDB). ``role`` answers a
-different question — *what is this thing?* — independent of how it was found.
-
-PRIMARY SOURCE — the LLDP system-capabilities bitmap (lldpRemSysCapEnabled /
-lldpRemSysCapSupported). It is a BITS field; per the LLDP-MIB the bits are, in
-1-based order:
-
-    1 Other  2 Repeater  3 Bridge  4 WLAN-AP  5 Router  6 Telephone  7 DOCSIS
-    8 Station
-
-A BITS value is encoded most-significant-bit-first, so capability *i* (1-based)
-is bit ``(i-1)`` counting from the MSB of the first octet — i.e. a Router+Bridge
-device (an L3 switch) advertises ``0x28`` (bits 3 and 5).
+"""What a node is (its ``role``: l3-switch, router, access point, phone,
+station, host, ...) from the LLDP capabilities it advertises. The crawler
+uses it to tell uplinks from access ports, the assembler to label every node.
+``role`` is separate from ``kind``, which only says which source found it.
 """
 
 from __future__ import annotations
 
 from typing import Optional
 
-# Capability index (1-based, per the LLDP-MIB BITS definition) -> name.
+# The LLDP-MIB system capabilities (lldpRemSysCapEnabled / ...Supported) are a
+# BITS field, capability i (1-based) at bit i-1 counted from the most
+# significant bit of the first octet. A router that bridges (an L3 switch)
+# therefore advertises 0x28: bits 3 and 5.
 _CAP_NAMES = {
     1: "other",
     2: "repeater",
@@ -52,7 +35,7 @@ def _to_bytes(raw) -> bytes:
     separated hex, or an actual ``bytes`` value. Anything that isn't clean even-
     length hex yields no bytes (caps simply unknown — never a false positive).
 
-    THE PRINTABLE-OCTET TRAP: a 1-octet capability map whose byte is a printable
+    The printable-octet trap: a 1-octet capability map whose byte is a printable
     ASCII character is rendered by SNMP as that literal character — e.g. an L3
     switch's ``0x28`` (Bridge+Router) comes through as ``"("``. HP Comware (and
     some Cisco) advertise a single-octet map, so the hex path above silently
@@ -111,7 +94,7 @@ def role_from_capabilities(caps: set[str]) -> Optional[str]:
 
 
 # Label for a polled device we cannot positively classify. We deliberately do
-# NOT guess a type from the vendor (e.g. "Fortinet must be a firewall") — that is
+# not guess a type from the vendor (e.g. "Fortinet must be a firewall") — that is
 # an inference, not evidence. If a device doesn't tell us what it is via LLDP, we
 # say so honestly.
 UNKNOWN_DEVICE = "Unknown Network Device"

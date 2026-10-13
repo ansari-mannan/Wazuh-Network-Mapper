@@ -1,15 +1,5 @@
-"""vulnmapper — the unified Wazuh-Network-Mapper pipeline.
+"""vulnmapper: maps a network and where its vulnerabilities sit.
 
-One package, layered:
-
-  common/    shared node/edge schema, MAC canonicalization, config helpers
-  endpoints/ the Wazuh endpoint collector (NTM) and CVE scorer (APA)
-  network/   the seed-based SNMP/LLDP infrastructure crawler (+ FDB)
-  linking/   endpoint -> switch edge resolution from switch forwarding tables
-  assemble/  merge everything into one {nodes, edges, metadata} graph document
-
-The top-level run (``python -m vulnmapper``) chains collect -> score -> link ->
-assemble and emits a single unified graph JSON on stdout.
+``python -m vulnmapper`` runs a scan (pipeline.py); docs/CODE_TOUR.md maps
+each part of the scanner to its files.
 """
-
-__all__ = ["endpoints", "network", "assemble"]

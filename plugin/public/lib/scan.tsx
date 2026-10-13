@@ -1,3 +1,5 @@
+// The scan in progress, shared by every page: started from the scan settings,
+// polled while it runs, the graph reloaded when it succeeds.
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ActiveChecks, ScanState } from '../../common';
 import { useServices } from './services';

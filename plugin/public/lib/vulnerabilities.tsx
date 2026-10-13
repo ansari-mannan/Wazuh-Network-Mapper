@@ -1,11 +1,11 @@
+// The full per-asset CVE list, shared by the vulnerability report. Loaded once
+// on mount; `reload` re-reads it (after a scan). A missing file comes back as a
+// doc with metadata.state 'absent' (the server's clean "not available" state).
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { VulnerabilitiesDoc } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
 
-// The full per-asset CVE list, shared by the vulnerability report. Loaded once
-// on mount; `reload` re-reads it (after a scan). A missing file comes back as a
-// doc with metadata.state 'absent' (the server's clean "not available" state).
 interface VulnerabilitiesState {
   doc: VulnerabilitiesDoc | null;
   loading: boolean;

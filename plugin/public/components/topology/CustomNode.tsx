@@ -1,3 +1,5 @@
+// How one node is drawn on the map: icon, risk border, liveness dot, findings
+// badge, dimmed when offline.
 import React from 'react';
 import { EuiBadge } from '@elastic/eui';
 import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';

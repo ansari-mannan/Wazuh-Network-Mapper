@@ -1,29 +1,6 @@
-"""The SNMP tables the configuration checks read, and their parsers.
-
-Every column below was resolved from its MIB definition (TCP-MIB, IF-MIB,
-BRIDGE-MIB, Q-BRIDGE-MIB, CISCO-VLAN-MEMBERSHIP-MIB, CISCO-PORT-SECURITY-MIB,
-CISCO-STP-EXTENSIONS-MIB) and confirmed against captures from real devices.
-Each table is read as a column walk; the parsers are pure, so they are tested
-against captured rows.
-
-What the crawl keeps per device (``config_data`` on the crawl's own node, never
-on the graph) is the compact, already-parsed result:
-
-  snmp:        {"version": "v2c" | "v3" | None, "default_name": "public" | ...}
-  probe:       None, or {"public": answered, "private": answered}
-  uptime:      sysUpTime in hundredths of a second
-  tcp:         {"read": bool, "ports": [local TCP ports in use or listening]}
-  interfaces:  {ifIndex: {name, type, admin, oper, last_change}}
-  bridge_ports {bridge port: ifIndex} (default context)
-  pvid:        {bridge port: VLAN} (802.1Q)
-  vm_vlan:     {ifIndex: VLAN} for Cisco access ports (trunks are not listed)
-  port_security {"global": bool | None, "ports": {ifIndex: bool}}
-  bpdu:        {"global_guard": bool | None, "global_portfast": int | None,
-                "ports": {bridge port: {"portfast": mode, "guard": mode}},
-                "port_ifindex": {bridge port: ifIndex} when it had to be read}
-
-An empty or missing table is recorded as None (not read), never as "nothing
-configured".
+"""The SNMP tables the configuration checks read (TCP-MIB, IF-MIB, BRIDGE-MIB,
+Q-BRIDGE-MIB and Cisco's VLAN, port-security and STP extensions), and pure
+parsers for them, tested against rows captured from real devices.
 """
 
 from __future__ import annotations
@@ -31,6 +8,25 @@ from __future__ import annotations
 from typing import Optional
 
 from ..network.parse import index_after
+
+# config_data, what the crawl keeps per device (on its own node, never in the
+# graph), already parsed:
+#
+#   snmp:        {"version": "v2c" | "v3" | None, "default_name": "public" | ...}
+#   probe:       None, or {"public": answered, "private": answered}
+#   uptime:      sysUpTime in hundredths of a second
+#   tcp:         {"read": bool, "ports": [local TCP ports in use or listening]}
+#   interfaces:  {ifIndex: {name, type, admin, oper, last_change}}
+#   bridge_ports {bridge port: ifIndex} (default context)
+#   pvid:        {bridge port: VLAN} (802.1Q)
+#   vm_vlan:     {ifIndex: VLAN} for Cisco access ports (trunks are not listed)
+#   port_security {"global": bool | None, "ports": {ifIndex: bool}}
+#   bpdu:        {"global_guard": bool | None, "global_portfast": int | None,
+#                 "ports": {bridge port: {"portfast": mode, "guard": mode}},
+#                 "port_ifindex": {bridge port: ifIndex} when it had to be read}
+#
+# An empty or missing table is recorded as None (not read), never as "nothing
+# configured".
 
 # --- TCP-MIB ---------------------------------------------------------------
 # tcpConnState: index <localAddr 4>.<localPort>.<remAddr 4>.<remPort>

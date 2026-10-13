@@ -1,3 +1,6 @@
+// The vulnerability report's data model. Everything here is derived from the
+// three files the scan produced (graph, vulnerabilities, attack paths); nothing
+// is invented. Kept free of theme/React imports so it is unit tested on its own.
 import {
   AttackPathsDoc,
   ConfigFinding,
@@ -12,9 +15,6 @@ import {
   riskLevel,
 } from './riskRule';
 
-// The vulnerability report's data model. Everything here is derived from the
-// three files the scan produced (graph, vulnerabilities, attack paths); nothing
-// is invented. Kept free of theme/React imports so it is unit tested on its own.
 
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'unknown';
 export const SEVERITIES: Severity[] = ['critical', 'high', 'medium', 'low', 'unknown'];

@@ -1,15 +1,6 @@
-"""One device's lookup: identity -> NVD (through the cache) -> CVE rows.
-
-The result's ``status``:
-
-  * ``ok``           NVD answered (CVEs found or not)
-  * ``unverified``   NVD could not confirm the query: the CPE is not in its
-                     dictionary, or NVD called the query malformed
-  * ``unavailable``  NVD could not be reached (or the stage's time budget ran
-                     out) and nothing was cached
-  * ``unidentified`` vendor, family or version missing, or never polled
-
-An expired cache entry is used when NVD cannot be reached; ``stale`` says so.
+"""One lookup: a device's identity, or one CVE id, to NVD through the cache, and
+back as CVE rows with a status. Used by the device CVE, service-scan and vector
+stages.
 """
 
 from __future__ import annotations
@@ -22,6 +13,19 @@ from .cache import INVALID_QUERY, Cache, trim_cve
 from .families import keyword_accepts
 from .nvd import (NvdBudgetExceeded, NvdClient, NvdInvalidQuery, NvdUnavailable,
                   is_rejected, parse_cve)
+
+# The result's status:
+#
+# The result's ``status``:
+#
+#   * ``ok``           NVD answered (CVEs found or not)
+#   * ``unverified``   NVD could not confirm the query: the CPE is not in its
+#                      dictionary, or NVD called the query malformed
+#   * ``unavailable``  NVD could not be reached (or the stage's time budget ran
+#                      out) and nothing was cached
+#   * ``unidentified`` vendor, family or version missing, or never polled
+#
+# An expired cache entry is used when NVD cannot be reached; ``stale`` says so.
 
 STATUS_OK = "ok"
 STATUS_UNVERIFIED = "unverified"

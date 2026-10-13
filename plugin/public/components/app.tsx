@@ -1,3 +1,5 @@
+// The app's root: the data providers every page shares (graph, CVEs, attack
+// paths, liveness, scan), and the route to each page.
 import React, { ComponentType, useEffect } from 'react';
 import { I18nProvider } from '@osd/i18n/react';
 import { Route, Router, Switch } from 'react-router-dom';

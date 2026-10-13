@@ -1,23 +1,6 @@
-"""Read what the configuration checks need while a device is being polled.
-
-Column walks only, through the crawl's own SNMP client and the credential it
-already resolved. A table the device does not answer costs one request and
-is recorded as None (not read). Read-only: GETs and walks, never a SET.
-
-Requests per device (each walk is one or more GETBULKs):
-
-  every device   1 GET (sysUpTime), 2 walks TCP-MIB, 5 walks IF-MIB
-                 (ifName, or ifDescr when ifName is empty: one more),
-                 2 walks BRIDGE-MIB / Q-BRIDGE-MIB              = 10
-  Cisco          + 1 walk VLAN membership, 1 GET (three scalars),
-                 1 walk port security, 2 walks STP extensions    = 15
-                 + one walk per access VLAN, only when BPDU guard differs
-                 between ports (to map Cisco bridge ports to interfaces)
-  probe (opt-in) + 2 GETs with the factory names, no retry
-
-The connection test (opt-in) runs only on a device that does not list its TCP
-listeners: one TCP connection to port 23 and one to port 80, closed as soon
-as it is accepted. No data is sent and no login is tried.
+"""Reads what the configuration checks need while the crawler polls a device,
+through the crawl's own SNMP client: column walks and GETs only, never a SET.
+The result is the device's config_data, evaluated later by the checklist stage.
 """
 
 from __future__ import annotations
@@ -28,6 +11,27 @@ import logging
 from . import tables as t
 
 log = logging.getLogger("vulnmapper.checklist")
+
+# What a device is asked.
+#
+# Column walks only, through the crawl's own SNMP client and the credential it
+# already resolved. A table the device does not answer costs one request and
+# is recorded as None (not read). Read-only: GETs and walks, never a SET.
+#
+# Requests per device (each walk is one or more GETBULKs):
+#
+#   every device   1 GET (sysUpTime), 2 walks TCP-MIB, 5 walks IF-MIB
+#                  (ifName, or ifDescr when ifName is empty: one more),
+#                  2 walks BRIDGE-MIB / Q-BRIDGE-MIB              = 10
+#   Cisco          + 1 walk VLAN membership, 1 GET (three scalars),
+#                  1 walk port security, 2 walks STP extensions    = 15
+#                  + one walk per access VLAN, only when BPDU guard differs
+#                  between ports (to map Cisco bridge ports to interfaces)
+#   probe (opt-in) + 2 GETs with the factory names, no retry
+#
+# The connection test (opt-in) runs only on a device that does not list its TCP
+# listeners: one TCP connection to port 23 and one to port 80, closed as soon
+# as it is accepted. No data is sent and no login is tried.
 
 PROBE_NAMES = ("public", "private")
 PROBE_TIMEOUT_S = 1.0

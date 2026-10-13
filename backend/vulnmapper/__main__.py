@@ -1,4 +1,5 @@
-"""Package entry point: ``python -m vulnmapper`` runs the unified pipeline."""
+"""``python -m vulnmapper``: runs a scan (pipeline.py).
+"""
 
 import sys
 

@@ -1,7 +1,7 @@
-import { themeVars } from './theme';
-
 // The risk rule itself lives in riskRule.ts (no theme imports, unit tested);
 // this module adds the labels and colours.
+import { themeVars } from './theme';
+
 import { RiskLevel } from './riskRule';
 
 export { displayRiskLevel, nodeRiskScore, riskCounts, riskLevel, SCORED_RISK_LEVELS } from './riskRule';

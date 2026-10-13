@@ -1,3 +1,5 @@
+// The attack paths page: for each protected asset, the most likely routes to
+// it from attack_paths.json, ranked, with the detail of the one selected.
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   EuiBadge,

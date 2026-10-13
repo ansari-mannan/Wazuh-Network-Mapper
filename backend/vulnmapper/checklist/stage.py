@@ -1,17 +1,6 @@
-"""The configuration checklist stage: evaluate every polled device of a graph.
-
-Runs after assembly, beside the device CVE stage. The data comes from the
-crawl's network document (``config_data`` on each crawled node, keyed by
-chassis id); the graph's device nodes get only the results:
-
-  config_checks    [{id, title, result, reason?}] one per check
-  config_findings  [{id, title, severity, why, remediation, references, cwe,
-                     evidence}] one per failed check
-  config_summary   {checks, results: {pass, fail, ...}, findings: {high,
-                    medium, low, advisory}}
-
-A device that was not polled gets no checklist at all. risk_score is not
-touched: how findings and CVEs combine is for a later stage.
+"""The checklist stage: every polled device of the assembled graph is checked
+(``DeviceChecker``) against the configuration data the crawl read, and gets
+its results. Runs after the CVE stages; risk_score is not touched.
 """
 
 from __future__ import annotations
@@ -33,7 +22,19 @@ log = logging.getLogger("vulnmapper.checklist")
 
 def run_stage(graph: dict, network_doc: dict, probe_enabled: bool,
               source: str = "scan", port_test: bool = False) -> StageResult:
-    """Evaluate the checks for every polled device node of ``graph`` in place."""
+    """Evaluate the checks for every polled device node of ``graph`` in place.
+
+    The data comes from the network document (``config_data`` on each crawled
+    node, by chassis id); each polled device node gets only the results:
+
+      config_checks    [{id, title, result, reason?}], one per check
+      config_findings  [{id, title, severity, why, remediation, references,
+                         cwe, evidence}], one per failed check
+      config_summary   {checks, results: {pass, fail, ...},
+                        findings: {high, medium, low, advisory}}
+
+    A device that was not polled gets no checklist at all.
+    """
     out = StageResult()
     config_by_chassis = {n.get("chassis_id"): n.get("config_data")
                          for n in network_doc.get("nodes") or [] if n.get("chassis_id")}

@@ -1,7 +1,7 @@
-import { NodeLiveness } from '../../common';
-
 // How a node's liveness was last decided, in words, for the detail flyout and
 // the "Inactive (n)" panel.
+import { NodeLiveness } from '../../common';
+
 
 /** "last seen" time, in the viewer's locale; "never" if not seen. */
 export function formatSeen(iso: string | null | undefined): string {

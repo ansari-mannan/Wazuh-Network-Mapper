@@ -1,11 +1,7 @@
-"""One base risk score per endpoint, from its CVE list.
-
-:func:`base_score` is the only public function. Its signature is a contract: a
-teammate's enrichment framework will later replace the body (and may add inputs
-of its own), so callers must depend on nothing but ``base_score(cves)``.
-
-The current body is a placeholder: about 70% of the score is how bad the worst
-CVE is, and 30% is how many CVEs there are, with diminishing returns.
+"""One base risk score per host from its CVE list (``base_score``), used by the
+endpoint and device CVE stages. Callers rely only on ``base_score(cves)``: the
+body is a placeholder (70% the worst CVE, 30% how many, with diminishing
+returns) that a teammate's enrichment work will replace.
 """
 
 from __future__ import annotations

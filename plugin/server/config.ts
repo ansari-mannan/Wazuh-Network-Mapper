@@ -1,3 +1,4 @@
+// The plugin's settings (vulnmapper.* in opensearch_dashboards.yml) and their defaults.
 import { schema, TypeOf } from '@osd/config-schema';
 import { ActiveChecks } from '../common';
 

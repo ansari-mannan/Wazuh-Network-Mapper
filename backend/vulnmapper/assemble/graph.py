@@ -1,18 +1,6 @@
-"""Joining the Wazuh endpoints and the crawl's network document into one graph.
-
-Each endpoint is hung off the switch port it sits on, by the first rung of
-this ladder that works; the rung becomes the edge's ``confidence``:
-
-  1. LLDP: the switch's neighbour table names the endpoint itself (the
-     "phantom" device node it left is merged into the endpoint);
-  2. the forwarding tables: its MAC is learned on one access port
-     (``mactable.build_mac_table``);
-  3. its /24 matches a device, for an endpoint that is online; else it stays
-     unparented, with the reason.
-
-Hosts with no agent are added from the same evidence (LLDP announcements,
-forwarding tables, access point client lists), then every node gets a
-``discovery_order`` and ``parent_id`` and the metadata is counted.
+"""Assembly: the Wazuh endpoints and the crawl's network document become one
+graph, each host hung off the switch port it sits on (``GraphAssembler``).
+Runs right after the two inputs are read; every later stage works on its graph.
 """
 
 from __future__ import annotations
@@ -118,7 +106,22 @@ def _bfs_device_order(device_ids: list[str], lldp_edges: list[Edge]):
 class GraphAssembler:
     """Builds the ``{nodes, edges, metadata}`` graph from scored endpoints and
     the crawl's network document. One instance per assembly; ``build`` runs
-    the steps in order, each reading what the ones before it left."""
+    the steps in order, each reading what the ones before it left.
+
+    Each endpoint is hung off the switch port it sits on, by the first rung of
+    this ladder that works; the rung becomes the edge's ``confidence``:
+
+      1. LLDP: the switch's neighbour table names the endpoint itself (the
+         "phantom" device node it left is merged into the endpoint);
+      2. the forwarding tables: its MAC is learned on one access port
+         (``mactable.build_mac_table``);
+      3. its /24 matches a device, for an endpoint that is online; else it stays
+         unparented, with the reason.
+
+    Hosts with no agent are added from the same evidence (LLDP announcements,
+    forwarding tables, access point client lists), then every node gets a
+    ``discovery_order`` and ``parent_id`` and the metadata is counted.
+    """
 
     def __init__(self, endpoints: list[dict], network_doc: dict) -> None:
         self.endpoints = endpoints

@@ -1,3 +1,4 @@
+// The frame of every page but the overview.
 import React, { ReactNode } from 'react';
 import { EuiButtonEmpty, EuiPage, EuiPageBody, EuiPageHeader, EuiSpacer } from '@elastic/eui';
 import { PageDef, PAGES } from '../../pages';

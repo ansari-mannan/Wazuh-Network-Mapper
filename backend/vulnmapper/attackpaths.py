@@ -1,47 +1,7 @@
-"""Exposure paths: the most likely routes to each important asset.
-
-Given the assets an owner marks as important (targets.json), this lists the most
-likely route to each from a starting point assumed already compromised, so the
-weakest link can be closed first. It is a graph computation over data the scan
-already holds; it reads only files and never touches the network.
-
-The question: if one place on the network were already in an attacker's hands,
-which of the owner's important assets could be reached, and how easily?
-
-Reachability (which assets can communicate) is decided offline from the graph:
-
-  * same VLAN -> reachable directly;
-  * different VLANs -> only through a device whose role is router or l3-switch
-    that has an up layer-3 interface in both VLANs (its routed VLANs derive from
-    its interface names, reusing the checklist's :func:`l3_vlans`); the
-    lowest-id qualifying router is chosen and named. Firewall and access rules
-    are not read, so every route crossing a router carries that note.
-
-An asset's VLANs: a host sits in its ``vlan``; a Wi-Fi client in the VLAN of the
-single up sub-interface on its radio (several -> left out); a device in every
-VLAN it has an up layer-3 interface for. An asset with no known VLAN is "not
-placed" (never guessed).
-
-Step values (the only numbers; NIST IR 7788, with the misconfiguration mapping
-from the catalogue's CCSS/CVSS v2 ratings):
-
-  * transit through a router: 1 (a network-access step is not a real step);
-  * weakness step (a CVE lets the next asset be taken over): 0.9 / 0.6 / 0.2
-    from the CVE's attack complexity (LOW / MEDIUM / HIGH);
-  * misconfiguration step: the same mapping, from the finding's exposure rating.
-
-A route's likelihood is the product of its step values. The single
-highest-likelihood route per target+start pair is found with Dijkstra on the
-negative log of the step values.
-
-Recompute an existing graph without a rescan::
-
-    python -m vulnmapper.attackpaths --graph data/graph.json [--targets PATH]
-                                     [--paths-out PATH] [--vulns PATH]
-
-It reads the graph, the targets and vulnerabilities.json if present, rewrites
-attack_paths.json beside the graph, changes neither input and makes no network
-call.
+"""Exposure paths: for each asset the owner marked important (targets.json),
+the most likely routes to it from a place assumed already compromised, so the
+weakest link can be closed first. The scan's last stage; it reads only files
+and writes attack_paths.json beside the graph.
 """
 
 from __future__ import annotations
@@ -203,6 +163,19 @@ class AttackPathEngine:
     routers and the VLANs they route, each asset's usable CVEs, and the way to
     take every placed asset over within a VLAN and across a router. The
     public methods are the computation's steps; ``compute`` runs them all.
+
+    Reachability is decided offline. Assets in one VLAN reach each other
+    directly; across VLANs only through a router or l3-switch with an up
+    layer-3 interface in both (the lowest node id among them). Firewall rules
+    are not read, so a route through a router says so. A host's VLAN is its
+    ``vlan``, a Wi-Fi client's that of the one up sub-interface on its radio,
+    a device's every VLAN it has an up layer-3 interface for; an asset with
+    none is "not placed", never guessed.
+
+    A route's likelihood is the product of its step values (NIST IR 7788):
+    crossing a router is 1, taking an asset over is 0.9 / 0.6 / 0.2 by attack
+    complexity. Dijkstra on the negative logarithms finds the single most
+    likely route for each start and target.
     """
 
     def __init__(self, graph: dict, targets: Optional[dict], vulns: Optional[dict],
@@ -614,6 +587,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Optional[list[str]] = None) -> int:
+    """``python -m vulnmapper.attackpaths --graph PATH``: recompute attack_paths.json
+    beside a graph without a rescan (the dashboard runs it when a target is marked).
+    Neither input is changed and nothing is sent on the network."""
     setup_logging()
     args = build_parser().parse_args(argv)
     try:

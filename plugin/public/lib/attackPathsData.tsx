@@ -1,10 +1,10 @@
+// Attack-paths document shared by the page and the topology detail panel.
+// Loaded once on mount; `reload` re-reads it after a target is marked.
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AttackPathsDoc } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
 
-// Attack-paths document shared by the page and the topology detail panel.
-// Loaded once on mount; `reload` re-reads it after a target is marked.
 interface AttackPathsState {
   doc: AttackPathsDoc | null;
   loading: boolean;

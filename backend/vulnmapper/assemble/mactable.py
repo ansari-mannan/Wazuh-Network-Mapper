@@ -93,7 +93,7 @@ def _infra_macs(network_nodes: list[dict]) -> set:
     """The set of infrastructure MACs to exclude from host discovery.
 
     Every device's own interface MACs (ifPhysAddress) plus the chassis/base MAC
-    of each *pollable* device. Endpoint/host MACs are deliberately NOT here, so
+    of each *pollable* device. Endpoint and host MACs are deliberately not here, so
     they still resolve through the table for parenting.
     """
     macs: set = set()

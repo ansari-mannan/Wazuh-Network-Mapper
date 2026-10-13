@@ -1,31 +1,5 @@
-"""The NVD client: CVE and CPE-dictionary queries, rate limited and time boxed.
-
-Endpoints (NVD API 2.0, checked live on 9 October 2026):
-
-  * ``/rest/json/cves/2.0``: ``cpeName`` (a full CPE 2.3 name) returns the CVEs
-    whose applicability statements match it, version ranges included;
-    ``isVulnerable`` (bare, only with ``cpeName``) keeps those where that CPE
-    is the vulnerable component, not merely the platform; ``keywordSearch``
-    searches descriptions; ``noRejected`` drops rejected CVEs;
-    ``resultsPerPage`` (at most 2000) and ``startIndex`` page.
-  * ``/rest/json/cpes/2.0``: ``cpeMatchString`` looks a name up in the CPE
-    dictionary. This matters: a well-formed CPE for a version NVD has never
-    listed is answered with HTTP 200 and every CVE whose version range happens
-    to include it (a made-up IOS version returned 79). Only a dictionary hit
-    shows the query is real. A malformed name gets HTTP 404 with a ``message``
-    header.
-
-The optional key (environment variable ``NVD_API_KEY`` only) goes in the
-``apiKey`` header and is never logged. Without it NVD allows 5 requests per
-rolling 30 seconds and requests are spaced 6 seconds apart; with it, 50 and
-0.8 seconds. A rate-limit (403/429) or server error is retried a small, fixed
-number of times with a back-off. A request that gets no answer at all (a
-timeout or connection error) is not retried: NVD is taken as unreachable for
-the rest of the scan, so the remaining lookups fall back to the cache at once
-instead of each waiting out its own timeouts. The client stops at its time
-budget.
-
-The HTTP layer and the clock are parameters, so tests run from saved replies.
+"""The NVD client: CVE and CPE-dictionary queries, rate limited and time boxed,
+with the HTTP layer and the clock passed in so tests run from saved replies.
 """
 
 from __future__ import annotations
@@ -40,6 +14,33 @@ from urllib.parse import quote
 from ..common import VulnmapperError
 
 log = logging.getLogger("vulnmapper.devicecves")
+
+# Endpoints (NVD API 2.0, checked live on 9 October 2026):
+#
+#   * ``/rest/json/cves/2.0``: ``cpeName`` (a full CPE 2.3 name) returns the CVEs
+#     whose applicability statements match it, version ranges included;
+#     ``isVulnerable`` (bare, only with ``cpeName``) keeps those where that CPE
+#     is the vulnerable component, not merely the platform; ``keywordSearch``
+#     searches descriptions; ``noRejected`` drops rejected CVEs;
+#     ``resultsPerPage`` (at most 2000) and ``startIndex`` page.
+#   * ``/rest/json/cpes/2.0``: ``cpeMatchString`` looks a name up in the CPE
+#     dictionary. This matters: a well-formed CPE for a version NVD has never
+#     listed is answered with HTTP 200 and every CVE whose version range happens
+#     to include it (a made-up IOS version returned 79). Only a dictionary hit
+#     shows the query is real. A malformed name gets HTTP 404 with a ``message``
+#     header.
+#
+# The optional key (environment variable ``NVD_API_KEY`` only) goes in the
+# ``apiKey`` header and is never logged. Without it NVD allows 5 requests per
+# rolling 30 seconds and requests are spaced 6 seconds apart; with it, 50 and
+# 0.8 seconds. A rate-limit (403/429) or server error is retried a small, fixed
+# number of times with a back-off. A request that gets no answer at all (a
+# timeout or connection error) is not retried: NVD is taken as unreachable for
+# the rest of the scan, so the remaining lookups fall back to the cache at once
+# instead of each waiting out its own timeouts. The client stops at its time
+# budget.
+#
+# The HTTP layer and the clock are parameters, so tests run from saved replies.
 
 CVES_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 CPES_URL = "https://services.nvd.nist.gov/rest/json/cpes/2.0"

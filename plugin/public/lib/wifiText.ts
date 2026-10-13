@@ -1,6 +1,6 @@
+// Wi-Fi lines for the detail flyout.
 import { WifiInfo } from '../../common';
 
-// Wi-Fi lines for the detail flyout.
 
 /** "BIG-CYFOR-5G on CYFOR-AP1 (Do1)" for a Wi-Fi client. */
 export function wifiClientText(wifi: WifiInfo, nameOf: (nodeId: string) => string): string {

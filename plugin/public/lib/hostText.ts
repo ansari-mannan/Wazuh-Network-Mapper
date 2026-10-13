@@ -1,7 +1,7 @@
-import { Coverage, GraphNode } from '../../common';
-
 // Plain words for hosts without a Wazuh agent (backend/vulnmapper/hosts.py),
 // for the detail flyout and the overview. No theme imports: unit tested.
+import { Coverage, GraphNode } from '../../common';
+
 
 /** Why an unmanaged host's software and vulnerabilities are not known; empty for any other node. */
 export function unmanagedText(node: GraphNode): string {

@@ -1,16 +1,7 @@
 #!/usr/bin/env python3
 """Developer helper: read net-snmp captures (``snmpwalk -On`` output) as rows.
 
-The lab captures in ~/dev/captures never go into git. This turns the rows a
-feature needs into test fixtures (OID<TAB>value, the format of
-tests/fixtures/*.snmp) and lets other developer scripts read them the way the
-crawler would. Values are rendered as vulnmapper's SnmpClient renders them
-live: octet strings as 0x<hex>, text unquoted, numbers bare, timeticks as the
-raw count, OIDs without the leading dot. net-snmp error lines (the HP switch
-answers one table out of order, which stops snmpwalk) are skipped.
-
     python3 scripts/captures.py --fixtures tests/fixtures ~/dev/captures
-
 writes checklist_<device>.snmp for each captured device (l3, l2, hp, ap).
 """
 
@@ -106,6 +97,13 @@ def write_fixtures(captures: str, out_dir: str) -> None:
         print(f"{path}: {len(rows)} rows")
 
 
+# The lab captures in ~/dev/captures never go into git. This turns the rows a
+# feature needs into test fixtures (OID<TAB>value, the format of
+# tests/fixtures/*.snmp) and lets other developer scripts read them the way the
+# crawler would. Values are rendered as vulnmapper's SnmpClient renders them
+# live: octet strings as 0x<hex>, text unquoted, numbers bare, timeticks as the
+# raw count, OIDs without the leading dot. net-snmp error lines (the HP switch
+# answers one table out of order, which stops snmpwalk) are skipped.
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("captures", help="folder with <device>-<table>.txt captures")

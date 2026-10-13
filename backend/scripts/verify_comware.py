@@ -1,34 +1,10 @@
 #!/usr/bin/env python3
-"""Phase 0 verification gate for the Comware (HP 1920 / H3C) vendor plugin.
-
-This is a *verification* tool, not part of the pipeline. It polls the live
-reference device (the lab HP 1920-48G ``CYFOR-HP-Switch``) and asserts every OID
-the planned ``comware.py`` plugin will depend on against the known-good ground
-truth in the task spec. It exists to catch a wrong assumption BEFORE any plugin
-code is written: a divergence here means the spec is wrong, and the plugin built
-on it would be wrong too — so on any FAIL this exits non-zero and you HALT.
-
-Usage::
+"""Checks, against the live lab HP 1920 (``CYFOR-HP-Switch``), every SNMP value
+the Comware vendor module relies on, and writes comware_verification_report.txt.
+Not part of the pipeline; exits non-zero if any check fails.
 
     python3 scripts/verify_comware.py [target] [community] [version]
-
-defaults: 172.20.99.4  $SNMP_COMMUNITY  v2c
-
-It writes ``scripts/comware_verification_report.txt`` with every check + PASS/FAIL
-and the resolved mapping tables, and exits non-zero if anything failed.
-
-Design notes
-------------
-* A single ``SnmpEngine`` is built once and reused for every GET/walk, matching
-  the project's snmp_client pattern (the engine is heavy; never one per OID).
-* Walks keep the *raw* pysnmp value objects, not pretty-printed strings, because
-  several Comware fields can ONLY be read correctly as raw octets:
-    - ``lldpRemSysCapEnabled`` 0x28 pretty-prints to the ASCII char ``"("`` and
-      would silently decode to no capabilities (the capability-bitmap trap).
-    - chassis-ids / port-ids whose subtype is ``macAddress``.
-* The project's pure parsers (fdb / lldp / roles) are imported and cross-checked
-  so this also proves the existing parsing code already yields the ground truth
-  once the walk rows are correct.
+    (defaults: 172.20.99.4  $SNMP_COMMUNITY  v2c)
 """
 
 from __future__ import annotations
@@ -662,6 +638,17 @@ def _finish(rpt: Report) -> int:
     return 1 if (rpt.failures or rpt.divergences) else 0
 
 
+# How it reads the device:
+# * A single ``SnmpEngine`` is built once and reused for every GET/walk, matching
+# the project's SnmpClient (the engine is heavy; never one per OID).
+# * Walks keep the *raw* pysnmp value objects, not pretty-printed strings, because
+# several Comware fields can ONLY be read correctly as raw octets:
+#   - ``lldpRemSysCapEnabled`` 0x28 pretty-prints to the ASCII char ``"("`` and
+#     would silently decode to no capabilities (the capability-bitmap trap).
+#   - chassis-ids / port-ids whose subtype is ``macAddress``.
+# * The project's pure parsers (fdb / lldp / roles) are imported and cross-checked
+# so this also proves the existing parsing code already yields the ground truth
+# once the walk rows are correct.
 def main() -> int:
     global _CAPTURE_PATH
     args = [a for a in sys.argv[1:]]

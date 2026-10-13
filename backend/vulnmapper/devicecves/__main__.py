@@ -1,15 +1,6 @@
-"""Refresh device CVEs on an existing graph, without a rescan.
-
-    python -m vulnmapper.devicecves --graph data/graph.json [--nvd-cache PATH]
-                                    [--vulns PATH] [--budget SECONDS]
-
-NVD publishes new CVEs every day and a full scan needs the network. This re-runs
-only the device CVE stage: it reads the graph's device nodes, refreshes their
-CVE fields (and the stage's metadata block and warnings), rewrites the graph
-atomically, and updates the device entries in vulnerabilities.json beside it
-(creating a devices-only file if there is none, leaving host entries untouched
-if there is one). Nothing else in the graph changes. No SNMP, no Wazuh; only
-NVD (``NVD_API_KEY`` optional, from the environment).
+"""``python -m vulnmapper.devicecves``: re-runs only the device CVE stage on an
+existing graph, without a rescan (NVD publishes new CVEs every day; a full
+scan needs the network).
 """
 
 from __future__ import annotations
@@ -90,6 +81,17 @@ def update_vulns(path: str, entries: dict, rows: dict, scan_time: Optional[str])
 
 
 def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
+    """Refresh the device CVEs of an existing graph::
+
+        python -m vulnmapper.devicecves --graph data/graph.json [--nvd-cache PATH]
+                                        [--vulns PATH] [--budget SECONDS]
+
+    Refreshes the device nodes' CVE fields (and the stage's metadata block and
+    warnings), rewrites the graph atomically, and updates the device entries of
+    vulnerabilities.json beside it (creating a devices-only file if there is
+    none, leaving host entries untouched). Nothing else in the graph changes.
+    No SNMP, no Wazuh; only NVD (``NVD_API_KEY`` optional, from the environment).
+    """
     setup_logging()
     parser = argparse.ArgumentParser(
         prog="vulnmapper.devicecves",

@@ -1,11 +1,9 @@
+// Port labels for a drawn link. The map draws every link from the upper node to
+// the lower one, which can reverse the recorded direction, so each of an lldp
+// link's two ports goes to the drawn end of its own device. A host link
+// (endpoint_link) has only the switch's port, shown once in the middle.
 import { GraphEdge } from '../../../common';
 
-// Port labels for a drawn link. A device-to-device (lldp) link carries two
-// ports: local_port belongs to the RECORDED source, remote_port to the recorded
-// target. The map draws every link from the upper node to the lower one, which
-// can be the reverse of the recorded direction, so each port is attached to the
-// drawn end that belongs to its own device. A host link (endpoint_link) carries
-// only the switch's port and keeps it as one label in the middle.
 
 export type PortLabels = {
   /** port of the drawn source (upper) device, shown near that end */

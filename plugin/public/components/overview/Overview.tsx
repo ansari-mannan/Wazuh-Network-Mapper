@@ -1,3 +1,4 @@
+// The landing page: the summary panels and a card for each page.
 import React from 'react';
 import {
   EuiCallOut,

@@ -1,24 +1,6 @@
-"""Software families: from a device's identity to a standard product identifier.
-
-NVD files vulnerabilities under CPE 2.3 names, e.g.
-``cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*``. A CPE query returns the
-CVEs whose affected-version ranges include that exact software version. This
-module decides, per device:
-
-  * the software family, when the device is identified (system description,
-    vendor, sysObjectID; see :func:`detect_family`), or for a graph written
-    before families were recorded, by a narrow inference (:func:`family_of`);
-  * the product label ("Cisco IOS 12.2(55)SE12"), the CPE (or none) and the
-    match kind (:func:`identify`): ``cpe`` when a rule builds a full CPE,
-    ``keyword`` when only the fallback applies, ``unidentified`` when vendor,
-    family or version is missing;
-  * for the keyword fallback, whether one CVE really concerns the device
-    (:func:`keyword_accepts`).
-
-The rules are written per vendor and software family, never per device.
-
-Every CPE vendor:product pair below was checked against NVD's CPE dictionary
-(services.nvd.nist.gov/rest/json/cpes/2.0, cpeMatchString) on 9 October 2026.
+"""Software families: from a device's identity to the product label and CPE 2.3
+name NVD files its CVEs under (``identify``). Used by the device CVE stage and
+by the crawler, which records each device's family.
 """
 
 from __future__ import annotations
@@ -28,6 +10,26 @@ from typing import Optional
 
 # Cisco families in the order they must be tested: an IOS XE description also
 # contains the words "IOS Software", so XE, XR, NX-OS and ASA come first.
+# NVD files vulnerabilities under CPE 2.3 names, e.g.
+# ``cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*``. A CPE query returns the
+# CVEs whose affected-version ranges include that exact software version. This
+# module decides, per device:
+#
+#   * the software family, when the device is identified (system description,
+#     vendor, sysObjectID; see :func:`detect_family`), or for a graph written
+#     before families were recorded, by a narrow inference (:func:`family_of`);
+#   * the product label ("Cisco IOS 12.2(55)SE12"), the CPE (or none) and the
+#     match kind (:func:`identify`): ``cpe`` when a rule builds a full CPE,
+#     ``keyword`` when only the fallback applies, ``unidentified`` when vendor,
+#     family or version is missing;
+#   * for the keyword fallback, whether one CVE really concerns the device
+#     (:func:`keyword_accepts`).
+#
+# The rules are written per vendor and software family, never per device.
+#
+# Every CPE vendor:product pair below was checked against NVD's CPE dictionary
+# (services.nvd.nist.gov/rest/json/cpes/2.0, cpeMatchString) on 9 October 2026.
+
 _CISCO_ORDER = (
     ("cisco_ios_xe", re.compile(r"IOS[ -]?XE", re.I)),
     ("cisco_ios_xr", re.compile(r"IOS[ -]?XR", re.I)),

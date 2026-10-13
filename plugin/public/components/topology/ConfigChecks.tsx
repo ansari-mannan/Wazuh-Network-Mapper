@@ -1,3 +1,6 @@
+// A device's configuration checks (backend/vulnmapper/checklist): the failed
+// checks in full, the ones that could not be decided listed quietly. They do
+// not change the risk colour or score.
 import React from 'react';
 import {
   EuiBadge,
@@ -22,9 +25,6 @@ import {
 } from '../../lib/checklistText';
 import { RISK_META } from '../../lib/risk';
 
-// A device's configuration checks (backend/vulnmapper/checklist): the failed
-// checks in full, the ones that could not be decided listed quietly. They do
-// not change the risk colour or score.
 
 export function configSeverityColor(severity: string | null): string {
   const key = severityKey(severity);

@@ -1,9 +1,6 @@
-"""The network crawl: a breadth-first walk over LLDP and CDP neighbour tables,
-starting from the seeds and polling each device found once.
-
-First stage of the network side of the pipeline (``crawl_document``); its
-document goes to the assembler. Every SNMP request goes through
-``snmp.SnmpClient``.
+"""The network crawl: a breadth-first walk over LLDP and CDP neighbour tables
+from the seeds, polling each device found once (``Crawler``). The first stage
+of the network side (``crawl_document``); its document goes to assembly.
 """
 
 from __future__ import annotations

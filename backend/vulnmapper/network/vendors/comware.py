@@ -1,28 +1,5 @@
-"""HP / H3C Comware device identification (e.g. the HP 1920 switch family).
-
-Comware's sysDescr carries the platform and firmware in plain text::
-
-    1920-48G Switch Software Version 5.20.99, Release 1107
-    Copyright(c)2010-2015 Hewlett-Packard Development Company, L.P.
-
-but, unlike Cisco, there is NO "Comware" (or "H3C"/"HP") token to dispatch on —
-the vendor string is literally "Hewlett-Packard Development Company". So vendor
-routing keys on the sysObjectID enterprise arc (25506, the H3C/HP/3Com arc) via
-:data:`vulnmapper.network.vendors.VENDOR_BY_ENTERPRISE`, never on a sysDescr
-substring. See :func:`matches`.
-
-  * model    -> sysObjectID looked up in comware_models.json
-  * firmware -> sysDescr "Version <x.y.z>, Release <nnnn>" -> "x.y.z Release nnnn"
-  * serial   -> left null here; the crawler fills it from the standard
-                inventory table (vulnmapper.network.entity). The model name from
-                comware_models.json is kept over the table's (marked
-                authoritative), since the table may give only a part number.
-
-Note on the FDB: Comware returns dot1qTpFdbPort sorted by MAC, which the net-snmp
-CLI rejects as "OID not increasing". This pipeline's walk (snmp_client.py) steps
-GETNEXT-style from the last-returned OID, so it retrieves the full table without
-any ``ignoreNonIncreasingOid`` workaround — verified live. There is therefore no
-Comware-specific FDB branch: the existing default-context dot1q path handles it.
+"""HP / H3C Comware identification (the HP 1920 switch family, among others):
+model from the sysObjectID, firmware from the system description.
 """
 
 from __future__ import annotations
@@ -36,6 +13,30 @@ from typing import Optional
 # The H3C/HP/3Com enterprise arc. Vendor routing keys on this prefix; the HP 1920
 # sysDescr contains no vendor/OS token to match, so sysObjectID is the only
 # reliable discriminator.
+# Comware's sysDescr carries the platform and firmware in plain text::
+#
+#     1920-48G Switch Software Version 5.20.99, Release 1107
+#     Copyright(c)2010-2015 Hewlett-Packard Development Company, L.P.
+#
+# but, unlike Cisco, there is no "Comware" (or "H3C"/"HP") token to dispatch on —
+# the vendor string is literally "Hewlett-Packard Development Company". So vendor
+# routing keys on the sysObjectID enterprise arc (25506, the H3C/HP/3Com arc) via
+# :data:`vulnmapper.network.vendors.VENDOR_BY_ENTERPRISE`, never on a sysDescr
+# substring. See :func:`matches`.
+#
+#   * model    -> sysObjectID looked up in comware_models.json
+#   * firmware -> sysDescr "Version <x.y.z>, Release <nnnn>" -> "x.y.z Release nnnn"
+#   * serial   -> left null here; the crawler fills it from the standard
+#                 inventory table (vulnmapper.network.entity). The model name from
+#                 comware_models.json is kept over the table's (marked
+#                 authoritative), since the table may give only a part number.
+#
+# The forwarding table: Comware returns dot1qTpFdbPort sorted by MAC, which the net-snmp
+# CLI rejects as "OID not increasing". This pipeline's walk (network/snmp.py) steps
+# GETNEXT-style from the last-returned OID, so it retrieves the full table without
+# any ``ignoreNonIncreasingOid`` workaround — verified live. There is therefore no
+# Comware-specific FDB branch: the existing default-context dot1q path handles it.
+
 ENTERPRISE_PREFIX = "1.3.6.1.4.1.25506"
 
 _MODELS_PATH = os.path.join(
@@ -94,7 +95,7 @@ async def identify(
 ) -> dict:
     """Return Comware-specific fields. No extra SNMP round-trips are needed —
     model and firmware come from the sysObjectID + sysDescr already fetched by
-    :mod:`vulnmapper.network.crawl`. ``snmp_client``/``ip`` are accepted for
+    :mod:`vulnmapper.network.identity`. ``snmp_client``/``ip`` are accepted for
     interface symmetry with the other vendor plug-ins.
     """
     return {

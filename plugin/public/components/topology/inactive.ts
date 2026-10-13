@@ -1,3 +1,5 @@
+// The one rule for when a host counts as offline, shared by the map, the
+// vulnerability report and the recommendations.
 import { GraphNode, GraphResponse, LivenessResponse } from '../../../common';
 
 // Wazuh agent states that mean the host is not there (the Manager API's words).

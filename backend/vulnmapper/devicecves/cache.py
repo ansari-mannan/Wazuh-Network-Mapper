@@ -1,24 +1,5 @@
-"""nvd-cache.json: NVD answers kept between scans.
-
-The plugin can start a scan every 120 seconds; NVD allows 5 requests per 30
-seconds without a key. So every answer is cached, keyed by the query (the CPE
-string, the dictionary check of a CPE, or the keyword query), and two devices
-on the same software share one entry. With a warm cache a scan makes no NVD
-request at all.
-
-  * A successful answer with CVEs (or a CPE the dictionary lists) is fresh
-    for 7 days; an empty or inconclusive one for 1 day.
-  * When NVD cannot be reached, an expired entry is used anyway and the
-    result is marked stale: a device never loses its CVEs because NVD had a
-    bad day.
-  * A corrupt or unreadable file is ignored and rebuilt; it never stops a scan.
-  * A query NVD calls malformed is cached like an empty answer, with the data
-    :data:`INVALID_QUERY`, so it is not asked again every scan.
-
-The file is written atomically (temp file and rename, as vulnerabilities.json
-is). Each CVE is stored trimmed to what the stage reads. The trim keeps every
-CVSS metric whole, vector included, so entries written before the vector
-fields were parsed (vulnmapper.devicecves.vectors) serve them as they are.
+"""nvd-cache.json: NVD answers kept between scans, shared by every NVD lookup
+of a scan (device CVEs, the service scan and the CVE vectors).
 """
 
 from __future__ import annotations
@@ -31,6 +12,26 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 log = logging.getLogger("vulnmapper.devicecves")
+
+# The plugin can start a scan every 120 seconds; NVD allows 5 requests per 30
+# seconds without a key. So every answer is cached, keyed by the query (the CPE
+# string, the dictionary check of a CPE, or the keyword query), and two devices
+# on the same software share one entry. With a warm cache a scan makes no NVD
+# request at all.
+#
+#   * A successful answer with CVEs (or a CPE the dictionary lists) is fresh
+#     for 7 days; an empty or inconclusive one for 1 day.
+#   * When NVD cannot be reached, an expired entry is used anyway and the
+#     result is marked stale: a device never loses its CVEs because NVD had a
+#     bad day.
+#   * A corrupt or unreadable file is ignored and rebuilt; it never stops a scan.
+#   * A query NVD calls malformed is cached like an empty answer, with the data
+#     :data:`INVALID_QUERY`, so it is not asked again every scan.
+#
+# The file is written atomically (temp file and rename, as vulnerabilities.json
+# is). Each CVE is stored trimmed to what the stage reads. The trim keeps every
+# CVSS metric whole, vector included, so entries written before the vector
+# fields were parsed (vulnmapper.devicecves.vectors) serve them as they are.
 
 FILENAME = "nvd-cache.json"
 FORMAT = 1

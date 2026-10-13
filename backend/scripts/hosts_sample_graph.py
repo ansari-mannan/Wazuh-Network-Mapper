@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 """Developer helper: label the hosts of an existing graph without rescanning.
 
-The sample graph (data/graph.json) was written before hosts were labelled
-managed or unmanaged. This applies what needs only the graph itself
-(vulnmapper.hosts.label: unmanaged, mac_type, mac_vendor, metadata.coverage)
-and writes the graph back. It is not a scan: no name lookup, no SNMP, nothing
-touches the network.
-
     python3 scripts/hosts_sample_graph.py ../data/graph.json
 """
 
@@ -22,6 +16,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from vulnmapper.hosts import label  # noqa: E402
 
 
+# The sample graph (data/graph.json) was written before hosts were labelled
+# managed or unmanaged. This applies what needs only the graph itself
+# (vulnmapper.hosts.label: unmanaged, mac_type, mac_vendor, metadata.coverage)
+# and writes the graph back. It is not a scan: no name lookup, no SNMP, nothing
+# touches the network.
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("graph", help="graph.json to update in place")

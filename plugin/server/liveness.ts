@@ -1,3 +1,7 @@
+// The background liveness check (off unless vulnmapper.liveness.enabled): every
+// intervalSeconds, run `python -m vulnmapper.liveness` over the current graph
+// and save liveness.json. It only reads graph.json, whose sole writer is a scan;
+// a suggested rescan starts within the limits in autoRescan.ts.
 import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -7,13 +11,6 @@ import { createAutoRescan } from './autoRescan';
 import { configuredChecks } from './config';
 import { getLastChecks, getLastCommunity, getScan, startScan } from './scan';
 
-// The background liveness check: every intervalSeconds, run
-// `python -m vulnmapper.liveness` over the current graph and save its state
-// document to liveness.json. It only reads graph.json (a scan is its sole
-// writer) and only re-checks what the scan found. When a pass suggests a
-// rescan (something new appeared), a scan is started the way a manual one is,
-// within the limits in autoRescan.ts. Off unless vulnmapper.liveness.enabled
-// is true.
 
 let timer: NodeJS.Timeout | null = null;
 let running = false;
