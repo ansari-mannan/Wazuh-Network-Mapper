@@ -1,5 +1,6 @@
 // The plugin's HTTP API: the graph and the other files beside it, starting a
-// scan, its status, liveness, protected assets and recommendation statuses.
+// scan, its status and schedule, liveness, protected assets and recommendation
+// statuses.
 import { promises as fs } from 'fs';
 import { schema } from '@osd/config-schema';
 import { IRouter, Logger } from '../../../../src/core/server';
@@ -7,10 +8,16 @@ import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
 import { getScan, onPath, startScan } from '../scan';
+import { scheduleBody, Scheduler } from '../schedule';
 import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 
-export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: Logger) {
+export function defineRoutes(
+  router: IRouter,
+  config: VulnmapperConfig,
+  logger: Logger,
+  scheduler: Scheduler | null = null
+) {
   const notConfigured = (key: string) => ({
     statusCode: 500,
     body: { message: `vulnmapper.${key} is not set in opensearch_dashboards.yml` },
@@ -267,6 +274,30 @@ export function defineRoutes(router: IRouter, config: VulnmapperConfig, logger: 
         });
       }
       return response.accepted({ body: scanBody() });
+    }
+  );
+
+  // Scheduled scans: the choice, the next due time and the last scheduled run.
+  // Needs backendDir and graphPath (schedule.json lives beside the graph).
+  router.get(
+    { path: '/api/vulnmapper/schedule', validate: false },
+    async (context, request, response) => {
+      if (!scheduler) return response.customError(notConfigured(config.backendDir ? 'graphPath' : 'backendDir'));
+      return response.ok({ body: scheduler.get() });
+    }
+  );
+
+  router.post(
+    {
+      path: '/api/vulnmapper/schedule',
+      validate: {
+        body: scheduleBody,
+      },
+    },
+    async (context, request, response) => {
+      if (!scheduler) return response.customError(notConfigured(config.backendDir ? 'graphPath' : 'backendDir'));
+      await scheduler.set(request.body);
+      return response.ok({ body: scheduler.get() });
     }
   );
 

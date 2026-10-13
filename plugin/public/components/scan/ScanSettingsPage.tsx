@@ -1,5 +1,5 @@
-// The scan settings page: start a scan (with the optional active checks) and
-// see where the current graph came from.
+// The scan settings page: start a scan (with the optional active checks), set
+// the scan schedule and see where the current graph came from.
 import React, { useState } from 'react';
 import {
   EuiButton,
@@ -19,6 +19,7 @@ import { ActiveChecks } from '../../../common';
 import { useScan } from '../../lib/scan';
 import { GraphSource } from './GraphSource';
 import { ScanStatus } from './ScanStatus';
+import { ScheduledScans } from './ScheduledScans';
 
 // The optional active checks, in the order shown; what each sends, in one sentence.
 const ACTIVE_CHECKS: Array<{ key: keyof ActiveChecks; label: string; help: string; testSubj: string }> = [
@@ -128,6 +129,8 @@ export function ScanSettingsPage() {
           <EuiSpacer size="m" />
           <ScanStatus scan={scan} />
         </EuiPanel>
+        <EuiSpacer size="m" />
+        <ScheduledScans />
       </EuiFlexItem>
       <EuiFlexItem grow={2}>
         <GraphSource />

@@ -299,8 +299,13 @@ export type RecommendationsFile = {
 // scan the status returns to idle with a completion message.
 export type ScanStatus = 'idle' | 'running' | 'failed';
 
+// What started a scan: the scan form, the schedule, or the liveness check's
+// automatic rescan.
+export type ScanTrigger = 'manual' | 'scheduled' | 'automatic';
+
 export type ScanState = {
   status: ScanStatus;
+  trigger?: ScanTrigger;
   message: string | null;
   startedAt: string | null;
   finishedAt: string | null;
@@ -310,6 +315,27 @@ export type ScanState = {
   stage?: string | null;
   // Whether nmap is on the dashboard server's PATH (the nmap switch needs it).
   nmapAvailable?: boolean;
+};
+
+// Scheduled scans (schedule.json beside the graph; GET/POST /api/vulnmapper/schedule).
+// Every N hours runs on the server's local hours divisible by N; daily at dailyHour:00.
+export type ScheduleFrequency = 'off' | '1h' | '3h' | '6h' | '12h' | 'daily';
+
+export type ScheduledRun = {
+  at: string; // ISO time the slot fired
+  status: 'completed' | 'failed' | 'skipped';
+  message: string;
+};
+
+export type ScheduleFile = {
+  frequency: ScheduleFrequency;
+  dailyHour: number; // 0-23, server local time
+  lastRun: ScheduledRun | null;
+};
+
+export type ScheduleResponse = ScheduleFile & {
+  nextRun: string | null; // ISO
+  timeZone: string; // the server's IANA time zone, for display
 };
 
 // The scan's optional active checks, each off unless the owner turns it on

@@ -32,6 +32,8 @@ data/vulnerabilities.json
 data/targets.json
 # NVD answers kept between scans (devicecves)
 data/nvd-cache.json
+# the scan schedule (plugin: the choice and the last scheduled run)
+data/schedule.json
 
 # Serena (editor agent) project files
 .serena/

@@ -1,7 +1,7 @@
 import { mkdtempSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
-import { failureMessage, latestStage, onPath, scanArgs } from './scan';
+import { failureMessage, getScan, latestStage, onPath, scanArgs, startScan } from './scan';
 
 const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
 const FILES = ['--vulns-out', '/tmp/v.json', '--paths-out', '/tmp/p.json', '--targets', '/data/targets.json'];
@@ -65,5 +65,22 @@ describe('onPath', () => {
     expect(onPath('notexec', dir)).toBe(false);
     expect(onPath('nmap', '/nonexistent')).toBe(false);
     expect(onPath('nmap', '')).toBe(false);
+  });
+});
+
+describe('startScan', () => {
+  it('runs one scan at a time, whatever starts it, and reports how it ended', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-scan-'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    // node rejects "-m vulnmapper", so this scan fails quickly without a scanner
+    const opts = { pythonBin: process.execPath, backendDir: dir, graphPath: path.join(dir, 'graph.json'), logger };
+    const ended = new Promise<[boolean, string]>((resolve) => {
+      expect(startScan({ ...opts, trigger: 'scheduled', onDone: (ok, m) => resolve([ok, m]) })).toBe(true);
+    });
+    expect(getScan()).toMatchObject({ status: 'running', trigger: 'scheduled' });
+    expect(startScan({ ...opts, trigger: 'manual' })).toBe(false); // the lock
+    const [ok] = await ended;
+    expect(ok).toBe(false);
+    expect(getScan().status).toBe('failed');
   });
 });

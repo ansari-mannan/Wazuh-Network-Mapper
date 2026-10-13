@@ -117,6 +117,7 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
       startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(),
         deviceCves: config.deviceCves,
         checks: getLastChecks() ?? configuredChecks(config),
+        trigger: 'automatic',
         logger }),
     logger,
   });

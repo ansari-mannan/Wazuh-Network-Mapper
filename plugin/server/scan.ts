@@ -4,7 +4,7 @@ import { spawn } from 'child_process';
 import { accessSync, constants, promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
-import { ActiveChecks, ScanState } from '../common';
+import { ActiveChecks, ScanState, ScanTrigger } from '../common';
 import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 
 // One module-level state object: the server process runs one scan at a time.
@@ -45,6 +45,9 @@ interface ScanOptions {
   deviceCves?: boolean;
   // the optional active checks that are on (see CHECK_FLAGS)
   checks?: Partial<ActiveChecks>;
+  trigger?: ScanTrigger;
+  /** called once the scan ends: ok false for a failed scan */
+  onDone?: (ok: boolean, message: string) => void;
   logger: Logger;
 }
 
@@ -97,8 +100,13 @@ export function scanArgs(
   return args;
 }
 
+let onScanDone: ScanOptions['onDone'];
+
 function finish(status: ScanState['status'], message: string) {
   scan = { ...scan, status, message, stage: null, finishedAt: new Date().toISOString() };
+  const done = onScanDone;
+  onScanDone = undefined;
+  done?.(status !== 'failed', message);
 }
 
 /**
@@ -119,10 +127,13 @@ export function startScan({
   community,
   deviceCves = true,
   checks = {},
+  trigger = 'manual',
+  onDone,
   logger,
 }: ScanOptions) {
   if (scan.status === 'running') return false;
-  scan = { status: 'running', message: null, stage: null, startedAt: new Date().toISOString(), finishedAt: null };
+  scan = { status: 'running', trigger, message: null, stage: null, startedAt: new Date().toISOString(), finishedAt: null };
+  onScanDone = onDone;
   // A scan started without one falls back to the environment; keep the last
   // community that was given rather than forgetting it.
   if (community) lastCommunity = community;

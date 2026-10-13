@@ -7093,6 +7093,20 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 </div>
 </div>
 </div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmSchedule\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scheduled scans</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
@@ -7508,6 +7522,20 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 </div>
 </div>
 </div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmSchedule\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scheduled scans</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
@@ -7913,6 +7941,20 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 </div>
 </div>
 </div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmSchedule\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scheduled scans</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
@@ -8309,6 +8351,20 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 <span class=\\"euiButton__text\\">Run scan</span>
 </span>
 </button>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmSchedule\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scheduled scans</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
 </div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -8730,6 +8786,20 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 <p>Started 10/7/2026, 2:00:00 PM. The current graph stays in use until it finishes.</p>
 </div>
 </div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmSchedule\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">Scheduled scans</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Scheduled scans run with every active check off and take the SNMP credential from the dashboard server's environment (SNMP_COMMUNITIES or SNMP_COMMUNITY), never from this form.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
 </div>

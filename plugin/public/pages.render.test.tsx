@@ -18,7 +18,8 @@ const data: Record<string, any> = {};
 jest.mock('./lib/graph', () => ({ useGraph: () => data.graph }));
 jest.mock('./lib/vulnerabilities', () => ({ useVulnerabilities: () => data.vulns }));
 jest.mock('./lib/attackPathsData', () => ({ useAttackPaths: () => data.paths }));
-jest.mock('./lib/services', () => ({ useServices: () => ({ http: {} }) }));
+// the schedule and history panels fetch on mount; leave them loading
+jest.mock('./lib/services', () => ({ useServices: () => ({ http: { get: () => new Promise(() => undefined) } }) }));
 jest.mock('./lib/scan', () => ({ useScan: () => data.scan }));
 jest.mock('./lib/liveness', () => {
   const { offlineHosts } = jest.requireActual('./components/topology/inactive');
