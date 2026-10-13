@@ -1,5 +1,7 @@
 # Documentation
 
+- [CODE_TOUR.md](CODE_TOUR.md): the parts of the system and their files, how data moves through a scan, the stages in order, and every class.
+
 ## archive/
 
 The archive holds documents from earlier stages of the project. They are kept

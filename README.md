@@ -1,52 +1,80 @@
 # Wazuh Network Topology Mapper and Attack Path Analysis Plugin
 
 This project maps a network and shows where its vulnerabilities sit. A Python
-scanner discovers routers and switches over SNMP/LLDP, pulls endpoints and
-their CVEs from Wazuh, and joins both into a single topology graph. A web app
-draws that graph so an analyst can see how vulnerable hosts connect to the rest
-of the network, instead of reading CVE lists per host in isolation.
+scanner discovers routers, switches and access points over SNMP (LLDP and CDP),
+pulls endpoints and their CVEs from Wazuh, and joins both into one topology
+graph. An OpenSearch Dashboards plugin for the Wazuh dashboard draws that graph,
+so an analyst sees how vulnerable hosts connect to the rest of the network
+instead of reading CVE lists per host in isolation.
 
-## Status
+## What it does
 
-The project runs as an OpenSearch Dashboards plugin (`plugin/`, OpenSearch
-Dashboards 2.19.3, Wazuh dashboard 4.14). On real scan data it shows the
-overview, the topology map with a detail panel per node, and the scan settings.
-Endpoints get CVEs and a base score from Wazuh; network devices get potential
-CVEs and a base score from NVD, matched by software version. An optional
-liveness check marks nodes that have left the network. Vulnerabilities, attack
-paths and recommendations are not built yet and show "Coming soon".
+- **Topology map**: every device and host, each host placed on the switch port
+  it sits on, with a detail panel per node.
+- **Vulnerabilities**: CVEs and a base score for endpoints (from Wazuh) and for
+  network devices (from NVD, matched by software version), and a ranked
+  vulnerability report that exports to PDF.
+- **Configuration checks**: switch settings checked against DISA STIG and SRG
+  rules (telnet or HTTP management, SNMP without authentication, default
+  communities, spare ports, the default VLAN, BPDU guard, port security).
+- **Attack paths**: for each asset the owner marks as important, the most
+  likely routes to it from a place assumed already compromised (NIST IR 7788).
+- **Recommendations**: one prioritised, trackable action plan for the network.
+- **Liveness** (optional): between scans, nodes that stop answering are greyed
+  out, and a new device or agent can start a rescan.
+- **Hosts without an agent** are found in the switches' tables; optional
+  checks can ask them over SNMP or service-scan them with nmap.
 
 ## Project structure
 
 ```
-backend/     Python scanner (vulnmapper), its tests and maintenance scripts
-data/        graph.json, the scan output the web app reads
-docs/        diagrams and archived project documents
-plugin/      OpenSearch Dashboards plugin (Wazuh dashboard), see plugin/README.md
+backend/   the Python scanner (vulnmapper), its tests and maintenance scripts
+plugin/    the OpenSearch Dashboards plugin (Wazuh dashboard)
+data/      a sample graph and its attack paths, from the lab
+docs/      the code tour, and archived documents from earlier stages
+scripts/   start the dashboard with the plugin, build and install the plugin
 ```
 
-## Getting started
+## Running it
 
-Prerequisites: Python 3.10 or later, Node.js 22.18 or later, and npm.
+Requirements: Python 3.10 or later; OpenSearch Dashboards 2.19.3 (the Wazuh
+dashboard 4.14 is built on it) and Node.js 18.19.0 for the plugin.
 
-Backend tests:
+Scanner, from `backend/`:
 
 ```
-cd backend
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests
+python -m vulnmapper --community <community> -o ../data/graph.json
 ```
 
-The dashboard plugin: see [plugin/README.md](plugin/README.md).
+Credentials come from the environment only: copy `backend/.env.example` to
+`~/.vulnmapper.env` and fill in the Wazuh, Indexer and SNMP settings.
+`python -m vulnmapper --help` lists the options; `backend/README.md` describes
+each stage.
 
-## Configuration
-
-Copy `backend/.env.example` to `~/.vulnmapper.env` and fill in the Wazuh and
-SNMP settings it lists.
+Dashboard: `scripts/run.sh` starts the dashboard with the plugin (from a source
+checkout of OpenSearch Dashboards, or a packaged one on a server) and loads
+`~/.vulnmapper.env`. The plugin is then at http://localhost:5601/app/vulnmapper.
+See `plugin/README.md` for the development setup, the plugin's settings and
+building the zip.
 
 ## Documentation
 
-See [docs/README.md](docs/README.md).
+[docs/CODE_TOUR.md](docs/CODE_TOUR.md) maps each part of the system to its
+files, follows the data through a scan and lists every class. Older documents
+are in [docs/archive/](docs/README.md).
+
+## Authors
+
+- [Ahmad Naaem Saad](https://github.com/AhmadNaaem)
+- [Abdul Mannan Ansari](https://github.com/ansari-mannan)
+- [Muhammad Hasan](https://github.com/hasan8733)
+
+## Acknowledgements
+
+Developed at the CYFOR Cybersecurity and Networking Research Lab as a Final
+Year Project (FYP Batch 2023) at UIT University, Karachi.
 
 ## License
 

@@ -330,8 +330,10 @@ checkout):
 yarn build --opensearch-dashboards-version 2.19.3
 ```
 
-The result is `build/vulnmapper-2.19.3.zip`. Installing it into a Wazuh
-dashboard has not been tested yet.
+The result is `build/vulnmapper-2.19.3.zip`. `scripts/send-plugin.sh` runs the
+same build and copies the zip to the server; the version it builds for, and
+the one `scripts/run.sh` runs, is set once in `scripts/osd-version.sh`.
+Installing it into a Wazuh dashboard has not been tested yet.
 
 ## Known limitations
 

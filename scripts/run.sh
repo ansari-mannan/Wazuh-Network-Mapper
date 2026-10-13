@@ -5,7 +5,7 @@
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OSD_HOME="${OSD_HOME:-$HOME/osd}"
 OSD_SRC="${OSD_SRC:-$(dirname "$REPO")/OpenSearch-Dashboards}"
-OSD_VERSION="${OSD_VERSION:-2.19.3}"
+. "$REPO/scripts/osd-version.sh"
 ENV_FILE="${VULNMAPPER_ENV:-$HOME/.vulnmapper.env}"
 
 DOCKER="docker"

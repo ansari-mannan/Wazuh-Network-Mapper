@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build the plugin zip on the development machine and copy it to the server.
 SERVER="${VULNMAPPER_SERVER:-wazuh-server@172.20.40.1}"
-OSD_VERSION="${OSD_VERSION:-2.19.3}"
+. "$(dirname "${BASH_SOURCE[0]}")/osd-version.sh"
 source ~/.nvm/nvm.sh
 nvm use 18.19.0
 set -e
