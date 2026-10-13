@@ -499,6 +499,26 @@ used however old; with no copy every CVE scores as not in KEV with EPSS
 0, and `metadata.threat_feeds` says `"unavailable"` so the dashboard warns that
 scores may be understated. `metadata.threat_feeds` also gives the feed dates.
 
+On a slow link, run the refresh once, or copy the files from another machine.
+The 20-second budget protects scans, but it can stop the first download from
+ever finishing, leaving no copy and every scan "unavailable". The refresh
+fills the same cache outside a scan, with a 10-minute limit per feed and
+progress on stderr, and prints each feed's date and size:
+
+```
+python -m vulnmapper.scoring.feeds --refresh [--cache-dir DIR]
+python -m vulnmapper.scoring.feeds --from-kev known_exploited_vulnerabilities.json \
+                                   --from-epss epss_scores-current.csv.gz [--cache-dir DIR]
+```
+
+`--from-kev` and `--from-epss` validate a KEV JSON or an EPSS CSV (gzipped or
+not) downloaded elsewhere and import it; a malformed file is rejected and the
+cache left as it was. `--cache-dir` is the folder of the graph the dashboard
+reads (`vulnmapper.graphPath`), where `nvd-cache.json` lives; it defaults to
+the repository's `data/`. A refreshed or imported feed counts as fetched now:
+fresh for a day, then the scan tries to download it again and falls back to
+this copy if it cannot.
+
 **CVE records.** CNA and ADP scores come from CVE JSON 5 records, one request
 per CVE to the CVE Services API (`https://cveawg.mitre.org/api/cve/<id>`),
 four at a time within a 60-second budget per scan, worst scanner score first.

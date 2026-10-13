@@ -258,6 +258,84 @@ class TestFeedDownloadsNeverStall(unittest.TestCase):
         self.assertIn(f"CISA KEV downloaded in 0.0 s, {len(KEV_BODY)} bytes", "\n".join(logs.output))
 
 
+class TestFeedRefreshCommand(unittest.TestCase):
+    """python -m vulnmapper.scoring.feeds: fill the cache outside a scan."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.clock = FakeClock()
+
+    def tearDown(self):
+        shutil.rmtree(self.dir)
+
+    def run_main(self, *argv, transport=None):
+        import contextlib
+        import io
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = feeds.main([*argv, "--cache-dir", self.dir], transport=transport, clock=self.clock)
+        return code, out.getvalue(), err.getvalue()
+
+    def file(self, name, body):
+        path = os.path.join(self.dir, name)
+        with open(path, "wb") as f:
+            f.write(body)
+        return path
+
+    def test_refresh_fills_the_cache_the_scan_reads_as_fresh(self):
+        seen = []
+
+        def slow_but_whole(url, timeout, progress=None):
+            seen.append(timeout)
+            body = {KEV_URL: KEV_BODY, EPSS_URL: EPSS_BODY}[url]
+            progress(len(body))
+            return 200, body
+        code, out, _ = self.run_main("--refresh", transport=slow_but_whole)
+        self.assertEqual((code, seen), (0, [600.0, 600.0]))           # no scan budget
+        self.assertIn("CISA KEV: 2026-10-12T15:00:00Z", out)
+        self.assertIn("FIRST EPSS: 2026-10-12T12:55:00Z", out)
+        never = FakeFeeds(down=True)
+        t = feeds.load_threat(self.dir, self.clock, never)
+        self.assertEqual((t.block["kev"], t.block["epss"], never.asked), ("fresh", "fresh", []))
+        self.assertEqual(t.epss, {"CVE-2007-4559": 0.271})
+
+    def test_import_from_files_fetched_elsewhere(self):
+        kev = self.file("dl-kev.json", KEV_BODY)
+        epss = self.file("dl-epss.csv", gzip.decompress(EPSS_BODY))         # plain CSV too
+        code, out, _ = self.run_main("--from-kev", kev, "--from-epss", epss)
+        self.assertEqual(code, 0)
+        t = feeds.load_threat(self.dir, self.clock, FakeFeeds(down=True))
+        self.assertEqual((t.block["kev"], t.block["epss"], t.kev), ("fresh", "fresh", {"CVE-2019-5591"}))
+
+    def test_import_rejects_a_malformed_file_and_keeps_the_cache(self):
+        self.run_main("--from-kev", self.file("good.json", KEV_BODY))
+        cached = os.path.join(self.dir, feeds.KEV_FILENAME)
+        before = os.path.getmtime(cached)
+        self.clock.advance(seconds=60)
+        for bad in (b"<html>not json</html>", b'{"vulnerabilities": "no"}'):
+            code, _, err = self.run_main("--from-kev", self.file("bad.json", bad))
+            self.assertEqual(code, 1)
+            self.assertIn("failed", err)
+        code, _, _ = self.run_main("--from-epss", self.file("bad.csv", b"id,score\nx,1\n"))
+        self.assertEqual(code, 1)
+        self.assertFalse(os.path.exists(os.path.join(self.dir, feeds.EPSS_FILENAME)))
+        with open(cached, "rb") as f:
+            self.assertEqual(f.read(), KEV_BODY)
+        self.assertEqual(os.path.getmtime(cached), before)
+
+    def test_a_failed_download_leaves_the_cache_and_exits_1(self):
+        code, _, err = self.run_main("--refresh", transport=lambda url, timeout, progress=None: (503, b""))
+        self.assertEqual(code, 1)
+        self.assertIn("HTTP 503", err)
+        self.assertEqual(os.listdir(self.dir), [])
+
+    def test_needs_an_action(self):
+        import contextlib
+        import io
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            feeds.main(["--cache-dir", self.dir])
+
+
 class FakeResponse:
     """A streamed reply whose every chunk takes ``per_chunk`` seconds to arrive."""
 
@@ -289,7 +367,7 @@ class TestHttpGet(unittest.TestCase):
         with mock.patch("requests.get", fake_get), \
                 mock.patch.object(feeds.time, "monotonic", lambda: now[0]):
             try:
-                return REAL_HTTP_GET("https://feed", budget), calls
+                return REAL_HTTP_GET("https://feed", budget, progress=self.seen.append), calls
             except feeds.FeedUnavailable as e:
                 return e, calls
 
@@ -298,9 +376,13 @@ class TestHttpGet(unittest.TestCase):
         self.assertIsInstance(out, feeds.FeedUnavailable)
         self.assertEqual(calls, [(10.0, 10.0)])           # connect and read timeout
 
+    def setUp(self):
+        self.seen = []
+
     def test_a_body_inside_the_budget_is_returned_whole(self):
         out, calls = self.get([b"ab", b"cd"], per_chunk=1.0, budget=20.0)
         self.assertEqual(out, (200, b"abcd"))
+        self.assertEqual(self.seen, [2, 4])                  # progress after each read
 
     def test_the_read_timeout_never_exceeds_the_budget(self):
         _, calls = self.get([b"a"], per_chunk=0.0, budget=5.0)

@@ -16,18 +16,20 @@ so tests serve saved bodies.
 
 from __future__ import annotations
 
+import argparse
 import csv
 import gzip
 import json
 import logging
 import os
+import sys
 import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
-from ..common import VulnmapperError
+from ..common import VulnmapperError, setup_logging
 
 log = logging.getLogger("vulnmapper.scoring")
 
@@ -38,6 +40,7 @@ KEV_FILENAME = "kev.json"
 EPSS_FILENAME = "epss_scores-current.csv.gz"
 REFRESH = timedelta(days=1)
 FEED_BUDGET_S = 20.0       # the whole of one feed's download, then it is abandoned
+REFRESH_BUDGET_S = 600.0   # the refresh command, outside a scan
 READ_TIMEOUT_S = 10.0      # connect, and each read of the body
 
 FRESH, STALE, UNAVAILABLE = "fresh", "stale", "unavailable"
@@ -47,11 +50,12 @@ class FeedUnavailable(VulnmapperError):
     """A feed or CVE record could not be fetched (no answer, or not HTTP 200)."""
 
 
-def http_get(url: str, timeout: float) -> tuple:
+def http_get(url: str, timeout: float, progress: Optional[Callable] = None) -> tuple:
     """GET ``url`` -> ``(status, body bytes)``. ``timeout`` is the whole
     download's budget: connecting and each read wait at most READ_TIMEOUT_S, and
     a body still arriving when the budget is spent is abandoned, so a trickling
-    link cannot hold a scan. Raises FeedUnavailable on no answer or over budget."""
+    link cannot hold a scan. ``progress(bytes so far)`` is called after each
+    read. Raises FeedUnavailable on no answer or over budget."""
     import requests
     start = time.monotonic()
     wait = min(timeout, READ_TIMEOUT_S)
@@ -60,6 +64,8 @@ def http_get(url: str, timeout: float) -> tuple:
             chunks = []
             for chunk in r.iter_content(64 * 1024):
                 chunks.append(chunk)
+                if progress:
+                    progress(sum(map(len, chunks)))
                 if time.monotonic() - start > timeout:
                     raise FeedUnavailable(f"still downloading after {timeout:.0f} s")
             return r.status_code, b"".join(chunks)
@@ -110,6 +116,14 @@ def _write_bytes_atomic(path: str, data: bytes, fetched: datetime) -> None:
     os.utime(path, (ts, ts))
 
 
+def store(raw: bytes, path: str, parse: Callable, clock) -> tuple:
+    """Validate a feed body (``parse`` raises ValueError/KeyError on a bad one)
+    and keep it at ``path`` as fetched now; returns ``(data, feed date)``."""
+    data, date = parse(raw)
+    _write_bytes_atomic(path, raw, clock.now())
+    return data, date
+
+
 def load_feed(name: str, url: str, path: Optional[str], parse: Callable, clock,
               transport: Callable) -> tuple:
     """``(parsed data or None, status, feed date)`` for one feed; see the module doc."""
@@ -129,9 +143,7 @@ def load_feed(name: str, url: str, path: Optional[str], parse: Callable, clock,
         status, raw = transport(url, FEED_BUDGET_S)
         if status != 200:
             raise FeedUnavailable(f"HTTP {status}")
-        data, date = parse(raw)
-        if path:
-            _write_bytes_atomic(path, raw, clock.now())
+        data, date = store(raw, path, parse, clock) if path else parse(raw)
         log.info("%s downloaded in %.1f s, %d bytes (%s)", name, clock.monotonic() - started,
                  len(raw), date)
         return data, FRESH, date
@@ -170,3 +182,77 @@ def load_threat(folder: Optional[str], clock, transport: Optional[Callable] = No
     return Threat(kev=kev or set(), epss=epss or {},
                   block={"kev": kev_status, "epss": epss_status,
                          "kev_date": kev_date, "epss_date": epss_date})
+
+
+# --- filling the cache outside a scan ------------------------------------------
+
+FEEDS = {"kev": ("CISA KEV", KEV_URL, KEV_FILENAME, parse_kev),
+         "epss": ("FIRST EPSS", EPSS_URL, EPSS_FILENAME, parse_epss)}
+# shortcut: the dashboard's graphPath is not known here, so the default is the
+# repository's data/ (where the README puts graph.json); pass --cache-dir otherwise
+DEFAULT_CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))), "data")
+
+
+def _mib(n: int) -> str:
+    return f"{n / 1048576:.1f} MB"
+
+
+def main(argv: Optional[list] = None, transport: Optional[Callable] = None, clock=None) -> int:
+    """``python -m vulnmapper.scoring.feeds --refresh | --from-kev PATH | --from-epss PATH``:
+    fill the scan's KEV and EPSS cache outside a scan. ``--refresh`` downloads
+    whichever feed is not given as a file, with no scan budget (10 minutes
+    each) and progress on stderr; ``--from-*`` validates a file downloaded
+    elsewhere and imports it. Both write the same files, in the same form, the
+    scan reads, as fetched now. Exit 1 if any feed failed."""
+    setup_logging()
+    parser = argparse.ArgumentParser(
+        prog="vulnmapper.scoring.feeds",
+        description="Fill the KEV/EPSS cache the scan reads, outside a scan.")
+    parser.add_argument("--refresh", action="store_true",
+                        help="download KEV and EPSS (those not given with --from-*)")
+    parser.add_argument("--from-kev", metavar="PATH", help="import a KEV JSON file")
+    parser.add_argument("--from-epss", metavar="PATH", help="import an EPSS CSV (.csv or .csv.gz)")
+    parser.add_argument("--cache-dir", metavar="DIR", default=DEFAULT_CACHE_DIR,
+                        help="the folder of the graph.json the dashboard reads (vulnmapper."
+                             "graphPath), where nvd-cache.json lives (default: %(default)s)")
+    args = parser.parse_args(argv)
+    sources = {"kev": args.from_kev, "epss": args.from_epss}
+    if not args.refresh and not any(sources.values()):
+        parser.error("give --refresh, --from-kev or --from-epss")
+    from ..devicecves.nvd import SystemClock
+    clock = clock or SystemClock()
+    transport = transport or http_get
+    os.makedirs(args.cache_dir, exist_ok=True)
+
+    failed = False
+    for key, (name, url, filename, parse) in FEEDS.items():
+        if not sources[key] and not args.refresh:
+            continue
+        path = os.path.join(args.cache_dir, filename)
+        try:
+            if sources[key]:
+                with open(sources[key], "rb") as f:
+                    raw = f.read()
+            else:
+                print(f"{name}: downloading {url}", file=sys.stderr)
+                reported = [0]
+
+                def progress(n, reported=reported, name=name):
+                    if n >= reported[0] + 1048576:          # a line per MB
+                        reported[0] = n
+                        print(f"  {name}: {_mib(n)}", file=sys.stderr)
+                status, raw = transport(url, REFRESH_BUDGET_S, progress=progress)
+                if status != 200:
+                    raise FeedUnavailable(f"HTTP {status}")
+            _, date = store(raw, path, parse, clock)
+        except (FeedUnavailable, OSError, ValueError, KeyError) as e:
+            print(f"{name}: failed ({e}); the cache is unchanged", file=sys.stderr)
+            failed = True
+            continue
+        print(f"{name}: {date or 'undated'}, {_mib(len(raw))} -> {path}")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
