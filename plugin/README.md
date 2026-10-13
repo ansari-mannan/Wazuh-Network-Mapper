@@ -86,9 +86,11 @@ answer because NVD could not be reached is marked stale.
 Every node carries its OVSS (`risk_score`) and tier (`node_tier`, P0 to P3; see
 "OVSS" in `../backend/README.md`). One rule (`public/lib/riskRule.ts`) drives
 the map, the flyout, the overview and the scan history: a node is coloured and
-badged by its tier (P0 red, P1 orange, P2 yellow, P3 blue); a node with no
-tier but with configuration findings takes the colour of its worst finding,
-so it never falls back to grey; anything else is grey. The flyout's Risk
+badged by its tier (P0 red, P1 orange, P2 yellow, P3 blue), or by its worst
+configuration finding when that is more severe (a high finding in the P1
+colour, medium in P2's), so a calm tier never hides a high finding. A node
+with no tier but with configuration findings takes the colour of its worst
+finding, so it never falls back to grey; anything else is grey. The flyout's Risk
 panel shows the OVSS line ("P1 · OVSS 6.125", or "Unassessed: cpe match
 returned 0 CVEs" — Unassessed is not clean), the tier histogram, exposure,
 dependency, importance and KEV count. Each CVE keeps its CVSS severity and
@@ -117,8 +119,8 @@ flyout shows a **Configuration checks** section below the vulnerabilities:
 
 A device without checks says why: it was never polled, the graph predates the
 checks, or the graph's checks came from captures that did not include it.
-Configuration findings do not change a node's OVSS; they colour it only when it
-has no tier. The overview's
+Configuration findings do not change a node's OVSS; they colour it when they
+are more severe than its tier, or when it has none. The overview's
 "Device configuration" panel counts the failed checks of every checked device
 by severity.
 

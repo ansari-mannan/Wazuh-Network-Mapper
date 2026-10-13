@@ -11,9 +11,18 @@ describe('riskLevel', () => {
 });
 
 describe('nodeLevel', () => {
-  it('shows the OVSS tier when the node has one', () => {
+  it('shows the OVSS tier when the node has no more severe finding', () => {
     expect(nodeLevel({ kind: 'device', node_tier: 'P0' }, null)).toBe('P0');
-    expect(nodeLevel({ kind: 'device', node_tier: 'P3' }, 'high')).toBe('P3');
+    expect(nodeLevel({ kind: 'device', node_tier: 'P0' }, 'high')).toBe('P0');
+    expect(nodeLevel({ kind: 'device', node_tier: 'P1' }, 'high')).toBe('P1'); // equal: the tier
+    expect(nodeLevel({ kind: 'device', node_tier: 'P2' }, 'medium')).toBe('P2');
+    expect(nodeLevel({ kind: 'device', node_tier: 'P3' }, 'low')).toBe('P3');
+  });
+
+  it('raises a tier to a more severe finding (high as P1, medium as P2)', () => {
+    expect(nodeLevel({ kind: 'device', node_tier: 'P3' }, 'high')).toBe('high');
+    expect(nodeLevel({ kind: 'device', node_tier: 'P2' }, 'high')).toBe('high');
+    expect(nodeLevel({ kind: 'device', node_tier: 'P3' }, 'medium')).toBe('medium');
   });
 
   it('falls back to the worst configuration finding, never grey', () => {

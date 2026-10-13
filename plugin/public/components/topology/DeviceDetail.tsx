@@ -79,7 +79,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
   const nodeLiveness: NodeLiveness | undefined = livenessOn ? liveness?.nodes[node.node_id] : undefined;
   const isDevice = node.kind === 'device';
   const Icon = iconForRole(node.role);
-  // the map's colour: the OVSS tier, else the worst configuration finding
+  // the map's colour: the more severe of the OVSS tier and the worst configuration finding
   const level = nodeLevel(node, findingsBadge(node)?.severity ?? null);
   const offline = isOffline(node, liveness);
   const cves = node.top_cves || [];

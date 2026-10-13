@@ -24,11 +24,15 @@ export type { Tier };
 export const TIERS: Tier[] = ['P0', 'P1', 'P2', 'P3'];
 
 /**
- * How a node is shown on the map and in lists: its OVSS tier; with no tier, its
- * worst configuration finding (the published DISA/STIG severity, as before), so
- * a device with findings never falls back to grey; else 'none' (Unrated,
- * Unassessed, or a graph written before OVSS). Advisory findings have no
- * severity and never raise it.
+ * How a node is shown on the map and in lists: the more severe of its OVSS tier
+ * and its worst configuration finding (the published DISA/STIG severity), a
+ * high finding counting as P1, medium as P2 and low as P3. When the finding is
+ * strictly more severe the level is the finding's own ('high', 'medium'), drawn
+ * in the colour of the tier it counts as and labelled as a finding, not a
+ * tier. With no tier, the finding alone, as before OVSS, so a device with
+ * findings never falls back to grey; else 'none' (Unrated, Unassessed, or a
+ * graph written before OVSS). Advisory findings have no severity: as P3 they
+ * never raise a tier.
  */
 export type NodeLevel = Tier | 'high' | 'medium' | 'low' | 'none';
 
@@ -38,11 +42,15 @@ export interface TierNode {
   ovss_status?: string;
 }
 
-export function nodeLevel(node: TierNode, findingSeverity: 'high' | 'medium' | 'low' | null): NodeLevel {
-  return node.node_tier || findingSeverity || 'none';
-}
-
 const TIER_RANK: Record<Tier, number> = { P0: 4, P1: 3, P2: 2, P3: 1 };
+// a configuration finding's severity on the tier scale: high as P1, medium P2, low P3
+const FINDING_RANK = { high: TIER_RANK.P1, medium: TIER_RANK.P2, low: TIER_RANK.P3 };
+
+export function nodeLevel(node: TierNode, findingSeverity: 'high' | 'medium' | 'low' | null): NodeLevel {
+  const tier = node.node_tier;
+  if (!tier) return findingSeverity || 'none';
+  return findingSeverity && FINDING_RANK[findingSeverity] > TIER_RANK[tier] ? findingSeverity : tier;
+}
 
 /** Higher for a more severe tier; 0 for none. */
 export function tierRank(tier: Tier | null | undefined): number {

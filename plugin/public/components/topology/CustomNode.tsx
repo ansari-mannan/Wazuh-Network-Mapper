@@ -30,8 +30,8 @@ export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
   const Icon = iconForRole(data.role);
   const dot = statusDot(data.status, liveness);
   const findings = findingsBadge(data);
-  // At-a-glance colour = the OVSS tier; with none, the worst config finding, so a
-  // device with findings but no tier is not shown grey (see nodeLevel).
+  // At-a-glance colour = the more severe of the OVSS tier and the worst config
+  // finding, so a calm tier never hides a high finding (see nodeLevel).
   const border = borderForLevel(nodeLevel(data, findings?.severity ?? null));
   const dimmed = data.stale || isOffline(data, livenessContext);
   const label = data.hostname || data.ip || data.node_id;

@@ -24,8 +24,9 @@ export const TIER_META: Record<Tier, { label: string; color: string }> = {
   P3: { label: 'P3', color: '#3b82f6' },
 };
 
-// A node's level: its tier, else its worst configuration finding in the
-// finding's own colour (as before OVSS), else grey.
+// A node's level: its tier, or its worst configuration finding when that is
+// more severe (high in the P1 colour, medium in P2's) or there is no tier;
+// else grey. A low finding with no tier keeps its green, as before OVSS.
 export const NODE_LEVEL_META: Record<NodeLevel, { label: string; color: string }> = {
   ...TIER_META,
   high: { label: 'High finding', color: RISK_META.high.color },
