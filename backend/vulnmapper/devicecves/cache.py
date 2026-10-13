@@ -68,9 +68,12 @@ def _parse_time(text) -> Optional[datetime]:
 class Cache:
     """The cache file in memory; :meth:`save` writes it back if anything changed."""
 
-    def __init__(self, path: Optional[str], clock) -> None:
+    def __init__(self, path: Optional[str], clock, *, fresh_found: timedelta = FRESH_FOUND,
+                 fresh_empty: timedelta = FRESH_EMPTY, label: str = "NVD cache") -> None:
         self.path = path
         self._clock = clock
+        self._fresh = {True: fresh_found, False: fresh_empty}
+        self.label = label
         self.entries: dict = {}
         self.corrupt = False
         self.dirty = False
@@ -85,10 +88,10 @@ class Cache:
                 self.entries = {k: v for k, v in doc["entries"].items()
                                 if isinstance(v, dict) and _parse_time(v.get("fetched_at"))}
             except (OSError, ValueError) as e:
-                log.warning("NVD cache %s is unreadable (%s); starting a new one", path, e)
+                log.warning("%s %s is unreadable (%s); starting a new one", label, path, e)
                 self.corrupt = True
                 self.entries = {}
-        log.info("NVD cache %s: %d entries", path or "(in memory)", len(self.entries))
+        log.info("%s %s: %d entries", label, path or "(in memory)", len(self.entries))
 
     def tally(self) -> tuple:
         """``(hits, misses, expired)`` so far, for a stage's before/after log line."""
@@ -100,9 +103,8 @@ class Cache:
         if entry is None:
             return None
         fetched = _parse_time(entry["fetched_at"])
-        found = bool(entry.get("found"))
         age = self._clock.now() - fetched
-        return {**entry, "fresh": age < (FRESH_FOUND if found else FRESH_EMPTY)}
+        return {**entry, "fresh": age < self._fresh[bool(entry.get("found"))]}
 
     def put(self, key: str, *, found: bool, data) -> dict:
         entry = {"fetched_at": self._clock.now().isoformat(), "found": found, "data": data}
@@ -114,7 +116,7 @@ class Cache:
         if not self.path or not self.dirty:
             return
         folder = os.path.dirname(os.path.abspath(self.path))
-        fd, tmp = tempfile.mkstemp(prefix=".nvd-cache.", suffix=".tmp", dir=folder)
+        fd, tmp = tempfile.mkstemp(prefix=".cache.", suffix=".tmp", dir=folder)
         try:
             umask = os.umask(0)
             os.umask(umask)
