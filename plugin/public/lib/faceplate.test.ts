@@ -1,0 +1,216 @@
+import {
+  chassisFor,
+  faceplateOf,
+  isInferred,
+  neighboursOf,
+  portKey,
+  portKind,
+  portNeighbours,
+  portsOf,
+  routePortKeys,
+  shortName,
+  speedText,
+} from './faceplate';
+import {
+  accessPoint,
+  fortigate,
+  port,
+  smallGraph,
+  switch24,
+  switch48,
+  switch8,
+  unknownDevice,
+} from './faceplate.fixtures';
+
+const byName = (fp: ReturnType<typeof faceplateOf>) => new Map(fp.ports.map((p) => [p.port.name, p]));
+
+describe('portKind', () => {
+  it.each([
+    ['FastEthernet1/0/1', 6, 'copper'],
+    ['GigabitEthernet0/1', 6, 'copper'],
+    ['TenGigabitEthernet1/1/1', 6, 'sfp'],
+    ['Te1/1/2', null, 'sfp'],
+    ['mgmt', 6, 'console'],
+    ['Console', null, 'console'],
+    ['Vlan10', 53, 'logical'],
+    ['Loopback0', 24, 'logical'],
+    ['Port-channel1', 161, 'logical'],
+    ['Po2', null, 'logical'],
+    ['Tunnel5', 131, 'logical'],
+    ['Null0', 1, 'logical'],
+    ['StackPort1', 53, 'logical'],
+    ['BVI1', 53, 'logical'],
+    ['GigabitEthernet0.80', 135, 'logical'],
+    ['Dot11Radio0', 71, 'radio'],
+    ['Dot11Radio0.80', 135, 'logical'],
+    ['wlan0', 71, 'radio'], // no name rule: the ifType decides
+    ['ifx', 136, 'logical'],
+    ['port1', 6, 'copper'],
+  ])('%s (ifType %s) is %s', (name, type, kind) => {
+    expect(portKind({ name, type })).toBe(kind);
+  });
+
+  it('takes a 10 Gb/s port of unknown name as SFP', () => {
+    expect(portKind({ name: 'eth9', type: 6, speed_mbps: 10000 })).toBe('sfp');
+  });
+});
+
+describe('names', () => {
+  it('compares port names in any form', () => {
+    expect(portKey('FastEthernet1/0/3')).toBe(portKey('Fa1/0/3'));
+    expect(portKey('GigabitEthernet0')).toBe(portKey('Gi0'));
+    expect(portKey('Fa0/1')).not.toBe(portKey('Fa0/10'));
+  });
+
+  it('shortens long names and capitalises short ones', () => {
+    expect(shortName('GigabitEthernet1/0/24')).toBe('Gi1/0/24');
+    expect(shortName('wan1')).toBe('WAN1');
+    expect(speedText(100)).toBe('100 Mb/s');
+    expect(speedText(1000)).toBe('1 Gb/s');
+    expect(speedText(null)).toBe('');
+  });
+});
+
+describe('chassis by role', () => {
+  it.each([
+    [switch24, 'rack'],
+    [switch48, 'rack'],
+    [fortigate, 'desktop'],
+    [accessPoint, 'puck'],
+    [unknownDevice, 'generic'],
+    [{ ...switch8, role: 'phone' }, 'generic'],
+  ])('%#', (node, chassis) => {
+    expect(chassisFor(node as any)).toBe(chassis);
+  });
+});
+
+describe('rack layout', () => {
+  it('24+2: two blocks of 12, odd ports on top, uplinks in their own block on the right', () => {
+    const fp = faceplateOf(switch24);
+    const ports = byName(fp);
+    expect(fp.ports).toHaveLength(26);
+    expect(fp.logical.map((p) => p.name)).toEqual(['Vlan1', 'Vlan10', 'Null0']);
+    const p = (n: number) => ports.get(`FastEthernet1/0/${n}`)!;
+    expect(p(1).y).toBe(p(3).y);
+    expect(p(2).y).toBeGreaterThan(p(1).y);
+    expect(p(2).x).toBe(p(1).x);
+    expect(p(1).label).toBe('1');
+    // ports 12 and 13 sit in different blocks: a wider gap than within a block
+    const step = p(3).x - p(1).x;
+    expect(p(13).x - p(11).x).toBeGreaterThan(step);
+    const g1 = ports.get('GigabitEthernet1/0/1')!;
+    expect(g1.x).toBeGreaterThan(p(24).x + 20);
+    expect(g1.label).toBe('G1');
+    expect(g1.kind).toBe('copper');
+    expect(fp.captions.map((c) => c.text)).toEqual(['UPLINK']);
+    expect(fp.width).toBeGreaterThan(g1.x + 22);
+  });
+
+  it('48+2: four blocks, and a wider chassis than 24 ports', () => {
+    const fp = faceplateOf(switch48);
+    const xs = fp.ports.filter((p) => p.port.name.startsWith('Fast')).map((p) => p.x);
+    const gaps = xs.slice(1).map((x, i) => x - xs[i]).filter((d) => d > 26);
+    expect(gaps).toHaveLength(3); // between blocks 1-2, 2-3, 3-4
+    expect(fp.width).toBeGreaterThan(faceplateOf(switch24).width);
+    expect(fp.ports).toHaveLength(50);
+  });
+
+  it('8 ports fill two rows of four; 7 go in one row', () => {
+    const eight = faceplateOf(switch8);
+    expect(new Set(eight.ports.map((p) => p.y)).size).toBe(2);
+    const seven = faceplateOf({ ...switch8, ports: switch8.ports!.slice(0, 7) });
+    expect(new Set(seven.ports.map((p) => p.y)).size).toBe(1);
+    expect(seven.width).toBeLessThan(faceplateOf(switch24).width);
+  });
+
+  it('puts console and management ports on the left', () => {
+    const fp = faceplateOf({ ...switch8, ports: [...switch8.ports!, port('mgmt0', 'up')] });
+    const mgmt = byName(fp).get('mgmt0')!;
+    expect(Math.min(...fp.ports.map((p) => p.x))).toBe(mgmt.x);
+    expect(fp.captions[0].text).toBe('MGMT');
+  });
+
+  it('labels a 10G uplink block SFP', () => {
+    const fp = faceplateOf({
+      ...switch8,
+      ports: [...switch8.ports!, port('TenGigabitEthernet1/1/1'), port('TenGigabitEthernet1/1/2')],
+    });
+    expect(fp.captions.map((c) => c.text)).toEqual(['SFP']);
+    expect(byName(fp).get('TenGigabitEthernet1/1/1')!.kind).toBe('sfp');
+  });
+});
+
+describe('desktop layout (firewall)', () => {
+  it('groups by name family: INTERNAL, DMZ, WAN, in one row', () => {
+    const fp = faceplateOf(fortigate);
+    expect(fp.captions.map((c) => c.text)).toEqual(['INTERNAL', 'DMZ', 'WAN']);
+    expect(fp.ports.map((p) => p.label)).toEqual(['1', '2', '3', '4', '5', '6', '7', 'DMZ', 'WAN1', 'WAN2']);
+    expect(new Set(fp.ports.map((p) => p.y)).size).toBe(1);
+    expect(fp.logical.map((p) => p.name)).toEqual(['ssl.root']);
+  });
+
+  it('knows wan1 only from its neighbour, by alias', () => {
+    const wan1 = fortigate.ports!.find((p) => p.name === 'wan1')!;
+    expect(isInferred(wan1, fortigate)).toBe(true);
+    expect(isInferred(fortigate.ports![0], fortigate)).toBe(false);
+  });
+});
+
+describe('puck layout (access point)', () => {
+  it('shows the radios first, as their own group, and folds the sub-interfaces', () => {
+    const fp = faceplateOf(accessPoint);
+    expect(fp.chassis).toBe('puck');
+    expect(fp.ports.map((p) => [p.port.name, p.kind])).toEqual([
+      ['Dot11Radio0', 'radio'],
+      ['Dot11Radio1', 'radio'],
+      ['GigabitEthernet0', 'copper'],
+    ]);
+    expect(fp.captions[0].text).toBe('RADIO');
+    expect(fp.logical.map((p) => p.name)).toEqual(['Dot11Radio0.80', 'Dot11Radio1.80', 'BVI1']);
+  });
+});
+
+describe('generic layout', () => {
+  it('is built from port_status when the graph has no port list', () => {
+    const fp = faceplateOf(unknownDevice);
+    expect(fp.chassis).toBe('generic');
+    expect(portsOf(unknownDevice).map((p) => [p.name, p.state])).toEqual([
+      ['Gi0/1', 'up'],
+      ['Gi0/2', 'link_lost'], // a neighbour is listed on it
+      ['Gi0/3', 'unused'],
+      ['Vlan1', 'up'],
+    ]);
+    expect(fp.ports.map((p) => p.port.name)).toEqual(['Gi0/1', 'Gi0/2', 'Gi0/3']);
+    expect(fp.logical.map((p) => p.name)).toEqual(['Vlan1']);
+  });
+
+  it('is empty, not broken, with no ports at all', () => {
+    const fp = faceplateOf({ ...unknownDevice, port_status: undefined });
+    expect(fp.ports).toEqual([]);
+    expect(fp.width).toBeGreaterThan(0);
+  });
+});
+
+describe('neighbours', () => {
+  const byPort = portNeighbours('device:sw24', smallGraph.edges);
+
+  it('names the far end of each link and the hosts on each port', () => {
+    const fa = (n: number) => neighboursOf(switch24.ports!.find((p) => p.name === `FastEthernet1/0/${n}`)!, byPort);
+    expect(fa(1)).toEqual([{ nodeId: 'device:fw', text: 'fw Layer-3_UPLINK' }]);
+    expect(fa(6)).toEqual([{ nodeId: 'device:ap', text: 'ap GigabitEthernet0' }]);
+    expect(fa(15)).toEqual([{ nodeId: 'endpoint:101', text: '101' }]);
+    expect(fa(3)).toEqual([]);
+  });
+
+  it('matches a port by its alias on the other side', () => {
+    const fw = portNeighbours('device:fw', smallGraph.edges);
+    const wan1 = fortigate.ports!.find((p) => p.name === 'wan1')!;
+    expect(neighboursOf(wan1, fw)).toEqual([{ nodeId: 'device:sw24', text: 'sw24 Fa1/0/1' }]);
+  });
+
+  it('finds the ports a route enters and leaves by', () => {
+    const keys = routePortKeys('device:sw24', ['device:fw', 'device:sw24', 'device:ap'], byPort);
+    expect([...keys].sort()).toEqual([portKey('Fa1/0/1'), portKey('Fa1/0/6')].sort());
+    expect(routePortKeys('device:sw24', ['endpoint:101'], byPort).size).toBe(0);
+  });
+});

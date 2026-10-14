@@ -198,6 +198,19 @@ export type ChecklistMeta = {
   source: string; // "scan", or where the data came from ("captures 2026-10-08")
 };
 
+// One interface of a device. state: up; link_lost (down, but a neighbour is
+// listed on it or it was up in the previous scan); unused; shutdown (admin down).
+export type PortState = 'up' | 'link_lost' | 'unused' | 'shutdown';
+export type DevicePort = {
+  name: string;
+  oper?: string;
+  admin?: string | null;
+  type?: number | null;        // IANAifType number
+  speed_mbps?: number | null;
+  alias?: string | null;
+  state: PortState;
+};
+
 export type DeviceNode = GraphNodeBase & {
   kind: "device";
   // Device CVEs (potential: matched by software version). Absent in older graphs.
@@ -214,6 +227,8 @@ export type DeviceNode = GraphNodeBase & {
   inferred_ports?: string[];
   port_status?: Record<string, string>;
   port_status_note?: string;
+  // Every interface by ifIndex (backend assemble/ports.py); absent in older graphs.
+  ports?: DevicePort[];
   // An access point: how many Wi-Fi clients it reported.
   wifi_clients?: number;
   // A host without an agent that answered SNMP and turned out to forward
