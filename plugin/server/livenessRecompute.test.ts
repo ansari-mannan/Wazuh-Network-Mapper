@@ -78,4 +78,15 @@ describe('liveness recompute', () => {
     await new Promise((r) => setImmediate(r));
     expect(t.logger.warn).toHaveBeenCalledWith(expect.stringMatching(/boom/));
   });
+
+  it('tries a failed recompute again on the next pass with the same document', async () => {
+    const t = setup();
+    t.recompute.mockRejectedValueOnce(new Error('boom'));
+    t.onPass(pass('T1', ['endpoint:104']));
+    await new Promise((r) => setImmediate(r));
+    expect(t.onPass(pass('T1', ['endpoint:104']))).toBe(true);
+    await new Promise((r) => setImmediate(r));
+    expect(t.onPass(pass('T1', ['endpoint:104']))).toBe(false); // that one succeeded
+    expect(t.recompute).toHaveBeenCalledTimes(2);
+  });
 });
