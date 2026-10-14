@@ -198,8 +198,18 @@ export function startScan({
   const vulnsTmp = `${vulnsPath}.tmp-${process.pid}`;
   const pathsPath = attackPathsFilePath(graphPath);
   const pathsTmp = `${pathsPath}.tmp-${process.pid}`;
-  const discardVulns = () =>
-    Promise.all([vulnsTmp, pathsTmp].map((f) => fs.unlink(f).catch(() => undefined)));
+  const graphTmp = `${graphPath}.tmp-${process.pid}`;
+  const discardTemps = () =>
+    Promise.all([vulnsTmp, pathsTmp, graphTmp].map((f) => fs.unlink(f).catch(() => undefined)));
+  // Every ending removes the temp files before finish() releases the lock: the
+  // next scan reuses the same names, and must not lose them to this cleanup.
+  let ended = false;
+  const end = async (status: 'idle' | 'failed', message: string, discard: boolean) => {
+    ended = true;
+    if (discard) await discardTemps();
+    finish(status, message);
+    if (status === 'failed') logger.warn(`scan failed: ${message}`);
+  };
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
   // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
   // environment like the other credentials.
@@ -235,57 +245,37 @@ export function startScan({
 
   child.on('error', (e: Error) => {
     stopTimers();
+    if (ended) return;
     // The binary itself could not be launched (missing python, bad cwd).
-    finish('failed', `failed to start ${pythonBin}: ${e.message}`);
-    logger.warn(`scan failed: ${scan.message}`);
-    discardVulns();
+    end('failed', `failed to start ${pythonBin}: ${e.message}`, true);
   });
 
   child.on('close', async (code: number | null) => {
     stopTimers();
-    if (scan.status !== 'running') return; // spawn error already recorded
-    if (timedOut) {
-      await discardVulns(); // before finish releases the lock to the next scan
-      finish('failed', `scan timed out after ${timeoutSeconds} s`);
-      logger.warn(`scan failed: ${scan.message}`);
-      return;
-    }
+    if (ended) return; // spawn error already recorded
+    if (timedOut) return end('failed', `scan timed out after ${timeoutSeconds} s`, true);
     const out = Buffer.concat(chunks);
-    if (code !== 0 || !out.length) {
-      finish('failed', failureMessage(stderr, code, community));
-      logger.warn(`scan failed: ${scan.message}`);
-      await discardVulns();
-      return;
-    }
+    if (code !== 0 || !out.length) return end('failed', failureMessage(stderr, code, community), true);
     let doc: unknown;
     try {
       doc = JSON.parse(out.toString()); // validate before replacing the good file
     } catch (e) {
-      finish('failed', `could not save scanner output: ${(e as Error).message}`);
-      logger.warn(`scan failed: ${scan.message}`);
-      await discardVulns();
-      return;
+      return end('failed', `could not save scanner output: ${(e as Error).message}`, true);
     }
     const current = await fs.readFile(graphPath, 'utf-8').then(JSON.parse).catch(() => null);
     if (!shouldReplaceGraph(doc, current, replaceEmpty)) {
-      finish(
+      return end(
         'failed',
         `The network crawl polled no device (${emptyCrawl(doc)}), so the previous map was kept. Check the SNMP ` +
-          'credential and vulnmapper.seeds, or turn on "Replace the map even if no device answered".'
+          'credential and vulnmapper.seeds, or turn on "Replace the map even if no device answered".',
+        true
       );
-      logger.warn(`scan failed: ${scan.message}`);
-      await discardVulns();
-      return;
     }
     try {
-      const tmp = `${graphPath}.tmp-${process.pid}`;
-      await fs.writeFile(tmp, out);
-      await fs.rename(tmp, graphPath);
+      await fs.writeFile(graphTmp, out);
+      await fs.rename(graphTmp, graphPath);
     } catch (e) {
-      finish('failed', `could not save scanner output: ${(e as Error).message}`);
-      logger.warn(`scan failed: ${scan.message}`);
-      await discardVulns();
-      return;
+      return end('failed', `could not save scanner output: ${(e as Error).message}`, true);
     }
     try {
       await fs.rename(vulnsTmp, vulnsPath);
@@ -293,16 +283,15 @@ export function startScan({
       await fs.rename(pathsTmp, pathsPath).catch((e) => {
         if (e.code !== 'ENOENT') throw e;
       });
-      finish('idle', 'Scan completed; graph updated.');
+      await end('idle', 'Scan completed; graph updated.', false);
       logger.info('scan completed; graph updated');
       archiveScan(graphPath, trigger).catch((e) =>
         logger.warn(`scan completed, but it could not be added to the scan history: ${(e as Error).message}`)
       );
     } catch (e) {
       // The graph is saved; only the full CVE list is stale.
-      finish('idle', `Scan completed; graph updated, but vulnerabilities.json or attack_paths.json was not: ${(e as Error).message}`);
       logger.warn(`could not save vulnerabilities.json / attack_paths.json: ${(e as Error).message}`);
-      await discardVulns();
+      await end('idle', `Scan completed; graph updated, but vulnerabilities.json or attack_paths.json was not: ${(e as Error).message}`, true);
     }
   });
 

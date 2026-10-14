@@ -123,6 +123,28 @@ describe('startScan', () => {
   });
 });
 
+describe('temporary files', () => {
+  it('are gone before a failed scan releases the lock', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-fail-'));
+    const temps = ['vulnerabilities.json', 'attack_paths.json', 'graph.json'].map((f) =>
+      path.join(dir, `${f}.tmp-${process.pid}`)
+    );
+    temps.forEach((f) => writeFileSync(f, '{}'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    // node rejects "-m vulnmapper": a scan that exits non-zero
+    const atDone = await new Promise<boolean[]>((resolve) => {
+      startScan({
+        pythonBin: process.execPath,
+        backendDir: dir,
+        graphPath: path.join(dir, 'graph.json'),
+        onDone: () => resolve(temps.map(existsSync)), // the moment the lock is free
+        logger,
+      });
+    });
+    expect(atDone).toEqual([false, false, false]);
+  });
+});
+
 describe('scan timeout', () => {
   it('kills a hung scan, fails it and discards its temporary files', async () => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-hang-'));
