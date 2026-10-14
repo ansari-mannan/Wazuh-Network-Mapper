@@ -96,7 +96,10 @@ export function portKey(name: string): string {
   return m ? `${m[1].slice(0, 2).toLowerCase()}|${m[2].trim()}` : `${String(name).toLowerCase()}|`;
 }
 
-const LOGICAL_NAME = /^(vlan|vl\d|loopback|lo\d|port-channel|po\d|tunnel|tu\d|null|nu\d|stack|bvi)/i;
+// FortiOS virtual interfaces too: modem, npu*, fortilink, vsys*, root (ssl.*,
+// naf.* and l2t.* are caught by their dot)
+const LOGICAL_NAME =
+  /^(vlan|vl\d|loopback|lo\d|port-channel|po\d|tunnel|tu\d|null|nu\d|stack|bvi|modem\d*$|npu|fortilink|vsys|root$)/i;
 const RADIO_NAME = /^dot11radio/i;
 const CONSOLE_NAME = /^(console|con\d|mgmt|management|me\d|aux|ha\d*$)/i;
 const SFP_NAME = /^(te\d|tengig|twe|fo\d|forty|hu\d|hundred|sfp|xe-)/i;
@@ -133,8 +136,8 @@ export function portsOf(node: DeviceNode): DevicePort[] {
   }));
 }
 
+/** The chassis by role, with or without a ports list; only an unknown role is generic. */
 export function chassisFor(node: DeviceNode): Chassis {
-  if (!node.ports || !node.ports.length) return 'generic';
   switch (node.role) {
     case 'l2-switch':
     case 'l3-switch':
@@ -290,7 +293,8 @@ const DESKTOP_GROUPS: Array<[RegExp, string]> = [
   [/^dmz\d*$/i, 'DMZ'],
   [/^wan\d*$/i, 'WAN'],
 ];
-const DESKTOP_ORDER = ['MGMT/HA', 'INTERNAL', 'DMZ', '', 'WAN'];
+const OTHER_GROUP = 'PORTS';
+const DESKTOP_ORDER = ['MGMT/HA', 'INTERNAL', 'DMZ', OTHER_GROUP, 'WAN'];
 export const WAN_CAPTION = 'WAN (internet)';
 const WAN_GAP = 40; // the WAN side stands apart, behind a divider
 
@@ -298,9 +302,9 @@ function groupOf({ port, kind }: Entry): string {
   if (kind === 'radio') return 'RADIO';
   const hit = DESKTOP_GROUPS.find(([re]) => re.test(port.name));
   if (hit) return hit[1];
-  return kind === 'console' ? 'MGMT/HA' : shortName(family(port.name).replace(/[/:.\s]+$/, '')).slice(0, 2).toUpperCase();
+  return kind === 'console' ? 'MGMT/HA' : OTHER_GROUP;
 }
-const rank = (g: string) => (g === 'RADIO' ? -1 : DESKTOP_ORDER.includes(g) ? DESKTOP_ORDER.indexOf(g) : DESKTOP_ORDER.indexOf(''));
+const rank = (g: string) => (g === 'RADIO' ? -1 : DESKTOP_ORDER.indexOf(g));
 
 /** A desktop port's label: the INTERNAL number, else its own short name in full (WAN1, DMZ2, HA, MGMT). */
 function desktopLabel(group: string, name: string): string {

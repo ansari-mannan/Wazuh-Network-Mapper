@@ -22,6 +22,7 @@ import {
   accessPoint,
   fortigate,
   fortigate200D,
+  fortigateStatusOnly,
   port,
   smallGraph,
   switch24,
@@ -54,6 +55,17 @@ describe('portKind', () => {
     ['wlan0', 71, 'radio'], // no name rule: the ifType decides
     ['ifx', 136, 'logical'],
     ['port1', 6, 'copper'],
+    // FortiOS virtual interfaces, with no ifType (a port_status-only graph)
+    ['ssl.root', null, 'logical'],
+    ['naf.root', null, 'logical'],
+    ['l2t.root', null, 'logical'],
+    ['modem', null, 'logical'],
+    ['npu0_vlink0', null, 'logical'],
+    ['fortilink', null, 'logical'],
+    ['vsys_ha', null, 'logical'],
+    ['root', null, 'logical'],
+    ['lan', null, 'copper'],
+    ['srv-net', null, 'copper'],
   ])('%s (ifType %s) is %s', (name, type, kind) => {
     expect(portKind({ name, type })).toBe(kind);
   });
@@ -87,6 +99,10 @@ describe('chassis by role', () => {
     [accessPoint, 'puck'],
     [unknownDevice, 'generic'],
     [{ ...switch8, role: 'phone' }, 'generic'],
+    // no ports list (an older graph's port_status): the role still decides
+    [fortigateStatusOnly, 'desktop'],
+    [{ ...switch8, ports: undefined, port_status: { 'Gi0/1': 'up' } }, 'rack'],
+    [{ ...accessPoint, ports: undefined, port_status: { Dot11Radio0: 'up' } }, 'puck'],
   ])('%#', (node, chassis) => {
     expect(chassisFor(node as any)).toBe(chassis);
   });
@@ -219,7 +235,7 @@ describe('puck layout (access point)', () => {
       ['Dot11Radio1', 'radio'],
       ['GigabitEthernet0', 'copper'],
     ]);
-    expect(fp.captions.map((c) => c.text)).toEqual(['RADIO', 'GI']);
+    expect(fp.captions.map((c) => c.text)).toEqual(['RADIO', 'PORTS']);
     expect(fp.ports.map((p) => p.label)).toEqual(['2.4 GHz', '5 GHz', 'Gi0']);
     expect(fp.logical.map((p) => p.name)).toEqual(['Dot11Radio0.80', 'Dot11Radio1.80', 'BVI1']);
   });
@@ -298,6 +314,7 @@ describe('no overlapping text', () => {
     }],
     ['FortiGate 60D', fortigate],
     ['FortiGate 200D', fortigate200D],
+    ['FortiGate with only port_status', fortigateStatusOnly],
     ['access point', accessPoint],
     ['unknown device', unknownDevice],
   ];
@@ -350,5 +367,29 @@ describe('speed LED and furniture', () => {
     expect(faceplateOf({ ...switch24, status: 'unreachable' }).furniture.pwr.on).toBe(false);
     expect(faceplateOf(switch24).furniture.ear).toBeGreaterThan(0);
     expect(faceplateOf(fortigate).furniture.ear).toBe(0);
+  });
+});
+
+describe('desktop layout from port_status only', () => {
+  const fp = faceplateOf(fortigateStatusOnly);
+
+  it('groups like a full port list, with WAN on the right behind the divider', () => {
+    expect(fp.chassis).toBe('desktop');
+    expect(fp.captions.map((c) => c.text)).toEqual(['MGMT/HA', 'INTERNAL', 'DMZ', 'WAN (internet)']);
+    expect(fp.ports.map((p) => p.label)).toEqual(['MGMT', '1', '2', '3', '4', 'LAN', 'DMZ1', 'DMZ2', 'WAN1', 'WAN2']);
+    expect(fp.dividers).toHaveLength(1);
+    expect(fp.logical.map((p) => p.name)).toEqual(['modem', 'ssl.root']);
+    // a neighbour on a down port: link lost
+    expect(fp.ports.find((p) => p.port.name === 'port3')!.port.state).toBe('link_lost');
+  });
+
+  it('gives any other physical name its own full label in a PORTS group before WAN', () => {
+    const other = faceplateOf({
+      ...fortigateStatusOnly,
+      port_status: { ...fortigateStatusOnly.port_status, 'srv-net': 'up', x1: 'down' },
+    });
+    expect(other.captions.map((c) => c.text)).toEqual(['MGMT/HA', 'INTERNAL', 'DMZ', 'PORTS', 'WAN (internet)']);
+    const labels = other.ports.filter((p) => ['srv-net', 'x1'].includes(p.port.name)).map((p) => p.label);
+    expect(labels).toEqual(['srv-net', 'X1']);
   });
 });

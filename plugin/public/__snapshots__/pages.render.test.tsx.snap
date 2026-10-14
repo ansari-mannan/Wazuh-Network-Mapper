@@ -3777,7 +3777,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 </span>
 </button>
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
-<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 230.85 66\\" width=\\"100%\\" style=\\"max-width: 369.36px;\\" role=\\"group\\" aria-label=\\"CYFOR-AP1 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 233.225 66\\" width=\\"100%\\" style=\\"max-width: 373.16px;\\" role=\\"group\\" aria-label=\\"CYFOR-AP1 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -3786,7 +3786,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 </stop>
 </linearGradient>
 </defs>
-<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"228.85\\" height=\\"64\\" rx=\\"33\\" stroke-width=\\"2\\" fill=\\"url(#vmFpGrad-device5475d0abbd1a)\\">
+<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"231.225\\" height=\\"64\\" rx=\\"33\\" stroke-width=\\"2\\" fill=\\"url(#vmFpGrad-device5475d0abbd1a)\\">
 </rect>
 <rect class=\\"vmFpPlate\\" x=\\"21\\" y=\\"21\\" width=\\"88\\" height=\\"25\\" rx=\\"2\\">
 </rect>
@@ -3831,8 +3831,8 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 </line>
 </g>
 <g>
-<text class=\\"vmFpLabel\\" x=\\"192.85\\" y=\\"10\\" font-size=\\"7.5\\">GI</text>
-<line class=\\"vmFpRule\\" x1=\\"192.85\\" y1=\\"13\\" x2=\\"214.85\\" y2=\\"13\\" stroke-width=\\"0.6\\">
+<text class=\\"vmFpLabel\\" x=\\"192.85\\" y=\\"10\\" font-size=\\"7.5\\">PORTS</text>
+<line class=\\"vmFpRule\\" x1=\\"192.85\\" y1=\\"13\\" x2=\\"217.225\\" y2=\\"13\\" stroke-width=\\"0.6\\">
 </line>
 </g>
 <g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. Up. 1 Wi-Fi client. Neighbour: 172.20.80.1\\">

@@ -12,6 +12,7 @@ import {
   accessPoint,
   fortigate,
   fortigate200D,
+  fortigateStatusOnly,
   smallGraph,
   switch24,
   switch48,
@@ -226,6 +227,29 @@ describe('Faceplate', () => {
     expect(dx).toBeLessThan(Math.min(faceX('wan1'), faceX('wan2')));
     expect(socket(el, 'port9').getAttribute('class')).toContain('vmFpPort--link_lost');
     expect(socket(el, 'port16').getAttribute('class')).toContain('vmFpPort--shutdown');
+    expect(html()).toMatchSnapshot();
+  });
+
+  it('firewall with only port_status: desktop layout, WAN far right, virtual interfaces folded', () => {
+    const el = render(fortigateStatusOnly);
+    const svg = el.querySelector('[data-test-subj="vmFaceplate"]')!;
+    expect(svg.getAttribute('class')).toContain('vmFaceplate--desktop');
+    expect(labels(el)).toEqual(['MGMT', '1', '2', '3', '4', 'LAN', 'DMZ1', 'DMZ2', 'WAN1', 'WAN2']);
+    expect(svg.textContent).toContain('WAN (internet)');
+    const faceX = (name: string) => Number(socket(el, name).querySelector('.vmFpFace')!.getAttribute('x'));
+    const dx = Number(svg.querySelector('line.vmFpDivider')!.getAttribute('x1'));
+    const others = sockets(el)
+      .map((s) => s.getAttribute('data-port')!)
+      .filter((n) => !n.startsWith('wan'));
+    expect(Math.max(...others.map(faceX))).toBeLessThan(dx);
+    expect(dx).toBeLessThan(Math.min(faceX('wan1'), faceX('wan2')));
+    // modem and ssl.root are not sockets: they are listed under Logical interfaces
+    expect(socket(el, 'modem')).toBeNull();
+    expect(socket(el, 'ssl.root')).toBeNull();
+    const logical = el.querySelector('[data-test-subj="vmLogicalInterfaces"]')!;
+    expect(logical.textContent).toContain('Logical interfaces (2, 1 up)');
+    expect(logical.textContent).toContain('modem');
+    expect(logical.textContent).toContain('ssl.root');
     expect(html()).toMatchSnapshot();
   });
 

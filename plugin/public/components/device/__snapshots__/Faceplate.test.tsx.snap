@@ -4557,7 +4557,7 @@ exports[`Faceplate FortiGate: desktop box, INTERNAL/DMZ/WAN groups, dashed infer
 exports[`Faceplate access point: puck with the radios as antenna LEDs showing their client counts 1`] = `
 "<div>
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
-<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 230.85 66\\" width=\\"100%\\" style=\\"max-width: 369.36px;\\" role=\\"group\\" aria-label=\\"ap front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 233.225 66\\" width=\\"100%\\" style=\\"max-width: 373.16px;\\" role=\\"group\\" aria-label=\\"ap front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -4566,7 +4566,7 @@ exports[`Faceplate access point: puck with the radios as antenna LEDs showing th
 </stop>
 </linearGradient>
 </defs>
-<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"228.85\\" height=\\"64\\" rx=\\"33\\" stroke-width=\\"2\\" fill=\\"url(#vmFpGrad-deviceap)\\">
+<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"231.225\\" height=\\"64\\" rx=\\"33\\" stroke-width=\\"2\\" fill=\\"url(#vmFpGrad-deviceap)\\">
 </rect>
 <rect class=\\"vmFpPlate\\" x=\\"21\\" y=\\"21\\" width=\\"88\\" height=\\"25\\" rx=\\"2\\">
 </rect>
@@ -4611,8 +4611,8 @@ exports[`Faceplate access point: puck with the radios as antenna LEDs showing th
 </line>
 </g>
 <g>
-<text class=\\"vmFpLabel\\" x=\\"192.85\\" y=\\"10\\" font-size=\\"7.5\\">GI</text>
-<line class=\\"vmFpRule\\" x1=\\"192.85\\" y1=\\"13\\" x2=\\"214.85\\" y2=\\"13\\" stroke-width=\\"0.6\\">
+<text class=\\"vmFpLabel\\" x=\\"192.85\\" y=\\"10\\" font-size=\\"7.5\\">PORTS</text>
+<line class=\\"vmFpRule\\" x1=\\"192.85\\" y1=\\"13\\" x2=\\"217.225\\" y2=\\"13\\" stroke-width=\\"0.6\\">
 </line>
 </g>
 <g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. Up. 1 Wi-Fi client. Neighbour: wifi1\\">
@@ -4735,6 +4735,413 @@ exports[`Faceplate access point: puck with the radios as antenna LEDs showing th
 </svg>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">BVI1</div>
+</div>
+</div>
+</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>"
+`;
+
+exports[`Faceplate firewall with only port_status: desktop layout, WAN far right, virtual interfaces folded 1`] = `
+"<div>
+<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 522.375 66\\" width=\\"100%\\" style=\\"max-width: 835.8000000000001px;\\" role=\\"group\\" aria-label=\\"fwold front panel\\" data-test-subj=\\"vmFaceplate\\">
+<defs>
+<linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
+<stop offset=\\"0\\" class=\\"vmFpGradTop\\">
+</stop>
+<stop offset=\\"0.3\\" class=\\"vmFpGradBody\\">
+</stop>
+</linearGradient>
+</defs>
+<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"520.375\\" height=\\"64\\" rx=\\"10\\" stroke-width=\\"2\\" fill=\\"url(#vmFpGrad-devicefwold)\\">
+</rect>
+<rect class=\\"vmFpPlate\\" x=\\"7\\" y=\\"21\\" width=\\"136\\" height=\\"25\\" rx=\\"2\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"35.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"39.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"43.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"47.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"51.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"55.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"59.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"63.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"67.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"71.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"75.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"79.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"83.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"87.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"91.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"95.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"99.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"103.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"107.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"111.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"115.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"119.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"123.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"127.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"131.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<rect class=\\"vmFpGrille\\" x=\\"135.675\\" y=\\"51\\" width=\\"1.6\\" height=\\"8\\" rx=\\"0.8\\">
+</rect>
+<circle class=\\"vmFpPwr vmFpPwr--on\\" cx=\\"12.5\\" cy=\\"55.5\\" r=\\"2.6\\">
+<title>Answered SNMP in this scan</title>
+</circle>
+<text class=\\"vmFpLabel\\" x=\\"10\\" y=\\"16\\" font-size=\\"9\\" font-weight=\\"700\\">Fortinet</text>
+<text class=\\"vmFpLabel\\" x=\\"10\\" y=\\"31\\" font-size=\\"8\\" font-weight=\\"700\\">fwold</text>
+<text class=\\"vmFpLabel\\" x=\\"10\\" y=\\"41\\" font-size=\\"7\\">FortiGate-100E</text>
+<text class=\\"vmFpLabel\\" x=\\"17\\" y=\\"58\\" font-size=\\"6.5\\">PWR</text>
+<g>
+<text class=\\"vmFpLabel\\" x=\\"150\\" y=\\"10\\" font-size=\\"7.5\\">MGMT/HA</text>
+<line class=\\"vmFpRule\\" x1=\\"150\\" y1=\\"13\\" x2=\\"184.125\\" y2=\\"13\\" stroke-width=\\"0.6\\">
+</line>
+</g>
+<g>
+<text class=\\"vmFpLabel\\" x=\\"204.125\\" y=\\"10\\" font-size=\\"7.5\\">INTERNAL</text>
+<line class=\\"vmFpRule\\" x1=\\"204.125\\" y1=\\"13\\" x2=\\"330.125\\" y2=\\"13\\" stroke-width=\\"0.6\\">
+</line>
+</g>
+<g>
+<text class=\\"vmFpLabel\\" x=\\"350.125\\" y=\\"10\\" font-size=\\"7.5\\">DMZ</text>
+<line class=\\"vmFpRule\\" x1=\\"350.125\\" y1=\\"13\\" x2=\\"398.125\\" y2=\\"13\\" stroke-width=\\"0.6\\">
+</line>
+</g>
+<g>
+<text class=\\"vmFpLabel\\" x=\\"438.125\\" y=\\"10\\" font-size=\\"7.5\\">WAN (internet)</text>
+<line class=\\"vmFpRule\\" x1=\\"438.125\\" y1=\\"13\\" x2=\\"506.375\\" y2=\\"13\\" stroke-width=\\"0.6\\">
+</line>
+</g>
+<line class=\\"vmFpDivider\\" x1=\\"418.125\\" y1=\\"4\\" x2=\\"418.125\\" y2=\\"62\\" stroke-width=\\"1\\">
+</line>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"mgmt\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"mgmt. Up\\">
+<rect class=\\"vmFpFace\\" x=\\"150\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"156.6\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"153\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"155.66666666666666\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"158.33333333333334\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"161\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"163.66666666666666\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"166.33333333333334\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"152\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"162\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"161\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">MGMT</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"port1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"port1. Up\\">
+<rect class=\\"vmFpFace\\" x=\\"204.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"210.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"207.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"209.79166666666666\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"212.45833333333334\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"215.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"217.79166666666666\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"220.45833333333334\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"206.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"216.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"215.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">1</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"port2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"port2. Up\\">
+<rect class=\\"vmFpFace\\" x=\\"230.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"236.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"233.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"235.79166666666666\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"238.45833333333334\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"241.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"243.79166666666666\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"246.45833333333334\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"232.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"242.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"241.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">2</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--link_lost\\" data-port=\\"port3\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"port3. Down: link lost\\">
+<rect class=\\"vmFpFace\\" x=\\"256.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"262.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"259.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"261.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"264.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"267.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"269.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"272.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"258.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"268.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"267.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">3</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"port4\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"port4. Not connected\\">
+<rect class=\\"vmFpFace\\" x=\\"282.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"288.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"285.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"287.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"290.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"293.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"295.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"298.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"284.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"294.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"293.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">4</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"lan\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"lan. Not connected\\">
+<rect class=\\"vmFpFace\\" x=\\"308.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"314.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"311.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"313.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"316.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"319.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"321.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"324.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"310.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"320.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"319.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">LAN</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"dmz1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"dmz1. Up\\">
+<rect class=\\"vmFpFace\\" x=\\"350.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"356.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"353.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"355.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"358.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"361.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"363.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"366.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"352.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"362.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"361.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">DMZ1</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"dmz2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"dmz2. Not connected\\">
+<rect class=\\"vmFpFace\\" x=\\"376.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"382.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"379.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"381.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"384.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"387.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"389.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"392.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"378.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"388.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"387.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">DMZ2</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"wan1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"wan1. Up\\">
+<rect class=\\"vmFpFace\\" x=\\"438.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"444.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"441.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"443.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"446.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"449.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"451.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"454.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"440.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"450.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"449.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">WAN1</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"wan2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"wan2. Not connected\\">
+<rect class=\\"vmFpFace\\" x=\\"464.125\\" y=\\"24\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"470.725\\" y=\\"38\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"467.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"469.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"472.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"475.125\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"477.7916666666667\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"480.4583333333333\\" y=\\"26\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"466.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<rect class=\\"vmFpSpeed vmFpSpeed--off\\" x=\\"476.125\\" y=\\"32.1\\" width=\\"8\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"475.125\\" y=\\"53\\" font-size=\\"7\\" text-anchor=\\"middle\\">WAN2</text>
+</g>
+</svg>
+<div class=\\"vmFpLegend\\" data-test-subj=\\"vmFaceplateLegend\\">
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--up\\">
+</i>Up</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--link_lost\\">
+</i>Down: link lost</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--unused\\">
+</i>Not connected</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--shutdown\\">
+</i>Shut down</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--route\\">
+</i>On attack route</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--inferred\\">
+</i>Inferred from neighbour</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--fast\\">
+</i>Speed ≥ 1 Gb/s</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--slow\\">
+</i>Speed 10–100 Mb/s</span>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiAccordion\\" data-test-subj=\\"vmLogicalInterfaces\\">
+<div class=\\"euiAccordion__triggerWrapper\\">
+<button id=\\"X\\" aria-controls=\\"X\\" aria-expanded=\\"false\\" class=\\"euiAccordion__button\\" type=\\"button\\">
+<span class=\\"euiAccordion__iconWrapper\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiAccordion__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"nonzero\\" d=\\"m5.157 13.069 4.611-4.685a.546.546 0 0 0 0-.768L5.158 2.93a.552.552 0 0 1 0-.771.53.53 0 0 1 .759 0l4.61 4.684c.631.641.63 1.672 0 2.312l-4.61 4.684a.53.53 0 0 1-.76 0 .552.552 0 0 1 0-.771Z\\">
+</path>
+</svg>
+</span>
+<span class=\\"euiIEFlexWrapFix\\">Logical interfaces (2, 1 up)</span>
+</button>
+</div>
+<div class=\\"euiAccordion__childWrapper\\" tabindex=\\"-1\\" role=\\"region\\" aria-labelledby=\\"X\\" id=\\"X\\">
+<div>
+<div class=\\"euiAccordion__padding--s\\">
+<div class=\\"vmFpChips\\">
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--danger\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">modem</div>
+</div>
+</div>
+</span>
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">ssl.root</div>
 </div>
 </div>
 </span>

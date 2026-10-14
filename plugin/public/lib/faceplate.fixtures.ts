@@ -109,6 +109,27 @@ export const fortigate200D = device(
   { vendor: 'Fortinet', model: 'FortiGate-200D' }
 );
 
+/** A firewall from an older graph: only port_status, FortiOS virtual interfaces among them. */
+export const fortigateStatusOnly = device('device:fwold', 'router', undefined, {
+  vendor: 'Fortinet',
+  model: 'FortiGate-100E',
+  port_status: {
+    mgmt: 'up',
+    port1: 'up',
+    port2: 'up',
+    port3: 'down',
+    port4: 'down',
+    wan1: 'up',
+    wan2: 'down',
+    dmz1: 'up',
+    dmz2: 'down',
+    modem: 'down',
+    'ssl.root': 'up',
+    lan: 'down',
+  },
+  neighbor_ports: ['port3'],
+});
+
 /** An access point with two radios. */
 export const accessPoint = device(
   'device:ap',
