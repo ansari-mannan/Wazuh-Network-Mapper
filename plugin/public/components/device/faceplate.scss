@@ -1,0 +1,63 @@
+/*
+ * Device front panel (Faceplate.tsx). The chassis stays dark in both themes,
+ * like real hardware; the LED colours are the theme's own. Compiled once per
+ * dashboard theme, so light/dark follow automatically.
+ */
+
+.vmFp {
+  $chassis: lightOrDarkTheme(#2b3a4a, #26313d);
+  $chassisEdge: lightOrDarkTheme(#1c2733, #121820);
+  $chassisHi: lightOrDarkTheme(#3a4d61, #34424f);
+  $label: lightOrDarkTheme(#c9d4e0, #aebccb);
+  $socket: #10161d;
+  $pin: #3c4a58;
+  $up: $euiColorVis0;            // green
+  $down: $euiColorDanger;        // red
+  $unused: #222b35;              // dark, unlit
+  $shutdown: $euiColorMediumShade; // grey
+
+  .vmFaceplate { display: block; max-width: 100%; height: auto; }
+  .vmFpChassis { fill: $chassis; stroke: $chassisEdge; }
+  .vmFpChassisHi { fill: $chassisHi; }
+  .vmFpLabel { fill: $label; font-family: $euiFontFamily; }
+  .vmFpRule { stroke: $label; opacity: 0.6; }
+  .vmFpFace { fill: $socket; stroke: $pin; }
+  .vmFpFace--inferred { stroke: $up; }
+  .vmFpPin { stroke: $pin; }
+  .vmFpPinFill { fill: $pin; }
+  .vmFpNotch { fill: $chassis; }
+  .vmFpRoute { stroke: var(--vm-route); }
+
+  .vmFpPort--up .vmFpLed { fill: $up; }
+  .vmFpPort--link_lost .vmFpLed { fill: $down; }
+  .vmFpPort--unused .vmFpLed { fill: $unused; }
+  .vmFpPort--shutdown .vmFpLed { fill: $shutdown; }
+  .vmFpPort--link { cursor: pointer; }
+  .vmFpPort:hover .vmFpFace,
+  .vmFpPort:focus .vmFpFace { stroke: #fff; stroke-width: 1.5; }
+  .vmFpPort:focus { outline: none; }
+
+  .vmFpLegend {
+    display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px;
+    color: $euiTextSubduedColor; font-size: 12px;
+  }
+  .vmFpSwatch {
+    display: inline-block; width: 12px; height: 12px; border-radius: 2px;
+    margin-right: 5px; vertical-align: -2px;
+  }
+  .vmFpSwatch--up { background: $up; }
+  .vmFpSwatch--link_lost { background: $down; }
+  .vmFpSwatch--unused { background: $unused; outline: 1px solid $pin; }
+  .vmFpSwatch--shutdown { background: $shutdown; }
+  .vmFpSwatch--route { outline: 2px solid var(--vm-route); outline-offset: -2px; }
+  .vmFpSwatch--inferred { outline: 1.5px dashed $up; outline-offset: -1.5px; }
+
+  .vmFpChips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vmFpChip {
+    background: $euiColorLightestShade; border: 1px solid $euiBorderColor;
+    border-radius: 12px; padding: 1px 8px;
+  }
+}
+
+.vmFpScroll { overflow-x: auto; }
+.vmFpModal { width: 90vw; }

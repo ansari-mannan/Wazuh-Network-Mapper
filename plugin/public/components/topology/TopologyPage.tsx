@@ -230,7 +230,14 @@ export function TopologyPage() {
           loading && <EuiLoadingSpinner size="xl" />
         )}
       </div>
-      {selected && <DeviceDetail node={selected} onClose={() => setSelectedId(null)} />}
+      {selected && (
+        <DeviceDetail
+          node={selected}
+          onClose={() => setSelectedId(null)}
+          route={routeKey ? routeKey.split(',') : undefined}
+          onSelect={setSelectedId}
+        />
+      )}
     </>
   );
 }

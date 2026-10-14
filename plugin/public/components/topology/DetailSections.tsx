@@ -1,8 +1,9 @@
 // The panels of the detail flyout below its identity: risk, liveness, the CVE
 // list, a host's open ports, and a device's ports.
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import {
   EuiBadge,
+  EuiButtonEmpty,
   EuiDescriptionList,
   EuiFlexGroup,
   EuiFlexItem,
@@ -13,12 +14,13 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { CveLookup, CveSummary, CVE, DeviceNode, GraphNode, NodeLiveness } from '../../../common';
+import { CveLookup, CveSummary, CVE, DeviceNode, GraphEdge, GraphNode, NodeLiveness } from '../../../common';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
 import { potentialText, staleText } from '../../lib/deviceCveText';
 import { conflictText, cvssSourceText, epssText, exposureText, ovssLine } from '../../lib/ovssText';
 import { RISK_META, riskLevel, RiskLevel, TIER_META, TIERS } from '../../lib/risk';
 import { portsText } from '../../lib/portText';
+import { Faceplate } from '../device/Faceplate';
 
 const EMPTY = '—';
 
@@ -309,12 +311,38 @@ export function OpenPorts({ node }: { node: GraphNode }) {
   );
 }
 
-export function DevicePorts({ node }: { node: DeviceNode }) {
+// The front panel by default; "Show as list" gives the plain port_status list.
+export function DevicePorts({
+  node,
+  edges = [],
+  route,
+  onSelectNode,
+}: {
+  node: DeviceNode;
+  edges?: GraphEdge[];
+  route?: string[];
+  onSelectNode?: (nodeId: string) => void;
+}) {
+  const [asList, setAsList] = useState(false);
   const ports = node.port_status ? Object.entries(node.port_status) : [];
+  const hasPanel = ports.length > 0 || (node.ports || []).length > 0;
   return (
     <>
       <Section title="Ports" count={ports.length}>
-        {ports.length === 0 ? (
+        {hasPanel && (
+          <EuiButtonEmpty
+            size="xs"
+            flush="left"
+            iconType={asList ? 'inspect' : 'list'}
+            onClick={() => setAsList(!asList)}
+            data-test-subj="vmPortsToggle"
+          >
+            {asList ? 'Show front panel' : 'Show as list'}
+          </EuiButtonEmpty>
+        )}
+        {hasPanel && !asList ? (
+          <Faceplate node={node} edges={edges} route={route} onSelectNode={onSelectNode} />
+        ) : ports.length === 0 ? (
           <EuiText size="s" color="subdued">
             <p>No port status reported.</p>
           </EuiText>

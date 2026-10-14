@@ -68,7 +68,19 @@ function identityRows(node: GraphNode, nameOf: (id: string) => string, liveness:
   ];
 }
 
-export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () => void }) {
+export function DeviceDetail({
+  node,
+  onClose,
+  route,
+  onSelect,
+}: {
+  node: GraphNode;
+  onClose: () => void;
+  /** the highlighted route's walk, for the ports it uses */
+  route?: string[];
+  /** select another node on the map */
+  onSelect?: (nodeId: string) => void;
+}) {
   const { graph } = useGraph();
   const nameOf = (id: string) => {
     const other = graph?.nodes.find((n) => n.node_id === id);
@@ -183,7 +195,7 @@ export function DeviceDetail({ node, onClose }: { node: GraphNode; onClose: () =
             {showCves && <EuiSpacer size="m" />}
             <ConfigChecks node={node} meta={graph?.metadata} />
             <EuiSpacer size="m" />
-            <DevicePorts node={node} />
+            <DevicePorts node={node} edges={graph?.edges} route={route} onSelectNode={onSelect} />
           </>
         )}
       </EuiFlyoutBody>

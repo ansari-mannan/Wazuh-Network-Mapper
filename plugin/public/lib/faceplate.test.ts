@@ -7,6 +7,7 @@ import {
   portKind,
   portNeighbours,
   portsOf,
+  portTooltip,
   routePortKeys,
   shortName,
   speedText,
@@ -165,7 +166,8 @@ describe('puck layout (access point)', () => {
       ['Dot11Radio1', 'radio'],
       ['GigabitEthernet0', 'copper'],
     ]);
-    expect(fp.captions[0].text).toBe('RADIO');
+    expect(fp.captions.map((c) => c.text)).toEqual(['RADIO', 'GI']);
+    expect(fp.ports.map((p) => p.label)).toEqual(['R0', 'R1', 'Gi0']);
     expect(fp.logical.map((p) => p.name)).toEqual(['Dot11Radio0.80', 'Dot11Radio1.80', 'BVI1']);
   });
 });
@@ -212,5 +214,19 @@ describe('neighbours', () => {
     const keys = routePortKeys('device:sw24', ['device:fw', 'device:sw24', 'device:ap'], byPort);
     expect([...keys].sort()).toEqual([portKey('Fa1/0/1'), portKey('Fa1/0/6')].sort());
     expect(routePortKeys('device:sw24', ['endpoint:101'], byPort).size).toBe(0);
+  });
+});
+
+describe('portTooltip', () => {
+  it('lists name, alias, speed, state, neighbour and flags', () => {
+    const fa1 = switch24.ports!.find((p) => p.name === 'FastEthernet1/0/1')!;
+    expect(portTooltip(fa1, [{ nodeId: 'device:fw', text: 'fw wan1' }], { onRoute: true })).toEqual([
+      'FastEthernet1/0/1',
+      'Alias: Uplink to firewall',
+      'Up · 100 Mb/s',
+      'Neighbour: fw wan1',
+      'On the highlighted attack route',
+    ]);
+    expect(portTooltip(port('dmz', 'shutdown'), [])).toEqual(['dmz', 'Shut down (admin)']);
   });
 });

@@ -203,7 +203,7 @@ const DESKTOP_GROUPS: Array<[RegExp, string]> = [
   [/^wan\d*$/i, 'WAN'],
 ];
 const groupOf = (name: string) =>
-  (DESKTOP_GROUPS.find(([re]) => re.test(name)) || [null, shortName(family(name).replace(/[/:]+$/, ''))])[1];
+  (DESKTOP_GROUPS.find(([re]) => re.test(name)) || [null, name.slice(0, 2).toUpperCase()])[1];
 // INTERNAL first and the WAN side last, like the box's own print
 const groupRank = (g: string) => (g === 'INTERNAL' ? 0 : g === 'DMZ' ? 2 : g === 'WAN' ? 3 : 1);
 
@@ -227,7 +227,7 @@ function rowLayout(physical: Array<{ port: DevicePort; kind: PortKind }>, brandW
   let x = brandWidth;
   for (const g of order) {
     const label = (p: DevicePort) =>
-      g === 'INTERNAL' && trailingNumber(p.name) ? trailingNumber(p.name)! : shortName(p.name);
+      (g === 'INTERNAL' && trailingNumber(p.name)) || (g === 'RADIO' && `R${trailingNumber(p.name) ?? ''}`) || shortName(p.name);
     groups.get(g)!.forEach(({ port, kind }, i) => {
       const px = x + i * (PORT_W + 8);
       ports.push({ port, kind, label: label(port), x: px, y: top, labelY: top + PORT_H + 11 });
@@ -325,4 +325,23 @@ export const STATE_TEXT: Record<PortState, string> = {
 export function speedText(mbps: number | null | undefined): string {
   if (!mbps) return '';
   return mbps >= 1000 ? `${mbps / 1000} Gb/s` : `${mbps} Mb/s`;
+}
+
+/**
+ * A port's tooltip, one fact per line: full name, alias, speed, state in
+ * words, neighbours, and whether it is inferred or on the shown route.
+ */
+export function portTooltip(
+  port: DevicePort,
+  neighbours: Neighbour[],
+  flags: { inferred?: boolean; onRoute?: boolean } = {}
+): string[] {
+  const lines = [port.name];
+  if (port.alias) lines.push(`Alias: ${port.alias}`);
+  const speed = speedText(port.speed_mbps);
+  lines.push(speed ? `${STATE_TEXT[port.state]} · ${speed}` : STATE_TEXT[port.state]);
+  if (neighbours.length) lines.push(`Neighbour: ${neighbours.map((n) => n.text).join(', ')}`);
+  if (flags.inferred) lines.push('Known from the neighbour’s side of the link');
+  if (flags.onRoute) lines.push('On the highlighted attack route');
+  return lines;
 }
