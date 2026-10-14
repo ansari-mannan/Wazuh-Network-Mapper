@@ -5,6 +5,7 @@ import { EuiBasicTable, EuiDescriptionList, EuiPanel, EuiSpacer, EuiText, EuiTex
 import { ScanStageOutcome } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { connectionSecurity } from '../../lib/graphWarnings';
+import { nvdKeyStatus } from '../../lib/nvdText';
 import { formatTime } from './ScanStatus';
 
 export function ScanStages({ stages, title = 'Last scan, stage by stage' }: { stages: ScanStageOutcome[]; title?: string }) {
@@ -60,6 +61,7 @@ export function GraphSource() {
             { title: 'Nodes', description: String(graph.nodes.length) },
             { title: 'Links', description: String(graph.edges.length) },
             { title: 'Connection security', description: connectionSecurity(graph.metadata?.warnings) },
+            { title: 'NVD API key', description: nvdKeyStatus(graph.metadata?.device_cves?.api_key) },
           ]}
         />
       ) : (

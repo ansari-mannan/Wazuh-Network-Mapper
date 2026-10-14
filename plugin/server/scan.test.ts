@@ -7,6 +7,7 @@ import {
   failureMessage,
   getScan,
   latestStage,
+  nvdKeyOf,
   onPath,
   runExclusive,
   scanArgs,
@@ -80,6 +81,15 @@ describe('appendTail', () => {
     buffer = appendTail(buffer, 'vulnmapper: the last line\n');
     expect(buffer.length).toBe(STDERR_TAIL);
     expect(failureMessage(buffer, 1)).toBe('vulnmapper: the last line');
+  });
+});
+
+describe('nvdKeyOf', () => {
+  it('reads only the stage block boolean', () => {
+    expect(nvdKeyOf({ metadata: { device_cves: { api_key: true } } })).toBe(true);
+    expect(nvdKeyOf({ metadata: { device_cves: { api_key: false } } })).toBe(false);
+    expect(nvdKeyOf({ metadata: {} })).toBeNull();
+    expect(nvdKeyOf(null)).toBeNull();
   });
 });
 

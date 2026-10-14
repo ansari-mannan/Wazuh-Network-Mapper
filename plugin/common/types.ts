@@ -311,6 +311,8 @@ export type Metadata = {
   // the optional SNMP question to unmanaged hosts, when it ran
   snmp_question?: { asked: number; answered: number; forwarding: number; cap: number; cap_reached: boolean };
   name_lookup?: { asked: number; named: number; budget_reached: boolean };
+  // the device-CVE stage, when it ran; api_key says only whether a key was used
+  device_cves?: { api_key?: boolean; [key: string]: unknown };
   counts?: {
     nodes: number;
     endpoints: number;
@@ -368,6 +370,9 @@ export type ScanState = {
   nmapAvailable?: boolean;
   // vulnmapper.seeds: where the network crawl starts (empty: the server's default gateway).
   seeds?: string[];
+  // After a completed scan: whether its NVD lookups used an API key (null: no
+  // device-CVE stage). Only the scanner's boolean; the key itself is never read.
+  nvdKey?: boolean | null;
 };
 
 // Scheduled scans (schedule.json beside the graph; GET/POST /api/vulnmapper/schedule).

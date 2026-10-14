@@ -128,6 +128,12 @@ export function scanArgs(
   return args;
 }
 
+/** Whether a graph's device-CVE stage used an NVD API key; null when it did not run. */
+export function nvdKeyOf(doc: unknown): boolean | null {
+  const key = (doc as { metadata?: { device_cves?: { api_key?: unknown } } })?.metadata?.device_cves?.api_key;
+  return typeof key === 'boolean' ? key : null;
+}
+
 /** The reason a graph's crawl polled no device (its crawl_empty warning), or null. */
 export function emptyCrawl(doc: unknown): string | null {
   const warnings = (doc as { metadata?: { warnings?: unknown } })?.metadata?.warnings;
@@ -302,6 +308,7 @@ export function startScan({
     await archiveScan(graphPath, trigger).catch((e) =>
       logger.warn(`scan completed, but it could not be added to the scan history: ${(e as Error).message}`)
     );
+    scan = { ...scan, nvdKey: nvdKeyOf(doc) };
     await end('idle', 'Scan completed; graph updated.', false);
     logger.info('scan completed; graph updated');
   });
