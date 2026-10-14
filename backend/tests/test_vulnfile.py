@@ -1,6 +1,7 @@
 """The CLI's second output, vulnerabilities.json, and the graph fields that go
 with it. Offline: driven by the --scored / --network fixtures."""
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import json

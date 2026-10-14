@@ -1,6 +1,7 @@
 """Manager-API inventory: the Wazuh server (agent 000), syscollector retries,
 and telling an agent Wazuh has not examined yet from a clean one. HTTP is mocked."""
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import json

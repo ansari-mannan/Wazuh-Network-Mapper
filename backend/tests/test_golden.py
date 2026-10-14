@@ -10,6 +10,7 @@ A refactor must keep this green. If it fails, the change altered behaviour.
 To refreeze after an intended change: ``python3 scripts/_freeze_golden.py``.
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import asyncio
 import contextlib
 import io

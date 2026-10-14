@@ -1,6 +1,7 @@
 """OVSS: the formula, tiers and overrides, the inputs (exposure, dependency,
 CVSS selection), the node roll-up, the threat feeds and the CVE-record cache."""
 
+import offline  # noqa: F401  (no test reaches the internet)
 import gzip
 import json
 import os
@@ -14,7 +15,7 @@ from vulnmapper.scoring import cvss_select, feeds, ovss, stage
 from vulnmapper.scoring.cvss_select import CveRecords, records_cache, select, trim_record
 
 KEV_URL, EPSS_URL = feeds.KEV_URL, feeds.EPSS_URL
-REAL_HTTP_GET = feeds.http_get      # bound before conftest makes downloads fail
+REAL_HTTP_GET = offline.REAL_HTTP_GET
 
 
 def finding(cvss, exposure=0.5, dependency=0.0, kev=False, epss=0.0, confidence="confirmed",

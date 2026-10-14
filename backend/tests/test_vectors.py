@@ -3,6 +3,7 @@
 Every NVD reply is served by FakeNvd (test_nvd); nothing touches the network.
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import copy
 import io

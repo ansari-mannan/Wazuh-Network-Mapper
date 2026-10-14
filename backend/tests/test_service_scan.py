@@ -4,6 +4,7 @@ nmap never runs: a FakeRunner serves saved XML (or signals missing/timeout),
 and every NVD reply comes from FakeNvd (test_nvd). The clock is a FakeClock.
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import json

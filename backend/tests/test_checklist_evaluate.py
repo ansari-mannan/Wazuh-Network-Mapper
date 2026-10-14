@@ -4,6 +4,7 @@ Capture fixtures through the fake SNMP client for the lab devices, small
 hand-made configurations for each result; nothing touches the network.
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import asyncio
 import contextlib
 import copy

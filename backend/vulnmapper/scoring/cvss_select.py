@@ -130,10 +130,10 @@ class CveRecords:
         try:
             status, body = self._transport(CVE_API_URL.format(cve_id),
                                            min(REQUEST_TIMEOUT_S, max(1.0, self._remaining())))
-        except (FeedUnavailable, OSError) as e:
+        except Exception as e:          # any transport failure stops the fetching, never the scan
             if not self._stop.is_set():
                 log.warning("cve.org did not answer (%s); no more CVE record requests "
-                            "this scan", e)
+                            "this scan", e if isinstance(e, FeedUnavailable) else type(e).__name__)
             self._stop.set()
             return "unanswered", None
         if status == 404:

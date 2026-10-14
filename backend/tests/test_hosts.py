@@ -4,6 +4,7 @@ A hand-made network document with one host from each of the four sources a
 host without an agent can come from; nothing touches the network.
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import json

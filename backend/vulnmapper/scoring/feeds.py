@@ -69,7 +69,9 @@ def http_get(url: str, timeout: float, progress: Optional[Callable] = None) -> t
                 if time.monotonic() - start > timeout:
                     raise FeedUnavailable(f"still downloading after {timeout:.0f} s")
             return r.status_code, b"".join(chunks)
-    except requests.RequestException as e:
+    except FeedUnavailable:
+        raise
+    except Exception as e:              # any failure, never a scan's: the type only, no detail
         raise FeedUnavailable(type(e).__name__) from None
 
 
@@ -147,9 +149,10 @@ def load_feed(name: str, url: str, path: Optional[str], parse: Callable, clock,
         log.info("%s downloaded in %.1f s, %d bytes (%s)", name, clock.monotonic() - started,
                  len(raw), date)
         return data, FRESH, date
-    except (FeedUnavailable, OSError, ValueError, KeyError) as e:
+    except Exception as e:              # an injected transport may fail any way; never the scan
         log.warning("%s could not be downloaded after %.1f s (%s)", name,
-                    clock.monotonic() - started, e)
+                    clock.monotonic() - started,
+                    e if isinstance(e, (FeedUnavailable, ValueError, KeyError)) else type(e).__name__)
     if fetched:
         try:
             with open(path, "rb") as f:

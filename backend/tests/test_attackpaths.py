@@ -2,6 +2,7 @@
 the lab inputs for the pipeline; nothing touches the network.
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import json

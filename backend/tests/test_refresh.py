@@ -1,5 +1,6 @@
 """python -m vulnmapper.devicecves: refresh device CVEs on an existing graph."""
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import json

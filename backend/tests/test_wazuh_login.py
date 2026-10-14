@@ -5,6 +5,7 @@ must not die with a traceback, and must not go on with a graph that has lost
 every PC (the plugin keeps the previous graph only when a scan fails).
 """
 
+import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
 import os
