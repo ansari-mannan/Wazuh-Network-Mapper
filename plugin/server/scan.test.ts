@@ -1,6 +1,7 @@
 import { existsSync, mkdtempSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import * as history from './history';
 import {
   failureMessage,
   getScan,
@@ -140,6 +141,26 @@ describe('temporary files', () => {
       });
     });
     expect(atDone).toEqual([false, false]);
+  });
+});
+
+describe('scan history', () => {
+  it('archives a successful scan before releasing the lock', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-ok-'));
+    const scanner = path.join(dir, 'ok.sh'); // "-m vulnmapper --vulns-out V ...": write V, print a graph
+    writeFileSync(scanner, '#!/bin/sh\necho "{}" > "$4"\necho \'{"nodes": [], "edges": [], "metadata": {}}\'\n', { mode: 0o755 });
+    const statusWhenArchived: string[] = [];
+    const spy = jest.spyOn(history, 'archiveScan').mockImplementation(async () => {
+      statusWhenArchived.push(getScan().status);
+      return {} as any;
+    });
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const ended = new Promise<[boolean, string]>((resolve) => {
+      startScan({ pythonBin: scanner, backendDir: dir, graphPath: path.join(dir, 'graph.json'), onDone: (ok, m) => resolve([ok, m]), logger });
+    });
+    expect(await ended).toEqual([true, 'Scan completed; graph updated.']);
+    expect(statusWhenArchived).toEqual(['running']);
+    spy.mockRestore();
   });
 });
 

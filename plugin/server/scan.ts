@@ -282,16 +282,20 @@ export function startScan({
       await fs.rename(pathsTmp, pathsPath).catch((e) => {
         if (e.code !== 'ENOENT') throw e;
       });
-      await end('idle', 'Scan completed; graph updated.', false);
-      logger.info('scan completed; graph updated');
-      archiveScan(graphPath, trigger).catch((e) =>
-        logger.warn(`scan completed, but it could not be added to the scan history: ${(e as Error).message}`)
-      );
     } catch (e) {
       // The graph is saved; only the full CVE list is stale.
       logger.warn(`could not save vulnerabilities.json / attack_paths.json: ${(e as Error).message}`);
       await end('idle', `Scan completed; graph updated, but vulnerabilities.json or attack_paths.json was not: ${(e as Error).message}`, true);
+      return;
     }
+    // Archive while the lock is still held, so no rescore, liveness recompute
+    // or next scan rewrites a file in the middle of the copy. A failure is only
+    // a warning: the scan itself succeeded.
+    await archiveScan(graphPath, trigger).catch((e) =>
+      logger.warn(`scan completed, but it could not be added to the scan history: ${(e as Error).message}`)
+    );
+    await end('idle', 'Scan completed; graph updated.', false);
+    logger.info('scan completed; graph updated');
   });
 
   return true;
