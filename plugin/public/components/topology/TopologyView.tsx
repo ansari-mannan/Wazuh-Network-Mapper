@@ -21,6 +21,7 @@ import { highlightClass, routeArrows, routeMarks } from './highlight';
 import { CustomNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
+import { isWireless, wirelessText } from '../../lib/wireless';
 
 const nodeTypes = { device: CustomNode };
 
@@ -57,20 +58,51 @@ function PortsEdge(props: EdgeProps<PortLabels>) {
   );
 }
 
-const edgeTypes = { ports: PortsEdge };
+/** The Wi-Fi mark: a dot and two arcs, centred on (x, y). */
+export function WifiGlyph({ x, y, color, background }: { x: number; y: number; color: string; background: string }) {
+  return (
+    <g className="vmWifiGlyph" transform={`translate(${x} ${y})`}>
+      <circle r={9} fill={background} stroke={color} strokeWidth={1.2} />
+      <g fill="none" stroke={color} strokeWidth={1.4} strokeLinecap="round">
+        <path d="M -5 -1 A 7 7 0 0 1 5 -1" />
+        <path d="M -2.6 1.6 A 3.6 3.6 0 0 1 2.6 1.6" />
+      </g>
+      <circle cy={4} r={1.3} fill={color} />
+    </g>
+  );
+}
+
+// A Wi-Fi client's link: the dashed line, the Wi-Fi mark at its middle and
+// "Wireless · SSID · band (radio)" on hover.
+function WifiEdge(props: EdgeProps<{ tooltip: string }>) {
+  const { sourceX, sourceY, targetX, targetY, data, style } = props;
+  const mid = pointOnLink(sourceX, sourceY, targetX, targetY, 0.5);
+  return (
+    <g className="vmWifiEdge">
+      <title>{data?.tooltip}</title>
+      <BezierEdge {...props} label={undefined} />
+      <WifiGlyph x={mid.x} y={mid.y} color={String(style?.stroke)} background={themeVars.euiColorEmptyShade} />
+    </g>
+  );
+}
+
+const edgeTypes = { ports: PortsEdge, wifi: WifiEdge };
 
 type EdgeStyle = CSSProperties & { stroke: string };
 
+// a Wi-Fi link stays dashed, on a route too
+const WIFI_DASH = '5 5';
+
 // Edge visual style by relationship type + placement confidence (Issue 6).
-export function edgeStyle(e: Pick<LayoutEdge, 'inferred' | 'type' | 'confidence'>): EdgeStyle {
+export function edgeStyle(e: Pick<LayoutEdge, 'inferred' | 'type' | 'confidence'> & { label?: string }): EdgeStyle {
   if (e.inferred) {
     return { stroke: graphColors.edgeInferred, strokeWidth: 1.5, strokeDasharray: '6 3', opacity: 0.9 };
   }
   if (e.type === 'endpoint_link') {
-    // A Wi-Fi client hangs off its access point: short teal dots, unlike any
-    // wired host link.
-    if (e.confidence === 'wifi') {
-      return { stroke: graphColors.edgeWifi, strokeWidth: 2, strokeDasharray: '1 5', strokeLinecap: 'round' };
+    // A Wi-Fi client hangs off its access point: teal dashes with a Wi-Fi
+    // mark (WifiEdge), unlike any wired host link.
+    if (isWireless({ ...e, local_port: e.label })) {
+      return { stroke: graphColors.edgeWifi, strokeWidth: 2, strokeDasharray: WIFI_DASH, strokeLinecap: 'round' };
     }
     // FDB-confidence links are visually distinct (lighter, finer dash) from the
     // higher-confidence LLDP-confidence ones.
@@ -149,7 +181,13 @@ function routeEdge(e: Edge, arrow: 'start' | 'end'): Edge {
   const marker = { type: MarkerType.ArrowClosed, color: graphColors.route, width: 18, height: 18 };
   return {
     ...e,
-    style: { ...e.style, stroke: graphColors.route, strokeWidth: 3, strokeDasharray: undefined, opacity: 1 },
+    style: {
+      ...e.style,
+      stroke: graphColors.route,
+      strokeWidth: 3,
+      strokeDasharray: e.type === 'wifi' ? WIFI_DASH : undefined,
+      opacity: 1,
+    },
     markerEnd: arrow === 'end' ? marker : undefined,
     markerStart: arrow === 'start' ? { ...marker, orient: 'auto-start-reverse' } : undefined,
   };
@@ -195,8 +233,12 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
       //   inferred       -> dashed amber (tentative, subnet-guessed; not confirmed)
       // Port labels: an lldp link shows each device's port at that device's
       // end (see edgeLabels.ts); a host link shows the switch port in the middle.
+      const ssidOf = new Map(
+        graph.nodes.map((n) => [n.node_id, n.kind === 'endpoint' ? n.wifi?.ssid : undefined])
+      );
       const rfEdges: Edge[] = laidEdges.map((e) => {
         const style = edgeStyle(e);
+        const wifi = !e.inferred && isWireless({ ...e, local_port: e.label });
         const drawn = orientForDrawing(e, layoutY);
         const ports =
           e.type === 'lldp'
@@ -209,7 +251,8 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
           id: e.id,
           ...drawn,
           ...(ports ? { type: 'ports', data: ports } : {}),
-          label: e.inferred ? 'inferred' : ports ? undefined : e.label,
+          ...(wifi ? { type: 'wifi', data: { tooltip: wirelessText(ssidOf.get(e.source), e.label) } } : {}),
+          label: e.inferred ? 'inferred' : ports || wifi ? undefined : e.label,
           style,
           labelStyle: {
             fontSize: 10,

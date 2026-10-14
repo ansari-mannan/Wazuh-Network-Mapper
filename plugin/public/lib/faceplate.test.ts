@@ -167,7 +167,7 @@ describe('puck layout (access point)', () => {
       ['GigabitEthernet0', 'copper'],
     ]);
     expect(fp.captions.map((c) => c.text)).toEqual(['RADIO', 'GI']);
-    expect(fp.ports.map((p) => p.label)).toEqual(['R0', 'R1', 'Gi0']);
+    expect(fp.ports.map((p) => p.label)).toEqual(['2.4 GHz', '5 GHz', 'Gi0']);
     expect(fp.logical.map((p) => p.name)).toEqual(['Dot11Radio0.80', 'Dot11Radio1.80', 'BVI1']);
   });
 });

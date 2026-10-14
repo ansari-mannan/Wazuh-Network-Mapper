@@ -168,3 +168,10 @@
     opacity: 0.6;
   }
 }
+
+/* line legend above the map (MapLegend.tsx) */
+.vmMapLegend {
+  display: flex; flex-wrap: wrap; gap: 4px 16px;
+  color: $euiTextSubduedColor; font-size: 12px;
+  span { display: inline-flex; align-items: center; gap: 4px; }
+}

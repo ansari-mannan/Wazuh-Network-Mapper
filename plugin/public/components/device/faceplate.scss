@@ -20,6 +20,7 @@
   .vmFpChassis { fill: $chassis; stroke: $chassisEdge; }
   .vmFpChassisHi { fill: $chassisHi; }
   .vmFpLabel { fill: $label; font-family: $euiFontFamily; }
+  .vmFpCount { fill: $socket; font-family: $euiFontFamily; }
   .vmFpRule { stroke: $label; opacity: 0.6; }
   .vmFpFace { fill: $socket; stroke: $pin; }
   .vmFpFace--inferred { stroke: $up; }

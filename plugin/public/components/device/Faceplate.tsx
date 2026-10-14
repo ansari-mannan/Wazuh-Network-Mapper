@@ -30,12 +30,15 @@ import {
   routePortKeys,
 } from '../../lib/faceplate';
 import { graphColors } from '../../lib/theme';
+import { radioClients } from '../../lib/wireless';
 
 interface PanelProps {
   node: DeviceNode;
   fp: Layout;
   byPort: Map<string, Neighbour[]>;
   routeKeys: Set<string>;
+  /** an access point's clients per radio, from its wireless links */
+  clients: Map<string, number>;
   compact?: boolean;
   onSelectNode?: (nodeId: string) => void;
 }
@@ -43,12 +46,13 @@ interface PanelProps {
 const onRouteOf = (port: DevicePort, routeKeys: Set<string>) =>
   routeKeys.has(portKey(port.name)) || (!!port.alias && routeKeys.has(portKey(port.alias)));
 
-function Socket({ p, node, byPort, routeKeys, compact, onSelectNode }: Omit<PanelProps, 'fp'> & { p: PlacedPort }) {
+function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: Omit<PanelProps, 'fp'> & { p: PlacedPort }) {
   const { port, kind, x, y } = p;
   const neighbours = neighboursOf(port, byPort);
   const inferred = isInferred(port, node);
   const onRoute = onRouteOf(port, routeKeys);
-  const tip = portTooltip(port, neighbours, { inferred, onRoute }).join('\n');
+  const count = kind === 'radio' ? clients.get(port.name) ?? 0 : undefined;
+  const tip = portTooltip(port, neighbours, { inferred, onRoute, clients: count }).join('\n');
   const target = onSelectNode && neighbours[0]?.nodeId;
   const select = target ? () => onSelectNode!(target) : undefined;
   const w = PORT_W;
@@ -71,6 +75,9 @@ function Socket({ p, node, byPort, routeKeys, compact, onSelectNode }: Omit<Pane
         <>
           <line className="vmFpPin" x1={x + w / 2} y1={y + h / 2} x2={x + w / 2} y2={y - 6} strokeWidth={2} />
           <circle className="vmFpLed" cx={x + w / 2} cy={y + h / 2} r={7} />
+          <text className="vmFpCount" x={x + w / 2} y={y + h / 2 + 3} fontSize={8} fontWeight={700} textAnchor="middle">
+            {count}
+          </text>
         </>
       ) : (
         <>
@@ -107,7 +114,7 @@ function Socket({ p, node, byPort, routeKeys, compact, onSelectNode }: Omit<Pane
 }
 
 /** The panel itself: chassis, vendor text (plain, no logo), captions and sockets. */
-export function FaceplatePanel({ node, fp, byPort, routeKeys, compact, onSelectNode, width }: PanelProps & { width?: number }) {
+export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, onSelectNode, width }: PanelProps & { width?: number }) {
   const { chassis, height: H, width: W } = fp;
   const rx = chassis === 'puck' ? H / 2 : chassis === 'desktop' ? 10 : chassis === 'rack' ? 5 : 4;
   const textX = chassis === 'puck' ? 30 : 14;
@@ -144,7 +151,16 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, compact, onSelectN
           </g>
         ))}
       {fp.ports.map((p) => (
-        <Socket key={p.port.name} p={p} node={node} byPort={byPort} routeKeys={routeKeys} compact={compact} onSelectNode={onSelectNode} />
+        <Socket
+          key={p.port.name}
+          p={p}
+          node={node}
+          byPort={byPort}
+          routeKeys={routeKeys}
+          clients={clients}
+          compact={compact}
+          onSelectNode={onSelectNode}
+        />
       ))}
     </svg>
   );
@@ -211,8 +227,9 @@ export function Faceplate({
   const fp = useMemo(() => faceplateOf(node), [node]);
   const byPort = useMemo(() => portNeighbours(node.node_id, edges), [node.node_id, edges]);
   const routeKeys = useMemo(() => routePortKeys(node.node_id, route, byPort), [node.node_id, route, byPort]);
+  const clients = useMemo(() => radioClients(node.node_id, edges), [node.node_id, edges]);
   const compact = fp.ports.length > COMPACT_ABOVE;
-  const panel = { node, fp, byPort, routeKeys, onSelectNode };
+  const panel = { node, fp, byPort, routeKeys, clients, onSelectNode };
   return (
     <div className="vmFp" style={{ '--vm-route': graphColors.route } as React.CSSProperties}>
       <FaceplatePanel {...panel} compact={compact} />

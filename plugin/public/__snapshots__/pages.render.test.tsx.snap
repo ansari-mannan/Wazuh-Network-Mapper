@@ -4026,25 +4026,29 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <line class=\\"vmFpRule\\" x1=\\"182\\" y1=\\"27\\" x2=\\"204\\" y2=\\"27\\" stroke-width=\\"0.6\\">
 </line>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. Up. Neighbour: 172.20.80.1\\">
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. 1 Wi-Fi client. Up. Neighbour: 172.20.80.1\\">
 <title>Dot11Radio0
+1 Wi-Fi client
 Up
 Neighbour: 172.20.80.1</title>
 <line class=\\"vmFpPin\\" x1=\\"121\\" y1=\\"43\\" x2=\\"121\\" y2=\\"28\\" stroke-width=\\"2\\">
 </line>
 <circle class=\\"vmFpLed\\" cx=\\"121\\" cy=\\"43\\" r=\\"7\\">
 </circle>
-<text class=\\"vmFpLabel\\" x=\\"121\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">R0</text>
+<text class=\\"vmFpCount\\" x=\\"121\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
+<text class=\\"vmFpLabel\\" x=\\"121\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">2.4 GHz</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio1\\" role=\\"img\\" aria-label=\\"Dot11Radio1. Up. Neighbour: 172.20.80.3\\">
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio1\\" role=\\"img\\" aria-label=\\"Dot11Radio1. 1 Wi-Fi client. Up. Neighbour: 172.20.80.3\\">
 <title>Dot11Radio1
+1 Wi-Fi client
 Up
 Neighbour: 172.20.80.3</title>
 <line class=\\"vmFpPin\\" x1=\\"151\\" y1=\\"43\\" x2=\\"151\\" y2=\\"28\\" stroke-width=\\"2\\">
 </line>
 <circle class=\\"vmFpLed\\" cx=\\"151\\" cy=\\"43\\" r=\\"7\\">
 </circle>
-<text class=\\"vmFpLabel\\" x=\\"151\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">R1</text>
+<text class=\\"vmFpCount\\" x=\\"151\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
+<text class=\\"vmFpLabel\\" x=\\"151\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">5 GHz</text>
 </g>
 <g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"GigabitEthernet0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0. Up. Neighbour: L3-Switch FastEthernet1/0/15\\">
 <title>GigabitEthernet0

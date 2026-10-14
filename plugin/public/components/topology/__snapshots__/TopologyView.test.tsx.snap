@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`map: wired and wireless clients draws the wireless link dashed with a Wi-Fi mark and tooltip, the wired one plainly 1`] = `
+"<div class=\\"canvas\\" style=\\"--vm-route: #7c3aed; --vm-route-text: #ffffff;\\">
+<svg>
+<g data-edge=\\"device:sw24->device:ap\\" data-type=\\"ports\\">
+<path style=\\"stroke: #475569; stroke-width: 2;\\">
+</path>
+</g>
+<g data-edge=\\"device:sw24->endpoint:101\\" data-type=\\"default\\">
+<path style=\\"stroke: #64748b; stroke-width: 1.5; stroke-dasharray: 6 3; opacity: 0.9;\\">
+</path>
+</g>
+<g data-edge=\\"device:ap->host:wifi1\\" data-type=\\"wifi\\">
+<g class=\\"vmWifiEdge\\">
+<title>Wireless · OFFICE · 2.4 GHz (Dot11Radio0)</title>
+<path style=\\"stroke: #0d9488; stroke-width: 2; stroke-dasharray: 5 5; stroke-linecap: round;\\" d=\\"M0,0 C0,51 100,51 100,102\\" class=\\"react-flow__edge-path\\" marker-end=\\"url(#end)\\">
+</path>
+<g class=\\"vmWifiGlyph\\" transform=\\"translate(50 51)\\">
+<circle r=\\"9\\" fill=\\"#FCFEFF\\" stroke=\\"#0d9488\\" stroke-width=\\"1.2\\">
+</circle>
+<g fill=\\"none\\" stroke=\\"#0d9488\\" stroke-width=\\"1.4\\" stroke-linecap=\\"round\\">
+<path d=\\"M -5 -1 A 7 7 0 0 1 5 -1\\">
+</path>
+<path d=\\"M -2.6 1.6 A 3.6 3.6 0 0 1 2.6 1.6\\">
+</path>
+</g>
+<circle cy=\\"4\\" r=\\"1.3\\" fill=\\"#0d9488\\">
+</circle>
+</g>
+</g>
+</g>
+</svg>
+</div>"
+`;

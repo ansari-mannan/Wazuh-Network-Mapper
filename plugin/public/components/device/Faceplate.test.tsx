@@ -122,10 +122,16 @@ describe('Faceplate', () => {
     expect(html()).toMatchSnapshot();
   });
 
-  it('access point: puck with the radios as antenna LEDs', () => {
+  it('access point: puck with the radios as antenna LEDs showing their client counts', () => {
     const el = render(accessPoint);
     expect(el.querySelector('svg')!.getAttribute('class')).toContain('vmFaceplate--puck');
     expect(el.querySelectorAll('circle.vmFpLed')).toHaveLength(2);
+    // one client on the 2.4 GHz radio, two on the 5 GHz one (from the wifi links)
+    expect(Array.from(el.querySelectorAll('.vmFpCount')).map((t) => t.textContent)).toEqual(['1', '2']);
+    expect(labels(el)).toEqual(['1', '2.4 GHz', '2', '5 GHz', 'Gi0']);
+    expect(socket(el, 'Dot11Radio1').querySelector('title')!.textContent).toBe(
+      'Dot11Radio1\n2 Wi-Fi clients\nUp\nNeighbour: wifi2, wifi3'
+    );
     expect(el.textContent).toContain('Logical interfaces (3, 3 up)');
     expect(html()).toMatchSnapshot();
   });

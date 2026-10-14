@@ -3,6 +3,7 @@
 // like. Nothing is per model; the count and the names decide. Pure (no React,
 // no theme): components/device/Faceplate.tsx draws it.
 import type { DeviceNode, DevicePort, GraphEdge, PortState } from '../../common';
+import { bandOf } from './wireless';
 
 export type PortKind = 'copper' | 'sfp' | 'console' | 'logical' | 'radio';
 // rack 1U (switches), desktop box (routers, firewalls), puck (access points),
@@ -227,7 +228,7 @@ function rowLayout(physical: Array<{ port: DevicePort; kind: PortKind }>, brandW
   let x = brandWidth;
   for (const g of order) {
     const label = (p: DevicePort) =>
-      (g === 'INTERNAL' && trailingNumber(p.name)) || (g === 'RADIO' && `R${trailingNumber(p.name) ?? ''}`) || shortName(p.name);
+      (g === 'INTERNAL' && trailingNumber(p.name)) || (g === 'RADIO' && (bandOf(p.name) || `R${trailingNumber(p.name) ?? ''}`)) || shortName(p.name);
     groups.get(g)!.forEach(({ port, kind }, i) => {
       const px = x + i * (PORT_W + 8);
       ports.push({ port, kind, label: label(port), x: px, y: top, labelY: top + PORT_H + 11 });
@@ -334,9 +335,10 @@ export function speedText(mbps: number | null | undefined): string {
 export function portTooltip(
   port: DevicePort,
   neighbours: Neighbour[],
-  flags: { inferred?: boolean; onRoute?: boolean } = {}
+  flags: { inferred?: boolean; onRoute?: boolean; clients?: number } = {}
 ): string[] {
   const lines = [port.name];
+  if (flags.clients !== undefined) lines.push(`${flags.clients} Wi-Fi client${flags.clients === 1 ? '' : 's'}`);
   if (port.alias) lines.push(`Alias: ${port.alias}`);
   const speed = speedText(port.speed_mbps);
   lines.push(speed ? `${STATE_TEXT[port.state]} · ${speed}` : STATE_TEXT[port.state]);

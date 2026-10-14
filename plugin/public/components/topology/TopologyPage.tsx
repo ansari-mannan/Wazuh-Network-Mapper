@@ -24,6 +24,7 @@ import { useServices } from '../../lib/services';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
 import { TopologyView, TopologyViewHandle } from './TopologyView';
 import { DeviceDetail } from './DeviceDetail';
+import { MapLegend } from './MapLegend';
 import { hiddenKeyOf, offlineHosts, visibleSelection } from './inactive';
 
 // Counts line, all from the loaded graph. "Unparented" = endpoints the scanner
@@ -192,7 +193,9 @@ export function TopologyPage() {
           )}
         </EuiFlexItem>
       </EuiFlexGroup>
-      <div style={{ height: 12 }} />
+      <div style={{ height: 8 }} />
+      <MapLegend />
+      <div style={{ height: 8 }} />
       {routeKey && (
         <>
           <EuiText size="xs" color="subdued" data-test-subj="vmRouteLegend">
