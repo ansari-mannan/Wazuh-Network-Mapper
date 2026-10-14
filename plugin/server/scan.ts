@@ -158,7 +158,7 @@ export function startScan({
   // is visible to every user via ps). It is never logged. With no community the
   // scanner falls back to the SNMP_* variables already in the environment.
   const env = { ...process.env };
-  if (community) env.SNMP_COMMUNITIES = community;
+  if (community) env.VULNMAPPER_SNMP_COMMUNITY = community; // passed unsplit
 
   const vulnsPath = vulnerabilitiesFilePath(graphPath);
   const vulnsTmp = `${vulnsPath}.tmp-${process.pid}`;

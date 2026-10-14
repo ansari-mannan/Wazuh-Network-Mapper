@@ -30,6 +30,9 @@ DEFAULT_MAX_NODES = 5000
 
 DEFAULT_PORT = 161
 
+# The one community typed into the dashboard's scan form, taken exactly as typed
+# (spaces, commas and quotes are part of it) and tried first.
+ENV_FORM_COMMUNITY = "VULNMAPPER_SNMP_COMMUNITY"
 ENV_COMMUNITIES = "SNMP_COMMUNITIES"   # comma/space separated list
 ENV_COMMUNITY = "SNMP_COMMUNITY"       # single string
 ENV_V3_USER = "SNMP_V3_USER"
@@ -73,12 +76,17 @@ def _split(raw: Optional[str]) -> list[str]:
     """"a,b,c" or "a b c" (shlex, so quoted names work), blanks dropped."""
     if not raw:
         return []
-    return [tok for chunk in raw.split(",") for tok in shlex.split(chunk) if tok]
+    try:
+        return [tok for chunk in raw.split(",") for tok in shlex.split(chunk) if tok]
+    except ValueError:
+        # never echo the value: it is a secret
+        raise SystemExit(f"vulnmapper: {ENV_COMMUNITIES} could not be parsed (unbalanced quote)") from None
 
 
 def load_credentials(cli_communities: Optional[list[str]]) -> list[Credential]:
     """The credentials to try, in order: ``--community`` values, then
-    ``$SNMP_COMMUNITIES`` / ``$SNMP_COMMUNITY``, then one v3 credential if the
+    ``$VULNMAPPER_SNMP_COMMUNITY`` (unsplit), ``$SNMP_COMMUNITIES`` and
+    ``$SNMP_COMMUNITY`` (one string, trimmed), then one v3 credential if the
     ``$SNMP_V3_*`` variables are set. Duplicates are dropped."""
     seen: set[tuple] = set()
     creds: list[Credential] = []
@@ -91,10 +99,10 @@ def load_credentials(cli_communities: Optional[list[str]]) -> list[Credential]:
 
     for community in cli_communities or []:
         add_community(community)
+    add_community(os.environ.get(ENV_FORM_COMMUNITY) or "")
     for community in _split(os.environ.get(ENV_COMMUNITIES)):
         add_community(community)
-    for community in _split(os.environ.get(ENV_COMMUNITY)):
-        add_community(community)
+    add_community((os.environ.get(ENV_COMMUNITY) or "").strip())
 
     v3_user = os.environ.get(ENV_V3_USER)
     if v3_user:

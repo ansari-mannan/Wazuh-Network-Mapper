@@ -72,7 +72,7 @@ export function nextRun({ frequency, dailyHour }: Pick<ScheduleFile, 'frequency'
 
 /** Whether the server environment holds an SNMP credential the scanner reads. */
 export function hasEnvCredential(env: NodeJS.ProcessEnv): boolean {
-  return ['SNMP_COMMUNITIES', 'SNMP_COMMUNITY', 'SNMP_V3_USER'].some((k) => (env[k] || '').trim() !== '');
+  return ['VULNMAPPER_SNMP_COMMUNITY', 'SNMP_COMMUNITIES', 'SNMP_COMMUNITY', 'SNMP_V3_USER'].some((k) => (env[k] || '').trim() !== '');
 }
 
 export const NO_CREDENTIAL =

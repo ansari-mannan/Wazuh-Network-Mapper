@@ -39,6 +39,7 @@ describe('nextRun', () => {
 
 describe('hasEnvCredential', () => {
   it('accepts the variables the scanner reads', () => {
+    expect(hasEnvCredential({ VULNMAPPER_SNMP_COMMUNITY: 'x y' })).toBe(true);
     expect(hasEnvCredential({ SNMP_COMMUNITIES: 'x' })).toBe(true);
     expect(hasEnvCredential({ SNMP_COMMUNITY: 'x' })).toBe(true);
     expect(hasEnvCredential({ SNMP_V3_USER: 'u' })).toBe(true);

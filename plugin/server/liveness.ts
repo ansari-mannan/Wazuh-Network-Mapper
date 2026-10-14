@@ -51,7 +51,7 @@ async function runPass(config: VulnmapperConfig, logger: Logger, onPass: (doc: u
   // is never logged. Without one, the SNMP_* variables already set are used.
   const env = { ...process.env };
   const community = getLastCommunity();
-  if (community) env.SNMP_COMMUNITIES = community;
+  if (community) env.VULNMAPPER_SNMP_COMMUNITY = community; // passed unsplit
 
   // The Wazuh password for the agent method comes from the server's own
   // environment (WAZUH_PASS), like a scan's; it is never placed in argv.

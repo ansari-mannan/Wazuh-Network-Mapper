@@ -70,8 +70,8 @@ building the zip.
 Scheduled scans and the scan history are on the plugin's Scan settings page.
 A schedule is kept in `schedule.json` beside the graph and survives dashboard
 restarts. Scheduled scans take the SNMP credential from the dashboard server's
-environment (`SNMP_COMMUNITIES`, `SNMP_COMMUNITY` or the `SNMP_V3_*`
-variables), never from the scan form, and fail with a message on that page if
+environment (`VULNMAPPER_SNMP_COMMUNITY`, `SNMP_COMMUNITIES`, `SNMP_COMMUNITY`
+or the `SNMP_V3_*` variables), never from the scan form, and fail with a message on that page if
 none is set. Times are the server's local time. The history is kept in
 `history/` beside the graph; like the graph, it holds MAC addresses and
 serial numbers, so keep it out of version control (`.gitignore` covers

@@ -361,12 +361,6 @@ Installing it into a Wazuh dashboard has not been tested yet.
 
 ## Known limitations
 
-- **Community strings with commas, spaces or quotes.** The community is passed
-  to the scanner in the `SNMP_COMMUNITIES` environment variable, never on the
-  command line. The scanner splits that variable (and `SNMP_COMMUNITY`) on
-  commas and whitespace and parses it with `shlex`. So a community containing
-  a comma or space is treated as several communities, quotes and backslashes
-  are interpreted, and an unbalanced quote makes the scan fail.
 - **Device findings are potential.** They match the device's software
   version; whether the affected feature is in use on that device is not
   checked.
