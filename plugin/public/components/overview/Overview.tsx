@@ -24,7 +24,7 @@ import { ThemeToggle } from '../layout/ThemeToggle';
 import { SummaryPanels } from './SummaryPanels';
 import { SinceLastScan } from './SinceLastScan';
 import { threatFeedWarning } from '../../lib/ovssText';
-import { tlsWarning } from '../../lib/tlsWarning';
+import { graphWarnings } from '../../lib/graphWarnings';
 
 function PageCards() {
   const { history } = useServices();
@@ -88,9 +88,15 @@ export function Overview() {
             <EuiSpacer size="m" />
           </>
         )}
-        {tlsWarning(graph?.metadata.warnings) && (
+        {graphWarnings(graph?.metadata.warnings).length > 0 && (
           <>
-            <EuiCallOut color="warning" iconType="lock" title={tlsWarning(graph?.metadata.warnings)} data-test-subj="vmTlsUnverified" />
+            <EuiCallOut color="warning" iconType="alert" title="About this scan" data-test-subj="vmScanWarnings">
+              <ul>
+                {graphWarnings(graph?.metadata.warnings).map((text) => (
+                  <li key={text}>{text}</li>
+                ))}
+              </ul>
+            </EuiCallOut>
             <EuiSpacer size="m" />
           </>
         )}
