@@ -245,9 +245,9 @@ export function startScan({
     stopTimers();
     if (scan.status !== 'running') return; // spawn error already recorded
     if (timedOut) {
+      await discardVulns(); // before finish releases the lock to the next scan
       finish('failed', `scan timed out after ${timeoutSeconds} s`);
       logger.warn(`scan failed: ${scan.message}`);
-      await discardVulns();
       return;
     }
     const out = Buffer.concat(chunks);
