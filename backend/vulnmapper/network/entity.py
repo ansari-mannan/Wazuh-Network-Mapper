@@ -93,9 +93,10 @@ def merge(specifics: dict, inventory: dict) -> dict:
     The table fills a serial the vendor code did not give and makes the model
     the exact product name, except for fields the vendor module marks as its
     own (``authoritative``), e.g. a FortiGate's model and serial from
-    Fortinet's own OIDs.
+    Fortinet's own OIDs. A field is the vendor's own only when the module
+    actually found a value: otherwise the table's is better than none.
     """
-    own = set(specifics.get("authoritative") or ())
+    own = {k for k in specifics.get("authoritative") or () if specifics.get(k)}
     out = {k: specifics.get(k) for k in ("model", "firmware", "serial")}
     if inventory.get("model") and "model" not in own:
         out["model"] = inventory["model"]

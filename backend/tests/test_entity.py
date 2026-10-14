@@ -124,5 +124,24 @@ class TestIdentityMerge(unittest.TestCase):
         self.assertEqual((info["model"], info["serial"]), ("HP 1920-48G", "SERIAL-PLACEHOLDER-HP"))
 
 
+class TestMergeAuthoritative(unittest.TestCase):
+    def test_an_empty_authoritative_field_takes_the_table_value(self):
+        out = entity.merge({"model": None, "firmware": "5.20.99 Release 1107", "serial": None,
+                            "authoritative": ("model",)}, {"model": "JG927A", "serial": "CN123"})
+        self.assertEqual((out["model"], out["serial"]), ("JG927A", "CN123"))
+
+    def test_an_unanswered_fortigate_serial_takes_the_table_value(self):
+        out = entity.merge({"model": "FortiGate 200D", "serial": None,
+                            "authoritative": ("model", "serial")},
+                           {"model": "FGT_200D", "serial": "SERIAL-ENT"})
+        self.assertEqual((out["model"], out["serial"]), ("FortiGate 200D", "SERIAL-ENT"))
+
+    def test_a_vendor_value_present_and_authoritative_wins(self):
+        out = entity.merge({"model": "HP 1920-48G", "serial": "S-VENDOR",
+                            "authoritative": ("model", "serial")},
+                           {"model": "JG927A", "serial": "S-TABLE"})
+        self.assertEqual((out["model"], out["serial"]), ("HP 1920-48G", "S-VENDOR"))
+
+
 if __name__ == "__main__":
     unittest.main()
