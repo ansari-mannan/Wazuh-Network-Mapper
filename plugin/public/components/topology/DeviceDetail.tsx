@@ -25,7 +25,7 @@ import { findingsBadge } from '../../lib/findingsBadge';
 import { ovssLine } from '../../lib/ovssText';
 import { roleLabel } from '../../lib/roleLabel';
 import { ConfigChecks } from './ConfigChecks';
-import { DevicePorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
+import { DevicePorts, TopologyPorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
 import { iconForRole } from './icons';
 import { isOffline } from './nodeStyle';
 import { ProtectControl } from './ProtectControl';
@@ -162,6 +162,13 @@ export function DeviceDetail({
         )}
       </EuiFlyoutHeader>
       <EuiFlyoutBody>
+        {/* a device's front panel comes first, straight under the header */}
+        {node.kind === 'device' && (
+          <>
+            <DevicePorts node={node} edges={graph?.edges} route={route} onSelectNode={onSelect} />
+            <EuiSpacer size="m" />
+          </>
+        )}
         <ProtectControl nodeId={node.node_id} />
         <EuiSpacer size="m" />
         <Section title="Identity">
@@ -195,7 +202,7 @@ export function DeviceDetail({
             {showCves && <EuiSpacer size="m" />}
             <ConfigChecks node={node} meta={graph?.metadata} />
             <EuiSpacer size="m" />
-            <DevicePorts node={node} edges={graph?.edges} route={route} onSelectNode={onSelect} />
+            <TopologyPorts node={node} />
           </>
         )}
       </EuiFlyoutBody>

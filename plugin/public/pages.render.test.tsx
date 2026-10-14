@@ -88,7 +88,11 @@ describe('page rendering on the golden lab outputs', () => {
     for (const node of graph.nodes) {
       it(`device detail: ${name} ${node.node_id}`, () => {
         load(graph);
-        expect(html(<DeviceDetail node={node} onClose={() => {}} />)).toMatchSnapshot();
+        const out = html(<DeviceDetail node={node} onClose={() => {}} />);
+        // a device's front panel is the first section of its drawer
+        const first = /euiFlyoutBody[\s\S]*?<h3[^>]*>([^<]*)<\/h3>/.exec(out)![1];
+        expect(first).toBe(node.kind === 'device' ? 'Ports' : 'Protect this asset');
+        expect(out).toMatchSnapshot();
       });
     }
   }

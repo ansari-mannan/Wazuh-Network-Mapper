@@ -327,52 +327,54 @@ export function DevicePorts({
   const ports = node.port_status ? Object.entries(node.port_status) : [];
   const hasPanel = ports.length > 0 || (node.ports || []).length > 0;
   return (
-    <>
-      <Section title="Ports" count={ports.length}>
-        {hasPanel && (
-          <EuiButtonEmpty
-            size="xs"
-            flush="left"
-            iconType={asList ? 'inspect' : 'list'}
-            onClick={() => setAsList(!asList)}
-            data-test-subj="vmPortsToggle"
-          >
-            {asList ? 'Show front panel' : 'Show as list'}
-          </EuiButtonEmpty>
-        )}
-        {hasPanel && !asList ? (
-          <Faceplate node={node} edges={edges} route={route} onSelectNode={onSelectNode} />
-        ) : ports.length === 0 ? (
-          <EuiText size="s" color="subdued">
-            <p>No port status reported.</p>
-          </EuiText>
-        ) : (
-          <div className="vmPorts">
-            {ports.map(([name, state]) => (
-              <EuiHealth key={name} color={state === 'up' ? 'success' : 'danger'} title={state} textSize="xs">
-                <span className="vmMono">{name}</span>
-              </EuiHealth>
-            ))}
-          </div>
-        )}
-        {node.port_status_note && (
-          <EuiText size="xs" color="subdued">
-            <p>{node.port_status_note}</p>
-          </EuiText>
-        )}
-      </Section>
-      <EuiSpacer size="m" />
-      <Section title="Topology ports">
-        <EuiDescriptionList
-          type="column"
-          compressed
-          className="vmFields"
-          listItems={fields([
-            ['Neighbor ports', portsText(node.neighbor_ports, node.inferred_ports)],
-            ['Uplink ports', portsText(node.uplink_ports, node.inferred_ports)],
-          ])}
-        />
-      </Section>
-    </>
+    <Section title="Ports" count={ports.length}>
+      {hasPanel && (
+        <EuiButtonEmpty
+          size="xs"
+          flush="left"
+          iconType={asList ? 'inspect' : 'list'}
+          onClick={() => setAsList(!asList)}
+          data-test-subj="vmPortsToggle"
+        >
+          {asList ? 'Show front panel' : 'Show as list'}
+        </EuiButtonEmpty>
+      )}
+      {hasPanel && !asList ? (
+        <Faceplate node={node} edges={edges} route={route} onSelectNode={onSelectNode} />
+      ) : ports.length === 0 ? (
+        <EuiText size="s" color="subdued">
+          <p>No port status reported.</p>
+        </EuiText>
+      ) : (
+        <div className="vmPorts">
+          {ports.map(([name, state]) => (
+            <EuiHealth key={name} color={state === 'up' ? 'success' : 'danger'} title={state} textSize="xs">
+              <span className="vmMono">{name}</span>
+            </EuiHealth>
+          ))}
+        </div>
+      )}
+      {node.port_status_note && (
+        <EuiText size="xs" color="subdued">
+          <p>{node.port_status_note}</p>
+        </EuiText>
+      )}
+    </Section>
+  );
+}
+
+export function TopologyPorts({ node }: { node: DeviceNode }) {
+  return (
+    <Section title="Topology ports">
+      <EuiDescriptionList
+        type="column"
+        compressed
+        className="vmFields"
+        listItems={fields([
+          ['Neighbor ports', portsText(node.neighbor_ports, node.inferred_ports)],
+          ['Uplink ports', portsText(node.uplink_ports, node.inferred_ports)],
+        ])}
+      />
+    </Section>
   );
 }

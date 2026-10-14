@@ -58,384 +58,6 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Mark this asset's importance (FIPS 199) to see the routes that could reach it on the Attack paths page.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<fieldset class=\\"euiButtonGroup euiButtonGroup--small euiButtonGroup--text\\" data-test-subj=\\"vmProtect\\">
-<legend class=\\"euiScreenReaderOnly\\">Importance</legend>
-<div class=\\"euiButtonGroup__buttons\\">
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-low\\">
-<span class=\\"euiButtonContent euiButton__content\\">
-<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Low\\" title=\\"Low\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"low\\" value=\\"\\">Low</span>
-</span>
-</label>
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
-<span class=\\"euiButtonContent euiButton__content\\">
-<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Moderate\\" title=\\"Moderate\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\">Moderate</span>
-</span>
-</label>
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-high\\">
-<span class=\\"euiButtonContent euiButton__content\\">
-<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"High\\" title=\\"High\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"high\\" value=\\"\\">High</span>
-</span>
-</label>
-</div>
-</fieldset>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Identity</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
-<dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">L2-Switch</dd>
-<dt class=\\"euiDescriptionList__title\\">IP</dt>
-<dd class=\\"euiDescriptionList__description\\">172.20.10.100</dd>
-<dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">00:17:95:be:b2:00</dd>
-<dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">Cisco</dd>
-<dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">C2960</dd>
-<dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">12.2(58)SE2</dd>
-<dt class=\\"euiDescriptionList__title\\">Software</dt>
-<dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(58)SE2</dd>
-<dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
-<dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
-<dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
-<dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
-<dt class=\\"euiDescriptionList__title\\">Status</dt>
-<dd class=\\"euiDescriptionList__description\\">online</dd>
-<dt class=\\"euiDescriptionList__title\\">Liveness</dt>
-<dd class=\\"euiDescriptionList__description\\">
-<span data-test-subj=\\"vmLiveness\\">
-<div class=\\"euiHealth euiHealth--textSizeS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--danger\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Inactive</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>last seen 10/7/2026, 2:00:20 PM · via SNMP</p>
-</div>
-</div>
-</span>
-</dd>
-</dl>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Risk</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\" data-test-subj=\\"vmOvss\\">
-<dt class=\\"euiDescriptionList__title\\">OVSS</dt>
-<dd class=\\"euiDescriptionList__description\\">P1 · OVSS 4.594</dd>
-<dt class=\\"euiDescriptionList__title\\">Exposure</dt>
-<dd class=\\"euiDescriptionList__description\\">Internal (0.5)</dd>
-<dt class=\\"euiDescriptionList__title\\">Dependency</dt>
-<dd class=\\"euiDescriptionList__description\\">0</dd>
-<dt class=\\"euiDescriptionList__title\\">Importance</dt>
-<dd class=\\"euiDescriptionList__description\\">not marked</dd>
-<dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
-<dd class=\\"euiDescriptionList__description\\">0</dd>
-<dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">9.8</dd>
-</dl>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmTierCounts\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P0 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P0 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"P1 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P1 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P2 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P2 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unrated 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Unrated 0</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveCounts\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Critical 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"High 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">High 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Low 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Low 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unknown 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Unknown 0</span>
-</span>
-</span>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Vulnerabilities</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">2</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmCvePotential\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Potential: matched by software version (Cisco IOS 12.2(58)SE2) against NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2021-0001</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.8 (v3.1)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Critical · 9.8 (v3.1)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"P1 · 4.594\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P1 · 4.594</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 5% · scanner · v3.1</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>An issue.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2021-0002</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5.3 (v3.1)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 5.3 (v3.1)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.156\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 2.156</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · ADP · v4.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>An issue.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigChecks\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Configuration checks</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">1</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmConfigSummary\\">
-<p>1 of 8 checks failed (1 medium); 1 passed, 6 unknown.</p>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigFinding-snmp-no-auth\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem\\">
-<div class=\\"euiText euiText--small\\">
-<strong>SNMP managed with a community string</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<p>SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.</p>
-</div>
-<div class=\\"euiText euiText--extraSmall vmConfigLines\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>The scan polled it with SNMP v2c.</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<p>
-<strong>Fix:</strong> Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.</p>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>
-<a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).\\">DISA STIG V-220604, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
-<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
-</path>
-</svg>
-<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
-</a> · <a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.\\">DISA STIG V-220605, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
-<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
-</path>
-</svg>
-<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
-</a> · CWE-319</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--extraSmall vmConfigLines\\" data-test-subj=\\"vmConfigQuiet\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Telnet management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
-<p>Plain HTTP management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
-<p>Spare access ports in a VLAN in use: unknown, the interface table was not read.</p>
-<p>Access ports in the default VLAN: unknown, the interface table was not read.</p>
-<p>BPDU guard missing on access ports: unknown, the interface table was not read.</p>
-<p>Port security disabled on access ports: unknown, the interface table was not read.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -1599,81 +1221,6 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
-<dt class=\\"euiDescriptionList__title\\">Neighbor ports</dt>
-<dd class=\\"euiDescriptionList__description\\">Fa0/1</dd>
-<dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
-<dd class=\\"euiDescriptionList__description\\">Fa0/1</dd>
-</dl>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div data-focus-guard=\\"true\\" tabindex=\\"0\\" style=\\"width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;\\" data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
-</div>
-</div>"
-`;
-
-exports[`page rendering on the golden lab outputs device detail: lab device:00:23:ac:e5:74:00 1`] = `
-"<div data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
-</div>
-<div>
-<div data-focus-guard=\\"true\\" tabindex=\\"0\\" style=\\"width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;\\" data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
-</div>
-<div data-focus-lock-disabled=\\"false\\">
-<div aria-labelledby=\\"X\\" data-test-subj=\\"vmDetailFlyout\\" role=\\"dialog\\" class=\\"euiFlyout euiFlyout--medium euiFlyout--paddingLarge\\" tabindex=\\"-1\\" style=\\"max-width: 640px;\\">
-<button class=\\"euiButtonIcon euiButtonIcon--text euiButtonIcon--empty euiButtonIcon--xSmall euiFlyout__closeButton euiFlyout__closeButton--inside\\" type=\\"button\\" aria-label=\\"Close this dialog\\" data-test-subj=\\"euiFlyoutCloseButton\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiButtonIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
-</path>
-</svg>
-</button>
-<div class=\\"euiFlyoutHeader euiFlyoutHeader--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"vmDetailIcon\\" style=\\"border-color: #dc2626;\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"26\\" height=\\"26\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" class=\\"lucide lucide-network \\">
-<rect x=\\"16\\" y=\\"16\\" width=\\"6\\" height=\\"6\\" rx=\\"1\\">
-</rect>
-<rect x=\\"2\\" y=\\"16\\" width=\\"6\\" height=\\"6\\" rx=\\"1\\">
-</rect>
-<rect x=\\"9\\" y=\\"2\\" width=\\"6\\" height=\\"6\\" rx=\\"1\\">
-</rect>
-<path d=\\"M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3\\">
-</path>
-<path d=\\"M12 12V8\\">
-</path>
-</svg>
-</span>
-</div>
-<div class=\\"euiFlexItem\\">
-<h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">L3-Switch</h2>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 3 switch · snmp_lldp </div>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P0 · OVSS 7.5\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P0 · OVSS 7.5</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlyoutBody\\">
-<div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
-<div class=\\"euiFlyoutBody__overflowContent\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
 </div>
 </div>
@@ -1697,10 +1244,10 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"low\\" value=\\"\\">Low</span>
 </span>
 </label>
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small euiButtonGroupButton--fill euiButtonGroupButton-isSelected\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
 <span class=\\"euiButtonContent euiButton__content\\">
 <span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Moderate\\" title=\\"Moderate\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\" checked=\\"\\">Moderate</span>
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\">Moderate</span>
 </span>
 </label>
 <label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-high\\">
@@ -1711,24 +1258,6 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 </label>
 </div>
 </fieldset>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<button class=\\"euiButtonEmpty euiButtonEmpty--primary euiButtonEmpty--small\\" type=\\"button\\" data-test-subj=\\"vmUnprotect\\">
-<span class=\\"euiButtonContent euiButtonEmpty__content\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiButtonContent__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
-</path>
-</svg>
-<span class=\\"euiButtonEmpty__text\\">Unmark</span>
-</span>
-</button>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(241, 216, 111); color: rgb(0, 0, 0);\\" title=\\"Moderate importance\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Moderate importance</span>
-</span>
-</span>
 </div>
 </div>
 </div>
@@ -1744,23 +1273,23 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">L3-Switch</dd>
+<dd class=\\"euiDescriptionList__description\\">L2-Switch</dd>
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
-<dd class=\\"euiDescriptionList__description\\">172.20.20.254</dd>
+<dd class=\\"euiDescriptionList__description\\">172.20.10.100</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">00:23:ac:e5:74:00</dd>
+<dd class=\\"euiDescriptionList__description\\">00:17:95:be:b2:00</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
 <dd class=\\"euiDescriptionList__description\\">Cisco</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">C3750</dd>
+<dd class=\\"euiDescriptionList__description\\">C2960</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">12.2(55)SE12</dd>
+<dd class=\\"euiDescriptionList__description\\">12.2(58)SE2</dd>
 <dt class=\\"euiDescriptionList__title\\">Software</dt>
-<dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(55)SE12</dd>
+<dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(58)SE2</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
+<dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
 <dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
 <dt class=\\"euiDescriptionList__title\\">Status</dt>
@@ -1771,17 +1300,17 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <div class=\\"euiHealth euiHealth--textSizeS\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success euiIcon-isLoading\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<path d=\\"M5.277 10.088c.02.014.04.03.057.047.582.55 1.134.812 1.666.812.586 0 1.84-.293 3.713-.88L9 6.212V2H7v4.212l-1.723 3.876Zm-.438.987L3.539 14h8.922l-1.32-2.969C9.096 11.677 7.733 12 7 12c-.74 0-1.463-.315-2.161-.925ZM6 2H5V1h6v1h-1v4l3.375 7.594A1 1 0 0 1 12.461 15H3.54a1 1 0 0 1-.914-1.406L6 6V2Z\\">
-</path>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--danger\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
 </svg>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Active</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Inactive</div>
 </div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>last seen 10/7/2026, 2:01:00 PM · via SNMP</p>
+<p>last seen 10/7/2026, 2:00:20 PM · via SNMP</p>
 </div>
 </div>
 </span>
@@ -1800,46 +1329,46 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\" data-test-subj=\\"vmOvss\\">
 <dt class=\\"euiDescriptionList__title\\">OVSS</dt>
-<dd class=\\"euiDescriptionList__description\\">P0 · OVSS 7.5</dd>
+<dd class=\\"euiDescriptionList__description\\">P1 · OVSS 4.594</dd>
 <dt class=\\"euiDescriptionList__title\\">Exposure</dt>
 <dd class=\\"euiDescriptionList__description\\">Internal (0.5)</dd>
 <dt class=\\"euiDescriptionList__title\\">Dependency</dt>
-<dd class=\\"euiDescriptionList__description\\">0.5</dd>
+<dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Importance</dt>
-<dd class=\\"euiDescriptionList__description\\">0.5</dd>
+<dd class=\\"euiDescriptionList__description\\">not marked</dd>
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
-<dd class=\\"euiDescriptionList__description\\">1</dd>
+<dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">10</dd>
+<dd class=\\"euiDescriptionList__description\\">9.8</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
 <div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmTierCounts\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"P0 1\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P0 0\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P0 1</span>
+<span class=\\"euiBadge__text\\">P0 0</span>
 </span>
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P1 0\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"P1 1\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P1 0</span>
+<span class=\\"euiBadge__text\\">P1 1</span>
 </span>
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 1\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P2 0\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P2 1</span>
+<span class=\\"euiBadge__text\\">P2 0</span>
 </span>
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 6\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 1\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 6</span>
+<span class=\\"euiBadge__text\\">P3 1</span>
 </span>
 </span>
 </div>
@@ -1869,16 +1398,16 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium 6\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium 1\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium 6</span>
+<span class=\\"euiBadge__text\\">Medium 1</span>
 </span>
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(34, 197, 94); color: rgb(0, 0, 0);\\" title=\\"Low 1\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Low 0\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Low 1</span>
+<span class=\\"euiBadge__text\\">Low 0</span>
 </span>
 </span>
 </div>
@@ -1899,14 +1428,14 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Vulnerabilities</h3>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">8</span>
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">2</span>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmCvePotential\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Potential: matched by software version (Cisco IOS 12.2(55)SE12) against NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.</p>
+<p>Potential: matched by software version (Cisco IOS 12.2(58)SE2) against NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -1915,45 +1444,38 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2006-4950</strong>
+<strong class=\\"vmMono\\">CVE-2021-0001</strong>
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"High · 10 (v2.0)\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.8 (v3.1)\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">High · 10 (v2.0)</span>
+<span class=\\"euiBadge__text\\">Critical · 9.8 (v3.1)</span>
 </span>
 </span>
 </div>
 </div>
 <div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"P0 · 7.5\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"P1 · 4.594\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P0 · 7.5</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(255, 126, 98); color: rgb(0, 0, 0);\\" title=\\"In CISA's Known Exploited Vulnerabilities catalogue\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">KEV</span>
+<span class=\\"euiBadge__text\\">P1 · 4.594</span>
 </span>
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 5% · scanner · v3.1</div>
 </div>
 </div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
 </div>
 </div>
 <div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.</p>
+<p>An issue.</p>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -1962,278 +1484,38 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2007-5548</strong>
+<strong class=\\"vmMono\\">CVE-2021-0002</strong>
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 6.9 (v2.0)\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5.3 (v3.1)\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 6.9 (v2.0)</span>
+<span class=\\"euiBadge__text\\">Medium · 5.3 (v3.1)</span>
 </span>
 </span>
 </div>
 </div>
 <div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 · 2.588\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.156\\">
 <span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P2 · 2.588</span>
+<span class=\\"euiBadge__text\\">P3 · 2.156</span>
 </span>
 </span>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · ADP · v4.0</div>
 </div>
 </div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
 </div>
 </div>
 <div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Multiple stack-based buffer overflows in Command EXEC in Cisco IOS allow local users to gain privileges via unspecified vectors, aka (1) PSIRT-0474975756 and (2) PSIRT-0388256465.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information.  However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2007-2587</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 6.3 (v2.0)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 6.3 (v2.0)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.362\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 2.362</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>The IOS FTP Server in Cisco IOS 11.3 through 12.4 allows remote authenticated users to cause a denial of service (IOS reload) via unspecified vectors involving transferring files (aka bug ID CSCse29244).</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2000-0486</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5 (v2.0)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 5 (v2.0)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.875\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 1.875</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Buffer overflow in Cisco TACACS+ tac_plus server allows remote attackers to cause a denial of service via a malformed packet with a long length field.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2006-3906</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5 (v2.0)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 5 (v2.0)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.875\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 1.875</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Internet Key Exchange (IKE) version 1 protocol, as implemented on Cisco IOS, VPN 3000 Concentrators, and PIX firewalls, allows remote attackers to cause a denial of service (resource exhaustion) via a flood of IKE Phase-1 packets that exceed the session expiration rate. NOTE: it has been argued that this is due to a design weakness of the IKE version 1 protocol, in which case other vendors and implementations would also be affected.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2007-0199</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5 (v2.0)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 5 (v2.0)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.875\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 1.875</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>The Data-link Switching (DLSw) feature in Cisco IOS 11.0 through 12.4 allows remote attackers to cause a denial of service (device reload) via \\"an invalid value in a DLSw message... during the capabilities exchange.\\"</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2007-5547</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 4.3 (v2.0)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 4.3 (v2.0)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.612\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 1.612</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Cross-site scripting (XSS) vulnerability in Cisco IOS allows remote attackers to inject arbitrary web script or HTML, and execute IOS commands, via unspecified vectors, aka PSIRT-2022590358.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2005-3921</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(34, 197, 94); color: rgb(0, 0, 0);\\" title=\\"Low · 2.6 (v2.0)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Low · 2.6 (v2.0)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 0.975\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 0.975</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>Cross-site scripting (XSS) vulnerability in Cisco IOS Web Server for IOS 12.0(2a) allows remote attackers to inject arbitrary web script or HTML by (1) packets containing HTML that an administrator views via an HTTP interface to the contents of memory buffers, as demonstrated by the URI /level/15/exec/-/buffers/assigned/dump; or (2) sending the router Cisco Discovery Protocol (CDP) packets with HTML payload that an administrator views via the CDP status pages.  NOTE: these vectors were originally reported as being associated with the dump and packet options in /level/15/exec/-/show/buffers.</p>
+<p>An issue.</p>
 </div>
 </div>
 </div>
@@ -2314,6 +1596,81 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 </div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
+<dt class=\\"euiDescriptionList__title\\">Neighbor ports</dt>
+<dd class=\\"euiDescriptionList__description\\">Fa0/1</dd>
+<dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
+<dd class=\\"euiDescriptionList__description\\">Fa0/1</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div data-focus-guard=\\"true\\" tabindex=\\"0\\" style=\\"width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;\\" data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
+</div>
+</div>"
+`;
+
+exports[`page rendering on the golden lab outputs device detail: lab device:00:23:ac:e5:74:00 1`] = `
+"<div data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
+</div>
+<div>
+<div data-focus-guard=\\"true\\" tabindex=\\"0\\" style=\\"width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;\\" data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
+</div>
+<div data-focus-lock-disabled=\\"false\\">
+<div aria-labelledby=\\"X\\" data-test-subj=\\"vmDetailFlyout\\" role=\\"dialog\\" class=\\"euiFlyout euiFlyout--medium euiFlyout--paddingLarge\\" tabindex=\\"-1\\" style=\\"max-width: 640px;\\">
+<button class=\\"euiButtonIcon euiButtonIcon--text euiButtonIcon--empty euiButtonIcon--xSmall euiFlyout__closeButton euiFlyout__closeButton--inside\\" type=\\"button\\" aria-label=\\"Close this dialog\\" data-test-subj=\\"euiFlyoutCloseButton\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiButtonIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+</button>
+<div class=\\"euiFlyoutHeader euiFlyoutHeader--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"vmDetailIcon\\" style=\\"border-color: #dc2626;\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"26\\" height=\\"26\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" class=\\"lucide lucide-network \\">
+<rect x=\\"16\\" y=\\"16\\" width=\\"6\\" height=\\"6\\" rx=\\"1\\">
+</rect>
+<rect x=\\"2\\" y=\\"16\\" width=\\"6\\" height=\\"6\\" rx=\\"1\\">
+</rect>
+<rect x=\\"9\\" y=\\"2\\" width=\\"6\\" height=\\"6\\" rx=\\"1\\">
+</rect>
+<path d=\\"M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3\\">
+</path>
+<path d=\\"M12 12V8\\">
+</path>
+</svg>
+</span>
+</div>
+<div class=\\"euiFlexItem\\">
+<h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">L3-Switch</h2>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">Layer 3 switch · snmp_lldp </div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P0 · OVSS 7.5\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P0 · OVSS 7.5</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlyoutBody\\">
+<div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
+<div class=\\"euiFlyoutBody__overflowContent\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -3126,6 +2483,649 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Mark this asset's importance (FIPS 199) to see the routes that could reach it on the Attack paths page.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<fieldset class=\\"euiButtonGroup euiButtonGroup--small euiButtonGroup--text\\" data-test-subj=\\"vmProtect\\">
+<legend class=\\"euiScreenReaderOnly\\">Importance</legend>
+<div class=\\"euiButtonGroup__buttons\\">
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-low\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Low\\" title=\\"Low\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"low\\" value=\\"\\">Low</span>
+</span>
+</label>
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small euiButtonGroupButton--fill euiButtonGroupButton-isSelected\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Moderate\\" title=\\"Moderate\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\" checked=\\"\\">Moderate</span>
+</span>
+</label>
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-high\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"High\\" title=\\"High\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"high\\" value=\\"\\">High</span>
+</span>
+</label>
+</div>
+</fieldset>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButtonEmpty euiButtonEmpty--primary euiButtonEmpty--small\\" type=\\"button\\" data-test-subj=\\"vmUnprotect\\">
+<span class=\\"euiButtonContent euiButtonEmpty__content\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiButtonContent__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<span class=\\"euiButtonEmpty__text\\">Unmark</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(241, 216, 111); color: rgb(0, 0, 0);\\" title=\\"Moderate importance\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Moderate importance</span>
+</span>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Identity</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
+<dt class=\\"euiDescriptionList__title\\">Hostname</dt>
+<dd class=\\"euiDescriptionList__description\\">L3-Switch</dd>
+<dt class=\\"euiDescriptionList__title\\">IP</dt>
+<dd class=\\"euiDescriptionList__description\\">172.20.20.254</dd>
+<dt class=\\"euiDescriptionList__title\\">MAC</dt>
+<dd class=\\"euiDescriptionList__description\\">00:23:ac:e5:74:00</dd>
+<dt class=\\"euiDescriptionList__title\\">Vendor</dt>
+<dd class=\\"euiDescriptionList__description\\">Cisco</dd>
+<dt class=\\"euiDescriptionList__title\\">Model</dt>
+<dd class=\\"euiDescriptionList__description\\">C3750</dd>
+<dt class=\\"euiDescriptionList__title\\">Firmware</dt>
+<dd class=\\"euiDescriptionList__description\\">12.2(55)SE12</dd>
+<dt class=\\"euiDescriptionList__title\\">Software</dt>
+<dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(55)SE12</dd>
+<dt class=\\"euiDescriptionList__title\\">Serial</dt>
+<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dt class=\\"euiDescriptionList__title\\">Role</dt>
+<dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
+<dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
+<dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
+<dt class=\\"euiDescriptionList__title\\">Status</dt>
+<dd class=\\"euiDescriptionList__description\\">online</dd>
+<dt class=\\"euiDescriptionList__title\\">Liveness</dt>
+<dd class=\\"euiDescriptionList__description\\">
+<span data-test-subj=\\"vmLiveness\\">
+<div class=\\"euiHealth euiHealth--textSizeS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success euiIcon-isLoading\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M5.277 10.088c.02.014.04.03.057.047.582.55 1.134.812 1.666.812.586 0 1.84-.293 3.713-.88L9 6.212V2H7v4.212l-1.723 3.876Zm-.438.987L3.539 14h8.922l-1.32-2.969C9.096 11.677 7.733 12 7 12c-.74 0-1.463-.315-2.161-.925ZM6 2H5V1h6v1h-1v4l3.375 7.594A1 1 0 0 1 12.461 15H3.54a1 1 0 0 1-.914-1.406L6 6V2Z\\">
+</path>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Active</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>last seen 10/7/2026, 2:01:00 PM · via SNMP</p>
+</div>
+</div>
+</span>
+</dd>
+</dl>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Risk</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\" data-test-subj=\\"vmOvss\\">
+<dt class=\\"euiDescriptionList__title\\">OVSS</dt>
+<dd class=\\"euiDescriptionList__description\\">P0 · OVSS 7.5</dd>
+<dt class=\\"euiDescriptionList__title\\">Exposure</dt>
+<dd class=\\"euiDescriptionList__description\\">Internal (0.5)</dd>
+<dt class=\\"euiDescriptionList__title\\">Dependency</dt>
+<dd class=\\"euiDescriptionList__description\\">0.5</dd>
+<dt class=\\"euiDescriptionList__title\\">Importance</dt>
+<dd class=\\"euiDescriptionList__description\\">0.5</dd>
+<dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
+<dd class=\\"euiDescriptionList__description\\">1</dd>
+<dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
+<dd class=\\"euiDescriptionList__description\\">10</dd>
+</dl>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmTierCounts\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"P0 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P0 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P1 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P1 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P2 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 6\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 6</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unrated 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Unrated 0</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveCounts\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"High 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">High 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium 6\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium 6</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(34, 197, 94); color: rgb(0, 0, 0);\\" title=\\"Low 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Low 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unknown 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Unknown 0</span>
+</span>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Vulnerabilities</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">8</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmCvePotential\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Potential: matched by software version (Cisco IOS 12.2(55)SE12) against NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2006-4950</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"High · 10 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">High · 10 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"P0 · 7.5\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P0 · 7.5</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(255, 126, 98); color: rgb(0, 0, 0);\\" title=\\"In CISA's Known Exploited Vulnerabilities catalogue\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">KEV</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2007-5548</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 6.9 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 6.9 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 · 2.588\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P2 · 2.588</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Multiple stack-based buffer overflows in Command EXEC in Cisco IOS allow local users to gain privileges via unspecified vectors, aka (1) PSIRT-0474975756 and (2) PSIRT-0388256465.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information.  However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2007-2587</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 6.3 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 6.3 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.362\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 2.362</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>The IOS FTP Server in Cisco IOS 11.3 through 12.4 allows remote authenticated users to cause a denial of service (IOS reload) via unspecified vectors involving transferring files (aka bug ID CSCse29244).</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2000-0486</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 5 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.875\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 1.875</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Buffer overflow in Cisco TACACS+ tac_plus server allows remote attackers to cause a denial of service via a malformed packet with a long length field.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2006-3906</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 5 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.875\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 1.875</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Internet Key Exchange (IKE) version 1 protocol, as implemented on Cisco IOS, VPN 3000 Concentrators, and PIX firewalls, allows remote attackers to cause a denial of service (resource exhaustion) via a flood of IKE Phase-1 packets that exceed the session expiration rate. NOTE: it has been argued that this is due to a design weakness of the IKE version 1 protocol, in which case other vendors and implementations would also be affected.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2007-0199</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 5 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.875\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 1.875</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>The Data-link Switching (DLSw) feature in Cisco IOS 11.0 through 12.4 allows remote attackers to cause a denial of service (device reload) via \\"an invalid value in a DLSw message... during the capabilities exchange.\\"</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2007-5547</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 4.3 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 4.3 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.612\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 1.612</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Cross-site scripting (XSS) vulnerability in Cisco IOS allows remote attackers to inject arbitrary web script or HTML, and execute IOS commands, via unspecified vectors, aka PSIRT-2022590358.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2005-3921</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(34, 197, 94); color: rgb(0, 0, 0);\\" title=\\"Low · 2.6 (v2.0)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Low · 2.6 (v2.0)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 0.975\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 0.975</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v2.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(55)SE12 · 12.2(55)SE12</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Cross-site scripting (XSS) vulnerability in Cisco IOS Web Server for IOS 12.0(2a) allows remote attackers to inject arbitrary web script or HTML by (1) packets containing HTML that an administrator views via an HTTP interface to the contents of memory buffers, as demonstrated by the URI /level/15/exec/-/buffers/assigned/dump; or (2) sending the router Cisco Discovery Protocol (CDP) packets with HTML payload that an administrator views via the CDP status pages.  NOTE: these vectors were originally reported as being associated with the dump and packet options in /level/15/exec/-/show/buffers.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigChecks\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Configuration checks</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">1</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmConfigSummary\\">
+<p>1 of 8 checks failed (1 medium); 1 passed, 6 unknown.</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigFinding-snmp-no-auth\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem\\">
+<div class=\\"euiText euiText--small\\">
+<strong>SNMP managed with a community string</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<p>SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.</p>
+</div>
+<div class=\\"euiText euiText--extraSmall vmConfigLines\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The scan polled it with SNMP v2c.</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<p>
+<strong>Fix:</strong> Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.</p>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>
+<a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).\\">DISA STIG V-220604, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
+<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a> · <a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.\\">DISA STIG V-220605, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
+<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a> · CWE-319</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall vmConfigLines\\" data-test-subj=\\"vmConfigQuiet\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Telnet management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
+<p>Plain HTTP management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
+<p>Spare access ports in a VLAN in use: unknown, the interface table was not read.</p>
+<p>Access ports in the default VLAN: unknown, the interface table was not read.</p>
+<p>BPDU guard missing on access ports: unknown, the interface table was not read.</p>
+<p>Port security disabled on access ports: unknown, the interface table was not read.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
 </div>
 </div>
@@ -3203,6 +3203,25 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
 <div class=\\"euiFlyoutBody__overflowContent\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>No port status reported.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -3439,25 +3458,6 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--small\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>No port status reported.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
 </div>
 </div>
@@ -3528,6 +3528,205 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
 <div class=\\"euiFlyoutBody__overflowContent\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">9</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<button class=\\"euiButtonEmpty euiButtonEmpty--primary euiButtonEmpty--xSmall euiButtonEmpty--flushLeft\\" type=\\"button\\" data-test-subj=\\"vmPortsToggle\\">
+<span class=\\"euiButtonContent euiButtonEmpty__content\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiIcon--inherit euiButtonContent__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M2 4V3h2v1H2Zm4 0V3h8v1H6Zm0 3V6h8v1H6Zm0 3V9h8v1H6ZM2 7V6h2v1H2Zm0 3V9h2v1H2Zm4 3v-1h8v1H6Zm-4 0v-1h2v1H2Z\\">
+</path>
+</svg>
+<span class=\\"euiButtonEmpty__text\\">Show as list</span>
+</span>
+</button>
+<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 220 82\\" width=\\"100%\\" style=\\"max-width: 352px;\\" role=\\"group\\" aria-label=\\"CYFOR-AP1 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"218\\" height=\\"80\\" rx=\\"41\\" stroke-width=\\"2\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"30\\" y=\\"30\\" font-size=\\"10\\" font-weight=\\"700\\">Cisco</text>
+<text class=\\"vmFpLabel\\" x=\\"30\\" y=\\"44\\" font-size=\\"8\\">AIR-LAP1142N-A-K9</text>
+<g>
+<text class=\\"vmFpLabel\\" x=\\"110\\" y=\\"24\\" font-size=\\"7.5\\">RADIO</text>
+<line class=\\"vmFpRule\\" x1=\\"110\\" y1=\\"27\\" x2=\\"162\\" y2=\\"27\\" stroke-width=\\"0.6\\">
+</line>
+</g>
+<g>
+<text class=\\"vmFpLabel\\" x=\\"182\\" y=\\"24\\" font-size=\\"7.5\\">GI</text>
+<line class=\\"vmFpRule\\" x1=\\"182\\" y1=\\"27\\" x2=\\"204\\" y2=\\"27\\" stroke-width=\\"0.6\\">
+</line>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. Up. 1 Wi-Fi client. Neighbour: 172.20.80.1\\">
+<line class=\\"vmFpPin\\" x1=\\"121\\" y1=\\"43\\" x2=\\"121\\" y2=\\"28\\" stroke-width=\\"2\\">
+</line>
+<circle class=\\"vmFpLed\\" cx=\\"121\\" cy=\\"43\\" r=\\"7\\">
+</circle>
+<text class=\\"vmFpCount\\" x=\\"121\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
+<text class=\\"vmFpLabel\\" x=\\"121\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">2.4 GHz</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio1. Up. 1 Wi-Fi client. Neighbour: 172.20.80.3\\">
+<line class=\\"vmFpPin\\" x1=\\"151\\" y1=\\"43\\" x2=\\"151\\" y2=\\"28\\" stroke-width=\\"2\\">
+</line>
+<circle class=\\"vmFpLed\\" cx=\\"151\\" cy=\\"43\\" r=\\"7\\">
+</circle>
+<text class=\\"vmFpCount\\" x=\\"151\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
+<text class=\\"vmFpLabel\\" x=\\"151\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">5 GHz</text>
+</g>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"GigabitEthernet0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0. Up. Neighbour: L3-Switch FastEthernet1/0/15\\">
+<rect class=\\"vmFpFace\\" x=\\"182\\" y=\\"34\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
+</rect>
+<rect class=\\"vmFpNotch\\" x=\\"188.6\\" y=\\"48\\" width=\\"8.8\\" height=\\"4\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"185\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"187.66666666666666\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"190.33333333333334\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"193\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"195.66666666666666\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpPinFill\\" x=\\"198.33333333333334\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
+</rect>
+<rect class=\\"vmFpLed\\" x=\\"184\\" y=\\"42.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
+</rect>
+<text class=\\"vmFpLabel\\" x=\\"193\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">Gi0</text>
+</g>
+</svg>
+<div class=\\"vmFpLegend\\" data-test-subj=\\"vmFaceplateLegend\\">
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--up\\">
+</i>Up</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--link_lost\\">
+</i>Down: link lost</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--unused\\">
+</i>Not connected</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--shutdown\\">
+</i>Shut down</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--route\\">
+</i>On attack route</span>
+<span>
+<i class=\\"vmFpSwatch vmFpSwatch--inferred\\">
+</i>Inferred from neighbour</span>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiAccordion\\" data-test-subj=\\"vmLogicalInterfaces\\">
+<div class=\\"euiAccordion__triggerWrapper\\">
+<button id=\\"X\\" aria-controls=\\"X\\" aria-expanded=\\"false\\" class=\\"euiAccordion__button\\" type=\\"button\\">
+<span class=\\"euiAccordion__iconWrapper\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiAccordion__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"nonzero\\" d=\\"m5.157 13.069 4.611-4.685a.546.546 0 0 0 0-.768L5.158 2.93a.552.552 0 0 1 0-.771.53.53 0 0 1 .759 0l4.61 4.684c.631.641.63 1.672 0 2.312l-4.61 4.684a.53.53 0 0 1-.76 0 .552.552 0 0 1 0-.771Z\\">
+</path>
+</svg>
+</span>
+<span class=\\"euiIEFlexWrapFix\\">Logical interfaces (6, 6 up)</span>
+</button>
+</div>
+<div class=\\"euiAccordion__childWrapper\\" tabindex=\\"-1\\" role=\\"region\\" aria-labelledby=\\"X\\" id=\\"X\\">
+<div>
+<div class=\\"euiAccordion__padding--s\\">
+<div class=\\"vmFpChips\\">
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Null0</div>
+</div>
+</div>
+</span>
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Dot11Radio0.80</div>
+</div>
+</div>
+</span>
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Dot11Radio1.80</div>
+</div>
+</div>
+</span>
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">GigabitEthernet0.80</div>
+</div>
+</div>
+</span>
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">GigabitEthernet0.99</div>
+</div>
+</div>
+</span>
+<span class=\\"vmFpChip\\">
+<div class=\\"euiHealth euiHealth--textSizeXS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">BVI1</div>
+</div>
+</div>
+</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -3834,205 +4033,6 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">9</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<button class=\\"euiButtonEmpty euiButtonEmpty--primary euiButtonEmpty--xSmall euiButtonEmpty--flushLeft\\" type=\\"button\\" data-test-subj=\\"vmPortsToggle\\">
-<span class=\\"euiButtonContent euiButtonEmpty__content\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiIcon--inherit euiButtonContent__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<path d=\\"M2 4V3h2v1H2Zm4 0V3h8v1H6Zm0 3V6h8v1H6Zm0 3V9h8v1H6ZM2 7V6h2v1H2Zm0 3V9h2v1H2Zm4 3v-1h8v1H6Zm-4 0v-1h2v1H2Z\\">
-</path>
-</svg>
-<span class=\\"euiButtonEmpty__text\\">Show as list</span>
-</span>
-</button>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
-<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 220 82\\" width=\\"100%\\" style=\\"max-width: 352px;\\" role=\\"group\\" aria-label=\\"CYFOR-AP1 front panel\\" data-test-subj=\\"vmFaceplate\\">
-<rect class=\\"vmFpChassis\\" x=\\"1\\" y=\\"1\\" width=\\"218\\" height=\\"80\\" rx=\\"41\\" stroke-width=\\"2\\">
-</rect>
-<text class=\\"vmFpLabel\\" x=\\"30\\" y=\\"30\\" font-size=\\"10\\" font-weight=\\"700\\">Cisco</text>
-<text class=\\"vmFpLabel\\" x=\\"30\\" y=\\"44\\" font-size=\\"8\\">AIR-LAP1142N-A-K9</text>
-<g>
-<text class=\\"vmFpLabel\\" x=\\"110\\" y=\\"24\\" font-size=\\"7.5\\">RADIO</text>
-<line class=\\"vmFpRule\\" x1=\\"110\\" y1=\\"27\\" x2=\\"162\\" y2=\\"27\\" stroke-width=\\"0.6\\">
-</line>
-</g>
-<g>
-<text class=\\"vmFpLabel\\" x=\\"182\\" y=\\"24\\" font-size=\\"7.5\\">GI</text>
-<line class=\\"vmFpRule\\" x1=\\"182\\" y1=\\"27\\" x2=\\"204\\" y2=\\"27\\" stroke-width=\\"0.6\\">
-</line>
-</g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. Up. 1 Wi-Fi client. Neighbour: 172.20.80.1\\">
-<line class=\\"vmFpPin\\" x1=\\"121\\" y1=\\"43\\" x2=\\"121\\" y2=\\"28\\" stroke-width=\\"2\\">
-</line>
-<circle class=\\"vmFpLed\\" cx=\\"121\\" cy=\\"43\\" r=\\"7\\">
-</circle>
-<text class=\\"vmFpCount\\" x=\\"121\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
-<text class=\\"vmFpLabel\\" x=\\"121\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">2.4 GHz</text>
-</g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio1. Up. 1 Wi-Fi client. Neighbour: 172.20.80.3\\">
-<line class=\\"vmFpPin\\" x1=\\"151\\" y1=\\"43\\" x2=\\"151\\" y2=\\"28\\" stroke-width=\\"2\\">
-</line>
-<circle class=\\"vmFpLed\\" cx=\\"151\\" cy=\\"43\\" r=\\"7\\">
-</circle>
-<text class=\\"vmFpCount\\" x=\\"151\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
-<text class=\\"vmFpLabel\\" x=\\"151\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">5 GHz</text>
-</g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"GigabitEthernet0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0. Up. Neighbour: L3-Switch FastEthernet1/0/15\\">
-<rect class=\\"vmFpFace\\" x=\\"182\\" y=\\"34\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
-</rect>
-<rect class=\\"vmFpNotch\\" x=\\"188.6\\" y=\\"48\\" width=\\"8.8\\" height=\\"4\\">
-</rect>
-<rect class=\\"vmFpPinFill\\" x=\\"185\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
-</rect>
-<rect class=\\"vmFpPinFill\\" x=\\"187.66666666666666\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
-</rect>
-<rect class=\\"vmFpPinFill\\" x=\\"190.33333333333334\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
-</rect>
-<rect class=\\"vmFpPinFill\\" x=\\"193\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
-</rect>
-<rect class=\\"vmFpPinFill\\" x=\\"195.66666666666666\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
-</rect>
-<rect class=\\"vmFpPinFill\\" x=\\"198.33333333333334\\" y=\\"36\\" width=\\"1.6666666666666665\\" height=\\"3\\">
-</rect>
-<rect class=\\"vmFpLed\\" x=\\"184\\" y=\\"42.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
-</rect>
-<text class=\\"vmFpLabel\\" x=\\"193\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">Gi0</text>
-</g>
-</svg>
-<div class=\\"vmFpLegend\\" data-test-subj=\\"vmFaceplateLegend\\">
-<span>
-<i class=\\"vmFpSwatch vmFpSwatch--up\\">
-</i>Up</span>
-<span>
-<i class=\\"vmFpSwatch vmFpSwatch--link_lost\\">
-</i>Down: link lost</span>
-<span>
-<i class=\\"vmFpSwatch vmFpSwatch--unused\\">
-</i>Not connected</span>
-<span>
-<i class=\\"vmFpSwatch vmFpSwatch--shutdown\\">
-</i>Shut down</span>
-<span>
-<i class=\\"vmFpSwatch vmFpSwatch--route\\">
-</i>On attack route</span>
-<span>
-<i class=\\"vmFpSwatch vmFpSwatch--inferred\\">
-</i>Inferred from neighbour</span>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiAccordion\\" data-test-subj=\\"vmLogicalInterfaces\\">
-<div class=\\"euiAccordion__triggerWrapper\\">
-<button id=\\"X\\" aria-controls=\\"X\\" aria-expanded=\\"false\\" class=\\"euiAccordion__button\\" type=\\"button\\">
-<span class=\\"euiAccordion__iconWrapper\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiAccordion__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<path fill-rule=\\"nonzero\\" d=\\"m5.157 13.069 4.611-4.685a.546.546 0 0 0 0-.768L5.158 2.93a.552.552 0 0 1 0-.771.53.53 0 0 1 .759 0l4.61 4.684c.631.641.63 1.672 0 2.312l-4.61 4.684a.53.53 0 0 1-.76 0 .552.552 0 0 1 0-.771Z\\">
-</path>
-</svg>
-</span>
-<span class=\\"euiIEFlexWrapFix\\">Logical interfaces (6, 6 up)</span>
-</button>
-</div>
-<div class=\\"euiAccordion__childWrapper\\" tabindex=\\"-1\\" role=\\"region\\" aria-labelledby=\\"X\\" id=\\"X\\">
-<div>
-<div class=\\"euiAccordion__padding--s\\">
-<div class=\\"vmFpChips\\">
-<span class=\\"vmFpChip\\">
-<div class=\\"euiHealth euiHealth--textSizeXS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Null0</div>
-</div>
-</div>
-</span>
-<span class=\\"vmFpChip\\">
-<div class=\\"euiHealth euiHealth--textSizeXS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Dot11Radio0.80</div>
-</div>
-</div>
-</span>
-<span class=\\"vmFpChip\\">
-<div class=\\"euiHealth euiHealth--textSizeXS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Dot11Radio1.80</div>
-</div>
-</div>
-</span>
-<span class=\\"vmFpChip\\">
-<div class=\\"euiHealth euiHealth--textSizeXS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">GigabitEthernet0.80</div>
-</div>
-</div>
-</span>
-<span class=\\"vmFpChip\\">
-<div class=\\"euiHealth euiHealth--textSizeXS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">GigabitEthernet0.99</div>
-</div>
-</div>
-</span>
-<span class=\\"vmFpChip\\">
-<div class=\\"euiHealth euiHealth--textSizeXS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">BVI1</div>
-</div>
-</div>
-</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
 </div>
 </div>
@@ -4117,6 +4117,25 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
 <div class=\\"euiFlyoutBody__overflowContent\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>No port status reported.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -4291,25 +4310,6 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 <div class=\\"euiText euiText--small\\" data-test-subj=\\"vmConfigNone\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
 <p>It was only seen in a neighbour’s table, never polled, so its configuration could not be read.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--small\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>No port status reported.</p>
 </div>
 </div>
 </div>
@@ -6577,6 +6577,25 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>No port status reported.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
 </div>
 </div>
@@ -6762,25 +6781,6 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--small\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>No port status reported.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
 </div>
 </div>
@@ -6863,387 +6863,6 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
 <div class=\\"euiFlyoutBody__overflowContent\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Mark this asset's importance (FIPS 199) to see the routes that could reach it on the Attack paths page.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<fieldset class=\\"euiButtonGroup euiButtonGroup--small euiButtonGroup--text\\" data-test-subj=\\"vmProtect\\">
-<legend class=\\"euiScreenReaderOnly\\">Importance</legend>
-<div class=\\"euiButtonGroup__buttons\\">
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-low\\">
-<span class=\\"euiButtonContent euiButton__content\\">
-<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Low\\" title=\\"Low\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"low\\" value=\\"\\">Low</span>
-</span>
-</label>
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
-<span class=\\"euiButtonContent euiButton__content\\">
-<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Moderate\\" title=\\"Moderate\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\">Moderate</span>
-</span>
-</label>
-<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-high\\">
-<span class=\\"euiButtonContent euiButton__content\\">
-<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"High\\" title=\\"High\\">
-<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"high\\" value=\\"\\">High</span>
-</span>
-</label>
-</div>
-</fieldset>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Identity</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
-<dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">L2-Switch</dd>
-<dt class=\\"euiDescriptionList__title\\">IP</dt>
-<dd class=\\"euiDescriptionList__description\\">172.20.10.100</dd>
-<dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">00:17:95:be:b2:00</dd>
-<dt class=\\"euiDescriptionList__title\\">SNMP reports</dt>
-<dd class=\\"euiDescriptionList__description\\">Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(58)SE2, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2011 by Cisco Systems, Inc. Compiled Thu 21-Jul-11 02:13 by prod_rel_team</dd>
-<dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">Cisco</dd>
-<dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">C2960</dd>
-<dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">12.2(58)SE2</dd>
-<dt class=\\"euiDescriptionList__title\\">Software</dt>
-<dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(58)SE2</dd>
-<dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
-<dt class=\\"euiDescriptionList__title\\">Role</dt>
-<dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
-<dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
-<dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
-<dt class=\\"euiDescriptionList__title\\">Status</dt>
-<dd class=\\"euiDescriptionList__description\\">online</dd>
-<dt class=\\"euiDescriptionList__title\\">Liveness</dt>
-<dd class=\\"euiDescriptionList__description\\">
-<span data-test-subj=\\"vmLiveness\\">
-<div class=\\"euiHealth euiHealth--textSizeS\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--danger\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
-<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
-</circle>
-</svg>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Inactive</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>last seen 10/7/2026, 2:00:20 PM · via SNMP</p>
-</div>
-</div>
-</span>
-</dd>
-</dl>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Risk</h3>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\" data-test-subj=\\"vmOvss\\">
-<dt class=\\"euiDescriptionList__title\\">OVSS</dt>
-<dd class=\\"euiDescriptionList__description\\">P2 · OVSS 4.226</dd>
-<dt class=\\"euiDescriptionList__title\\">Exposure</dt>
-<dd class=\\"euiDescriptionList__description\\">Isolated VLAN (0.3)</dd>
-<dt class=\\"euiDescriptionList__title\\">Dependency</dt>
-<dd class=\\"euiDescriptionList__description\\">0</dd>
-<dt class=\\"euiDescriptionList__title\\">Importance</dt>
-<dd class=\\"euiDescriptionList__description\\">not marked</dd>
-<dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
-<dd class=\\"euiDescriptionList__description\\">0</dd>
-<dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">9.8</dd>
-</dl>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmTierCounts\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P0 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P0 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P1 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P1 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P2 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unrated 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Unrated 0</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveCounts\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Critical 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"High 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">High 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium 1\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium 1</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Low 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Low 0</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unknown 0\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Unknown 0</span>
-</span>
-</span>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Vulnerabilities</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">2</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmCvePotential\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Potential: matched by software version (Cisco IOS 12.2(58)SE2) against NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2021-0001</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.8 (v3.1)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Critical · 9.8 (v3.1)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 · 4.226\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P2 · 4.226</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 5% · scanner · v3.1</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>An issue.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--small\\">
-<strong class=\\"vmMono\\">CVE-2021-0002</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5.3 (v3.1)\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium · 5.3 (v3.1)</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.984\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">P3 · 1.984</span>
-</span>
-</span>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · ADP · v4.0</div>
-</div>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
-<p>An issue.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigChecks\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Configuration checks</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">1</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmConfigSummary\\">
-<p>1 of 8 checks failed (1 medium); 6 unknown, 1 not checked.</p>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigFinding-snmp-no-auth\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem\\">
-<div class=\\"euiText euiText--small\\">
-<strong>SNMP managed with a community string</strong>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium\\">
-<span class=\\"euiBadge__content\\">
-<span class=\\"euiBadge__text\\">Medium</span>
-</span>
-</span>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<p>SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.</p>
-</div>
-<div class=\\"euiText euiText--extraSmall vmConfigLines\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>The scan polled it with SNMP v2c.</p>
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<p>
-<strong>Fix:</strong> Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.</p>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>
-<a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).\\">DISA STIG V-220604, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
-<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
-</path>
-</svg>
-<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
-</a> · <a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.\\">DISA STIG V-220605, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
-<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
-</path>
-</svg>
-<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
-</a> · CWE-319</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--extraSmall vmConfigLines\\" data-test-subj=\\"vmConfigQuiet\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>Telnet management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
-<p>Plain HTTP management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
-<p>Default SNMP community name: not checked, probe not enabled.</p>
-<p>Spare access ports in a VLAN in use: unknown, the interface table was not read.</p>
-<p>Access ports in the default VLAN: unknown, the interface table was not read.</p>
-<p>BPDU guard missing on access ports: unknown, the interface table was not read.</p>
-<p>Port security disabled on access ports: unknown, the interface table was not read.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -8410,6 +8029,387 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Mark this asset's importance (FIPS 199) to see the routes that could reach it on the Attack paths page.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<fieldset class=\\"euiButtonGroup euiButtonGroup--small euiButtonGroup--text\\" data-test-subj=\\"vmProtect\\">
+<legend class=\\"euiScreenReaderOnly\\">Importance</legend>
+<div class=\\"euiButtonGroup__buttons\\">
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-low\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Low\\" title=\\"Low\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"low\\" value=\\"\\">Low</span>
+</span>
+</label>
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Moderate\\" title=\\"Moderate\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\">Moderate</span>
+</span>
+</label>
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-high\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"High\\" title=\\"High\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"high\\" value=\\"\\">High</span>
+</span>
+</label>
+</div>
+</fieldset>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Identity</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
+<dt class=\\"euiDescriptionList__title\\">Hostname</dt>
+<dd class=\\"euiDescriptionList__description\\">L2-Switch</dd>
+<dt class=\\"euiDescriptionList__title\\">IP</dt>
+<dd class=\\"euiDescriptionList__description\\">172.20.10.100</dd>
+<dt class=\\"euiDescriptionList__title\\">MAC</dt>
+<dd class=\\"euiDescriptionList__description\\">00:17:95:be:b2:00</dd>
+<dt class=\\"euiDescriptionList__title\\">SNMP reports</dt>
+<dd class=\\"euiDescriptionList__description\\">Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(58)SE2, RELEASE SOFTWARE (fc1) Technical Support: http://www.cisco.com/techsupport Copyright (c) 1986-2011 by Cisco Systems, Inc. Compiled Thu 21-Jul-11 02:13 by prod_rel_team</dd>
+<dt class=\\"euiDescriptionList__title\\">Vendor</dt>
+<dd class=\\"euiDescriptionList__description\\">Cisco</dd>
+<dt class=\\"euiDescriptionList__title\\">Model</dt>
+<dd class=\\"euiDescriptionList__description\\">C2960</dd>
+<dt class=\\"euiDescriptionList__title\\">Firmware</dt>
+<dd class=\\"euiDescriptionList__description\\">12.2(58)SE2</dd>
+<dt class=\\"euiDescriptionList__title\\">Software</dt>
+<dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(58)SE2</dd>
+<dt class=\\"euiDescriptionList__title\\">Serial</dt>
+<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dt class=\\"euiDescriptionList__title\\">Role</dt>
+<dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
+<dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
+<dd class=\\"euiDescriptionList__description\\">snmp_lldp</dd>
+<dt class=\\"euiDescriptionList__title\\">Status</dt>
+<dd class=\\"euiDescriptionList__description\\">online</dd>
+<dt class=\\"euiDescriptionList__title\\">Liveness</dt>
+<dd class=\\"euiDescriptionList__description\\">
+<span data-test-subj=\\"vmLiveness\\">
+<div class=\\"euiHealth euiHealth--textSizeS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--danger\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Inactive</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>last seen 10/7/2026, 2:00:20 PM · via SNMP</p>
+</div>
+</div>
+</span>
+</dd>
+</dl>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Risk</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\" data-test-subj=\\"vmOvss\\">
+<dt class=\\"euiDescriptionList__title\\">OVSS</dt>
+<dd class=\\"euiDescriptionList__description\\">P2 · OVSS 4.226</dd>
+<dt class=\\"euiDescriptionList__title\\">Exposure</dt>
+<dd class=\\"euiDescriptionList__description\\">Isolated VLAN (0.3)</dd>
+<dt class=\\"euiDescriptionList__title\\">Dependency</dt>
+<dd class=\\"euiDescriptionList__description\\">0</dd>
+<dt class=\\"euiDescriptionList__title\\">Importance</dt>
+<dd class=\\"euiDescriptionList__description\\">not marked</dd>
+<dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
+<dd class=\\"euiDescriptionList__description\\">0</dd>
+<dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
+<dd class=\\"euiDescriptionList__description\\">9.8</dd>
+</dl>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmTierCounts\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P0 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P0 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P1 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P1 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P2 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unrated 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Unrated 0</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveCounts\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"High 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">High 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Low 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Low 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unknown 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Unknown 0</span>
+</span>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Vulnerabilities</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">2</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmCvePotential\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Potential: matched by software version (Cisco IOS 12.2(58)SE2) against NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2021-0001</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.8 (v3.1)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical · 9.8 (v3.1)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"P2 · 4.226\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P2 · 4.226</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 5% · scanner · v3.1</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>An issue.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2021-0002</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium · 5.3 (v3.1)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium · 5.3 (v3.1)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 1.984\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 1.984</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · ADP · v4.0</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Cisco IOS 12.2(58)SE2 · 12.2(58)SE2</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>An issue.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigChecks\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Configuration checks</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">1</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmConfigSummary\\">
+<p>1 of 8 checks failed (1 medium); 6 unknown, 1 not checked.</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\" data-test-subj=\\"vmConfigFinding-snmp-no-auth\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem\\">
+<div class=\\"euiText euiText--small\\">
+<strong>SNMP managed with a community string</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" title=\\"Medium\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<p>SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.</p>
+</div>
+<div class=\\"euiText euiText--extraSmall vmConfigLines\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>The scan polled it with SNMP v2c.</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<p>
+<strong>Fix:</strong> Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.</p>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>
+<a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).\\">DISA STIG V-220604, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
+<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a> · <a class=\\"euiLink euiLink--primary\\" href=\\"https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\" title=\\"The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.\\">DISA STIG V-220605, CAT II<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
+<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a> · CWE-319</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall vmConfigLines\\" data-test-subj=\\"vmConfigQuiet\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Telnet management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
+<p>Plain HTTP management enabled: unknown, the device does not list its TCP listeners over SNMP, and the connection test is not enabled.</p>
+<p>Default SNMP community name: not checked, probe not enabled.</p>
+<p>Spare access ports in a VLAN in use: unknown, the interface table was not read.</p>
+<p>Access ports in the default VLAN: unknown, the interface table was not read.</p>
+<p>BPDU guard missing on access ports: unknown, the interface table was not read.</p>
+<p>Port security disabled on access ports: unknown, the interface table was not read.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Topology ports</h3>
 </div>
 </div>
@@ -8487,6 +8487,25 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
 <div class=\\"euiFlyoutBody__overflowContent\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>No port status reported.</p>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -8679,25 +8698,6 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <div class=\\"euiText euiText--small\\" data-test-subj=\\"vmConfigNone\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
 <p>It was only seen in a neighbour’s table, never polled, so its configuration could not be read.</p>
-</div>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--m\\">
-</div>
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
-<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<h3 class=\\"euiTitle euiTitle--xxsmall\\">Ports</h3>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">0</span>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--s\\">
-</div>
-<div class=\\"euiText euiText--small\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>No port status reported.</p>
 </div>
 </div>
 </div>
