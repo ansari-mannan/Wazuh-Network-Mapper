@@ -15,10 +15,22 @@
   $down: $euiColorDanger;        // red
   $unused: #222b35;              // dark, unlit
   $shutdown: $euiColorMediumShade; // grey
+  $amber: $euiColorWarning;
 
   .vmFaceplate { display: block; max-width: 100%; height: auto; }
   .vmFpChassis { fill: $chassis; stroke: $chassisEdge; }
-  .vmFpChassisHi { fill: $chassisHi; }
+  .vmFpGradTop { stop-color: $chassisHi; }
+  .vmFpGradBody { stop-color: $chassis; }
+  .vmFpEar { fill: lightOrDarkTheme($chassisEdge, $chassisHi); stroke: $chassisEdge; } // lighter on a dark page
+  .vmFpScrew { fill: $socket; stroke: $pin; stroke-width: 0.8; }
+  // recessed: darker than the chassis, shadowed edge
+  .vmFpPlate { fill: $chassisEdge; stroke: #0b1016; stroke-width: 0.8; }
+  .vmFpGrille { fill: $socket; }
+  .vmFpPwr--on { fill: $up; }
+  .vmFpPwr--off { fill: $shutdown; }
+  .vmFpSpeed--fast { fill: $up; }
+  .vmFpSpeed--slow { fill: $amber; }
+  .vmFpSpeed--off { fill: $unused; }
   .vmFpLabel { fill: $label; font-family: $euiFontFamily; }
   .vmFpCount { fill: $socket; font-family: $euiFontFamily; }
   .vmFpRule { stroke: $label; opacity: 0.6; }
@@ -53,6 +65,9 @@
   .vmFpSwatch--shutdown { background: $shutdown; }
   .vmFpSwatch--route { outline: 2px solid var(--vm-route); outline-offset: -2px; }
   .vmFpSwatch--inferred { outline: 1.5px dashed $up; outline-offset: -1.5px; }
+  .vmFpSwatch--fast, .vmFpSwatch--slow { width: 7px; }
+  .vmFpSwatch--fast { background: $up; }
+  .vmFpSwatch--slow { background: $amber; }
 
   .vmFpChips { display: flex; flex-wrap: wrap; gap: 6px; }
   .vmFpChip {

@@ -32,6 +32,28 @@ export interface PanelText {
   y: number;
   size: number;
   bold?: boolean;
+  /** part of the decoration (the name plate): not drawn on the compact panel */
+  decor?: boolean;
+}
+
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/**
+ * The chassis furniture. Decorative, implying no data: rack ears (1U only),
+ * the vent grille and the recessed name plate. The PWR LED is data: lit when
+ * the device answered SNMP in this scan.
+ */
+export interface Furniture {
+  /** width of each rack ear at the two ends; 0 when the chassis has none */
+  ear: number;
+  plate: Rect;
+  grille: Rect;
+  pwr: { cx: number; cy: number; on: boolean };
 }
 
 export interface Faceplate {
@@ -48,6 +70,7 @@ export interface Faceplate {
   texts: PanelText[];
   /** x of each thin vertical divider (before a firewall's WAN group) */
   dividers: number[];
+  furniture: Furniture;
   /** Vlan, Loopback, sub-interfaces...: listed under the panel, not drawn on it */
   logical: DevicePort[];
 }
@@ -59,6 +82,7 @@ const GAP_Y = 6;
 const BLOCK_GAP = 12; // between blocks of 12 access ports
 const GROUP_GAP = 22; // between console, access and uplink blocks
 const RIGHT_PAD = 12;
+const EAR_W = 14; // a 1U chassis's rack ears
 
 /** Above this many physical ports the card shows a compact panel and an Expand button. */
 export const COMPACT_ABOVE = 26;
@@ -146,6 +170,7 @@ export const CAPTION_SIZE = 7.5;
 export const LABEL_SIZE = 7;
 const CAPTION_Y = 10; // caption baseline; its rule is 3 below
 const ROW1_ONE = 24; // the row of a one-row panel
+const MIN_HEIGHT = 66; // room for the brand area: vendor, name plate, PWR
 const ROW1_TWO = 27; // the top row of a two-row panel
 const LABEL_GAP = 4; // from a row to the baseline above it / the label's top below it
 
@@ -219,7 +244,7 @@ function placeBlocks(blocks: Block[], x0: number) {
     captionY: CAPTION_Y,
     dividers,
     right: x,
-    height: (rows === 2 ? below(row2) : below(row1)) + 8,
+    height: Math.max(MIN_HEIGHT, (rows === 2 ? below(row2) : below(row1)) + 8),
   };
 }
 
@@ -319,16 +344,30 @@ export function faceplateOf(node: DeviceNode): Faceplate {
   const all = portsOf(node).map((port) => ({ port, kind: portKind(port) }));
   const logical = all.filter((p) => p.kind === 'logical' || (p.kind === 'radio' && chassis !== 'puck'));
   const physical = all.filter((p) => !logical.includes(p));
-  const brandWidth = chassis === 'generic' ? 96 : chassis === 'puck' ? 110 : chassis === 'desktop' ? 150 : 120;
+  const ear = chassis === 'rack' ? EAR_W : 0;
+  const brandWidth = ear + (chassis === 'generic' ? 104 : chassis === 'puck' ? 116 : chassis === 'desktop' ? 150 : 116);
   const blocks = chassis === 'desktop' || chassis === 'puck' ? rowBlocks(physical) : rackBlocks(physical);
   const { ports, captions, captionY, dividers, right, height } = placeBlocks(blocks, brandWidth);
-  // vendor and model, plain text, cut to the brand area
-  const textX = chassis === 'puck' ? 30 : 14;
-  const room = brandWidth - textX - 8;
+  // The brand area, top to bottom: the vendor (plain text, no logo), the
+  // name plate with hostname and model, then the PWR LED beside the grille.
+  const textX = ear + (chassis === 'puck' ? 24 : 10);
+  const room = brandWidth - textX - 10;
+  const plate = { x: textX - 3, y: 21, w: room + 6, h: 25 };
   const texts: PanelText[] = [];
-  if (node.vendor) texts.push({ text: fitText(node.vendor, room, 10), x: textX, y: 26, size: 10, bold: true });
-  if (node.model) texts.push({ text: fitText(node.model, room, 8), x: textX, y: 40, size: 8 });
+  if (node.vendor) texts.push({ text: fitText(node.vendor, room, 9), x: textX, y: 16, size: 9, bold: true });
+  const name = node.hostname || node.ip || '';
+  if (name) texts.push({ text: fitText(name, room, 8), x: textX, y: 31, size: 8, bold: true, decor: true });
+  if (node.model) texts.push({ text: fitText(node.model, room, 7), x: textX, y: 41, size: 7, decor: true });
+  texts.push({ text: 'PWR', x: textX + 7, y: 58, size: 6.5 });
+  const grilleX = textX + 7 + textWidth('PWR', 6.5) + 6;
+  const furniture: Furniture = {
+    ear,
+    plate,
+    grille: { x: grilleX, y: 51, w: Math.max(0, textX + room - grilleX), h: 8 },
+    pwr: { cx: textX + 2.5, cy: 55.5, on: node.status === 'online' },
+  };
   return {
+    furniture,
     chassis,
     brandWidth,
     logical: logical.map((p) => p.port),
@@ -337,7 +376,7 @@ export function faceplateOf(node: DeviceNode): Faceplate {
     captionY,
     dividers,
     texts,
-    width: Math.max(right, brandWidth) + (chassis === 'desktop' || chassis === 'puck' ? 16 : RIGHT_PAD),
+    width: Math.max(right, brandWidth) + (chassis === 'desktop' || chassis === 'puck' ? 16 : RIGHT_PAD) + ear,
     height,
   };
 }
@@ -431,6 +470,15 @@ export const STATE_TEXT: Record<PortState, string> = {
   unused: 'Not connected',
   shutdown: 'Shut down (admin)',
 };
+
+/**
+ * The speed LED beside a port's link LED: green ("fast") at 1 Gb/s and up,
+ * amber ("slow") below that, off when the port is down or its speed unknown.
+ */
+export function speedLed(port: DevicePort): 'fast' | 'slow' | 'off' {
+  if (port.state !== 'up' || !port.speed_mbps) return 'off';
+  return port.speed_mbps >= 1000 ? 'fast' : 'slow';
+}
 
 /** "100 Mb/s", "1 Gb/s", "10 Gb/s"; '' when unknown. */
 export function speedText(mbps: number | null | undefined): string {

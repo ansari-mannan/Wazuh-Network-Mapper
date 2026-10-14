@@ -91,8 +91,23 @@ describe('Faceplate', () => {
       'Logical interfaces (3, 2 up)'
     );
     expect(el.querySelector('[data-test-subj="vmFaceplateLegend"]')!.textContent).toBe(
-      'UpDown: link lostNot connectedShut downOn attack routeInferred from neighbour'
+      'UpDown: link lostNot connectedShut downOn attack routeInferred from neighbourSpeed ≥ 1 Gb/sSpeed 10–100 Mb/s'
     );
+    // the speed LED beside each link LED: amber for an up 100 Mb/s port, off when not connected
+    const speed = (name: string) => socket(el, name).querySelector('.vmFpSpeed')!.getAttribute('class');
+    expect(speed('FastEthernet1/0/1')).toBe('vmFpSpeed vmFpSpeed--slow');
+    expect(speed('FastEthernet1/0/3')).toBe('vmFpSpeed vmFpSpeed--off');
+    // decoration in the full panel: ears with two screws each, grille, name plate, gradient
+    const svg = el.querySelector('[data-test-subj="vmFaceplate"]')!;
+    expect(svg.querySelectorAll('.vmFpEar')).toHaveLength(2);
+    expect(svg.querySelectorAll('.vmFpScrew')).toHaveLength(4);
+    expect(svg.querySelectorAll('.vmFpGrille').length).toBeGreaterThan(5);
+    expect(svg.querySelector('.vmFpPlate')).not.toBeNull();
+    expect(svg.querySelector('linearGradient')).not.toBeNull();
+    expect(svg.textContent).toContain('sw24'); // the hostname on the name plate
+    // the PWR LED is the only system LED, lit: the device answered SNMP
+    expect(svg.querySelector('.vmFpPwr')!.getAttribute('class')).toBe('vmFpPwr vmFpPwr--on');
+    expect(svg.textContent).not.toMatch(/SYST|RPS|STAT/);
     expect(html()).toMatchSnapshot();
   });
 
@@ -138,6 +153,14 @@ describe('Faceplate', () => {
   it('48+2 switch: a compact panel and an Expand button that opens the full one in a modal', () => {
     const el = render(switch48);
     expect(sockets(el)).toHaveLength(50);
+    // compact: no decoration, but the vendor text and the PWR LED stay
+    const card = el.querySelector('[data-test-subj="vmFaceplate"]')!;
+    for (const cls of ['.vmFpEar', '.vmFpGrille', '.vmFpPlate', 'linearGradient']) {
+      expect(card.querySelector(cls)).toBeNull();
+    }
+    expect(card.querySelector('.vmFpPwr')).not.toBeNull();
+    expect(card.textContent).toContain('Cisco');
+    expect(card.textContent).not.toContain('WS-C2960-48TT-L');
     expect(labels(el)).toEqual([]); // compact: no port numbers
     const expand = el.querySelector('[data-test-subj="vmFaceplateExpand"]') as HTMLElement;
     expect(expand.textContent).toBe('Expand (50 ports)');
@@ -149,6 +172,10 @@ describe('Faceplate', () => {
     const full = modal.querySelector('[data-test-subj="vmFaceplate"]')!;
     expect(Number(full.getAttribute('width'))).toBeGreaterThan(1000);
     expect(labels(modal).slice(0, 4)).toEqual(['1', '2', '3', '4']);
+    // the modal has the decoration
+    expect(full.querySelectorAll('.vmFpEar')).toHaveLength(2);
+    expect(full.querySelector('.vmFpPlate')).not.toBeNull();
+    expect(full.textContent).toContain('WS-C2960-48TT-L');
     expect(html()).toMatchSnapshot();
   });
 
@@ -216,8 +243,10 @@ describe('Faceplate', () => {
     expect(html()).toMatchSnapshot();
   });
 
-  it('unknown device with only port_status: a plain panel', () => {
-    const el = render(unknownDevice);
+  it('unknown device with only port_status: a plain panel, PWR off when SNMP did not answer', () => {
+    const el = render({ ...unknownDevice, status: 'unreachable' });
+    expect(el.querySelector('.vmFpPwr')!.getAttribute('class')).toBe('vmFpPwr vmFpPwr--off');
+    expect(el.querySelectorAll('.vmFpEar')).toHaveLength(0); // only a 1U rack has ears
     expect(el.querySelector('svg')!.getAttribute('class')).toContain('vmFaceplate--generic');
     expect(sockets(el).map((s) => s.getAttribute('class'))).toEqual([
       'vmFpPort vmFpPort--up',

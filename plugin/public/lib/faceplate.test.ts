@@ -13,6 +13,7 @@ import {
   routePortKeys,
   shortName,
   speedText,
+  speedLed,
   textBoxes,
   PORT_W,
   PORT_H,
@@ -324,5 +325,30 @@ describe('no overlapping text', () => {
       // a label is above its port or below it, never beside it
       expect(p.labelY < p.y || p.labelY - 0.8 * 7 > p.y + PORT_H).toBe(true);
     }
+  });
+});
+
+describe('speed LED and furniture', () => {
+  it('lights green at 1 Gb/s and up, amber below, off when down or unknown', () => {
+    expect(speedLed(port('Gi0/1', 'up', { speed_mbps: 1000 }))).toBe('fast');
+    expect(speedLed(port('Te1/1/1', 'up', { speed_mbps: 10000 }))).toBe('fast');
+    expect(speedLed(port('Fa0/1', 'up', { speed_mbps: 100 }))).toBe('slow');
+    expect(speedLed(port('Fa0/2', 'up', { speed_mbps: 10 }))).toBe('slow');
+    expect(speedLed(port('Fa0/3', 'link_lost', { speed_mbps: 100 }))).toBe('off');
+    expect(speedLed(port('Fa0/4', 'up', { speed_mbps: null }))).toBe('off');
+  });
+
+  it('cuts a long hostname to the name plate', () => {
+    const fp = faceplateOf({ ...switch24, hostname: 'core-distribution-switch-building-7-floor-2' });
+    const name = fp.texts.find((t) => t.decor && t.bold)!;
+    expect(name.text.endsWith('…')).toBe(true);
+    expect(textBoxes(fp).find((b) => b.text === name.text)!.w).toBeLessThanOrEqual(fp.furniture.plate.w);
+  });
+
+  it('PWR follows whether the device answered SNMP; ears only on a 1U rack', () => {
+    expect(faceplateOf(switch24).furniture.pwr.on).toBe(true);
+    expect(faceplateOf({ ...switch24, status: 'unreachable' }).furniture.pwr.on).toBe(false);
+    expect(faceplateOf(switch24).furniture.ear).toBeGreaterThan(0);
+    expect(faceplateOf(fortigate).furniture.ear).toBe(0);
   });
 });

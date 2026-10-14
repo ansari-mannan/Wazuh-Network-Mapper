@@ -30,6 +30,7 @@ import {
   portNeighbours,
   portTooltip,
   routePortKeys,
+  speedLed,
   tipText,
 } from '../../lib/faceplate';
 import { graphColors } from '../../lib/theme';
@@ -112,7 +113,16 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
               ))}
             </>
           )}
-          <rect className="vmFpLed" x={x + 2} y={y + h * 0.45} width={w - 4} height={h * 0.3} rx={1.5} />
+          {/* the link LED, and beside it the speed LED */}
+          <rect className="vmFpLed" x={x + 2} y={y + h * 0.45} width={w / 2 - 3} height={h * 0.3} rx={1.5} />
+          <rect
+            className={`vmFpSpeed vmFpSpeed--${speedLed(port)}`}
+            x={x + w / 2 + 1}
+            y={y + h * 0.45}
+            width={w / 2 - 3}
+            height={h * 0.3}
+            rx={1.5}
+          />
         </>
       )}
       {!compact && (
@@ -126,8 +136,12 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
 
 /** The panel itself: chassis, vendor text (plain, no logo), captions and sockets. */
 export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, onSelectNode, width }: PanelProps & { width?: number }) {
-  const { chassis, height: H, width: W } = fp;
-  const rx = chassis === 'puck' ? H / 2 : chassis === 'desktop' ? 10 : chassis === 'rack' ? 5 : 4;
+  const { chassis, height: H, width: W, furniture: f } = fp;
+  const rx = chassis === 'puck' ? H / 2 : chassis === 'desktop' ? 10 : chassis === 'rack' ? 3 : 4;
+  // the decoration is left off the compact panel; the Expand modal has it
+  const decor = !compact;
+  const ear = decor ? f.ear : 0;
+  const gradient = `vmFpGrad-${node.node_id.replace(/[^A-Za-z0-9]/g, '')}`;
   return (
     <svg
       className={`vmFaceplate vmFaceplate--${chassis}`}
@@ -139,13 +153,48 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, 
       aria-label={`${node.hostname || node.ip || node.node_id} front panel`}
       data-test-subj="vmFaceplate"
     >
-      <rect className="vmFpChassis" x={1} y={1} width={W - 2} height={H - 2} rx={rx} strokeWidth={2} />
-      {chassis === 'rack' && <rect className="vmFpChassisHi" x={1} y={1} width={W - 2} height={6} rx={3} />}
-      {fp.texts.map((t) => (
-        <text key={t.text} className="vmFpLabel" x={t.x} y={t.y} fontSize={t.size} fontWeight={t.bold ? 700 : undefined}>
-          {t.text}
-        </text>
-      ))}
+      {decor && (
+        <defs>
+          <linearGradient id={gradient} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" className="vmFpGradTop" />
+            <stop offset="0.3" className="vmFpGradBody" />
+          </linearGradient>
+        </defs>
+      )}
+      <rect
+        className="vmFpChassis"
+        x={ear + 1}
+        y={1}
+        width={W - 2 * ear - 2}
+        height={H - 2}
+        rx={rx}
+        strokeWidth={2}
+        fill={decor ? `url(#${gradient})` : undefined}
+      />
+      {ear > 0 &&
+        [0, W - ear].map((ex) => (
+          <g key={ex} className="vmFpEar">
+            <rect x={ex + 0.5} y={1} width={ear - 1} height={H - 2} rx={2} />
+            {[H * 0.27, H * 0.73].map((cy) => (
+              <circle key={cy} className="vmFpScrew" cx={ex + ear / 2} cy={cy} r={2.4} />
+            ))}
+          </g>
+        ))}
+      {decor && <rect className="vmFpPlate" x={f.plate.x} y={f.plate.y} width={f.plate.w} height={f.plate.h} rx={2} />}
+      {decor &&
+        Array.from({ length: Math.floor(f.grille.w / 4) }, (_, i) => (
+          <rect key={i} className="vmFpGrille" x={f.grille.x + i * 4} y={f.grille.y} width={1.6} height={f.grille.h} rx={0.8} />
+        ))}
+      <circle className={`vmFpPwr vmFpPwr--${f.pwr.on ? 'on' : 'off'}`} cx={f.pwr.cx} cy={f.pwr.cy} r={2.6}>
+        <title>{f.pwr.on ? 'Answered SNMP in this scan' : 'Did not answer SNMP in this scan'}</title>
+      </circle>
+      {fp.texts
+        .filter((t) => decor || !t.decor)
+        .map((t, i) => (
+          <text key={i} className="vmFpLabel" x={t.x} y={t.y} fontSize={t.size} fontWeight={t.bold ? 700 : undefined}>
+            {t.text}
+          </text>
+        ))}
       {!compact &&
         fp.captions.map((c) => (
           <g key={`${c.text}-${c.x}`}>
@@ -189,6 +238,8 @@ function Legend() {
       {item('shutdown', 'Shut down')}
       {item('route', 'On attack route')}
       {item('inferred', 'Inferred from neighbour')}
+      {item('fast', 'Speed ≥ 1 Gb/s')}
+      {item('slow', 'Speed 10–100 Mb/s')}
     </div>
   );
 }
