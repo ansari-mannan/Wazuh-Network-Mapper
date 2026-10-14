@@ -171,5 +171,26 @@ class TestScanFailsCleanly(unittest.TestCase):
             self.assertEqual(os.listdir(tmp), [])
 
 
+class TestAgentPaging(unittest.TestCase):
+    """/agents is paged in collect() as in agent_status(): no 1000-agent cap."""
+
+    def test_every_agent_is_collected(self):
+        src = source()
+        pages = [1000, 1000, 3]
+        offsets = []
+
+        def fake_get(path, params):
+            offsets.append(params["offset"])
+            n = pages[len(offsets) - 1]
+            return [{"id": f"{params['offset'] + i + 1:05d}", "name": "pc", "ip": "10.0.0.1"}
+                    for i in range(n)]
+
+        with mock.patch.object(src, "_login"), mock.patch.object(src, "_get", fake_get), \
+                mock.patch.object(src, "_inventory", return_value=([], [], [], [], False)):
+            nodes = src.collect()
+        self.assertEqual(len(nodes), 2003)
+        self.assertEqual(offsets, [0, 1000, 2000])
+
+
 if __name__ == "__main__":
     unittest.main()

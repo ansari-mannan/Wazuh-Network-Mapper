@@ -161,13 +161,7 @@ class WazuhSource:
         unavailable: list = []
 
         nodes: list[dict] = []
-        agents = self._get(
-            "/agents",
-            params={
-                "limit": 1000,
-                "select": "id,name,ip,os.name,os.version,os.platform,status",
-            },
-        )
+        agents = self._agents("id,name,ip,os.name,os.version,os.platform,status")
         for agent in agents:
             agent_id = agent["id"]
             is_server = agent_id == SERVER_AGENT_ID
@@ -220,8 +214,19 @@ class WazuhSource:
     # ---- Manager API: agent check-in (read-only, for the liveness pass) ----
 
     # Agents per /agents request; the list is paged until a short page.
-    AGENT_STATUS_PAGE = 500
-    AGENT_STATUS_MAX_PAGES = 100
+    AGENT_PAGE = 500
+    AGENT_MAX_PAGES = 100
+
+    def _agents(self, select: str) -> list[dict]:
+        """Every agent from ``/agents`` (the ``select``ed fields), page by page."""
+        rows: list = []
+        for _ in range(self.AGENT_MAX_PAGES):
+            page = self._get("/agents", params={"select": select, "limit": self.AGENT_PAGE,
+                                                "offset": len(rows)})
+            rows.extend(page)
+            if len(page) < self.AGENT_PAGE:
+                break
+        return rows
 
     def agent_status(self) -> list[dict]:
         """``id``, ``status`` and ``lastKeepAlive`` of every agent. Read-only.
@@ -230,15 +235,7 @@ class WazuhSource:
         ``/agents``. Raises on any failure; nothing is logged or written.
         """
         self._authenticate()
-        rows: list = []
-        for _ in range(self.AGENT_STATUS_MAX_PAGES):
-            page = self._get("/agents", params={"select": "id,status,lastKeepAlive",
-                                                "limit": self.AGENT_STATUS_PAGE,
-                                                "offset": len(rows)})
-            rows.extend(page)
-            if len(page) < self.AGENT_STATUS_PAGE:
-                break
-        return rows
+        return self._agents("id,status,lastKeepAlive")
 
     # ---- Indexer (score stage) --------------------------------------------
 
