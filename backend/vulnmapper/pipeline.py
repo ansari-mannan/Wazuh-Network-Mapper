@@ -1,7 +1,9 @@
 """The scan from start to finish: Wazuh endpoints and the network crawl, then
 assembly and each optional stage in turn, writing graph.json (stdout or -o),
 vulnerabilities.json and attack_paths.json. Log lines go to stderr only, and
-a stage that fails for one host or device never fails the scan.
+a stage that fails for one host or device never fails the scan; an optional
+stage that crashes outright is recorded as failed (metadata.stages, and a
+stage_failed warning) and the scan goes on without it.
 """
 
 from __future__ import annotations
@@ -127,9 +129,10 @@ class ScanContext:
         self.device_entries.update(result.entries)
 
     def record(self, name: str, seconds: Optional[float], note: Optional[str],
-               ran: bool = True) -> None:
+               ran: bool = True, failed: bool = False) -> None:
         """One line of ``metadata.stages``."""
-        self.stages.append({"name": name, "status": "ran" if ran else "skipped",
+        self.stages.append({"name": name,
+                            "status": "failed" if failed else "ran" if ran else "skipped",
                             "seconds": None if seconds is None else round(seconds, 1),
                             "note": note})
 
@@ -316,7 +319,16 @@ def _run_stage(scan: ScanContext, name: str, run: Callable[[ScanContext], StageR
         scan.record(name, None, skip, ran=False)
         return
     t0 = _begin(label)
-    result = run(scan)
+    try:
+        result = run(scan)
+    except Exception as exc:            # an optional stage never fails the scan
+        scan.timing[timing] = time.monotonic() - t0
+        log.exception("%s failed; the scan goes on without it", name)
+        error = type(exc).__name__
+        scan.document["metadata"]["warnings"].append(
+            {"type": "stage_failed", "stage": name, "error": error})
+        scan.record(name, scan.timing[timing], f"failed ({error})", failed=True)
+        return
     scan.timing[timing] = time.monotonic() - t0
     if metadata is not None:
         scan.document["metadata"][metadata] = result.block
@@ -417,6 +429,8 @@ class Pipeline:
             log.info("graph went to stdout and --paths-out was not given; "
                      "not writing %s", attackpaths.FILENAME)
             return "no output file given"
+        if scan.engine is None:         # built by the OVSS stage
+            return "OVSS failed"
         return None
 
     @staticmethod

@@ -561,10 +561,24 @@ def targets_path(graph_path: str) -> str:
 
 
 def load_targets(path: Optional[str]) -> Optional[dict]:
+    """``{id: {importance, note?}}`` from targets.json; None when there is no
+    file, or (with a warning) when it is not that shape, so a hand-edited file
+    cannot fail every scan."""
     if not path or not os.path.exists(path):
         return None
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, encoding="utf-8") as f:
+            targets = json.load(f)
+    except (OSError, ValueError) as exc:
+        log.warning("ignoring targets file %s: %s", path, exc)
+        return None
+    if not (isinstance(targets, dict) and all(
+            isinstance(v, dict) and v.get("importance") in IMPORTANCE
+            and isinstance(v.get("note", ""), str) for v in targets.values())):
+        log.warning("ignoring targets file %s: expected {id: {importance: high|moderate|low, "
+                    "note?}}", path)
+        return None
+    return targets
 
 
 def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],

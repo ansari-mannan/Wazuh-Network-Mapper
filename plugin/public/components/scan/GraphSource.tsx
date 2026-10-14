@@ -1,7 +1,7 @@
 // The graph in use: when its file was written, how big it is, and what each
 // stage of the scan behind it did (metadata.stages).
 import React from 'react';
-import { EuiBasicTable, EuiDescriptionList, EuiPanel, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
+import { EuiBasicTable, EuiDescriptionList, EuiPanel, EuiSpacer, EuiText, EuiTextColor, EuiTitle } from '@elastic/eui';
 import { ScanStageOutcome } from '../../../common';
 import { useGraph } from '../../lib/graph';
 import { formatTime } from './ScanStatus';
@@ -24,7 +24,8 @@ export function ScanStages({ stages, title = 'Last scan, stage by stage' }: { st
             field: 'status',
             name: 'Result',
             width: '80px',
-            render: (status: ScanStageOutcome['status']) => (status === 'ran' ? 'Ran' : 'Skipped'),
+            render: (status: ScanStageOutcome['status']) =>
+              status === 'failed' ? <EuiTextColor color="danger">Failed</EuiTextColor> : status === 'ran' ? 'Ran' : 'Skipped',
           },
           {
             field: 'seconds',

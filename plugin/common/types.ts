@@ -293,7 +293,7 @@ export type GraphWarning = {
 // metadata.stages: one entry per scanner stage, in run order. Absent in older graphs.
 export type ScanStageOutcome = {
   name: string;
-  status: 'ran' | 'skipped';
+  status: 'ran' | 'skipped' | 'failed'; // failed: the stage crashed and the scan went on without it
   seconds: number | null;
   note: string | null; // e.g. "nmap not installed", "9 devices looked up, 2 NVD requests"
 };
