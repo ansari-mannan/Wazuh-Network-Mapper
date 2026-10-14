@@ -39,6 +39,7 @@ def lab(cdp=True):
                                          "cisco_ap_c1140.snmp"))
     if not cdp:
         l3, l2, ap = strip_cdp(l3), strip_cdp(l2), strip_cdp(ap)
+    l3 = l3 + load_rows("ports_l3_synthetic.snmp")
     devices = {ip: l3 for ip in L3_IPS}
     devices.update({"172.20.10.100": l2, AP_IP: ap,
                     "172.20.99.4": load_rows("hp_no_cdp.snmp")})
@@ -189,8 +190,9 @@ class TestNoCdpAnywhere(unittest.TestCase):
         doc = crawl(lab(cdp=False))
         for node in doc["nodes"]:
             # the additions: a polled device's software family, when recognised,
-            # and the ports only its neighbours report (infer_far_side_ports)
-            extra = {"software_family", "inferred_ports"} if node["pollable"] else set()
+            # the ports only its neighbours report (infer_far_side_ports) and
+            # its interface list (parse.build_ports)
+            extra = {"software_family", "inferred_ports", "ports"} if node["pollable"] else set()
             self.assertLessEqual(set(node) - LEGACY_NODE_KEYS, extra, node["chassis_id"])
             self.assertLessEqual(LEGACY_NODE_KEYS, set(node), node["chassis_id"])
         for edge in doc["edges"]:

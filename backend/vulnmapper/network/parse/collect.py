@@ -13,14 +13,19 @@ from .bridge import (
     DOT1D_FDB_PORT_BASE,
     DOT1Q_FDB_PORT_BASE,
     DOT1Q_VLAN_STATIC_NAME_BASE,
+    IFADMINSTATUS_BASE,
+    IFALIAS_BASE,
     IFDESCR_BASE,
+    IFHIGHSPEED_BASE,
     IFNAME_BASE,
     IFOPERSTATUS_BASE,
+    IFTYPE_BASE,
     IFPHYS_BASE,
     VTP_VLAN_STATE_BASE,
     assemble_dot1d_per_vlan,
     build_fdb,
     build_port_status,
+    build_ports,
     parse_arp,
     parse_ifnames,
     parse_ifphys_ifindex,
@@ -221,3 +226,21 @@ async def collect_port_status(client, ip: str) -> dict:
     status = build_port_status(oper_rows, ifname_rows, ifdescr_rows)
     _log_fdb.info("%s: port_status has %d port(s)", ip, len(status))
     return status
+
+
+async def collect_ports(client, ip: str) -> tuple[dict, list]:
+    """``(port_status, ports)``: the ``collect_port_status`` map and, from the
+    same walks plus ifAdminStatus, ifType, ifHighSpeed and ifAlias, the
+    per-interface list ``build_ports`` makes. Read-only, best-effort."""
+    oper_rows = await client.walk(ip, IFOPERSTATUS_BASE)
+    ifname_rows = await client.walk(ip, IFNAME_BASE)
+    ifdescr_rows = await client.walk(ip, IFDESCR_BASE) if not ifname_rows else []
+    status = build_port_status(oper_rows, ifname_rows, ifdescr_rows)
+    ports = build_ports(oper_rows,
+                        await client.walk(ip, IFADMINSTATUS_BASE),
+                        await client.walk(ip, IFTYPE_BASE),
+                        await client.walk(ip, IFHIGHSPEED_BASE),
+                        await client.walk(ip, IFALIAS_BASE),
+                        ifname_rows, ifdescr_rows)
+    _log_fdb.info("%s: port_status has %d port(s)", ip, len(status))
+    return status, ports

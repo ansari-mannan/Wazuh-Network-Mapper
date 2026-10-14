@@ -111,7 +111,7 @@ export function onPath(bin: string, pathEnv = process.env.PATH || ''): boolean {
 
 /** The scanner's arguments. Never a credential: those go through the environment. */
 export function scanArgs(
-  out: { vulns: string; paths: string; targets: string },
+  out: { vulns: string; paths: string; targets: string; previous?: string },
   {
     deviceCves = true,
     checks = {},
@@ -119,6 +119,8 @@ export function scanArgs(
   }: { deviceCves?: boolean; checks?: Partial<ActiveChecks>; seeds?: string[] }
 ): string[] {
   const args = ['-m', 'vulnmapper', '--vulns-out', out.vulns, '--paths-out', out.paths, '--targets', out.targets];
+  // the graph this scan replaces, for which ports lost their link; missing is fine
+  if (out.previous) args.push('--previous-graph', out.previous);
   // addresses are not secrets; the = form keeps a value from reading as a flag
   for (const ip of seeds) args.push(`--seed=${ip}`);
   if (!deviceCves) args.push('--no-device-cves');
@@ -226,8 +228,12 @@ export function startScan({
   };
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
   // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
-  // environment like the other credentials.
-  const args = scanArgs({ vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath) }, { deviceCves, checks, seeds });
+  // environment like the other credentials. graphPath is replaced only after the
+  // scanner exits, so it still holds the previous graph.
+  const args = scanArgs(
+    { vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath), previous: graphPath },
+    { deviceCves, checks, seeds }
+  );
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];

@@ -79,6 +79,9 @@ class Device:
     # saw them, which may be an interface alias rather than an ifName.
     inferred_ports: list = field(default_factory=list)
     port_status: dict = field(default_factory=dict)
+    # Every interface by ifIndex: [{name, oper, admin, type, speed_mbps,
+    # alias}] (parse.build_ports); the assembler adds each one's state.
+    ports: list = field(default_factory=list)
     # The LLDP capability bitmap advertised for this device; the assembler
     # decodes it into a role.
     lldp_cap_enabled: Optional[str] = None
@@ -126,6 +129,8 @@ class Device:
         }
         if self.inferred_ports:
             node["inferred_ports"] = sorted(self.inferred_ports)
+        if self.ports:
+            node["ports"] = self.ports
         if self.platform is not None:
             node["platform"] = self.platform
         if self.access_point:

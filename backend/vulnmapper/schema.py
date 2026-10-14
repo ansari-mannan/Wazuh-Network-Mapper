@@ -266,6 +266,9 @@ class Node:
     # of those, the ports known only from the neighbour's side of the link
     inferred_ports: Optional[list] = None
     port_status: Optional[dict] = None
+    # Every interface [{name, oper, admin, type, speed_mbps, alias, state}]
+    # by ifIndex (assemble.ports); None when the crawl read none.
+    ports: Optional[list] = None
     # The software family the crawler recognised (devicecves.families); None
     # when not known, and then not emitted.
     software_family: Optional[str] = None
@@ -316,6 +319,8 @@ class Node:
                 out["inferred_ports"] = self.inferred_ports
             if self.port_status is not None:
                 out["port_status"] = self.port_status
+            if self.ports is not None:
+                out["ports"] = self.ports
             if self.wifi_clients is not None:
                 out["wifi_clients"] = self.wifi_clients
             if self.software_family is not None:

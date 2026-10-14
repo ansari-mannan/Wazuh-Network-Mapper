@@ -173,6 +173,9 @@ def build_parser() -> argparse.ArgumentParser:
                         help="SNMPv2c community to try for the live crawl (repeatable).")
     parser.add_argument("--seed", action="append", metavar="IP",
                         help="explicit seed device IP for the live crawl (repeatable).")
+    parser.add_argument("--previous-graph", metavar="PATH",
+                        help="the graph this scan replaces; a port that was up there and is "
+                             "down now shows as link lost. Missing or unreadable means none.")
     parser.add_argument("-o", "--output", metavar="PATH",
                         help="write the graph JSON to PATH (UTF-8) instead of stdout.")
     parser.add_argument("--vulns-out", metavar="PATH",
@@ -306,6 +309,23 @@ def _read_network(scan: ScanContext) -> None:
                 ran=not args.no_network)
 
 
+def _previous_graph(path: Optional[str]) -> Optional[dict]:
+    """The ``--previous-graph`` document, or None (the first scan has none)."""
+    if not path:
+        return None
+    try:
+        with open(path, encoding="utf-8") as f:
+            doc = json.load(f)
+    except FileNotFoundError:
+        log.info("no previous graph at %s; no port history this scan", path)
+        return None
+    except (OSError, ValueError) as exc:
+        log.warning("previous graph not read (%s); no port history this scan",
+                    type(exc).__name__)
+        return None
+    return doc if isinstance(doc, dict) else None
+
+
 def _run_stage(scan: ScanContext, name: str, run: Callable[[ScanContext], StageResult], *,
                skip: Optional[str], label: str, timing: str,
                metadata: Optional[str] = None) -> None:
@@ -367,7 +387,8 @@ class Pipeline:
         _read_endpoints(scan)
         _read_network(scan)
         t0 = time.monotonic()
-        scan.document = assemble(scan.endpoints, scan.network_doc)
+        scan.document = assemble(scan.endpoints, scan.network_doc,
+                                 _previous_graph(args.previous_graph))
         scan.document["metadata"]["warnings"].extend(scan.network_doc.get("warnings") or [])
         scan.timing["assemble_s"] = time.monotonic() - t0
 

@@ -4,6 +4,7 @@ per VLAN on Cisco), ARP, interface names, MACs and link state.
 
 from __future__ import annotations
 
+import re
 from typing import Optional
 
 from ...schema import canonical_mac
@@ -16,6 +17,10 @@ DOT1D_BASEPORT_IFINDEX_BASE = "1.3.6.1.2.1.17.1.4.1.2"  # dot1dBasePortIfIndex
 IFNAME_BASE = "1.3.6.1.2.1.31.1.1.1.1"                # ifName
 IFDESCR_BASE = "1.3.6.1.2.1.2.2.1.2"                  # ifDescr (fallback)
 IFOPERSTATUS_BASE = "1.3.6.1.2.1.2.2.1.8"             # ifOperStatus (port up/down)
+IFADMINSTATUS_BASE = "1.3.6.1.2.1.2.2.1.7"            # ifAdminStatus (shut or not)
+IFTYPE_BASE = "1.3.6.1.2.1.2.2.1.3"                   # ifType (IANAifType number)
+IFHIGHSPEED_BASE = "1.3.6.1.2.1.31.1.1.1.15"          # ifHighSpeed (Mbit/s)
+IFALIAS_BASE = "1.3.6.1.2.1.31.1.1.1.18"              # ifAlias (the port description)
 DOT1Q_VLAN_STATIC_NAME_BASE = "1.3.6.1.2.1.17.7.1.4.3.1.1"  # dot1qVlanStaticName
 VTP_VLAN_STATE_BASE = "1.3.6.1.4.1.9.9.46.1.3.1.1.2"  # Cisco vtpVlanState (VLAN list)
 ARP_BASE = "1.3.6.1.2.1.4.22.1.2"                     # ipNetToMediaPhysAddress (IP<->MAC)
@@ -153,6 +158,49 @@ def build_port_status(
     for ifindex, state in parse_oper_status(operstatus_rows).items():
         status[ifnames.get(ifindex, ifindex)] = state
     return status
+
+
+def _enum(value: Optional[str]) -> Optional[int]:
+    """An SNMP integer as an int: ``"6"``, or ``"ethernetCsmacd(6)"`` with a compiled MIB."""
+    match = re.search(r"(\d+)\)?\s*$", str(value or ""))
+    return int(match.group(1)) if match else None
+
+
+def build_ports(
+    operstatus_rows: list[tuple[str, Optional[str]]],
+    adminstatus_rows: Optional[list[tuple[str, Optional[str]]]] = None,
+    type_rows: Optional[list[tuple[str, Optional[str]]]] = None,
+    highspeed_rows: Optional[list[tuple[str, Optional[str]]]] = None,
+    alias_rows: Optional[list[tuple[str, Optional[str]]]] = None,
+    ifname_rows: Optional[list[tuple[str, Optional[str]]]] = None,
+    ifdescr_rows: Optional[list[tuple[str, Optional[str]]]] = None,
+) -> list[dict]:
+    """``[{name, oper, admin, type, speed_mbps, alias}]`` ordered by ifIndex.
+
+    One entry per ifOperStatus row, named like ``build_port_status``. A
+    column the device does not serve leaves its field None; ``admin`` is
+    "up", "down" or "testing", ``type`` the IANAifType number.
+    """
+    ifnames = parse_ifnames(ifname_rows or [])
+    if not ifnames and ifdescr_rows:
+        ifnames = parse_ifnames(ifdescr_rows, base=IFDESCR_BASE)
+    admin = parse_ifnames(adminstatus_rows or [], base=IFADMINSTATUS_BASE)
+    types = parse_ifnames(type_rows or [], base=IFTYPE_BASE)
+    speed = parse_ifnames(highspeed_rows or [], base=IFHIGHSPEED_BASE)
+    alias = parse_ifnames(alias_rows or [], base=IFALIAS_BASE)
+
+    ports = []
+    oper = parse_oper_status(operstatus_rows)
+    for ifindex in sorted(oper, key=lambda i: int(i) if i.isdigit() else float("inf")):
+        ports.append({
+            "name": ifnames.get(ifindex, ifindex),
+            "oper": oper[ifindex],
+            "admin": {1: "up", 2: "down", 3: "testing"}.get(_enum(admin.get(ifindex))),
+            "type": _enum(types.get(ifindex)),
+            "speed_mbps": _enum(speed.get(ifindex)),
+            "alias": (alias.get(ifindex) or "").strip() or None,
+        })
+    return ports
 
 
 def parse_vtp_vlans(rows: list[tuple[str, Optional[str]]]) -> list[int]:

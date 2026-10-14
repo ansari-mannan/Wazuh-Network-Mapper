@@ -45,6 +45,15 @@ describe('scanArgs', () => {
   });
 });
 
+describe('previous graph', () => {
+  it('passes the graph being replaced as --previous-graph', () => {
+    expect(scanArgs({ ...OUT, previous: '/data/graph.json' }, {}).slice(2 + FILES.length)).toEqual([
+      '--previous-graph',
+      '/data/graph.json',
+    ]);
+  });
+});
+
 describe('seeds', () => {
   it('passes each configured seed as --seed=IP', () => {
     expect(scanArgs(OUT, { seeds: ['10.0.0.1', '10.0.0.2'] }).slice(2 + FILES.length)).toEqual([

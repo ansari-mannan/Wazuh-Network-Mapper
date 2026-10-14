@@ -257,6 +257,8 @@ class TestPipeline(unittest.TestCase):
         for key in ("scan_time", "network_scan_time", "stages"):
             out["graph"]["metadata"].pop(key)
         out["vulnerabilities"]["metadata"].pop("scan_time")
+        for node in out["graph"]["nodes"]:
+            node.pop("ports", None)                   # added after this baseline
         for doc in (out, today):                      # frozen before OVSS
             for part in doc.values():
                 strip_ovss(part)

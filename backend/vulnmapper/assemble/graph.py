@@ -28,6 +28,7 @@ from ..schema import (
     format_mac,
 )
 from .mactable import build_mac_table, same_subnet
+from .ports import set_port_states
 from .nodes import device_node, discovered_host, endpoint_node, is_end_host, is_network_equipment
 
 # discovery_method of a host known from a neighbour announcement: LLDP, or CDP...
@@ -592,7 +593,11 @@ class GraphAssembler:
         }
 
 
-def assemble(endpoints: list[dict], network_doc: dict) -> dict:
+def assemble(endpoints: list[dict], network_doc: dict,
+             previous_graph: Optional[dict] = None) -> dict:
     """The unified graph, with every host labelled managed or unmanaged
-    (``hosts.label``)."""
-    return label(GraphAssembler(endpoints, network_doc).build())
+    (``hosts.label``) and every device port's state (``ports.set_port_states``,
+    which reads ``previous_graph``, the graph this one replaces)."""
+    graph = label(GraphAssembler(endpoints, network_doc).build())
+    set_port_states(graph, previous_graph)
+    return graph

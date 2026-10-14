@@ -67,6 +67,8 @@ def device_node(raw: dict) -> Node:
         uplink_ports=raw.get("uplink_ports") or [],
         inferred_ports=raw.get("inferred_ports") or None,
         port_status=raw.get("port_status") or {},
+        # copied: the assembler stamps each port's state on these
+        ports=[dict(p) for p in raw["ports"]] if raw.get("ports") else None,
         risk_score=raw.get("risk_score"),
         software_family=raw.get("software_family"),
     )

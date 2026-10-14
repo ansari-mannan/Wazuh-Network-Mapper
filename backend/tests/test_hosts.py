@@ -231,7 +231,7 @@ class TestPipeline(unittest.TestCase):
         for node, was in zip(graph["nodes"], today["nodes"]):
             self.assertEqual("unmanaged" in node, node["kind"] == "endpoint")
             node = {k: v for k, v in node.items() if k not in ("unmanaged", "mac_type",
-                                                                 "mac_vendor")}
+                                                                 "mac_vendor", "ports")}
             for n in (node, was):
                 if "config_checks" in n:
                     n["config_checks"] = [c for c in n["config_checks"] if c["id"] not in replaced]

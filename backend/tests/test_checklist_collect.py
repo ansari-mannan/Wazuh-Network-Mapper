@@ -114,7 +114,8 @@ class TestCrawl(unittest.TestCase):
         doc, client = self.crawl()
         self.assertNotIn("config_data", doc["nodes"][0])
         walked = {c[2] for c in client.calls if c[0] == "walk"}
-        self.assertFalse(walked & {t.TCP_CONN_STATE, t.IF_ADMIN_STATUS, t.VM_VLAN})
+        # ifAdminStatus is read either way now, for the port list (collect_ports)
+        self.assertFalse(walked & {t.TCP_CONN_STATE, t.VM_VLAN})
 
     def test_on_records_the_data_on_the_crawl_node(self):
         doc, client = self.crawl(checklist=True)

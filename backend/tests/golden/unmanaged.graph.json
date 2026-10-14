@@ -385,6 +385,512 @@
         "GigabitEthernet0/2": "down",
         "Null0": "up"
       },
+      "ports": [
+        {
+          "name": "Vlan1",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "Vlan10",
+          "oper": "up",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "up"
+        },
+        {
+          "name": "Vlan20",
+          "oper": "up",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "up"
+        },
+        {
+          "name": "Vlan30",
+          "oper": "up",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "up"
+        },
+        {
+          "name": "Vlan99",
+          "oper": "up",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "up"
+        },
+        {
+          "name": "FastEthernet0/1",
+          "oper": "up",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "up"
+        },
+        {
+          "name": "FastEthernet0/2",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/3",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/4",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/5",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/6",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/7",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/8",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/9",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/10",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/11",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/12",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/13",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/14",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/15",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/16",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/17",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/18",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/19",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/20",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/21",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/22",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/23",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/24",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/25",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/26",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/27",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/28",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/29",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/30",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/31",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/32",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/33",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/34",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/35",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/36",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/37",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/38",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/39",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/40",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/41",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/42",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/43",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/44",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/45",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/46",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/47",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "FastEthernet0/48",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "GigabitEthernet0/1",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "GigabitEthernet0/2",
+          "oper": "down",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "unused"
+        },
+        {
+          "name": "Null0",
+          "oper": "up",
+          "admin": null,
+          "type": null,
+          "speed_mbps": null,
+          "alias": null,
+          "state": "up"
+        }
+      ],
       "software_family": "cisco_ios",
       "unmanaged": true,
       "snmp": true,

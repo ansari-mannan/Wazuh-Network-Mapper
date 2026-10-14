@@ -35,7 +35,7 @@ from .parse import (
     collect_ifindex_by_mac,
     collect_ifname_map,
     collect_own_macs,
-    collect_port_status,
+    collect_ports,
     collect_wifi_clients,
     looks_like_access_point,
     needs_port_resolution,
@@ -252,10 +252,10 @@ class Crawler:
             # Ethernet sub-interfaces) would misplace them, so it is not read.
             fdb_entries = [] if access_point else await collect_fdb(self._client, ip)
             arp = await collect_arp(self._client, ip)
-            port_status = await collect_port_status(self._client, ip)
+            port_status, ports = await collect_ports(self._client, ip)
         except Exception:  # an unsupported MIB must not abort the device
             log.exception("FDB/ARP collection failed for %s", ip)
-            fdb_entries, arp, port_status = [], {}, {}
+            fdb_entries, arp, port_status, ports = [], {}, {}, []
         async with self._lock:
             dev = self._devices.get(chassis_id)
             if dev is not None:
@@ -263,6 +263,7 @@ class Crawler:
                 dev.neighbor_ports = sorted(neighbor_ports)
                 dev.uplink_ports = sorted(uplink_ports)
                 dev.port_status = port_status
+                dev.ports = ports
                 dev.arp = arp
                 dev.own_macs = own_macs
 
