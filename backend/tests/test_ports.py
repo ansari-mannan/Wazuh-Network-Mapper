@@ -83,6 +83,32 @@ class TestPortStates(unittest.TestCase):
         self.assertEqual(states(doc)["FastEthernet0/4"], "shutdown")
         self.assertEqual(states(doc)["FastEthernet0/2"], "unused")
 
+    def test_link_lost_is_kept_until_the_port_comes_back(self):
+        # each scan's graph is the next one's previous graph
+        def scan(oper, previous, admin="up"):
+            doc = graph([port("Fa0/9", oper=oper, admin=admin)],
+                        port_status={"Fa0/9": oper})
+            set_port_states(doc, previous)
+            return doc
+
+        first = scan("up", None)
+        second = scan("down", first)
+        third = scan("down", second)
+        fourth = scan("up", third)
+        self.assertEqual([states(d)["Fa0/9"] for d in (first, second, third, fourth)],
+                         ["up", "link_lost", "link_lost", "up"])
+        # shut down wins; once back up and down again it is link_lost again
+        self.assertEqual(states(scan("down", third, admin="down"))["Fa0/9"], "shutdown")
+        self.assertEqual(states(scan("down", fourth))["Fa0/9"], "link_lost")
+
+    def test_a_port_never_up_stays_unused(self):
+        doc = None
+        for _ in range(3):
+            doc_next = graph([port("Fa0/8")], port_status={"Fa0/8": "down"})
+            set_port_states(doc_next, doc)
+            doc = doc_next
+            self.assertEqual(states(doc)["Fa0/8"], "unused")
+
     def test_another_nodes_history_does_not_count(self):
         doc = graph(self.PORTS)
         previous = {"nodes": [{"node_id": "device:y", "port_status": {"Fa0/3": "up"}}]}
