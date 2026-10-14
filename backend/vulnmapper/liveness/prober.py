@@ -7,9 +7,31 @@ from __future__ import annotations
 
 import asyncio
 import ipaddress
+import logging
+import platform
 import threading
 
 from ..schema import canonical_mac
+
+log = logging.getLogger("vulnmapper.liveness")
+
+
+class ProbeUnavailable(RuntimeError):
+    """The probe cannot run on this system (no ``ping`` binary)."""
+
+
+def ping_argv(ip: str, system: str) -> list:
+    """One ping with a one-second wait, for ``platform.system()``'s value.
+    Linux waits in seconds (``-W 1``); macOS and the BSDs in milliseconds;
+    Windows counts with ``-n`` and waits with ``-w`` in milliseconds. IPv6 needs
+    ``-6`` (``ping6`` on macOS and the BSDs)."""
+    v6 = ipaddress.ip_address(ip).version == 6       # validated again right before argv
+    if system == "Windows":
+        return ["ping", *(["-6"] if v6 else []), "-n", "1", "-w", "1000", ip]
+    if system == "Linux":
+        return ["ping", *(["-6"] if v6 else []), "-c", "1", "-W", "1", ip]
+    # Darwin, FreeBSD, OpenBSD, ...: ping6 takes no wait flag
+    return ["ping6", "-c", "1", ip] if v6 else ["ping", "-c", "1", "-W", "1000", ip]
 
 
 class SystemProber:
@@ -32,14 +54,23 @@ class SystemProber:
             self.has_agents = bool(WazuhConfig.from_env().password)
         else:
             self.has_agents = True
+        self.has_icmp = True               # False once ping turns out to be missing
+        self._system = platform.system()
 
     async def icmp(self, ip: str) -> bool:
-        ipaddress.ip_address(ip)          # validated again right before argv
-        proc = await asyncio.create_subprocess_exec(
-            "ping", "-c", "1", "-W", "1", ip,
-            stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL,
-        )
+        if not self.has_icmp:
+            raise ProbeUnavailable("ping is not available")
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *ping_argv(ip, self._system),
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.DEVNULL,
+            )
+        except OSError as e:
+            if self.has_icmp:
+                self.has_icmp = False
+                log.warning("ping could not be run (%s); ICMP checks are off", type(e).__name__)
+            raise ProbeUnavailable("ping is not available") from None
         return await proc.wait() == 0
 
     async def snmp(self, ip: str) -> bool:

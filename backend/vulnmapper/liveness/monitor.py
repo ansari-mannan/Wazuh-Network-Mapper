@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from ..schema import CONF_WIFI, EDGE_ENDPOINT_LINK, ROLE_ACCESS_POINT, canonical_mac
+from .prober import ProbeUnavailable
 from .records import (AGENT_MAX_AGE_S, MANAGER_AGENT_ID, _agent_verdict, _apply_probe, _carry,
                       _parse_time, _valid_ip)
 
@@ -28,7 +29,9 @@ log = logging.getLogger("vulnmapper.liveness")
 #   * pollable device with an IP, SNMP credentials available -> ``snmp``
 #     (a credential that resolves is a reply; a failure is "snmp, no reply")
 #   * any other node with an IP (endpoints, devices without credentials or not
-#     pollable) -> ``icmp``: ``ping -c 1 -W 1 <ip>``, exit 0 is a reply
+#     pollable) -> ``icmp``: one ping with a one-second wait (prober.ping_argv,
+#     per OS and address family), exit 0 is a reply; without a ping binary
+#     the node is left as it was (reason ``icmp_unavailable``)
 #   * no IP, an invalid IP, or an IP shared by more than one non-stale node -> no
 #     probe (state ``unknown``, method null)
 #
@@ -301,6 +304,9 @@ class LivenessMonitor:
 
         for node, method, replied, error in await asyncio.gather(
                 *(probe(n, m) for n, m in self._to_probe)):
+            if isinstance(error, ProbeUnavailable):   # logged once by the prober
+                self._records[node["node_id"]].update(method=method, reason="icmp_unavailable")
+                continue
             if error is not None:
                 log.warning("%s: %s probe failed: %s", node["node_id"], method, error)
                 self._records[node["node_id"]].update(method=method, reason="probe_error")

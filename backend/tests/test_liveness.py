@@ -16,6 +16,7 @@ from unittest import mock
 
 from vulnmapper.endpoints import WazuhSource
 from vulnmapper.liveness import SystemProber, liveness_pass, load_state, main
+from vulnmapper.liveness.prober import ProbeUnavailable
 from vulnmapper.schema import WazuhConfig
 
 T0 = "2026-10-07T09:00:00+00:00"
@@ -1067,6 +1068,18 @@ class TestRobustness(unittest.TestCase):
         a = doc["nodes"]["host:a"]
         self.assertEqual((a["state"], a["misses"], a["reason"]), ("active", 2, "probe_error"))
         self.assertEqual(doc["nodes"]["host:b"]["state"], "active")
+
+    def test_no_ping_binary_leaves_the_node_as_it_was_without_a_warning_each(self):
+        prober = FakeProber()
+
+        async def unavailable(ip):
+            raise ProbeUnavailable("ping is not available")
+
+        prober.icmp = unavailable
+        with self.assertNoLogs("vulnmapper", "WARNING"):
+            doc = run(graph(H), prev(**{"host:a": was("active", misses=1)}), prober)
+        a = doc["nodes"]["host:a"]
+        self.assertEqual((a["state"], a["misses"], a["reason"]), ("active", 1, "icmp_unavailable"))
 
     def test_at_most_32_probes_in_flight(self):
         nodes = [host(f"host:{i}", f"10.1.{i // 250}.{i % 250 + 1}") for i in range(100)]

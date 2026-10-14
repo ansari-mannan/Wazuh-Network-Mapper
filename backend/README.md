@@ -760,7 +760,8 @@ document on stdout: per node `state` (`active` / `inactive` / `unknown`),
   (`reason: "agent_unavailable"`, and `agent_error` in the document). Without
   `WAZUH_PASS` they are pinged like any other endpoint.
 - Pollable devices are probed by SNMP when `SNMP_COMMUNITIES` (or the other
-  `SNMP_*` variables) is set, everything else by `ping -c 1 -W 1`.
+  `SNMP_*` variables) is set, everything else by one ping with a one-second wait (flags chosen per OS and
+  address family; without a `ping` binary those nodes are left as they were).
 - A Wi-Fi client of an access point that answers SNMP is checked against the
   AP's client list once per pass (`method: "wifi"`) instead of ping. Missing
   from the list is treated like a down port (inactive at once, recorded in
