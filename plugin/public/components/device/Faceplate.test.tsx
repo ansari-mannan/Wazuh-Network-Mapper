@@ -334,7 +334,7 @@ describe('Faceplate', () => {
       ['HP 1920-48G (1-52)', switchHp1920, 'GigabitEthernet1/0/', ['G49', 'G50', 'G51', 'G52']],
       ['Cisco 2960-48TT', switch48, 'FastEthernet0/', ['G1', 'G2']],
     ] as Array<[string, DeviceNode, string, string[]]>)(
-      '%s in 560 px: one strip with full detail, ports >= 16 px, scrolling, Expand',
+      '%s in 560 px: one strip with full detail, ports >= 22 px, scrolling, Expand',
       (_n, node, prefix, uplinks) => {
         width = 560;
         const el = render(node);
@@ -358,8 +358,8 @@ describe('Faceplate', () => {
         for (const s of sockets(el).filter((x) => !x.getAttribute('data-port')!.startsWith(prefix) || Number(x.getAttribute('data-port')!.split('/').pop()) > 48)) {
           expect(Number(s.querySelector('.vmFpFace')!.getAttribute('x'))).toBeGreaterThan(rightmostAccess);
         }
-        // ports >= 16 px, wider than the card: the strip scrolls; Expand is there
-        expect(Number(face(1).getAttribute('width')) * scaleOf(svg)).toBeGreaterThanOrEqual(15.9);
+        // scale 1 (ports 22 px), wider than the card: the strip scrolls; Expand is there
+        expect(Number(face(1).getAttribute('width')) * scaleOf(svg)).toBeGreaterThanOrEqual(21.9);
         expect(Number(svg.getAttribute('width'))).toBeGreaterThan(560);
         expect(el.querySelector('[data-test-subj="vmFaceplateStrip"]')!.getAttribute('class')).toContain('vmFpStrip--scroll');
         expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).not.toBeNull();

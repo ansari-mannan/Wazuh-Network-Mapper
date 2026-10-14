@@ -1,7 +1,7 @@
 // The detail flyout for one node: identity, risk and CVE list (endpoints from
 // Wazuh, devices from NVD), configuration checks and port grid for devices.
 // The panels themselves are in DetailSections.tsx.
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import {
   EuiBadge,
   EuiDescriptionList,
@@ -24,6 +24,7 @@ import { NODE_LEVEL_META, nodeLevel } from '../../lib/risk';
 import { findingsBadge } from '../../lib/findingsBadge';
 import { ovssLine } from '../../lib/ovssText';
 import { roleLabel } from '../../lib/roleLabel';
+import { DRAWER_WIDTH, drawerWidth } from '../../lib/faceplate';
 import { ConfigChecks } from './ConfigChecks';
 import { DevicePorts, TopologyPorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
 import { iconForRole } from './icons';
@@ -90,6 +91,10 @@ export function DeviceDetail({
   const livenessOn = Boolean(liveness?.enabled);
   const nodeLiveness: NodeLiveness | undefined = livenessOn ? liveness?.nodes[node.node_id] : undefined;
   const isDevice = node.kind === 'device';
+  // wide enough for the front panel at scale 1; decided when the drawer opens
+  // for a device, so it does not jump while open (only a new device changes it)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const wide = useMemo(() => drawerWidth(node, window.innerWidth), [node.node_id]);
   const Icon = iconForRole(node.role);
   // the map's colour: the more severe of the OVSS tier and the worst configuration finding
   const level = nodeLevel(node, findingsBadge(node)?.severity ?? null);
@@ -110,8 +115,9 @@ export function DeviceDetail({
     <EuiFlyout
       onClose={onClose}
       ownFocus={false}
-      size="m"
-      maxWidth={640}
+      size={wide ?? 'm'}
+      maxWidth={wide ?? DRAWER_WIDTH}
+      className={wide ? 'vmDetailWide' : undefined}
       aria-labelledby="vmDetailTitle"
       data-test-subj="vmDetailFlyout"
     >

@@ -175,3 +175,12 @@
   color: $euiTextSubduedColor; font-size: 12px;
   span { display: inline-flex; align-items: center; gap: 4px; }
 }
+
+/* a device drawer widened for its front panel: long text keeps a readable line */
+.vmDetailWide {
+  p,
+  li,
+  .euiDescriptionList__description {
+    max-width: 75ch;
+  }
+}

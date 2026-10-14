@@ -2,7 +2,7 @@
 // which ports are physical, where each one sits and what the chassis looks
 // like. Nothing is per model; the count and the names decide. Pure (no React,
 // no theme): components/device/Faceplate.tsx draws it.
-import type { DeviceNode, DevicePort, GraphEdge, PortState } from '../../common';
+import type { DeviceNode, DevicePort, GraphEdge, GraphNode, PortState } from '../../common';
 import { bandOf } from './wireless';
 
 export type PortKind = 'copper' | 'sfp' | 'console' | 'logical' | 'radio';
@@ -571,11 +571,13 @@ export function portTooltip(
   return { title: port.name, lines, route: Boolean(flags.onRoute) };
 }
 
-// A rack switch is always one strip, like its real 1U front panel: drawn to
-// fit the card, but never with access ports under 16 px (the card scrolls
-// sideways instead) and never above 1.25 times its size.
-export const MIN_PORT_PX = 16;
-export const MAX_RACK_SCALE = 1.25;
+// A card draws its panel at most 1.25 times its size. A rack switch is always
+// one strip, like its real 1U front panel: drawn to fit the card, but never
+// below scale 1 (the card scrolls sideways instead).
+// at least scale 1 (ports 22 px, labels 9 px): the drawer widens to make room
+// (drawerWidth), and the strip scrolls only when even that is too narrow
+export const MIN_PORT_PX = PORT_W;
+export const MAX_SCALE = 1.25;
 
 export interface Fit {
   fp: Faceplate;
@@ -591,7 +593,7 @@ export interface Fit {
  * The panel for a card `available` px wide (0: not measured yet).
  *
  * A rack switch: always the one-strip panel with full detail, at the scale
- * that fits, kept between MIN_PORT_PX ports and MAX_RACK_SCALE, scrolling
+ * that fits, kept between scale 1 (MIN_PORT_PX ports) and MAX_SCALE, scrolling
  * when even the smallest is too wide; never compact. Anything else is drawn
  * at scale >= 1 (ports >= 22 px): the full panel if it fits, else the split
  * one (groups on two rows), else a compact panel scaled to fit, with Expand.
@@ -600,14 +602,14 @@ export function pickLayout(node: DeviceNode, available: number): Fit {
   const full = faceplateOf(node);
   if (full.chassis === 'rack') {
     if (!available) return { fp: full, compact: false, width: 0, scroll: false };
-    const scale = Math.min(MAX_RACK_SCALE, Math.max(MIN_PORT_PX / PORT_W, available / full.width));
+    const scale = Math.min(MAX_SCALE, Math.max(MIN_PORT_PX / PORT_W, available / full.width));
     const width = Math.round(full.width * scale);
     return { fp: full, compact: false, width, scroll: width > available };
   }
   const drawn = (fp: Faceplate, compact: boolean): Fit => ({
     fp,
     compact,
-    width: compact ? available : Math.min(available, Math.round(fp.width * 1.6)),
+    width: compact ? available : Math.min(available, Math.round(fp.width * MAX_SCALE)),
     scroll: false,
   });
   if (!available) return { fp: full, compact: full.ports.length > COMPACT_ABOVE, width: 0, scroll: false };
@@ -615,4 +617,20 @@ export function pickLayout(node: DeviceNode, available: number): Fit {
   const split = faceplateOf(node, { split: true });
   if (split.width <= available) return drawn(split, false);
   return drawn(split.width < full.width ? split : full, true);
+}
+
+// The device drawer's usual width, and what it adds around the faceplate: the
+// body's padding, the Ports panel's padding and border, a vertical scrollbar.
+export const DRAWER_WIDTH = 640;
+export const DRAWER_PAD = 100;
+
+/**
+ * The drawer width that shows this device's faceplate at scale 1, capped at
+ * 90% of the window; null keeps the usual width (no faceplate, or it fits).
+ */
+export function drawerWidth(node: GraphNode, windowWidth: number): number | null {
+  if (node.kind !== 'device' || !portsOf(node).length) return null;
+  const want = Math.ceil(faceplateOf(node).width) + DRAWER_PAD;
+  const cap = Math.floor(windowWidth * 0.9);
+  return want <= DRAWER_WIDTH || cap <= DRAWER_WIDTH ? null : Math.min(want, cap);
 }

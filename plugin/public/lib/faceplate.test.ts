@@ -8,7 +8,10 @@ import {
   portKind,
   portNeighbours,
   portsOf,
-  MAX_RACK_SCALE,
+  MAX_SCALE,
+  DRAWER_PAD,
+  DRAWER_WIDTH,
+  drawerWidth,
   MIN_PORT_PX,
   pickLayout,
   portTooltip,
@@ -420,9 +423,9 @@ describe('fitting the card', () => {
     expect(pickLayout(fortigateLabStyle, 0)).toMatchObject({ compact: false, width: 0 });
   });
 
-  it('rack: always the one strip, scaled between 16 px ports and 1.25, scrolling past that, never compact', () => {
+  it('rack: always the one strip, scaled between 1 and 1.25, scrolling past that, never compact', () => {
     const fp = faceplateOf(switch48);
-    // too wide for 560 px even at the smallest scale: drawn at 16 px ports and scrolled
+    // too wide for 560 px even at scale 1: drawn at 22 px ports and scrolled
     const small = pickLayout(switch48, 560);
     expect(small).toMatchObject({ fp, compact: false, scroll: true });
     expect((PORT_W * small.width) / fp.width).toBeCloseTo(MIN_PORT_PX, 0);
@@ -430,7 +433,7 @@ describe('fitting the card', () => {
     const between = Math.round(fp.width * 1.1);
     expect(pickLayout(switch48, between)).toMatchObject({ compact: false, scroll: false, width: between });
     // very wide: never above 1.25
-    expect(pickLayout(switch48, 5000).width).toBe(Math.round(fp.width * MAX_RACK_SCALE));
+    expect(pickLayout(switch48, 5000).width).toBe(Math.round(fp.width * MAX_SCALE));
     // a 24-port switch fits 560 px at scale >= 1
     const fit24 = pickLayout(switch24, 560);
     expect(fit24).toMatchObject({ compact: false, scroll: false });
@@ -509,5 +512,41 @@ describe('one-strip rack layout', () => {
     expect(faceplateOf(switch8).captions).toEqual([]);
     expect(faceplateOf(switch24).ports.filter((p) => p.port.name.startsWith('Fast'))).toHaveLength(24);
     expect(faceplateOf({ ...switch8, ports: Array.from({ length: 48 }, (_, i) => port(`Gi1/0/${i + 1}`)) }).captions).toEqual([]);
+  });
+});
+
+describe('drawer width', () => {
+  const fits = (node: DeviceNode, windowWidth: number) => {
+    const wide = drawerWidth(node, windowWidth) ?? DRAWER_WIDTH;
+    return { wide, fit: pickLayout(node, wide - DRAWER_PAD) };
+  };
+
+  it.each([
+    ['48+4 HP', switchHp1920],
+    ['48+2 Cisco', switch48],
+  ] as Array<[string, DeviceNode]>)('%s: a 1600 px window opens a drawer wide enough for scale >= 1, no scroll', (_n, node) => {
+    const { wide, fit } = fits(node, 1600);
+    expect(wide).toBeGreaterThan(DRAWER_WIDTH);
+    expect(wide).toBeLessThanOrEqual(1440);
+    expect(fit.scroll).toBe(false);
+    expect(fit.width / fit.fp.width).toBeGreaterThanOrEqual(1);
+  });
+
+  it.each([
+    ['24+2 switch', switch24],
+    ['FortiGate 60D', fortigate],
+    ['FortiGate 200D', fortigate200D],
+    ['access point', accessPoint],
+    ['a host', { ...accessPoint, kind: 'endpoint' } as unknown as DeviceNode],
+    ['a device with no ports', { ...unknownDevice, port_status: undefined }],
+  ] as Array<[string, DeviceNode]>)('%s keeps the usual width', (_n, node) => {
+    expect(drawerWidth(node, 1600)).toBeNull();
+    expect(pickLayout(node, DRAWER_WIDTH - DRAWER_PAD).scroll).toBe(false);
+  });
+
+  it('an 800 px window caps the drawer at 90% and the big strip falls back to scrolling', () => {
+    const { wide, fit } = fits(switchHp1920, 800);
+    expect(wide).toBe(720);
+    expect(fit.scroll).toBe(true);
   });
 });

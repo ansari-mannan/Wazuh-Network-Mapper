@@ -32,6 +32,8 @@ jest.mock('./lib/liveness', () => {
 import { VulnerabilityReportPage } from './components/vulnreport/VulnerabilityReportPage';
 import { DeviceDetail } from './components/topology/DeviceDetail';
 import { ScanSettingsPage } from './components/scan/ScanSettingsPage';
+import { DRAWER_PAD, DRAWER_WIDTH, drawerWidth } from './lib/faceplate';
+import { accessPoint, fortigate, smallGraph, switch24, switch48, switchHp1920 } from './lib/faceplate.fixtures';
 
 function html(element: React.ReactElement): string {
   const root = document.createElement('div');
@@ -110,4 +112,70 @@ describe('page rendering on the golden lab outputs', () => {
       expect(html(<ScanSettingsPage />)).toMatchSnapshot();
     });
   }
+});
+
+describe('device drawer width', () => {
+  const graph = { ...smallGraph, nodes: [...smallGraph.nodes, switchHp1920, switch48, accessPoint] };
+  const realWidth = window.innerWidth;
+  afterEach(() => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: realWidth });
+    jest.restoreAllMocks();
+    document.body.innerHTML = '';
+  });
+
+  // opens the drawer in a window `windowWidth` px wide; jsdom has no layout, so
+  // the card reports the inner width of the drawer it sits in
+  function open(node: any, windowWidth: number) {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: windowWidth });
+    load(graph);
+    const inner = (drawerWidth(node, windowWidth) ?? DRAWER_WIDTH) - DRAWER_PAD;
+    jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains('vmFp') || this.classList.contains('vmFpStrip') ? inner : 0;
+    });
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    act(() => {
+      ReactDOM.render(<DeviceDetail node={node} onClose={() => {}} />, root);
+    });
+    const flyout = document.querySelector('[data-test-subj="vmDetailFlyout"]') as HTMLElement;
+    const svg = flyout.querySelector('[data-test-subj="vmFaceplate"]')!;
+    const scale = Number(svg.getAttribute('width')) / Number(svg.getAttribute('viewBox')!.split(' ')[2]);
+    const scrolls = flyout.querySelector('[data-test-subj="vmFaceplateStrip"]')!.className.includes('--scroll');
+    act(() => {
+      ReactDOM.unmountComponentAtNode(root);
+    });
+    return { flyout, scale, scrolls };
+  }
+
+  it.each([
+    ['48+4 HP', switchHp1920],
+    ['48+2 Cisco', switch48],
+  ])('%s at 1600 px: a drawer wide enough for the strip at scale >= 1, no scroll', (_n, node) => {
+    const { flyout, scale, scrolls } = open(node, 1600);
+    const wide = drawerWidth(node, 1600)!;
+    expect(wide).toBeGreaterThan(DRAWER_WIDTH);
+    expect(flyout.style.width).toBe(`${wide}px`);
+    expect(flyout.className).toContain('vmDetailWide');
+    expect(scale).toBeGreaterThanOrEqual(1);
+    expect(scrolls).toBe(false);
+  });
+
+  it.each([
+    ['24+2 switch', switch24],
+    ['firewall', fortigate],
+    ['access point', accessPoint],
+  ])('%s at 1600 px keeps the usual width, and its panel fits', (_n, node) => {
+    const { flyout, scale, scrolls } = open(node, 1600);
+    expect(flyout.style.width).toBe('');
+    expect(flyout.style.maxWidth).toBe(`${DRAWER_WIDTH}px`);
+    expect(flyout.className).not.toContain('vmDetailWide');
+    expect(scale).toBeGreaterThanOrEqual(1);
+    expect(scrolls).toBe(false);
+  });
+
+  it('48+4 HP at 800 px: the drawer is capped at 90% and the strip scrolls', () => {
+    const { flyout, scrolls } = open(switchHp1920, 800);
+    expect(flyout.style.width).toBe('720px');
+    expect(scrolls).toBe(true);
+  });
 });

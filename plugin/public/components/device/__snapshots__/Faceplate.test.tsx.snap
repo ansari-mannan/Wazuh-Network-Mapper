@@ -5,7 +5,7 @@ exports[`Faceplate 8-port switch: two rows of four, no uplink block 1`] = `
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 235.46000000000004 110\\" width=\\"100%\\" style=\\"max-width: 376.7360000000001px;\\" role=\\"group\\" aria-label=\\"sw8 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 235.46000000000004 110\\" width=\\"100%\\" style=\\"max-width: 294.32500000000005px;\\" role=\\"group\\" aria-label=\\"sw8 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -276,7 +276,7 @@ exports[`Faceplate 24+2 Cisco switch: rack panel, states, route ring, inferred-f
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 438 110\\" width=\\"100%\\" style=\\"max-width: 700.8000000000001px;\\" role=\\"group\\" aria-label=\\"sw24 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 438 110\\" width=\\"100%\\" style=\\"max-width: 547.5px;\\" role=\\"group\\" aria-label=\\"sw24 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -1112,7 +1112,7 @@ exports[`Faceplate 48+2 switch: the full strip with every detail, and Expand ope
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"100%\\" style=\\"max-width: 1238.4px;\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"100%\\" style=\\"max-width: 967.5px;\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -4145,7 +4145,7 @@ exports[`Faceplate FortiGate 200D: MGMT/HA, INTERNAL on two rows, DMZ, and WAN r
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 486.12 110\\" width=\\"100%\\" style=\\"max-width: 777.792px;\\" role=\\"group\\" aria-label=\\"fw200 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 486.12 110\\" width=\\"100%\\" style=\\"max-width: 607.65px;\\" role=\\"group\\" aria-label=\\"fw200 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -4854,7 +4854,7 @@ exports[`Faceplate FortiGate: desktop box, INTERNAL/DMZ/WAN groups, dashed infer
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 356.5 77\\" width=\\"100%\\" style=\\"max-width: 570.4px;\\" role=\\"group\\" aria-label=\\"fw front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 356.5 77\\" width=\\"100%\\" style=\\"max-width: 445.625px;\\" role=\\"group\\" aria-label=\\"fw front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -5262,7 +5262,7 @@ exports[`Faceplate access point: puck with the radios as antenna LEDs showing th
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 252.42 77\\" width=\\"100%\\" style=\\"max-width: 403.872px;\\" role=\\"group\\" aria-label=\\"ap front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 252.42 77\\" width=\\"100%\\" style=\\"max-width: 315.525px;\\" role=\\"group\\" aria-label=\\"ap front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -5442,7 +5442,7 @@ exports[`Faceplate firewall with only port_status: desktop layout, WAN far right
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 401.12 77\\" width=\\"100%\\" style=\\"max-width: 641.792px;\\" role=\\"group\\" aria-label=\\"fwold front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 401.12 77\\" width=\\"100%\\" style=\\"max-width: 501.4px;\\" role=\\"group\\" aria-label=\\"fwold front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -5877,12 +5877,12 @@ exports[`Faceplate firewall with only port_status: desktop layout, WAN far right
 </div>"
 `;
 
-exports[`Faceplate in a measured card Cisco 2960-48TT in 560 px: one strip with full detail, ports >= 16 px, scrolling, Expand 1`] = `
+exports[`Faceplate in a measured card Cisco 2960-48TT in 560 px: one strip with full detail, ports >= 22 px, scrolling, Expand 1`] = `
 "<div>
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip vmFpStrip--scroll\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"563\\" style=\\"\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"774\\" style=\\"\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -7408,12 +7408,12 @@ exports[`Faceplate in a measured card Cisco 2960-48TT in 560 px: one strip with 
 </div>"
 `;
 
-exports[`Faceplate in a measured card HP 1920-48G (1-52) in 560 px: one strip with full detail, ports >= 16 px, scrolling, Expand 1`] = `
+exports[`Faceplate in a measured card HP 1920-48G (1-52) in 560 px: one strip with full detail, ports >= 22 px, scrolling, Expand 1`] = `
 "<div>
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip vmFpStrip--scroll\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 826 110\\" width=\\"601\\" style=\\"\\" role=\\"group\\" aria-label=\\"hp1920 front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 826 110\\" width=\\"826\\" style=\\"\\" role=\\"group\\" aria-label=\\"hp1920 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">
@@ -9453,7 +9453,7 @@ exports[`Faceplate unknown device with only port_status: a plain panel, PWR off 
 <div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
-<svg class=\\"vmFaceplate vmFaceplate--generic\\" viewBox=\\"0 0 130.34 77\\" width=\\"100%\\" style=\\"max-width: 208.544px;\\" role=\\"group\\" aria-label=\\"unknown front panel\\" data-test-subj=\\"vmFaceplate\\">
+<svg class=\\"vmFaceplate vmFaceplate--generic\\" viewBox=\\"0 0 130.34 77\\" width=\\"100%\\" style=\\"max-width: 162.925px;\\" role=\\"group\\" aria-label=\\"unknown front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
 <stop offset=\\"0\\" class=\\"vmFpGradTop\\">

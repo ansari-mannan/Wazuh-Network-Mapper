@@ -28,6 +28,7 @@ import {
   portKey,
   portNeighbours,
   COMPACT_ABOVE,
+  MAX_SCALE,
   pickLayout,
   portTooltip,
   routePortKeys,
@@ -154,7 +155,7 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, 
       viewBox={`0 0 ${W} ${H}`}
       width={width ?? '100%'}
       // a small panel keeps its size rather than filling the card
-      style={width ? undefined : { maxWidth: W * 1.6 }}
+      style={width ? undefined : { maxWidth: W * MAX_SCALE }}
       role="group"
       aria-label={`${node.hostname || node.ip || node.node_id} front panel`}
       data-test-subj="vmFaceplate"
