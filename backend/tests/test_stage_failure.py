@@ -71,9 +71,14 @@ class TestStageFailure(unittest.TestCase):
             with self.subTest(body), open(os.path.join(self.tmp, "targets.json"), "w") as f:
                 f.write(body)
             with self.subTest(body), self.assertLogs("vulnmapper.attackpaths", "WARNING"):
-                self.scan()
+                graph = self.scan()
+            self.assertIn({"type": "targets_invalid"}, graph["metadata"]["warnings"])
             with open(self.paths, encoding="utf-8") as f:
                 self.assertEqual(json.load(f)["metadata"]["state"], "no_targets")
+
+    def test_no_targets_file_is_no_warning(self):
+        graph = self.scan()
+        self.assertNotIn({"type": "targets_invalid"}, graph["metadata"]["warnings"])
 
 
 if __name__ == "__main__":

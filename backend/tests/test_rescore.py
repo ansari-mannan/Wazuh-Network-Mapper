@@ -62,6 +62,15 @@ class TestRescore(unittest.TestCase):
         paths = read(os.path.join(self.tmp, "attack_paths.json"))
         self.assertEqual(paths["metadata"]["counts"]["targets_present"], 1)
 
+    def test_a_malformed_targets_file_is_a_graph_warning(self):
+        with open(os.path.join(self.tmp, "targets.json"), "w", encoding="utf-8") as f:
+            f.write("{broken")
+        with self.assertLogs("vulnmapper", "WARNING"):
+            self.assertEqual(rescore.main(["--graph", self.graph]), 0)
+            self.assertEqual(rescore.main(["--graph", self.graph]), 0)   # not added twice
+        warnings = read(self.graph)["metadata"]["warnings"]
+        self.assertEqual(warnings.count({"type": "targets_invalid"}), 1)
+
     def test_a_missing_graph_exits_1(self):
         with self.assertLogs("vulnmapper", "ERROR"):
             self.assertEqual(rescore.main(["--graph", os.path.join(self.tmp, "none.json")]), 1)

@@ -560,10 +560,14 @@ def targets_path(graph_path: str) -> str:
     return os.path.join(os.path.dirname(os.path.abspath(graph_path)), TARGETS_FILENAME)
 
 
-def load_targets(path: Optional[str]) -> Optional[dict]:
+# The graph warning for a targets.json that was ignored.
+TARGETS_INVALID = "targets_invalid"
+
+
+def load_targets(path: Optional[str], warnings: Optional[list] = None) -> Optional[dict]:
     """``{id: {importance, note?}}`` from targets.json; None when there is no
-    file, or (with a warning) when it is not that shape, so a hand-edited file
-    cannot fail every scan."""
+    file, or (with a warning, logged and appended to ``warnings``) when it is
+    not that shape, so a hand-edited file cannot fail every scan."""
     if not path or not os.path.exists(path):
         return None
     try:
@@ -571,14 +575,17 @@ def load_targets(path: Optional[str]) -> Optional[dict]:
             targets = json.load(f)
     except (OSError, ValueError) as exc:
         log.warning("ignoring targets file %s: %s", path, exc)
-        return None
-    if not (isinstance(targets, dict) and all(
+        targets = None
+    if targets is not None and isinstance(targets, dict) and all(
             isinstance(v, dict) and v.get("importance") in IMPORTANCE
-            and isinstance(v.get("note", ""), str) for v in targets.values())):
+            and isinstance(v.get("note", ""), str) for v in targets.values()):
+        return targets
+    if targets is not None:
         log.warning("ignoring targets file %s: expected {id: {importance: high|moderate|low, "
                     "note?}}", path)
-        return None
-    return targets
+    if warnings is not None:
+        warnings.append({"type": TARGETS_INVALID})
+    return None
 
 
 def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],

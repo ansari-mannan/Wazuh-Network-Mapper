@@ -151,6 +151,9 @@ def run_ovss(scan: "ScanContext") -> StageResult:
     # The findings here are the very dicts vulnerabilities.json is later built
     # from, so the fields this stage adds to them are written with it.
     vulns = scan.vulnerabilities(None)
-    scan.engine, result = score(scan.document, vulns, load_targets(scan.targets_path),
+    warnings: list = []
+    targets = load_targets(scan.targets_path, warnings)
+    scan.engine, result = score(scan.document, vulns, targets,
                                 scan.cache_folder(), scan.clock, scan.threat_transport)
+    result.warnings.extend(warnings)
     return result

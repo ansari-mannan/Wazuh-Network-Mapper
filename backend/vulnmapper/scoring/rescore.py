@@ -49,7 +49,8 @@ def rescore(graph_path: str, liveness_path: Optional[str] = None, clock=None) ->
         raise FileNotFoundError(graph_path)
     vulns_path = vulnfile.default_path(graph_path)
     vulns = _read(vulns_path)
-    targets = attackpaths.load_targets(attackpaths.targets_path(graph_path))
+    target_warnings: list = []
+    targets = attackpaths.load_targets(attackpaths.targets_path(graph_path), target_warnings)
     liveness = None
     if liveness_path:
         try:
@@ -60,9 +61,10 @@ def rescore(graph_path: str, liveness_path: Optional[str] = None, clock=None) ->
     _, result = score(graph, vulns or {}, targets, folder, clock or SystemClock(), no_network)
     metadata = graph.setdefault("metadata", {})
     metadata["ovss"] = result.block
-    # the feed warning now says what this scoring used, not the scan's
+    # the feed and targets warnings now say what this scoring used, not the scan's
     metadata["warnings"] = [w for w in metadata.get("warnings") or []
-                            if w.get("type") != WARNING] + result.warnings
+                            if w.get("type") not in (WARNING, attackpaths.TARGETS_INVALID)
+                            ] + result.warnings + target_warnings
     # built after scoring, so routes are ranked by the new node scores
     paths = attackpaths.compute(graph, targets, vulns, liveness=liveness)
 
