@@ -1,7 +1,7 @@
 # Documentation
 
 - [CODE_TOUR.md](CODE_TOUR.md): the parts of the system and their files, how data moves through a scan, the stages in order, and every class.
-- [DECISIONS.md](DECISIONS.md): design decisions agreed with the team (liveness interval, the TLS warning).
+- [DECISIONS.md](DECISIONS.md): design decisions agreed with the team (liveness interval, the TLS warning, CI).
 
 ## archive/
 

@@ -19,3 +19,11 @@ certificate verification unless `VULNMAPPER_VERIFY_TLS=1` or a
 scan now adds a `tls_unverified` warning to `metadata.warnings`, naming each
 service it did not verify, and the Overview page shows it, so the gap is
 visible outside a lab instead of silent.
+
+## D6. CI runs the backend tests
+
+`.github/workflows/backend-tests.yml` runs on every push and pull request:
+Python 3.12, `backend/requirements.txt` plus pytest, then `pytest` and
+`python -m unittest discover -s tests` (the two runners the project uses).
+It needs no secret and the tests never reach the network. The plugin's Jest
+suite needs an OpenSearch Dashboards checkout and is not run in CI.
