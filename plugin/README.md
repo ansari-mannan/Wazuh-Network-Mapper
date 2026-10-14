@@ -305,7 +305,7 @@ by default; turn it on in `opensearch_dashboards.yml` (or the dev config):
 
 ```yaml
 vulnmapper.liveness.enabled: true                  # default false
-vulnmapper.liveness.intervalSeconds: 10            # default 10, at least 10
+vulnmapper.liveness.intervalSeconds: 60            # default 60, at least 10
 vulnmapper.liveness.missThreshold: 2               # default 2, at least 1
 vulnmapper.liveness.agentMaxAgeSeconds: 30         # default 30, at least 10
 vulnmapper.liveness.autoRescan: true               # default true

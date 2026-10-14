@@ -36,7 +36,7 @@ import { ActiveChecks } from '../common';
 //                          passed as --seed (default none: the dashboard
 //                          server's default gateway and LLDP neighbours)
 //   vulnmapper.liveness.*  the background liveness check (off by default):
-//     enabled, intervalSeconds (min 10), missThreshold (min 1),
+//     enabled, intervalSeconds (default 60, min 10), missThreshold (min 1),
 //     agentMaxAgeSeconds (oldest Wazuh agent check-in that counts, default
 //     30, min 10),
 //     autoRescan (start a scan when a pass sees something new) with
@@ -62,7 +62,9 @@ export const configSchema = schema.object({
   reportOrg: schema.string({ defaultValue: 'Network Vulnerability Assessment' }),
   liveness: schema.object({
     enabled: schema.boolean({ defaultValue: false }),
-    intervalSeconds: schema.number({ defaultValue: 10, min: 10 }),
+    // each pass starts a Python process (pysnmp, networkx, requests); every 10 s
+    // was a noticeable load on the dashboard server
+    intervalSeconds: schema.number({ defaultValue: 60, min: 10 }),
     missThreshold: schema.number({ defaultValue: 2, min: 1 }),
     agentMaxAgeSeconds: schema.number({ defaultValue: 30, min: 10 }),
     autoRescan: schema.boolean({ defaultValue: true }),

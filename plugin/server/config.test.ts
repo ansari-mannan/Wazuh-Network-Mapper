@@ -1,10 +1,10 @@
 import { configSchema, configuredChecks } from './config';
 
 describe('liveness config', () => {
-  it('defaults to a 10 s interval, 2 misses and a 30 s check-in age', () => {
+  it('defaults to a 60 s interval, 2 misses and a 30 s check-in age', () => {
     const { liveness } = configSchema.validate({});
     expect(liveness.enabled).toBe(false);
-    expect(liveness.intervalSeconds).toBe(10);
+    expect(liveness.intervalSeconds).toBe(60);
     expect(liveness.missThreshold).toBe(2);
     expect(liveness.agentMaxAgeSeconds).toBe(30);
   });
