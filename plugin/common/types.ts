@@ -334,8 +334,13 @@ export type GraphResponse = {
 // the items a user has moved off Open.
 export type RecommendationStatus = 'open' | 'in_progress' | 'done' | 'accepted_risk';
 
+// affected and findings: what the item covered when its status was set (absent
+// in older files), so a later scan that finds more can reopen it.
 export type RecommendationsFile = {
-  statuses: Record<string, { status: RecommendationStatus; updated: string }>;
+  statuses: Record<
+    string,
+    { status: RecommendationStatus; updated: string; affected?: string[]; findings?: number }
+  >;
 };
 
 // Scan state reported by GET /api/vulnmapper/scan/status. After a successful

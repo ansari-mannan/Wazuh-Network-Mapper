@@ -290,7 +290,7 @@ dashboard's own jest, from the dashboard folder:
 | `GET /api/vulnmapper/history` | the scan history index (`history/index.json` beside the graph), newest first, at most 10: `{ id, time, trigger, files, counts, stages }` per scan; `[]` before the first |
 | `GET /api/vulnmapper/history/{id}/changes` | `{ current, previous }`: that archived scan's `graph`, `vulns` and `attackPaths` and the previous scan's (`previous` null for the oldest); 404 for an id not in the index, 400 for one not in the id format |
 | `GET /api/vulnmapper/recommendations` | the shared recommendations tracker (`recommendations.json`) read from beside the graph; a missing file is returned as `{ "statuses": {} }` rather than an error |
-| `POST /api/vulnmapper/recommendations/status` | set one item's status; body `{ "key": string, "status": "open" \| "in_progress" \| "done" \| "accepted_risk" }`; updates `recommendations.json` beside the graph (`open` deletes the entry) and returns the updated file. Writes a local file only — it runs no scanner or process |
+| `POST /api/vulnmapper/recommendations/status` | set one item's status; body `{ "key": string, "status": "open" \| "in_progress" \| "done" \| "accepted_risk", "affected"?: string[], "findings"?: number }`; updates `recommendations.json` beside the graph (`open` deletes the entry) and returns the updated file. `affected` (asset ids) and `findings` record what the item covered: a done or accepted-risk item is shown as "Reopened: N new" when a newer scan affects more assets or has more findings. Writes a local file only — it runs no scanner or process |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so

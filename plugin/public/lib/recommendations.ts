@@ -40,8 +40,32 @@ export type Recommendation = {
   affected: AffectedAsset[];
   affectedCount: number;
   onPathCount: number;
+  // CVEs across the affected assets for a CVE item; one per asset otherwise
+  findingCount: number;
   status: RecommendationStatus;
+  // set when a newer scan found more than the item covered when it was marked
+  // done or accepted risk: it is shown open again, with what was added
+  reopened: { previous: RecommendationStatus; newAssets: number; newFindings: number } | null;
 };
+
+/**
+ * Whether a done or accepted-risk item reopens: the scan is newer than the
+ * status, and it affects an asset or has findings the status did not cover.
+ * Older statuses without what they covered never reopen. Pure.
+ */
+export function reopening(
+  saved: RecommendationsFile['statuses'][string] | undefined,
+  affectedIds: string[],
+  findingCount: number,
+  scanTime: string | undefined
+): Recommendation['reopened'] {
+  if (!saved || (saved.status !== 'done' && saved.status !== 'accepted_risk')) return null;
+  if (!Array.isArray(saved.affected) || !scanTime || !(Date.parse(scanTime) > Date.parse(saved.updated))) return null;
+  const known = new Set(saved.affected);
+  const newAssets = affectedIds.filter((id) => !known.has(id)).length;
+  const newFindings = Math.max(0, findingCount - (saved.findings ?? findingCount));
+  return newAssets || newFindings ? { previous: saved.status, newAssets, newFindings } : null;
+}
 
 // Worst-first; null (advisory/informational) last. Matches report.ts's rank.
 const sevRank = (s: Severity | null): number => (s ? SEVERITIES.length - SEVERITIES.indexOf(s) : 0);
@@ -82,17 +106,27 @@ export function buildRecommendations(
   // sight. A later asset never changes the item's text, only its severity
   // (kept worst) and its affected list.
   const add = (
-    base: Omit<Recommendation, 'affected' | 'affectedCount' | 'onPathCount' | 'status'>,
-    r: AssetReport
+    base: Omit<Recommendation, 'affected' | 'affectedCount' | 'onPathCount' | 'findingCount' | 'status' | 'reopened'>,
+    r: AssetReport,
+    findings = 1
   ) => {
     const existing = recs.get(base.key);
     if (existing) {
       existing.affected.push(affectedOf(r));
+      existing.findingCount += findings;
       existing.severity = worseSeverity(existing.severity, base.severity);
       if (tierRank(base.tier) > tierRank(existing.tier)) existing.tier = base.tier;
       if ((base.ovss ?? -1) > (existing.ovss ?? -1)) existing.ovss = base.ovss;
     } else {
-      recs.set(base.key, { ...base, affected: [affectedOf(r)], affectedCount: 0, onPathCount: 0, status: 'open' });
+      recs.set(base.key, {
+        ...base,
+        affected: [affectedOf(r)],
+        affectedCount: 0,
+        onPathCount: 0,
+        findingCount: findings,
+        status: 'open',
+        reopened: null,
+      });
     }
   };
 
@@ -121,7 +155,7 @@ export function buildRecommendations(
     const bucket = cveBucket(r);
     if (bucket) {
       const severity = r.cves.reduce<Severity | null>((w, c) => worseSeverity(w, c.severity), null);
-      add({ ...bucket, severity, tier: r.node.node_tier ?? null, ovss: r.ovss, reference: null, category: null }, r);
+      add({ ...bucket, severity, tier: r.node.node_tier ?? null, ovss: r.ovss, reference: null, category: null }, r, r.cves.length);
     }
 
     // Coverage — unmanaged endpoints.
@@ -147,7 +181,9 @@ export function buildRecommendations(
   for (const rec of out) {
     rec.affectedCount = rec.affected.length;
     rec.onPathCount = rec.affected.filter((a) => a.onPath).length;
-    rec.status = file?.statuses[rec.key]?.status ?? 'open';
+    const saved = file?.statuses[rec.key];
+    rec.reopened = reopening(saved, rec.affected.map((a) => a.id), rec.findingCount, graph.metadata.scan_time);
+    rec.status = rec.reopened ? 'open' : saved?.status ?? 'open';
   }
 
   // Most urgent first: OVSS tier, then OVSS (items with no tier after every

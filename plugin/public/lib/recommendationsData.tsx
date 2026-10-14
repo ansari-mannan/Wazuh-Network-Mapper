@@ -10,7 +10,12 @@ interface RecommendationsState {
   loading: boolean;
   error: string | null;
   reload: () => Promise<void>;
-  setStatus: (key: string, status: RecommendationStatus) => Promise<void>;
+  /** covered: the item's affected asset ids and finding count now, stored with the status */
+  setStatus: (
+    key: string,
+    status: RecommendationStatus,
+    covered?: { affected: string[]; findings: number }
+  ) => Promise<void>;
 }
 
 const RecommendationsContext = createContext<RecommendationsState | null>(null);
@@ -34,8 +39,12 @@ export function RecommendationsProvider({ children }: { children: ReactNode }) {
   }, [http]);
 
   const setStatus = useCallback(
-    async (key: string, status: RecommendationStatus) => {
-      setFile(await http.post<RecommendationsFile>('/api/vulnmapper/recommendations/status', { body: JSON.stringify({ key, status }) }));
+    async (key: string, status: RecommendationStatus, covered?: { affected: string[]; findings: number }) => {
+      setFile(
+        await http.post<RecommendationsFile>('/api/vulnmapper/recommendations/status', {
+          body: JSON.stringify({ key, status, ...covered }),
+        })
+      );
     },
     [http]
   );

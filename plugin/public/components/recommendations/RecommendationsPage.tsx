@@ -18,6 +18,7 @@ import {
   EuiSpacer,
   EuiText,
   EuiTitle,
+  EuiToolTip,
 } from '@elastic/eui';
 import { RecommendationStatus } from '../../../common';
 import { RISK_META, TIER_META } from '../../lib/risk';
@@ -50,6 +51,21 @@ const SEVERITY_FILTER = [
   { value: 'advisory', text: 'Advisory' },
 ];
 
+function ReopenedBadge({ reopened }: { reopened: NonNullable<Recommendation['reopened']> }) {
+  const { previous, newAssets, newFindings } = reopened;
+  const was = STATUS_OPTIONS.find((o) => o.id === previous)?.label ?? previous;
+  const added = newAssets
+    ? `${newAssets} new asset${newAssets === 1 ? '' : 's'}`
+    : `${newFindings} new finding${newFindings === 1 ? '' : 's'}`;
+  return (
+    <EuiToolTip content={`Was marked ${was}; a newer scan found ${added}.`}>
+      <EuiBadge color="warning" data-test-subj="vmRecReopened">
+        Reopened: {newAssets || newFindings} new
+      </EuiBadge>
+    </EuiToolTip>
+  );
+}
+
 function RecPanel({ rec, onStatus }: { rec: Recommendation; onStatus: (s: RecommendationStatus) => void }) {
   const muted = rec.status === 'done' || rec.status === 'accepted_risk';
   return (
@@ -59,6 +75,7 @@ function RecPanel({ rec, onStatus }: { rec: Recommendation; onStatus: (s: Recomm
         {severityChip(rec.severity)}
         <EuiTitle size="xs"><h3 className="vmRec__title">{rec.title}</h3></EuiTitle>
         <EuiBadge color="hollow">{rec.affectedCount} asset{rec.affectedCount === 1 ? '' : 's'}</EuiBadge>
+        {rec.reopened && <ReopenedBadge reopened={rec.reopened} />}
       </div>
       <EuiText size="s"><p>{rec.action}</p></EuiText>
       {rec.reference && (
@@ -115,9 +132,10 @@ export function RecommendationsPage() {
   );
   const progress = useMemo(() => recommendationProgress(withPending), [withPending]);
 
-  const onStatus = (key: string, status: RecommendationStatus) => {
+  const onStatus = (rec: Recommendation, status: RecommendationStatus) => {
+    const { key } = rec;
     setPending((p) => ({ ...p, [key]: status }));
-    setStatus(key, status).catch(() => setPending((p) => { const { [key]: _drop, ...rest } = p; return rest; }));
+    setStatus(key, status, { affected: rec.affected.map((a) => a.id), findings: rec.findingCount }).catch(() => setPending((p) => { const { [key]: _drop, ...rest } = p; return rest; }));
   };
 
   if ((gLoading && !graph) || (vLoading && !vulns)) return <EuiLoadingSpinner size="xl" />;
@@ -176,7 +194,7 @@ export function RecommendationsPage() {
       ) : (
         shown.map((r) => (
           <React.Fragment key={r.key}>
-            <RecPanel rec={r} onStatus={(s) => onStatus(r.key, s)} />
+            <RecPanel rec={r} onStatus={(s) => onStatus(r, s)} />
             <EuiSpacer size="m" />
           </React.Fragment>
         ))

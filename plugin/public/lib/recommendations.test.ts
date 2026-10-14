@@ -4,10 +4,11 @@ import {
   DeviceNode,
   EndpointNode,
   GraphResponse,
+  RecommendationStatus,
   RecommendationsFile,
   VulnerabilitiesDoc,
 } from '../../common';
-import { buildRecommendations, recommendationProgress } from './recommendations';
+import { buildRecommendations, recommendationProgress, reopening } from './recommendations';
 
 // --- fixtures ---------------------------------------------------------------
 
@@ -118,6 +119,44 @@ describe('buildRecommendations', () => {
     expect(recs.find((r) => r.key === 'config:telnet-enabled')!.status).toBe('done');
     expect(recs.find((r) => r.key === 'coverage:agents')!.status).toBe('open'); // absent → open
     expect(recs.some((r) => r.key === 'config:gone')).toBe(false); // stale key ignored
+  });
+});
+
+describe('reopening', () => {
+  const scanned = { ...graph, metadata: { scan_time: '2026-10-14T12:00:00Z' } };
+  const telnetIds = ['sw1', 'sw2', 'sw3'];
+  const saved = (affected: string[], findings: number, updated = '2026-10-13T12:00:00Z', status: RecommendationStatus = 'done') => ({
+    statuses: { 'config:telnet-enabled': { status, updated, affected, findings } },
+  });
+  const telnetRec = (file: RecommendationsFile) =>
+    buildRecommendations(scanned, vulns, attackPaths, file).find((r) => r.key === 'config:telnet-enabled')!;
+
+  it('keeps Done when the affected set is the same', () => {
+    const rec = telnetRec(saved(telnetIds, 3));
+    expect(rec.status).toBe('done');
+    expect(rec.reopened).toBeNull();
+  });
+
+  it('reopens Done when a newer scan affects more assets', () => {
+    const rec = telnetRec(saved(['sw1'], 1));
+    expect(rec.status).toBe('open');
+    expect(rec.reopened).toEqual({ previous: 'done', newAssets: 2, newFindings: 2 });
+  });
+
+  it('reopens accepted risk the same way, and only for a newer scan', () => {
+    expect(telnetRec(saved(['sw1'], 1, '2026-10-13T12:00:00Z', 'accepted_risk')).reopened?.previous).toBe('accepted_risk');
+    expect(telnetRec(saved(['sw1'], 1, '2026-10-15T00:00:00Z')).status).toBe('done'); // set after this scan
+  });
+
+  it('reopens on more findings on the same assets, and never without a stored baseline', () => {
+    expect(reopening({ status: 'done', updated: 'A', affected: ['web'], findings: 1 }, ['web'], 3, 'B')).toBeNull(); // unparsable times
+    expect(
+      reopening({ status: 'done', updated: '2026-10-13T00:00:00Z', affected: ['web'], findings: 1 }, ['web'], 3, '2026-10-14T00:00:00Z')
+    ).toEqual({ previous: 'done', newAssets: 0, newFindings: 2 });
+    expect(reopening({ status: 'done', updated: '2026-10-13T00:00:00Z' }, ['web', 'x'], 3, '2026-10-14T00:00:00Z')).toBeNull();
+    expect(
+      reopening({ status: 'in_progress', updated: '2026-10-13T00:00:00Z', affected: [] }, ['web'], 1, '2026-10-14T00:00:00Z')
+    ).toBeNull();
   });
 });
 

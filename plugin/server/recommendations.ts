@@ -19,16 +19,18 @@ export function readRecommendations(data: string | null): RecommendationsFile {
 }
 
 /**
- * Upsert one item's status; `open` (the default) deletes the entry so the file
- * only holds items moved off Open. Pure.
+ * Upsert one item's status with what it covered at the time (the affected
+ * asset ids and finding count, when given); `open` (the default) deletes the
+ * entry so the file only holds items moved off Open. Pure.
  */
 export function applyRecommendationStatus(
   file: RecommendationsFile,
   key: string,
-  status: RecommendationStatus
+  status: RecommendationStatus,
+  covered: { affected?: string[]; findings?: number } = {}
 ): RecommendationsFile {
   const statuses = { ...file.statuses };
   if (status === 'open') delete statuses[key];
-  else statuses[key] = { status, updated: new Date().toISOString() };
+  else statuses[key] = { status, updated: new Date().toISOString(), ...covered };
   return { statuses };
 }

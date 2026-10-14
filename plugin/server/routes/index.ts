@@ -210,6 +210,9 @@ export function defineRoutes(
             schema.literal('done'),
             schema.literal('accepted_risk'),
           ]),
+          // what the item covered when set, so a later scan that finds more reopens it
+          affected: schema.maybe(schema.arrayOf(schema.string({ maxLength: 512 }), { maxSize: 100000 })),
+          findings: schema.maybe(schema.number({ min: 0 })),
         }),
       },
     },
@@ -223,7 +226,10 @@ export function defineRoutes(
       } catch {
         // no tracker yet: start empty
       }
-      const next = applyRecommendationStatus(readRecommendations(data), request.body.key, request.body.status);
+      const next = applyRecommendationStatus(readRecommendations(data), request.body.key, request.body.status, {
+        affected: request.body.affected,
+        findings: request.body.findings,
+      });
       try {
         const tmp = `${file}.tmp-${process.pid}`;
         await fs.writeFile(tmp, JSON.stringify(next, null, 2));

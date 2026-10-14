@@ -37,3 +37,10 @@ describe('applyRecommendationStatus', () => {
     expect(current.statuses.a).toBeDefined();
   });
 });
+
+describe('applyRecommendationStatus coverage', () => {
+  it('stores what the item covered with its status', () => {
+    const next = applyRecommendationStatus({ statuses: {} }, 'cve:os-updates', 'done', { affected: ['a', 'b'], findings: 7 });
+    expect(next.statuses['cve:os-updates']).toMatchObject({ status: 'done', affected: ['a', 'b'], findings: 7 });
+  });
+});
