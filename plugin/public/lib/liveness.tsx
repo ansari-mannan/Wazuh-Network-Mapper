@@ -1,12 +1,11 @@
 // Liveness state from GET /api/vulnmapper/liveness: fetched once on mount (that
 // is how the UI learns whether liveness is on), then polled every
 // intervalSeconds while on and the tab is visible. It never re-lays out the map;
-// the graph is reloaded only when its file changed (an automatic scan).
-import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+// a graph rewritten by an automatic scan is picked up by FileWatcher.
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { GraphNode, LivenessResponse } from '../../common';
 import { offlineHosts } from '../components/topology/inactive';
 import { useGraph } from './graph';
-import { shouldReloadGraph } from './graphReload';
 import { useServices } from './services';
 
 
@@ -60,16 +59,6 @@ export function LivenessProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', poll);
     };
   }, [enabled, seconds, fetchLiveness]);
-
-  // An automatic scan rewrote the graph file: show the new graph.
-  const { fileTime, loading, reload } = useGraph();
-  const lastTried = useRef<string | null>(null);
-  const graphMtime = enabled ? liveness?.graphMtime : null;
-  useEffect(() => {
-    if (loading || !shouldReloadGraph(graphMtime, fileTime, lastTried.current)) return;
-    lastTried.current = graphMtime || null;
-    reload();
-  }, [graphMtime, fileTime, loading, reload]);
 
   const value = useMemo(() => ({ liveness }), [liveness]);
   return <LivenessContext.Provider value={value}>{children}</LivenessContext.Provider>;

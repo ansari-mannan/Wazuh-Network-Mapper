@@ -10,7 +10,7 @@ import { livenessPath } from '../liveness';
 import { getScan, onPath, runExclusive, startScan } from '../scan';
 import { scheduleBody, Scheduler } from '../schedule';
 import { historyDir, historyParams, readChanges, readIndex } from '../history';
-import { attackPathsFilePath, recomputeAttackPaths, targetsFilePath, updateTarget, vulnerabilitiesFilePath } from '../targets';
+import { attackPathsFilePath, fileTimes, recomputeAttackPaths, targetsFilePath, updateTarget, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 
 export function defineRoutes(
@@ -351,6 +351,17 @@ export function defineRoutes(
   router.get(
     { path: '/api/vulnmapper/scan/status', validate: false },
     async (context, request, response) => response.ok({ body: scanBody() })
+  );
+
+  // Each served file's modified time, polled by the browser (FileWatcher) to
+  // re-read what a scan, rescore or recompute elsewhere rewrote.
+  router.get(
+    { path: '/api/vulnmapper/files', validate: false },
+    async (context, request, response) => {
+      const { graphPath } = config;
+      if (!graphPath) return response.customError(notConfigured('graphPath'));
+      return response.ok({ body: await fileTimes(graphPath) });
+    }
   );
 
   // Liveness state for the UI: { enabled, intervalSeconds, checkedAt, nodes,

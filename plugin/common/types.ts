@@ -332,6 +332,9 @@ export type GraphResponse = {
 // The shared recommendations tracker (recommendations.json beside the graph).
 // `open` is the implicit default and is never stored, so the file holds only
 // the items a user has moved off Open.
+// GET /api/vulnmapper/files: each served file's modified time (ISO), null when absent.
+export type FileTimes = { graph: string | null; vulnerabilities: string | null; attackPaths: string | null };
+
 export type RecommendationStatus = 'open' | 'in_progress' | 'done' | 'accepted_risk';
 
 // affected and findings: what the item covered when its status was set (absent

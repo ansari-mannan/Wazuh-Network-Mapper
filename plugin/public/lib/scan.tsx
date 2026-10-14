@@ -1,11 +1,13 @@
 // The scan in progress, shared by every page: started from the scan settings,
-// polled while it runs, the graph reloaded when it succeeds.
+// polled (often while one runs, slowly otherwise, so a scheduled or automatic
+// scan is followed too), the graph reloaded when it succeeds.
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { ActiveChecks, ScanState } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
 
 const POLL_MS = 1500;
+const IDLE_POLL_MS = 15000; // only while the tab is visible
 
 // Scan state shared by the whole app, so a scan started on the settings page
 // is still followed (and the graph reloaded when it succeeds) if the user
@@ -53,12 +55,16 @@ export function ScanProvider({ children }: { children: ReactNode }) {
     fetchStatus();
   }, [fetchStatus]);
 
-  // Poll only while a scan is running.
+  // Fast while a scan runs; slowly while idle (tab visible), so a scan this
+  // browser did not start shows its progress, its toast and the new graph.
+  const running = scan?.status === 'running';
   useEffect(() => {
-    if (scan?.status !== 'running') return;
-    const timer = window.setInterval(fetchStatus, POLL_MS);
+    const poll = () => {
+      if (running || !document.hidden) fetchStatus();
+    };
+    const timer = window.setInterval(poll, running ? POLL_MS : IDLE_POLL_MS);
     return () => window.clearInterval(timer);
-  }, [scan?.status, fetchStatus]);
+  }, [running, fetchStatus]);
 
   const start = useCallback(
     async (community: string, checks: Partial<ActiveChecks> & { replaceEmpty?: boolean } = {}) => {

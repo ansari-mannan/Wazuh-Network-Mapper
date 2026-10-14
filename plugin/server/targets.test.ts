@@ -1,4 +1,7 @@
-import { applyTarget, attackPathsFilePath, BUSY, recomputeArgs, targetsFilePath, updateTarget } from './targets';
+import { mkdtempSync, writeFileSync } from 'fs';
+import os from 'os';
+import path from 'path';
+import { applyTarget, attackPathsFilePath, BUSY, fileTimes, recomputeArgs, targetsFilePath, updateTarget } from './targets';
 
 describe('applyTarget', () => {
   it('adds a new target with the UI note', () => {
@@ -78,5 +81,17 @@ describe('updateTarget', () => {
       status: 500,
       message: 'targets saved, but the rescore failed: boom',
     });
+  });
+});
+
+describe('fileTimes', () => {
+  it('gives each present file its time and null for an absent one', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-times-'));
+    writeFileSync(path.join(dir, 'graph.json'), '{}');
+    writeFileSync(path.join(dir, 'attack_paths.json'), '{}');
+    const t = await fileTimes(path.join(dir, 'graph.json'));
+    expect(t.graph).toMatch(/^\d{4}-/);
+    expect(t.attackPaths).toMatch(/^\d{4}-/);
+    expect(t.vulnerabilities).toBeNull();
   });
 });

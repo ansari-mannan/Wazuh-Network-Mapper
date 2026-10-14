@@ -12,6 +12,7 @@ import { LivenessProvider } from '../lib/liveness';
 import { AttackPathsProvider } from '../lib/attackPathsData';
 import { VulnerabilitiesProvider } from '../lib/vulnerabilities';
 import { RecommendationsProvider } from '../lib/recommendationsData';
+import { FileWatcher } from '../lib/fileWatch';
 import { Services, ServicesProvider, useServices } from '../lib/services';
 import { Overview } from './overview/Overview';
 import { InnerPage } from './layout/InnerPage';
@@ -68,6 +69,7 @@ export const VulnmapperApp = ({ services }: { services: Services }) => (
             <AttackPathsProvider>
              <VulnerabilitiesProvider>
               <RecommendationsProvider>
+               <FileWatcher />
                <Router history={services.history}>
                 <Switch>
                   {PAGES.map((page) => (

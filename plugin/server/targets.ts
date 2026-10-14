@@ -1,9 +1,10 @@
 // The owner's protected assets (targets.json) and the computed routes
 // (attack_paths.json) both live beside the graph, as the Python engine expects.
 import { spawn } from 'child_process';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
-import { Importance } from '../common';
+import { FileTimes, Importance } from '../common';
 
 export function targetsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'targets.json');
@@ -15,6 +16,21 @@ export function vulnerabilitiesFilePath(graphPath: string): string {
 
 export function attackPathsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'attack_paths.json');
+}
+
+/** The modified times of the three documents the UI reads; null when a file is absent. */
+export async function fileTimes(graphPath: string): Promise<FileTimes> {
+  const mtime = (f: string) =>
+    fs.stat(f).then(
+      (st) => st.mtime.toISOString(),
+      () => null
+    );
+  const [graph, vulnerabilities, attackPaths] = await Promise.all([
+    mtime(graphPath),
+    mtime(vulnerabilitiesFilePath(graphPath)),
+    mtime(attackPathsFilePath(graphPath)),
+  ]);
+  return { graph, vulnerabilities, attackPaths };
 }
 
 export type TargetEntry = { importance: Importance; note?: string };
