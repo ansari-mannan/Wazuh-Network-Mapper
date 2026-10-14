@@ -19,7 +19,7 @@ import {
   switch24,
   switch48,
   switch8,
-  switchHp48,
+  switchHp1920,
   unknownDevice,
 } from '../../lib/faceplate.fixtures';
 
@@ -154,18 +154,15 @@ describe('Faceplate', () => {
     spy.mockRestore();
   });
 
-  it('48+2 switch: a compact panel and an Expand button that opens the full one in a modal', () => {
+  it('48+2 switch: the full strip with every detail, and Expand opens it larger in a modal', () => {
     const el = render(switch48);
     expect(sockets(el)).toHaveLength(50);
-    // compact: no decoration, but the vendor text and the PWR LED stay
+    // a rack switch is never compact: ears, name plate and port numbers stay
     const card = el.querySelector('[data-test-subj="vmFaceplate"]')!;
-    for (const cls of ['.vmFpEar', '.vmFpGrille', '.vmFpPlate', 'linearGradient']) {
-      expect(card.querySelector(cls)).toBeNull();
-    }
-    expect(card.querySelector('.vmFpPwr')).not.toBeNull();
-    expect(card.textContent).toContain('Cisco');
-    expect(card.textContent).not.toContain('WS-C2960-48TT-L');
-    expect(labels(el)).toEqual([]); // compact: no port numbers
+    expect(card.querySelectorAll('.vmFpEar')).toHaveLength(2);
+    expect(card.querySelector('.vmFpPlate')).not.toBeNull();
+    expect(card.textContent).toContain('WS-C2960-48TT-L');
+    expect(labels(el).slice(0, 4)).toEqual(['1', '2', '3', '4']);
     const expand = el.querySelector('[data-test-subj="vmFaceplateExpand"]') as HTMLElement;
     expect(expand.textContent).toBe('Expand (50 ports)');
     act(() => {
@@ -288,7 +285,7 @@ describe('Faceplate', () => {
     let width = 560;
     beforeEach(() => {
       jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
-        return this.classList.contains('vmFp') ? width : 0;
+        return this.classList.contains('vmFp') || this.classList.contains('vmFpStrip') ? width : 0;
       });
     });
     afterEach(() => jest.restoreAllMocks());
@@ -307,6 +304,8 @@ describe('Faceplate', () => {
       const svg = card(el);
       expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).toBeNull();
       expect(Number(svg.getAttribute('width'))).toBeLessThanOrEqual(560);
+      // fits without scrolling
+      expect(el.querySelector('[data-test-subj="vmFaceplateStrip"]')!.getAttribute('class')).not.toContain('--scroll');
       const port = Number(svg.querySelector('.vmFpFace')!.getAttribute('width'));
       expect(port * scaleOf(svg)).toBeGreaterThanOrEqual(22);
       for (const t of Array.from(svg.querySelectorAll('.vmFpPort text.vmFpLabel'))) {
@@ -332,43 +331,78 @@ describe('Faceplate', () => {
     });
 
     it.each([
-      ['48+2 Cisco', switch48, 'FastEthernet0/'],
-      ['48+4 HP', switchHp48, 'GigabitEthernet1/0/'],
-    ] as Array<[string, DeviceNode, string]>)('%s in 560 px: banded, full detail, ports >= 22 px, no Expand', (_n, node, prefix) => {
+      ['HP 1920-48G (1-52)', switchHp1920, 'GigabitEthernet1/0/', ['G49', 'G50', 'G51', 'G52']],
+      ['Cisco 2960-48TT', switch48, 'FastEthernet0/', ['G1', 'G2']],
+    ] as Array<[string, DeviceNode, string, string[]]>)(
+      '%s in 560 px: one strip with full detail, ports >= 16 px, scrolling, Expand',
+      (_n, node, prefix, uplinks) => {
+        width = 560;
+        const el = render(node);
+        const svg = card(el);
+        // one strip: the access ports on two rows only
+        const face = (n: number) => socket(el, `${prefix}${n}`).querySelector('.vmFpFace')!;
+        const rows = new Set(Array.from({ length: 48 }, (_, i) => face(i + 1).getAttribute('y')));
+        expect(rows.size).toBe(2);
+        expect(face(47).getAttribute('y')).toBe(face(1).getAttribute('y'));
+        // full detail: ears the full height, name plate, grille, PWR, every number
+        const height = Number(svg.getAttribute('viewBox')!.split(' ')[3]);
+        const ears = Array.from(svg.querySelectorAll('.vmFpEar rect'));
+        expect(ears).toHaveLength(2);
+        for (const ear of ears) expect(Number(ear.getAttribute('height'))).toBe(height - 2);
+        for (const cls of ['.vmFpPlate', '.vmFpGrille', '.vmFpPwr']) expect(svg.querySelector(cls)).not.toBeNull();
+        const numbers = labels(el).filter((l) => /^\d+$/.test(l!)).map(Number).sort((a, b) => a - b);
+        expect(numbers).toEqual(Array.from({ length: 48 }, (_, i) => i + 1));
+        // the uplink block at the right end
+        expect(labels(el).filter((l) => !/^\d+$/.test(l!))).toEqual(uplinks);
+        const rightmostAccess = Math.max(...Array.from({ length: 48 }, (_, i) => Number(face(i + 1).getAttribute('x'))));
+        for (const s of sockets(el).filter((x) => !x.getAttribute('data-port')!.startsWith(prefix) || Number(x.getAttribute('data-port')!.split('/').pop()) > 48)) {
+          expect(Number(s.querySelector('.vmFpFace')!.getAttribute('x'))).toBeGreaterThan(rightmostAccess);
+        }
+        // ports >= 16 px, wider than the card: the strip scrolls; Expand is there
+        expect(Number(face(1).getAttribute('width')) * scaleOf(svg)).toBeGreaterThanOrEqual(15.9);
+        expect(Number(svg.getAttribute('width'))).toBeGreaterThan(560);
+        expect(el.querySelector('[data-test-subj="vmFaceplateStrip"]')!.getAttribute('class')).toContain('vmFpStrip--scroll');
+        expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).not.toBeNull();
+        expect(html()).toMatchSnapshot();
+      }
+    );
+
+    it('fades the right edge while more of the strip is out of view', () => {
       width = 560;
-      const el = render(node);
-      const svg = card(el);
-      expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).toBeNull();
-      // ears spanning the full height, name plate, grille, PWR and every port number
-      const height = Number(svg.getAttribute('viewBox')!.split(' ')[3]);
-      const ears = Array.from(svg.querySelectorAll('.vmFpEar rect'));
-      expect(ears).toHaveLength(2);
-      for (const ear of ears) expect(Number(ear.getAttribute('height'))).toBe(height - 2);
-      expect(svg.querySelector('.vmFpPlate')).not.toBeNull();
-      expect(svg.querySelector('.vmFpGrille')).not.toBeNull();
-      expect(svg.querySelector('.vmFpPwr')).not.toBeNull();
-      expect(labels(el).filter((l) => /^\d+$/.test(l!)).map(Number).sort((a, b) => a - b)).toEqual(
-        Array.from({ length: 48 }, (_, i) => i + 1)
-      );
-      expect(labels(el).filter((l) => !/^\d+$/.test(l!))).toEqual(
-        node === switchHp48 ? ['T49', 'T50', 'T51', 'T52'] : ['G1', 'G2']
-      );
-      // bands: 25 under 1
-      const face = (n: number) => socket(el, `${prefix}${n}`).querySelector('.vmFpFace')!;
-      expect(face(25).getAttribute('x')).toBe(face(1).getAttribute('x'));
-      expect(Number(face(25).getAttribute('y'))).toBeGreaterThan(Number(face(2).getAttribute('y')));
-      const port = Number(face(1).getAttribute('width'));
-      expect(port * scaleOf(svg)).toBeGreaterThanOrEqual(22);
-      expect(html()).toMatchSnapshot();
+      const el = render(switch48);
+      const strip = el.querySelector('[data-test-subj="vmFaceplateStrip"]') as HTMLElement;
+      const wrap = strip.parentElement!;
+      // the card's scroll extent: the drawn panel's width
+      jest.spyOn(strip, 'scrollWidth', 'get').mockReturnValue(Number(card(el).getAttribute('width')));
+      act(() => {
+        strip.dispatchEvent(new Event('scroll'));
+      });
+      expect(wrap.getAttribute('class')).toContain('vmFpStripWrap--more');
+      strip.scrollLeft = strip.scrollWidth - 560;
+      act(() => {
+        strip.dispatchEvent(new Event('scroll'));
+      });
+      expect(wrap.getAttribute('class')).not.toContain('vmFpStripWrap--more');
     });
 
-    it('a card too narrow even for bands is compact: captions kept without underline, and Expand', () => {
-      width = 300;
+    it('scrolls a focused port into view, and its tooltip still shows', () => {
+      width = 560;
+      const scrollIntoView = jest.fn();
+      (Element.prototype as any).scrollIntoView = scrollIntoView;
       const el = render(switch48);
+      const port48 = socket(el, 'FastEthernet0/48');
+      fire(port48, new FocusEvent('focus'));
+      expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
+      expect(tipLines()[0]).toBe('FastEthernet0/48');
+      delete (Element.prototype as any).scrollIntoView;
+    });
+
+    it('a firewall too narrow for even the split panel is compact, with Expand', () => {
+      width = 200;
+      const el = render(fortigateLabStyle);
       const svg = card(el);
-      expect(svg.textContent).toContain('UPLINK');
-      expect(svg.querySelector('.vmFpRule')).toBeNull();
-      expect(Number(svg.getAttribute('width'))).toBe(300);
+      expect(svg.querySelector('.vmFpRule')).toBeNull(); // captions keep no underline
+      expect(Number(svg.getAttribute('width'))).toBe(200);
       expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).not.toBeNull();
     });
   });

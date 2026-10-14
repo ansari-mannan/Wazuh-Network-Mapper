@@ -27,6 +27,7 @@ import {
   PORT_W,
   portKey,
   portNeighbours,
+  COMPACT_ABOVE,
   pickLayout,
   portTooltip,
   routePortKeys,
@@ -70,6 +71,11 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
       data-port={port.name}
       onClick={select}
       {...events}
+      onFocus={(e) => {
+        events.onFocus(e);
+        // in a scrolled strip, bring the focused port into view
+        (e.currentTarget as Element).scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+      }}
       onKeyDown={(e) => {
         events.onKeyDown(e);
         if (select && (e.key === 'Enter' || e.key === ' ')) select();
@@ -294,6 +300,33 @@ function useWidth(): [React.RefObject<HTMLDivElement>, number] {
   return [ref, width];
 }
 
+/**
+ * The panel's wrapper: centred when narrower than the card; when wider, it
+ * scrolls sideways (thin scrollbar) with a fade on the right while more of
+ * the strip is out of view.
+ */
+function Strip({ scroll, children }: { scroll: boolean; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  const update = () => {
+    const el = ref.current;
+    setMore(Boolean(el && el.scrollLeft + el.clientWidth < el.scrollWidth - 1));
+  };
+  useLayoutEffect(update, [scroll]);
+  return (
+    <div className={`vmFpStripWrap${scroll && more ? ' vmFpStripWrap--more' : ''}`}>
+      <div
+        ref={ref}
+        className={`vmFpStrip${scroll ? ' vmFpStrip--scroll' : ''}`}
+        onScroll={update}
+        data-test-subj="vmFaceplateStrip"
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function Faceplate({
   node,
   edges,
@@ -309,18 +342,20 @@ export function Faceplate({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [box, available] = useWidth();
-  const { fp, compact } = useMemo(() => pickLayout(node, available), [node, available]);
+  const { fp, compact, width: drawnWidth, scroll } = useMemo(() => pickLayout(node, available), [node, available]);
   const byPort = useMemo(() => portNeighbours(node.node_id, edges), [node.node_id, edges]);
   const routeKeys = useMemo(() => routePortKeys(node.node_id, route, byPort), [node.node_id, route, byPort]);
   const clients = useMemo(() => radioClients(node.node_id, edges), [node.node_id, edges]);
   const panel = { node, fp, byPort, routeKeys, clients, onSelectNode };
   const full = useMemo(() => faceplateOf(node), [node]); // the Expand modal's, at full size
-  // measured: scale 1 up to 1.6 when it fits, the card's width when compact
-  const cardWidth = available ? (compact ? available : Math.min(available, Math.round(fp.width * 1.6))) : undefined;
+  // a big rack switch can always be opened larger, whether or not its strip scrolls
+  const expandable = compact || (fp.chassis === 'rack' && fp.ports.length > COMPACT_ABOVE);
   return (
     <div ref={box} className="vmFp" style={{ '--vm-route': graphColors.route } as React.CSSProperties}>
-      <FaceplatePanel {...panel} compact={compact} width={cardWidth} />
-      {compact && (
+      <Strip scroll={scroll}>
+        <FaceplatePanel {...panel} compact={compact} width={drawnWidth || undefined} />
+      </Strip>
+      {expandable && (
         <EuiButtonEmpty size="xs" iconType="expand" onClick={() => setExpanded(true)} data-test-subj="vmFaceplateExpand">
           Expand ({fp.ports.length} ports)
         </EuiButtonEmpty>

@@ -17,7 +17,27 @@
   $shutdown: $euiColorMediumShade; // grey
   $amber: $euiColorWarning;
 
-  .vmFaceplate { display: block; max-width: 100%; height: auto; }
+  // centred when narrower than the card; a fixed-size panel when the strip scrolls
+  .vmFaceplate { display: block; margin: 0 auto; height: auto; }
+  .vmFpStrip:not(.vmFpStrip--scroll) .vmFaceplate { max-width: 100%; }
+  .vmFpStripWrap { position: relative; }
+  .vmFpStrip--scroll {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    &::-webkit-scrollbar { height: 6px; }
+    &::-webkit-scrollbar-thumb { background: $euiColorMediumShade; border-radius: 3px; }
+  }
+  // more of the strip to the right
+  .vmFpStripWrap--more::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 28px;
+    pointer-events: none;
+    background: linear-gradient(to right, transparentize($euiColorEmptyShade, 1), $euiColorEmptyShade);
+  }
   .vmFpChassis { fill: $chassis; stroke: $chassisEdge; }
   .vmFpGradTop { stop-color: $chassisHi; }
   .vmFpGradBody { stop-color: $chassis; }

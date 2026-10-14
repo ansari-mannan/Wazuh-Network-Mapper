@@ -8,6 +8,8 @@ import {
   portKind,
   portNeighbours,
   portsOf,
+  MAX_RACK_SCALE,
+  MIN_PORT_PX,
   pickLayout,
   portTooltip,
   tipText,
@@ -31,7 +33,7 @@ import {
   switch24,
   switch48,
   switch8,
-  switchHp48,
+  switchHp1920,
   unknownDevice,
 } from './faceplate.fixtures';
 
@@ -310,7 +312,7 @@ describe('no overlapping text', () => {
   const fixtures: Array<[string, DeviceNode]> = [
     ['24+2 switch', switch24],
     ['48+2 switch', switch48],
-    ['48+4 HP switch', switchHp48],
+    ['HP 1920-48G (1-52)', switchHp1920],
     ['8-port switch', switch8],
     ['7-port switch', { ...switch8, ports: switch8.ports!.slice(0, 7) }],
     ['switch with mgmt and 10G uplinks', {
@@ -327,12 +329,11 @@ describe('no overlapping text', () => {
   const hit = (a: { x: number; y: number; w: number; h: number }, b: typeof a) =>
     a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-  // every fixture in every layout: one row, split (a narrow card) and banded (a big rack)
+  // every fixture in both layouts: one row, and split (a firewall in a narrow card)
   const cases = fixtures.flatMap(([name, node]) => [
     [name, node, {}],
     [`${name}, split`, node, { split: true }],
-    [`${name}, banded`, node, { banded: true }],
-  ]) as Array<[string, DeviceNode, { split?: boolean; banded?: boolean }]>;
+  ]) as Array<[string, DeviceNode, { split?: boolean }]>;
   it.each(cases)('%s', (_name, node, options) => {
     const fp = faceplateOf(node, options);
     const boxes = textBoxes(fp);
@@ -408,23 +409,35 @@ describe('desktop layout from port_status only', () => {
 });
 
 describe('fitting the card', () => {
-  it('uses the full panel when it fits at scale 1, the split one next, compact last', () => {
+  it('firewall: the full panel when it fits at scale 1, the split one next, compact last', () => {
     const full = faceplateOf(fortigateLabStyle);
     const split = faceplateOf(fortigateLabStyle, { split: true });
     expect(split.width).toBeLessThan(full.width);
-    expect(pickLayout(fortigateLabStyle, full.width)).toEqual({ fp: full, compact: false });
-    expect(pickLayout(fortigateLabStyle, full.width - 1)).toEqual({ fp: split, compact: false });
-    expect(pickLayout(fortigateLabStyle, split.width - 1)).toEqual({ fp: split, compact: true });
-    // a big rack switch: banded before compact, compact only when even banded won't fit
-    const banded = faceplateOf(switch48, { banded: true });
-    expect(banded.width).toBeLessThanOrEqual(560);
-    expect(pickLayout(switch48, 560)).toEqual({ fp: banded, compact: false });
-    expect(pickLayout(switch48, banded.width - 1)).toEqual({ fp: banded, compact: true });
-    // a 24-port switch still fits in one row
-    expect(pickLayout(switch24, 560)).toEqual({ fp: faceplateOf(switch24), compact: false });
-    // not measured yet: the old rule
-    expect(pickLayout(switch48, 0).compact).toBe(true);
-    expect(pickLayout(switch24, 0).compact).toBe(false);
+    expect(pickLayout(fortigateLabStyle, full.width)).toMatchObject({ fp: full, compact: false, scroll: false });
+    expect(pickLayout(fortigateLabStyle, full.width - 1)).toMatchObject({ fp: split, compact: false });
+    expect(pickLayout(fortigateLabStyle, split.width - 1)).toMatchObject({ fp: split, compact: true });
+    // not measured yet: compact only above 26 ports
+    expect(pickLayout(fortigateLabStyle, 0)).toMatchObject({ compact: false, width: 0 });
+  });
+
+  it('rack: always the one strip, scaled between 16 px ports and 1.25, scrolling past that, never compact', () => {
+    const fp = faceplateOf(switch48);
+    // too wide for 560 px even at the smallest scale: drawn at 16 px ports and scrolled
+    const small = pickLayout(switch48, 560);
+    expect(small).toMatchObject({ fp, compact: false, scroll: true });
+    expect((PORT_W * small.width) / fp.width).toBeCloseTo(MIN_PORT_PX, 0);
+    // between the two limits: drawn exactly as wide as the card, no scroll
+    const between = Math.round(fp.width * 1.1);
+    expect(pickLayout(switch48, between)).toMatchObject({ compact: false, scroll: false, width: between });
+    // very wide: never above 1.25
+    expect(pickLayout(switch48, 5000).width).toBe(Math.round(fp.width * MAX_RACK_SCALE));
+    // a 24-port switch fits 560 px at scale >= 1
+    const fit24 = pickLayout(switch24, 560);
+    expect(fit24).toMatchObject({ compact: false, scroll: false });
+    expect(fit24.width).toBeLessThanOrEqual(560);
+    expect(fit24.width).toBeGreaterThanOrEqual(fit24.fp.width);
+    // not measured yet: full panel, never compact
+    expect(pickLayout(switch48, 0)).toMatchObject({ compact: false, width: 0, scroll: false });
   });
 
   it('splits each group of more than 2 ports onto two rows, left to right, WAN still last', () => {
@@ -452,40 +465,49 @@ describe('fitting the card', () => {
   });
 });
 
-describe('banded rack layout', () => {
+describe('one-strip rack layout', () => {
   it.each([
-    ['48+2 Cisco', switch48, 'FastEthernet0/', 'GigabitEthernet0/1'],
-    ['48+4 HP', switchHp48, 'GigabitEthernet1/0/', 'Ten-GigabitEthernet1/0/49'],
-  ] as Array<[string, DeviceNode, string, string]>)('%s: 1-24 on top, 25-48 below, uplinks right of the first band', (_n, node, prefix, uplink) => {
-    const full = faceplateOf(node);
-    const fp = faceplateOf(node, { banded: true });
+    ['HP 1920-48G (1-52)', switchHp1920, 'GigabitEthernet1/0/', ['GigabitEthernet1/0/49', 'GigabitEthernet1/0/50', 'GigabitEthernet1/0/51', 'GigabitEthernet1/0/52']],
+    ['Cisco 2960-48TT (Fa0/1-48 + Gi0/1-2)', switch48, 'FastEthernet0/', ['GigabitEthernet0/1', 'GigabitEthernet0/2']],
+  ] as Array<[string, DeviceNode, string, string[]]>)('%s: one strip, 4 blocks of 12, uplinks at the right end', (_n, node, prefix, uplinks) => {
+    const fp = faceplateOf(node);
     const at = (n: number) => fp.ports.find((p) => p.port.name === `${prefix}${n}`)!;
-    expect(fp.width).toBeLessThan(full.width);
-    expect(fp.height).toBeGreaterThan(full.height);
-    // each band as before: odd on top, even below, in blocks of 12
-    expect(at(1).y).toBe(at(23).y);
-    expect(at(2).y).toBeGreaterThan(at(1).y);
-    // the second band sits under the first, lined up with it
-    expect(at(25).x).toBe(at(1).x);
-    expect(at(25).y).toBeGreaterThan(at(24).y);
-    expect(at(26).y).toBeGreaterThan(at(25).y);
-    expect(at(48).x).toBe(at(24).x);
-    // the uplinks to the right of the first band, at its height
-    const up = fp.ports.find((p) => p.port.name === uplink)!;
-    expect(up.x).toBeGreaterThan(at(23).x);
-    expect(up.y).toBeLessThan(at(25).y);
-    // every port once, numbered
-    expect(new Set(fp.ports.map((p) => p.port.name)).size).toBe(fp.ports.length);
-    expect(fp.ports.length).toBe(full.ports.length);
-    expect(at(37).label).toBe('37');
+    // two rows only, odd over even
+    const ys = new Set(fp.ports.filter((p) => p.port.name.startsWith(prefix) && !uplinks.includes(p.port.name)).map((p) => p.y));
+    expect(ys.size).toBe(2);
+    expect(at(47).y).toBe(at(1).y);
+    expect(at(48).y).toBeGreaterThan(at(1).y);
+    // four blocks of 12: three wider gaps between the access columns
+    const xs = [...new Set(fp.ports.filter((p) => !uplinks.includes(p.port.name)).map((p) => p.x))].sort((a, b) => a - b);
+    expect(xs).toHaveLength(24);
+    const gaps = xs.slice(1).map((x, i) => x - xs[i]);
+    expect(gaps.filter((g) => g > Math.min(...gaps) + 1)).toHaveLength(3);
+    // the uplink block at the right end, captioned
+    const up = fp.ports.filter((p) => uplinks.includes(p.port.name));
+    expect(up).toHaveLength(uplinks.length);
+    expect(Math.min(...up.map((p) => p.x))).toBeGreaterThan(at(48).x + PORT_W);
+    expect(fp.captions.map((c) => c.text)).toEqual(['UPLINK']);
+    expect(at(48).label).toBe('48');
   });
 
-  it('labels HP Ten-Gigabit uplinks as SFP', () => {
-    const fp = faceplateOf(switchHp48, { banded: true });
-    expect(fp.captions.map((c) => c.text)).toEqual(['SFP']);
+  it('takes ports numbered past a multiple of 8 or 12 in the same family as uplinks', () => {
+    const cisco28 = { ...switch8, ports: Array.from({ length: 28 }, (_, i) => port(`FastEthernet0/${i + 1}`)) };
+    const fp = faceplateOf(cisco28);
+    const up = fp.ports.filter((p) => fp.ports.indexOf(p) >= 24).map((p) => p.label);
+    expect(up).toEqual(['F25', 'F26', 'F27', 'F28']);
+    expect(fp.captions.map((c) => c.text)).toEqual(['UPLINK']);
+    // Ten-Gigabit trailing ports are SFP cages
+    const tenGig = faceplateOf({
+      ...switch8,
+      ports: [...Array.from({ length: 24 }, (_, i) => port(`GigabitEthernet1/0/${i + 1}`)),
+        ...[25, 26].map((n) => port(`GigabitEthernet1/0/${n}`, 'unused', { speed_mbps: 10000 }))],
+    });
+    expect(tenGig.captions.map((c) => c.text)).toEqual(['SFP']);
   });
 
-  it('a switch of 24 or fewer has a single band', () => {
-    expect(faceplateOf(switch24, { banded: true })).toEqual(faceplateOf(switch24));
+  it('leaves plain 8, 24 and 48-port numbering alone', () => {
+    expect(faceplateOf(switch8).captions).toEqual([]);
+    expect(faceplateOf(switch24).ports.filter((p) => p.port.name.startsWith('Fast'))).toHaveLength(24);
+    expect(faceplateOf({ ...switch8, ports: Array.from({ length: 48 }, (_, i) => port(`Gi1/0/${i + 1}`)) }).captions).toEqual([]);
   });
 });

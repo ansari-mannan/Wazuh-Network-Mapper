@@ -213,10 +213,10 @@ interface Block {
  * Places the blocks left to right from `x0`: a block's width is its ports'
  * or its caption's, whichever is wider, so captions never run into each other.
  */
-function placeBlocks(blocks: Block[], x0: number, y0 = 0) {
+function placeBlocks(blocks: Block[], x0: number) {
   blocks = blocks.filter((b) => b.list.length);
   const rows = blocks.some((b) => b.twoRows) ? 2 : 1;
-  const row1 = y0 + (rows === 2 ? ROW1_TWO : ROW1_ONE);
+  const row1 = rows === 2 ? ROW1_TWO : ROW1_ONE;
   const row2 = row1 + PORT_H + GAP_Y;
   const middle = (row1 + row2) / 2;
   const below = (y: number) => y + PORT_H + LABEL_GAP + LABEL_SIZE;
@@ -250,7 +250,7 @@ function placeBlocks(blocks: Block[], x0: number, y0 = 0) {
   return {
     ports,
     captions,
-    captionY: y0 + CAPTION_Y,
+    captionY: CAPTION_Y,
     dividers,
     right: x,
     height: (rows === 2 ? below(row2) : below(row1)) + 8,
@@ -258,12 +258,31 @@ function placeBlocks(blocks: Block[], x0: number, y0 = 0) {
 }
 
 /**
+ * Ports of the access family numbered past the access ports: numbered 1..M
+ * with M a little over N, a multiple of 8 or 12, ports N+1..M are uplinks
+ * (HP GigabitEthernet1/0/49-52 after 48, Cisco Fa0/25-28 after 24).
+ */
+function trailingUplinks(list: Entry[]): Set<string> {
+  const numbers = list.map(({ port }) => Number(trailingNumber(port.name)));
+  const m = numbers.length;
+  // numbered exactly 1..M, in any order
+  if (!m || new Set(numbers).size !== m || numbers.some((n) => !(n >= 1 && n <= m))) return new Set();
+  for (let n = m - 1; n >= m - MAX_TRAILING_UPLINKS && n >= 8; n--) {
+    if (n % 8 === 0 || n % 12 === 0) {
+      return new Set(list.filter((_, i) => numbers[i] > n).map(({ port }) => port.name));
+    }
+  }
+  return new Set();
+}
+const MAX_TRAILING_UPLINKS = 4;
+
+/**
  * The rack (and generic) panel: console/management on the left, the numbered
  * access ports in blocks of 12 (odd on top, even below; fewer than 8 in one
  * row), and the uplinks (every other physical port: the trailing Gi/Te/SFP
  * ports) in their own block on the right.
  */
-function rackRows(physical: Entry[], banded: boolean): Block[][] {
+function rackBlocks(physical: Entry[]): Block[] {
   const consoles = physical.filter((p) => p.kind === 'console');
   const rest = physical.filter((p) => p.kind !== 'console');
   // the access ports are the biggest family; ties go to the first one seen
@@ -271,22 +290,19 @@ function rackRows(physical: Entry[], banded: boolean): Block[][] {
   for (const { port } of rest) counts.set(family(port.name), (counts.get(family(port.name)) || 0) + 1);
   let accessFamily = '';
   for (const [f, n] of counts) if (n > (counts.get(accessFamily) || 0)) accessFamily = f;
-  const access = rest.filter(({ port }) => family(port.name) === accessFamily);
-  const uplinks = rest.filter(({ port }) => family(port.name) !== accessFamily);
-  const accessBlock = (list: Entry[]): Block => ({
-    list,
-    twoRows: list.length >= 8,
-    label: (p) => trailingNumber(p.name) || shortName(p.name),
-    caption: '',
-    blockCols: 6,
-  });
-  // banded: the access ports in bands of 24 (1-24, 25-48...), one under the other
-  const bands = banded
-    ? Array.from({ length: Math.ceil(access.length / BAND) }, (_, i) => access.slice(i * BAND, (i + 1) * BAND))
-    : [access];
-  const first: Block[] = [
+  const trailing = trailingUplinks(rest.filter(({ port }) => family(port.name) === accessFamily));
+  const access = rest.filter(({ port }) => family(port.name) === accessFamily && !trailing.has(port.name));
+  // a different family (Gi0/1-2 after Fa0/1-48), or the same one past the access ports
+  const uplinks = rest.filter(({ port }) => family(port.name) !== accessFamily || trailing.has(port.name));
+  return [
     { list: consoles, twoRows: false, label: (p) => shortName(p.name), caption: 'MGMT' },
-    accessBlock(bands[0] || []),
+    {
+      list: access,
+      twoRows: access.length >= 8,
+      label: (p) => trailingNumber(p.name) || shortName(p.name),
+      caption: '',
+      blockCols: 6,
+    },
     {
       list: uplinks,
       twoRows: uplinks.length > 4,
@@ -294,7 +310,6 @@ function rackRows(physical: Entry[], banded: boolean): Block[][] {
       caption: uplinks.every((p) => p.kind === 'sfp') ? 'SFP' : 'UPLINK',
     },
   ];
-  return [first, ...bands.slice(1).map((band) => [accessBlock(band)])];
 }
 
 // A desktop box's groups, left to right. Any other family (a router's Gi0/0...)
@@ -359,21 +374,14 @@ function rowBlocks(physical: Entry[], split = false): Block[] {
   });
 }
 
-const BAND = 24; // access ports per band of a banded rack panel
-// a band under another drops the caption band above its rows
-const BAND_OVERLAP = CAPTION_Y + 1;
 const PLATE_MAX = 200; // the name plate never makes the panel wider than this needs
 const GRILLE_MIN = 24;
 
 /**
  * The whole front panel of one device. `split` puts every desktop or puck
- * group of more than 2 ports on two rows, for a card too narrow for one;
- * `banded` stacks a rack's access ports in bands of 24 inside one chassis.
+ * group of more than 2 ports on two rows, for a card too narrow for one.
  */
-export function faceplateOf(
-  node: DeviceNode,
-  { split = false, banded = false }: { split?: boolean; banded?: boolean } = {}
-): Faceplate {
+export function faceplateOf(node: DeviceNode, { split = false }: { split?: boolean } = {}): Faceplate {
   const chassis = chassisFor(node);
   const all = portsOf(node).map((port) => ({ port, kind: portKind(port) }));
   const logical = all.filter((p) => p.kind === 'logical' || (p.kind === 'radio' && chassis !== 'puck'));
@@ -381,20 +389,8 @@ export function faceplateOf(
   const ear = chassis === 'rack' ? EAR_W : 0;
   // a puck's rounded ends take room on both sides
   const inset = ear + (chassis === 'puck' ? 26 : 10);
-  const rows = chassis === 'desktop' || chassis === 'puck' ? [rowBlocks(physical, split)] : rackRows(physical, banded);
-  // the first row from the left margin; each further band under it, lined up
-  // with the first band's ports
-  const first = placeBlocks(rows[0], inset);
-  const { captions, captionY, dividers } = first;
-  const ports = [...first.ports];
-  let { right, height } = first;
-  const bandX = rows[1] ? ports.find((p) => p.port === rows[0][1].list[0]?.port)?.x ?? inset : inset;
-  for (const row of rows.slice(1)) {
-    const band = placeBlocks(row, bandX, height - BAND_OVERLAP);
-    ports.push(...band.ports);
-    right = Math.max(right, band.right);
-    height = band.height;
-  }
+  const blocks = chassis === 'desktop' || chassis === 'puck' ? rowBlocks(physical, split) : rackBlocks(physical);
+  const { ports, captions, captionY, dividers, right, height } = placeBlocks(blocks, inset);
 
   // The top strip, left to right: the vendor (plain text, no logo), the
   // recessed name plate (hostname · model), the vent grille, the PWR LED.
@@ -575,19 +571,48 @@ export function portTooltip(
   return { title: port.name, lines, route: Boolean(flags.onRoute) };
 }
 
+// A rack switch is always one strip, like its real 1U front panel: drawn to
+// fit the card, but never with access ports under 16 px (the card scrolls
+// sideways instead) and never above 1.25 times its size.
+export const MIN_PORT_PX = 16;
+export const MAX_RACK_SCALE = 1.25;
+
+export interface Fit {
+  fp: Faceplate;
+  /** a scaled-down panel without port numbers, with an Expand button */
+  compact: boolean;
+  /** the width to draw at in px; 0 while the card is not measured (100%) */
+  width: number;
+  /** wider than the card: the strip scrolls sideways */
+  scroll: boolean;
+}
+
 /**
- * The panel for a card `available` px wide, drawn at scale >= 1 so a port is
- * never under 22 px: the full panel if it fits, else the split one (groups on
- * two rows) or the banded one (access ports in bands of 24), else a compact
- * panel scaled to fit, with an Expand button.
- * `available` 0 means not measured yet: compact only above COMPACT_ABOVE ports.
+ * The panel for a card `available` px wide (0: not measured yet).
+ *
+ * A rack switch: always the one-strip panel with full detail, at the scale
+ * that fits, kept between MIN_PORT_PX ports and MAX_RACK_SCALE, scrolling
+ * when even the smallest is too wide; never compact. Anything else is drawn
+ * at scale >= 1 (ports >= 22 px): the full panel if it fits, else the split
+ * one (groups on two rows), else a compact panel scaled to fit, with Expand.
  */
-export function pickLayout(node: DeviceNode, available: number): { fp: Faceplate; compact: boolean } {
+export function pickLayout(node: DeviceNode, available: number): Fit {
   const full = faceplateOf(node);
-  if (!available) return { fp: full, compact: full.ports.length > COMPACT_ABOVE };
-  // one row, then split (desktop, puck) or banded (rack), then compact on the narrowest
-  const tries = [full, faceplateOf(node, { split: true }), faceplateOf(node, { banded: true })];
-  const fits = tries.find((fp) => fp.width <= available);
-  if (fits) return { fp: fits, compact: false };
-  return { fp: tries.reduce((a, b) => (b.width < a.width ? b : a)), compact: true };
+  if (full.chassis === 'rack') {
+    if (!available) return { fp: full, compact: false, width: 0, scroll: false };
+    const scale = Math.min(MAX_RACK_SCALE, Math.max(MIN_PORT_PX / PORT_W, available / full.width));
+    const width = Math.round(full.width * scale);
+    return { fp: full, compact: false, width, scroll: width > available };
+  }
+  const drawn = (fp: Faceplate, compact: boolean): Fit => ({
+    fp,
+    compact,
+    width: compact ? available : Math.min(available, Math.round(fp.width * 1.6)),
+    scroll: false,
+  });
+  if (!available) return { fp: full, compact: full.ports.length > COMPACT_ABOVE, width: 0, scroll: false };
+  if (full.width <= available) return drawn(full, false);
+  const split = faceplateOf(node, { split: true });
+  if (split.width <= available) return drawn(split, false);
+  return drawn(split.width < full.width ? split : full, true);
 }
