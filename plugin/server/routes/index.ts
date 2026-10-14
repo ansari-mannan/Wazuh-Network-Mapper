@@ -7,10 +7,10 @@ import { IRouter, Logger } from '../../../../src/core/server';
 import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
-import { getScan, onPath, startScan } from '../scan';
+import { getScan, onPath, runExclusive, startScan } from '../scan';
 import { scheduleBody, Scheduler } from '../schedule';
 import { historyDir, historyParams, readChanges, readIndex } from '../history';
-import { applyTarget, attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from '../targets';
+import { attackPathsFilePath, recomputeAttackPaths, targetsFilePath, updateTarget, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 
 export function defineRoutes(
@@ -122,7 +122,8 @@ export function defineRoutes(
   // Mark, re-rate or unmark one protected asset (targets.json beside the graph),
   // then rescore: importance is an OVSS input, so graph.json and
   // vulnerabilities.json are rescored and attack_paths.json recomputed, from
-  // cached threat data only. importance null unmarks.
+  // cached threat data only. importance null unmarks. Under the scan lock:
+  // 409 while a scan or another update runs.
   // No credential is passed; marking needs no network scan, so this is quick.
   router.post(
     {
@@ -141,39 +142,38 @@ export function defineRoutes(
       if (!backendDir) return response.customError(notConfigured('backendDir'));
       if (!graphPath) return response.customError(notConfigured('graphPath'));
       const file = targetsFilePath(graphPath);
-      let current = {};
-      try {
-        current = JSON.parse(await fs.readFile(file, 'utf-8'));
-      } catch {
-        // no targets file yet: start from nothing
+      const result = await updateTarget(
+        {
+          runExclusive,
+          read: async () => {
+            try {
+              return JSON.parse(await fs.readFile(file, 'utf-8'));
+            } catch {
+              return {}; // no targets file yet: start from nothing
+            }
+          },
+          write: async (next) => {
+            const tmp = `${file}.tmp-${process.pid}`;
+            await fs.writeFile(tmp, JSON.stringify(next, null, 2));
+            await fs.rename(tmp, file);
+          },
+          recompute: () =>
+            recomputeAttackPaths({
+              pythonBin,
+              backendDir,
+              graphPath,
+              livenessFile: config.liveness.enabled ? livenessPath(config) : null,
+              rescore: true,
+              logger,
+            }),
+        },
+        request.body.id,
+        request.body.importance
+      );
+      if (result.status !== 200) {
+        return response.customError({ statusCode: result.status, body: { message: result.message } });
       }
-      const next = applyTarget(current, request.body.id, request.body.importance);
-      try {
-        const tmp = `${file}.tmp-${process.pid}`;
-        await fs.writeFile(tmp, JSON.stringify(next, null, 2));
-        await fs.rename(tmp, file);
-      } catch (e) {
-        return response.customError({
-          statusCode: 500,
-          body: { message: `could not save targets: ${(e as Error).message}` },
-        });
-      }
-      try {
-        await recomputeAttackPaths({
-          pythonBin,
-          backendDir,
-          graphPath,
-          livenessFile: config.liveness.enabled ? livenessPath(config) : null,
-          rescore: true,
-          logger,
-        });
-      } catch (e) {
-        return response.customError({
-          statusCode: 500,
-          body: { message: `targets saved, but the recompute failed: ${(e as Error).message}` },
-        });
-      }
-      return response.ok({ body: { targets: next } });
+      return response.ok({ body: { targets: result.targets } });
     }
   );
 

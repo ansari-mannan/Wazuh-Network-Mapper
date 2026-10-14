@@ -21,8 +21,9 @@ export function getScan(): ScanState {
   return scan;
 }
 
-// A file-only task that must not overlap a scan (the liveness pass's
-// attack-path recompute). It holds the same lock: no scan starts while it runs.
+// A file-only task that must not overlap a scan or another such task: the
+// liveness pass's attack-path recompute and a protected-asset rescore, which
+// write the same files. It holds the same lock: no scan starts while it runs.
 let exclusiveTask = false;
 
 /** Run task unless a scan or another such task is running; null if refused. */

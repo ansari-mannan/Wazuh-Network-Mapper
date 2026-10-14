@@ -1,4 +1,4 @@
-import { applyTarget, attackPathsFilePath, recomputeArgs, targetsFilePath } from './targets';
+import { applyTarget, attackPathsFilePath, BUSY, recomputeArgs, targetsFilePath, updateTarget } from './targets';
 
 describe('applyTarget', () => {
   it('adds a new target with the UI note', () => {
@@ -42,5 +42,41 @@ describe('recomputeArgs', () => {
 
   it('only recomputes the attack paths otherwise', () => {
     expect(recomputeArgs('/d/graph.json')).toEqual(['-m', 'vulnmapper.attackpaths', '--graph', '/d/graph.json']);
+  });
+});
+
+describe('updateTarget', () => {
+  function setup(scanRunning: boolean) {
+    const deps = {
+      runExclusive: (task: () => Promise<void>) => (scanRunning ? null : task()),
+      read: jest.fn(async () => ({})),
+      write: jest.fn(async () => undefined),
+      recompute: jest.fn(async () => undefined),
+    };
+    return deps;
+  }
+
+  it('refuses while a scan runs, without saving or rescoring', async () => {
+    const deps = setup(true);
+    expect(await updateTarget(deps, 'a', 'high')).toEqual({ status: 409, message: BUSY });
+    expect(deps.write).not.toHaveBeenCalled();
+    expect(deps.recompute).not.toHaveBeenCalled();
+  });
+
+  it('saves and rescores when idle', async () => {
+    const deps = setup(false);
+    const result = await updateTarget(deps, 'a', 'high');
+    expect(result).toEqual({ status: 200, targets: { a: { importance: 'high', note: expect.any(String) } } });
+    expect(deps.write).toHaveBeenCalledTimes(1);
+    expect(deps.recompute).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports a failed rescore after saving', async () => {
+    const deps = setup(false);
+    deps.recompute.mockRejectedValueOnce(new Error('boom'));
+    expect(await updateTarget(deps, 'a', 'high')).toEqual({
+      status: 500,
+      message: 'targets saved, but the rescore failed: boom',
+    });
   });
 });

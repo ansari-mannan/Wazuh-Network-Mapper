@@ -38,6 +38,49 @@ export function applyTarget(current: TargetsFile, id: string, importance: Import
   return next;
 }
 
+export type TargetUpdate =
+  | { status: 200; targets: TargetsFile }
+  | { status: 409 | 500; message: string };
+
+export const BUSY = 'A scan or another update is running; try again when it finishes.';
+
+/**
+ * Save one target change and rescore, holding the scan lock (runExclusive), so
+ * a scan finishing with the old targets cannot overwrite the result and two
+ * updates cannot interleave. Refused (409) while a scan or another update runs,
+ * so a change is never silently lost. Pure: the file access is injected.
+ */
+export async function updateTarget(
+  deps: {
+    runExclusive: (task: () => Promise<void>) => Promise<void> | null;
+    read: () => Promise<TargetsFile>;
+    write: (next: TargetsFile) => Promise<void>;
+    recompute: () => Promise<void>;
+  },
+  id: string,
+  importance: Importance | null
+): Promise<TargetUpdate> {
+  let result: TargetUpdate = { status: 500, message: 'the update did not run' };
+  const run = deps.runExclusive(async () => {
+    const next = applyTarget(await deps.read(), id, importance);
+    try {
+      await deps.write(next);
+    } catch (e) {
+      result = { status: 500, message: `could not save targets: ${(e as Error).message}` };
+      return;
+    }
+    try {
+      await deps.recompute();
+      result = { status: 200, targets: next };
+    } catch (e) {
+      result = { status: 500, message: `targets saved, but the rescore failed: ${(e as Error).message}` };
+    }
+  });
+  if (!run) return { status: 409, message: BUSY };
+  await run;
+  return result;
+}
+
 /**
  * The backend command that refreshes the files after a change. Plain: only
  * attack_paths.json (`vulnmapper.attackpaths`, as after a liveness pass).
