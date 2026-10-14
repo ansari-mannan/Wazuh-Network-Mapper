@@ -4,6 +4,7 @@ import React from 'react';
 import { EuiBasicTable, EuiDescriptionList, EuiPanel, EuiSpacer, EuiText, EuiTextColor, EuiTitle } from '@elastic/eui';
 import { ScanStageOutcome } from '../../../common';
 import { useGraph } from '../../lib/graph';
+import { connectionSecurity } from '../../lib/graphWarnings';
 import { formatTime } from './ScanStatus';
 
 export function ScanStages({ stages, title = 'Last scan, stage by stage' }: { stages: ScanStageOutcome[]; title?: string }) {
@@ -58,6 +59,7 @@ export function GraphSource() {
             { title: 'Scan time (from the file)', description: formatTime(graph.metadata?.scan_time) },
             { title: 'Nodes', description: String(graph.nodes.length) },
             { title: 'Links', description: String(graph.edges.length) },
+            { title: 'Connection security', description: connectionSecurity(graph.metadata?.warnings) },
           ]}
         />
       ) : (

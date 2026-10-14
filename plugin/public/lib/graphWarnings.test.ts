@@ -1,10 +1,21 @@
-import { graphWarnings } from './graphWarnings';
+import { CONNECTION_UNVERIFIED, connectionSecurity, graphWarnings, tlsNote } from './graphWarnings';
 
 describe('graphWarnings', () => {
-  it('names the unverified TLS services', () => {
-    expect(graphWarnings([{ type: 'tls_unverified', services: ['Wazuh Manager API', 'Wazuh Indexer'] }])[0]).toMatch(
-      /^TLS certificates were not verified for the Wazuh Manager API and Wazuh Indexer during this scan\./
-    );
+  it('leaves TLS out of the warnings: it is a note', () => {
+    expect(graphWarnings([{ type: 'tls_unverified', services: ['Wazuh Manager API'] }])).toEqual([]);
+  });
+
+  it('keys the TLS note by its services, so a new one shows again', () => {
+    const one = tlsNote([{ type: 'tls_unverified', services: ['Wazuh Manager API'] }]);
+    const two = tlsNote([{ type: 'tls_unverified', services: ['Wazuh Manager API', 'Wazuh Indexer'] }]);
+    expect(one?.text).toMatch(/^TLS certificates were not verified for the Wazuh Manager API/);
+    expect(one?.key).not.toBe(two?.key);
+    expect(tlsNote([{ type: 'crawl_empty' }])).toBeNull();
+  });
+
+  it('gives the Scan settings connection line', () => {
+    expect(connectionSecurity([{ type: 'tls_unverified', services: ['Wazuh Indexer'] }])).toBe(CONNECTION_UNVERIFIED);
+    expect(connectionSecurity([])).toMatch(/^Certificates verified/);
   });
 
   it('explains an empty crawl and a failed stage in plain words', () => {

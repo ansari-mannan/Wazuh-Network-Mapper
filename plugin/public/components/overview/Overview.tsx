@@ -1,5 +1,5 @@
 // The landing page: the summary panels and a card for each page.
-import React from 'react';
+import React, { useState } from 'react';
 import {
   EuiCallOut,
   EuiButton,
@@ -16,7 +16,7 @@ import {
   EuiSpacer,
   EuiTitle,
 } from '@elastic/eui';
-import { PLUGIN_NAME } from '../../../common';
+import { GraphWarning, PLUGIN_NAME } from '../../../common';
 import { PAGE_GROUPS, PAGES } from '../../pages';
 import { useGraph } from '../../lib/graph';
 import { useServices } from '../../lib/services';
@@ -24,7 +24,33 @@ import { ThemeToggle } from '../layout/ThemeToggle';
 import { SummaryPanels } from './SummaryPanels';
 import { SinceLastScan } from './SinceLastScan';
 import { threatFeedWarning } from '../../lib/ovssText';
-import { graphWarnings } from '../../lib/graphWarnings';
+import { graphWarnings, tlsNote } from '../../lib/graphWarnings';
+import { isDismissed, rememberDismissed } from '../../lib/dismissed';
+
+// The lab-default TLS note: small, informational, and gone once dismissed
+// (remembered per kind, so a different note still shows).
+function TlsNote({ warnings }: { warnings: GraphWarning[] | undefined }) {
+  const note = tlsNote(warnings);
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  if (!note || dismissed === note.key || isDismissed(note.key)) return null;
+  return (
+    <>
+      <EuiCallOut
+        size="s"
+        color="primary"
+        iconType="iInCircle"
+        title={note.text}
+        dismissible
+        onDismiss={() => {
+          rememberDismissed(note.key);
+          setDismissed(note.key);
+        }}
+        data-test-subj="vmTlsNote"
+      />
+      <EuiSpacer size="m" />
+    </>
+  );
+}
 
 function PageCards() {
   const { history } = useServices();
@@ -88,6 +114,7 @@ export function Overview() {
             <EuiSpacer size="m" />
           </>
         )}
+        <TlsNote warnings={graph?.metadata.warnings} />
         {graphWarnings(graph?.metadata.warnings).length > 0 && (
           <>
             <EuiCallOut color="warning" iconType="alert" title="About this scan" data-test-subj="vmScanWarnings">

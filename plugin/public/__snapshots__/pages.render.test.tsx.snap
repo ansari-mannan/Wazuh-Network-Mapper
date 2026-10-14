@@ -8471,6 +8471,8 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 <dd class=\\"euiDescriptionList__description\\">11</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
+<dt class=\\"euiDescriptionList__title\\">Connection security</dt>
+<dd class=\\"euiDescriptionList__description\\">Certificates verified, or Wazuh not contacted in this scan.</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -8967,6 +8969,8 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 <dd class=\\"euiDescriptionList__description\\">11</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
+<dt class=\\"euiDescriptionList__title\\">Connection security</dt>
+<dd class=\\"euiDescriptionList__description\\">Certificates verified, or Wazuh not contacted in this scan.</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -9453,6 +9457,8 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 <dd class=\\"euiDescriptionList__description\\">11</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
+<dt class=\\"euiDescriptionList__title\\">Connection security</dt>
+<dd class=\\"euiDescriptionList__description\\">Certificates verified, or Wazuh not contacted in this scan.</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -9934,6 +9940,8 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 <dd class=\\"euiDescriptionList__description\\">11</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
+<dt class=\\"euiDescriptionList__title\\">Connection security</dt>
+<dd class=\\"euiDescriptionList__description\\">Certificates verified, or Wazuh not contacted in this scan.</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -10434,6 +10442,8 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 <dd class=\\"euiDescriptionList__description\\">11</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
+<dt class=\\"euiDescriptionList__title\\">Connection security</dt>
+<dd class=\\"euiDescriptionList__description\\">Certificates verified, or Wazuh not contacted in this scan.</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
