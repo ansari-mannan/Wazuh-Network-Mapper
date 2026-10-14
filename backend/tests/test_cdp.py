@@ -188,8 +188,9 @@ class TestNoCdpAnywhere(unittest.TestCase):
     def test_output_shape_is_todays(self):
         doc = crawl(lab(cdp=False))
         for node in doc["nodes"]:
-            # the one addition: a polled device's software family, when recognised
-            extra = {"software_family"} if node["pollable"] else set()
+            # the additions: a polled device's software family, when recognised,
+            # and the ports only its neighbours report (infer_far_side_ports)
+            extra = {"software_family", "inferred_ports"} if node["pollable"] else set()
             self.assertLessEqual(set(node) - LEGACY_NODE_KEYS, extra, node["chassis_id"])
             self.assertLessEqual(LEGACY_NODE_KEYS, set(node), node["chassis_id"])
         for edge in doc["edges"]:

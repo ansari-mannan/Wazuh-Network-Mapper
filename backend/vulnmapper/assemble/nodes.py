@@ -65,6 +65,7 @@ def device_node(raw: dict) -> Node:
         pollable=raw.get("pollable"),
         neighbor_ports=raw.get("neighbor_ports") or [],
         uplink_ports=raw.get("uplink_ports") or [],
+        inferred_ports=raw.get("inferred_ports") or None,
         port_status=raw.get("port_status") or {},
         risk_score=raw.get("risk_score"),
         software_family=raw.get("software_family"),

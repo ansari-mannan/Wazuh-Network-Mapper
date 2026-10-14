@@ -557,8 +557,15 @@
         "parent_id": "device:00:23:ac:e5:74:00",
         "chassis_id": "5c:8a:38:8b:a1:0b",
         "pollable": true,
-        "neighbor_ports": [],
-        "uplink_ports": [],
+        "neighbor_ports": [
+          "GigabitEthernet1/0/1"
+        ],
+        "uplink_ports": [
+          "GigabitEthernet1/0/1"
+        ],
+        "inferred_ports": [
+          "GigabitEthernet1/0/1"
+        ],
         "port_status": {},
         "software_family": "hp_comware",
         "top_cves": [],

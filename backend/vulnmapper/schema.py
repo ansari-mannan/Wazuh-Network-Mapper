@@ -263,6 +263,8 @@ class Node:
     pollable: Optional[bool] = None
     neighbor_ports: Optional[list] = None
     uplink_ports: Optional[list] = None
+    # of those, the ports known only from the neighbour's side of the link
+    inferred_ports: Optional[list] = None
     port_status: Optional[dict] = None
     # The software family the crawler recognised (devicecves.families); None
     # when not known, and then not emitted.
@@ -310,6 +312,8 @@ class Node:
                 out["neighbor_ports"] = self.neighbor_ports
             if self.uplink_ports is not None:
                 out["uplink_ports"] = self.uplink_ports
+            if self.inferred_ports:
+                out["inferred_ports"] = self.inferred_ports
             if self.port_status is not None:
                 out["port_status"] = self.port_status
             if self.wifi_clients is not None:

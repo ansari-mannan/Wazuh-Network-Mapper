@@ -2773,9 +2773,9 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Neighbor ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">GigabitEthernet1/0/1 (inferred from neighbour)</dd>
 <dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">GigabitEthernet1/0/1 (inferred from neighbour)</dd>
 </dl>
 </div>
 </div>

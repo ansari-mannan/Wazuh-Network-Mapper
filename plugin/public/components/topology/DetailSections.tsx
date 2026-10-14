@@ -18,6 +18,7 @@ import { formatSeen, livenessMethod } from '../../lib/livenessText';
 import { potentialText, staleText } from '../../lib/deviceCveText';
 import { conflictText, cvssSourceText, epssText, exposureText, ovssLine } from '../../lib/ovssText';
 import { RISK_META, riskLevel, RiskLevel, TIER_META, TIERS } from '../../lib/risk';
+import { portsText } from '../../lib/portText';
 
 const EMPTY = '—';
 
@@ -339,8 +340,8 @@ export function DevicePorts({ node }: { node: DeviceNode }) {
           compressed
           className="vmFields"
           listItems={fields([
-            ['Neighbor ports', (node.neighbor_ports || []).join(', ')],
-            ['Uplink ports', (node.uplink_ports || []).join(', ')],
+            ['Neighbor ports', portsText(node.neighbor_ports, node.inferred_ports)],
+            ['Uplink ports', portsText(node.uplink_ports, node.inferred_ports)],
           ])}
         />
       </Section>

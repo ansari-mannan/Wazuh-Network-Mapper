@@ -74,6 +74,10 @@ class Device:
     #   port_status:    port name -> "up"/"down" from ifOperStatus.
     neighbor_ports: list = field(default_factory=list)
     uplink_ports: list = field(default_factory=list)
+    # The ports above known only from the neighbour's side of the link (a
+    # FortiGate lists no LLDP neighbours over SNMP): named as the neighbour
+    # saw them, which may be an interface alias rather than an ifName.
+    inferred_ports: list = field(default_factory=list)
     port_status: dict = field(default_factory=dict)
     # The LLDP capability bitmap advertised for this device; the assembler
     # decodes it into a role.
@@ -120,6 +124,8 @@ class Device:
             "arp": self.arp,
             "own_macs": self.own_macs,
         }
+        if self.inferred_ports:
+            node["inferred_ports"] = sorted(self.inferred_ports)
         if self.platform is not None:
             node["platform"] = self.platform
         if self.access_point:

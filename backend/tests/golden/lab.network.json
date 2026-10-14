@@ -323,13 +323,20 @@
       "discovery_method": "snmp_lldp",
       "status": "online",
       "pollable": true,
-      "neighbor_ports": [],
-      "uplink_ports": [],
+      "neighbor_ports": [
+        "GigabitEthernet1/0/1"
+      ],
+      "uplink_ports": [
+        "GigabitEthernet1/0/1"
+      ],
       "port_status": {},
       "lldp_cap_enabled": "0x2800",
       "fdb": [],
       "arp": {},
       "own_macs": [],
+      "inferred_ports": [
+        "GigabitEthernet1/0/1"
+      ],
       "software_family": "hp_comware",
       "config_data": {
         "snmp": {

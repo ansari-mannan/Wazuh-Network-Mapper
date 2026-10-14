@@ -150,6 +150,7 @@ class Crawler:
                 dev = self._devices.get(cid)
                 if dev is not None and not dev.lldp_cap_enabled:
                     dev.lldp_cap_enabled = caps
+            infer_far_side_ports(self._devices, self._links)
             return list(self._devices.values()), list(self._links)
 
     async def _worker(self) -> None:
@@ -442,6 +443,28 @@ class Crawler:
     def _cdp_only(self, pair: frozenset) -> bool:
         return all(l.protocol == "cdp" for l in self._links
                    if frozenset((l.source_chassis_id, l.target_chassis_id)) == pair)
+
+
+def infer_far_side_ports(devices: dict, links: list) -> None:
+    """Give a polled device the ports only its neighbours report.
+
+    Some devices answer SNMP but list no LLDP neighbours (FortiOS has no
+    LLDP-MIB remote table over SNMP), so a link to one is known only from the
+    other end, whose remote-port field names this device's port. That port is
+    added to the device's neighbour and uplink ports (the neighbour is a
+    polled device, so infrastructure) and listed in ``inferred_ports``. Only a
+    device whose own LLDP and CDP tables gave no neighbour at all is filled
+    in: one that reported any keeps its own names (a CDP-only report of a
+    link LLDP also saw is not kept as a link, and would name the port twice).
+    """
+    silent = {cid for cid, dev in devices.items() if dev.pollable and not dev.neighbor_ports}
+    for link in links:
+        dev = devices.get(link.target_chassis_id)
+        if link.target_chassis_id not in silent or not link.remote_port:
+            continue
+        dev.neighbor_ports = sorted({*dev.neighbor_ports, link.remote_port})
+        dev.uplink_ports = sorted({*dev.uplink_ports, link.remote_port})
+        dev.inferred_ports = sorted({*dev.inferred_ports, link.remote_port})
 
 
 def _port_roles(neighbors: list[Neighbor], cdp: list[Neighbor]) -> tuple[set, set]:

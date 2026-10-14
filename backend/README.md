@@ -97,6 +97,13 @@ device and one link; a link only CDP reported carries `"protocol": "cdp"`.
 Only a CDP neighbour with router or switch capability makes its port an
 uplink, so the hosts behind a phone or an access point stay visible.
 
+A polled device that lists no LLDP neighbours of its own (a FortiGate answers
+SNMP but returns no LLDP-MIB remote entries) is given the port each polled
+neighbour names for the link (its LLDP remote port) as a neighbour and uplink
+port, listed again in `inferred_ports`. The name is what the neighbour saw,
+which may be an interface alias (LLDP port-id subtype 1) rather than the
+device's own interface name.
+
 A polled device that answers the Cisco wireless association MIB (or, failing
 that, whose CDP platform or system description names an access point) gets
 the role `access-point`. Its clients are read from its association table

@@ -209,6 +209,9 @@ export type DeviceNode = GraphNodeBase & {
   pollable?: boolean;
   uplink_ports?: string[];
   neighbor_ports?: string[];
+  // of the ports above, those known only from the neighbour's side of the link
+  // (the device lists no LLDP neighbours over SNMP, e.g. a FortiGate)
+  inferred_ports?: string[];
   port_status?: Record<string, string>;
   port_status_note?: string;
   // An access point: how many Wi-Fi clients it reported.
