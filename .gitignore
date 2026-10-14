@@ -37,6 +37,18 @@ data/nvd-cache.json
 data/schedule.json
 # scan history: copies of each scan's files (MACs, serials) and their index
 data/history/
+# the liveness check's last state (plugin, vulnmapper.liveness)
+data/liveness.json
+# the recommendations tracker (plugin)
+data/recommendations.json
+# CVE records and the KEV / EPSS feeds cached by a scan or the feeds refresh
+data/cve-records.json
+data/kev.json
+data/epss_scores-current.csv.gz
+# temp files of an interrupted write: the plugin's <name>.tmp-<pid>[-<n>] and
+# the scanner's .<name>.<random>.tmp
+data/*.tmp-*
+data/.*.tmp
 
 # Serena (editor agent) project files
 .serena/
