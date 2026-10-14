@@ -25,6 +25,15 @@ export interface Caption {
   width: number;
 }
 
+export interface PanelText {
+  text: string;
+  x: number;
+  /** baseline */
+  y: number;
+  size: number;
+  bold?: boolean;
+}
+
 export interface Faceplate {
   chassis: Chassis;
   width: number;
@@ -33,8 +42,10 @@ export interface Faceplate {
   brandWidth: number;
   ports: PlacedPort[];
   captions: Caption[];
-  /** captions sit above this y */
+  /** the captions' baseline; their rule is 3 below */
   captionY: number;
+  /** text on the chassis itself (vendor, model) */
+  texts: PanelText[];
   /** Vlan, Loopback, sub-interfaces...: listed under the panel, not drawn on it */
   logical: DevicePort[];
 }
@@ -123,38 +134,89 @@ export function shortName(name: string): string {
   return m && m[3] ? `${m[1].toUpperCase()}${m[2].toLowerCase()}${m[3]}` : name;
 }
 
+// ---- vertical bands --------------------------------------------------------
+// Every panel has the same bands, top to bottom: the group captions with
+// their rule, the labels of the top row, the top row, the bottom row and its
+// labels. A caption never shares a line with a port label, and a label sits
+// only above the top row or below the bottom row (a one-row block sits
+// halfway down with its labels below it, in its own columns).
+export const CAPTION_SIZE = 7.5;
+export const LABEL_SIZE = 7;
+const CAPTION_Y = 10; // caption baseline; its rule is 3 below
+const ROW1_ONE = 24; // the row of a one-row panel
+const ROW1_TWO = 27; // the top row of a two-row panel
+const LABEL_GAP = 4; // from a row to the baseline above it / the label's top below it
+
+/** A text's width as drawn (generous: capitals of the dashboard's sans font). */
+export const textWidth = (text: string, size: number) => text.length * size * 0.65;
+
+/** `text` cut with an ellipsis to fit `width` at font `size`. */
+export function fitText(text: string, width: number, size: number): string {
+  const max = Math.floor(width / (size * 0.65));
+  return text.length <= max ? text : `${text.slice(0, Math.max(1, max - 1))}…`;
+}
+
+type Entry = { port: DevicePort; kind: PortKind };
+
+interface Block {
+  list: Entry[];
+  twoRows: boolean;
+  label: (p: DevicePort) => string;
+  caption: string;
+  /** columns per block of ports before a wider gap (6 = blocks of 12 ports on two rows) */
+  blockCols?: number;
+  /** space before this block (default GROUP_GAP) */
+  gapBefore?: number;
+}
+
 /**
- * Ports in a grid from (x0, y0). Two rows put the 1st, 3rd, ... port on top
- * and the 2nd, 4th, ... below (Cisco/HP numbering), in blocks of 12; one row
- * sits halfway down.
+ * Places the blocks left to right from `x0`: a block's width is its ports'
+ * or its caption's, whichever is wider, so captions never run into each other.
  */
-function grid(
-  ports: Array<{ port: DevicePort; kind: PortKind }>,
-  x0: number,
-  y0: number,
-  twoRows: boolean,
-  label: (p: DevicePort) => string
-): { placed: PlacedPort[]; width: number } {
-  if (!ports.length) return { placed: [], width: 0 };
-  let right = x0;
-  const placed = ports.map(({ port, kind }, i) => {
-    const col = twoRows ? Math.floor(i / 2) : i;
-    const bottom = twoRows && i % 2 === 1;
-    const x = x0 + col * (PORT_W + GAP_X) + (twoRows ? Math.floor(col / 6) * BLOCK_GAP : 0);
-    const y = y0 + (bottom ? PORT_H + GAP_Y : twoRows ? 0 : (PORT_H + GAP_Y) / 2);
-    right = Math.max(right, x + PORT_W);
-    return { port, kind, label: label(port), x, y, labelY: twoRows && !bottom ? y - 3 : y + PORT_H + 9 };
+function placeBlocks(blocks: Block[], x0: number) {
+  blocks = blocks.filter((b) => b.list.length);
+  const rows = blocks.some((b) => b.twoRows) ? 2 : 1;
+  const row1 = rows === 2 ? ROW1_TWO : ROW1_ONE;
+  const row2 = row1 + PORT_H + GAP_Y;
+  const middle = (row1 + row2) / 2;
+  const below = (y: number) => y + PORT_H + LABEL_GAP + LABEL_SIZE;
+  const ports: PlacedPort[] = [];
+  const captions: Caption[] = [];
+  let x = x0;
+  blocks.forEach((b, n) => {
+    if (n > 0) x += b.gapBefore ?? GROUP_GAP;
+    let right = x;
+    // columns wide enough for the block's longest label
+    const pitch = Math.max(PORT_W + GAP_X, ...b.list.map(({ port }) => textWidth(b.label(port), LABEL_SIZE) + 3));
+    b.list.forEach(({ port, kind }, i) => {
+      const col = b.twoRows ? Math.floor(i / 2) : i;
+      const bottom = b.twoRows && i % 2 === 1;
+      const px = x + col * pitch + Math.floor(col / (b.blockCols ?? Infinity)) * BLOCK_GAP;
+      const y = !b.twoRows ? (rows === 2 ? middle : row1) : bottom ? row2 : row1;
+      const labelY = b.twoRows && !bottom ? row1 - LABEL_GAP : below(y);
+      ports.push({ port, kind, label: b.label(port), x: px, y, labelY });
+      right = Math.max(right, px + PORT_W);
+    });
+    const width = Math.max(right - x, b.caption ? textWidth(b.caption, CAPTION_SIZE) : 0);
+    if (b.caption) captions.push({ text: b.caption, x, width });
+    x += width;
   });
-  return { placed, width: right - x0 };
+  return {
+    ports,
+    captions,
+    captionY: CAPTION_Y,
+    right: x,
+    height: (rows === 2 ? below(row2) : below(row1)) + 8,
+  };
 }
 
 /**
  * The rack (and generic) panel: console/management on the left, the numbered
- * access ports in blocks of 12, and the uplinks (every other physical port:
- * the trailing Gi/Te/SFP ports) in their own block on the right.
+ * access ports in blocks of 12 (odd on top, even below; fewer than 8 in one
+ * row), and the uplinks (every other physical port: the trailing Gi/Te/SFP
+ * ports) in their own block on the right.
  */
-function rackLayout(physical: Array<{ port: DevicePort; kind: PortKind }>, brandWidth: number) {
-  const top = 16;
+function rackBlocks(physical: Entry[]): Block[] {
   const consoles = physical.filter((p) => p.kind === 'console');
   const rest = physical.filter((p) => p.kind !== 'console');
   // the access ports are the biggest family; ties go to the first one seen
@@ -164,38 +226,22 @@ function rackLayout(physical: Array<{ port: DevicePort; kind: PortKind }>, brand
   for (const [f, n] of counts) if (n > (counts.get(accessFamily) || 0)) accessFamily = f;
   const access = rest.filter(({ port }) => family(port.name) === accessFamily);
   const uplinks = rest.filter(({ port }) => family(port.name) !== accessFamily);
-
-  const ports: PlacedPort[] = [];
-  const captions: Caption[] = [];
-  let x = brandWidth;
-  const block = (
-    list: typeof physical,
-    twoRows: boolean,
-    label: (p: DevicePort) => string,
-    caption: string
-  ) => {
-    if (!list.length) return;
-    const { placed, width } = grid(list, x, top, twoRows, label);
-    ports.push(...placed);
-    if (caption) captions.push({ text: caption, x, width });
-    x += width + GROUP_GAP;
-  };
-  block(consoles, false, (p) => shortName(p.name), 'MGMT');
-  block(access, access.length >= 8, (p) => trailingNumber(p.name) || shortName(p.name), '');
-  const allSfp = uplinks.every((p) => p.kind === 'sfp');
-  block(
-    uplinks,
-    uplinks.length > 4,
-    (p) => `${p.name.charAt(0).toUpperCase()}${trailingNumber(p.name) || ''}`,
-    allSfp ? 'SFP' : 'UPLINK'
-  );
-  return {
-    ports,
-    captions,
-    captionY: top - 4,
-    width: Math.max(x - GROUP_GAP, brandWidth) + RIGHT_PAD,
-    height: top * 2 + PORT_H * 2 + GAP_Y + 14,
-  };
+  return [
+    { list: consoles, twoRows: false, label: (p) => shortName(p.name), caption: 'MGMT' },
+    {
+      list: access,
+      twoRows: access.length >= 8,
+      label: (p) => trailingNumber(p.name) || shortName(p.name),
+      caption: '',
+      blockCols: 6,
+    },
+    {
+      list: uplinks,
+      twoRows: uplinks.length > 4,
+      label: (p) => `${p.name.charAt(0).toUpperCase()}${trailingNumber(p.name) || ''}`,
+      caption: uplinks.every((p) => p.kind === 'sfp') ? 'SFP' : 'UPLINK',
+    },
+  ];
 }
 
 const DESKTOP_GROUPS: Array<[RegExp, string]> = [
@@ -213,9 +259,8 @@ const groupRank = (g: string) => (g === 'INTERNAL' ? 0 : g === 'DMZ' ? 2 : g ===
  * sockets, grouped and captioned by name family (port1-7 as INTERNAL, dmz,
  * wan1-2...). An access point's radios come first, as antenna LEDs.
  */
-function rowLayout(physical: Array<{ port: DevicePort; kind: PortKind }>, brandWidth: number) {
-  const top = 34;
-  const groups = new Map<string, typeof physical>();
+function rowBlocks(physical: Entry[]): Block[] {
+  const groups = new Map<string, Entry[]>();
   for (const p of physical) {
     const g = p.kind === 'radio' ? 'RADIO' : groupOf(p.port.name);
     groups.set(g, [...(groups.get(g) || []), p]);
@@ -223,21 +268,16 @@ function rowLayout(physical: Array<{ port: DevicePort; kind: PortKind }>, brandW
   const order = [...groups.keys()].sort(
     (a, b) => (a === 'RADIO' ? -1 : b === 'RADIO' ? 1 : groupRank(a) - groupRank(b))
   );
-  const ports: PlacedPort[] = [];
-  const captions: Caption[] = [];
-  let x = brandWidth;
-  for (const g of order) {
-    const label = (p: DevicePort) =>
-      (g === 'INTERNAL' && trailingNumber(p.name)) || (g === 'RADIO' && (bandOf(p.name) || `R${trailingNumber(p.name) ?? ''}`)) || shortName(p.name);
-    groups.get(g)!.forEach(({ port, kind }, i) => {
-      const px = x + i * (PORT_W + 8);
-      ports.push({ port, kind, label: label(port), x: px, y: top, labelY: top + PORT_H + 11 });
-    });
-    const width = groups.get(g)!.length * (PORT_W + 8) - 8;
-    captions.push({ text: g, x, width });
-    x += width + 20;
-  }
-  return { ports, captions, captionY: top - 10, width: Math.max(x - 20, brandWidth) + 16, height: 82 };
+  return order.map((g) => ({
+    list: groups.get(g)!,
+    twoRows: false,
+    caption: g,
+    gapBefore: 20,
+    label: (p: DevicePort) =>
+      (g === 'INTERNAL' && trailingNumber(p.name)) ||
+      (g === 'RADIO' && (bandOf(p.name) || `R${trailingNumber(p.name) ?? ''}`)) ||
+      shortName(p.name),
+  }));
 }
 
 /** The whole front panel of one device. */
@@ -247,10 +287,46 @@ export function faceplateOf(node: DeviceNode): Faceplate {
   const logical = all.filter((p) => p.kind === 'logical' || (p.kind === 'radio' && chassis !== 'puck'));
   const physical = all.filter((p) => !logical.includes(p));
   const brandWidth = chassis === 'generic' ? 96 : chassis === 'puck' ? 110 : chassis === 'desktop' ? 150 : 120;
-  const laid = chassis === 'desktop' || chassis === 'puck'
-    ? rowLayout(physical, brandWidth)
-    : rackLayout(physical, brandWidth);
-  return { chassis, brandWidth, logical: logical.map((p) => p.port), ...laid };
+  const blocks = chassis === 'desktop' || chassis === 'puck' ? rowBlocks(physical) : rackBlocks(physical);
+  const { ports, captions, captionY, right, height } = placeBlocks(blocks, brandWidth);
+  // vendor and model, plain text, cut to the brand area
+  const textX = chassis === 'puck' ? 30 : 14;
+  const room = brandWidth - textX - 8;
+  const texts: PanelText[] = [];
+  if (node.vendor) texts.push({ text: fitText(node.vendor, room, 10), x: textX, y: 26, size: 10, bold: true });
+  if (node.model) texts.push({ text: fitText(node.model, room, 8), x: textX, y: 40, size: 8 });
+  return {
+    chassis,
+    brandWidth,
+    logical: logical.map((p) => p.port),
+    ports,
+    captions,
+    captionY,
+    texts,
+    width: Math.max(right, brandWidth) + (chassis === 'desktop' || chassis === 'puck' ? 16 : RIGHT_PAD),
+    height,
+  };
+}
+
+export interface TextBox {
+  text: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** Every text the full-size panel draws, as a box (captions, port labels, brand texts). */
+export function textBoxes(fp: Faceplate): TextBox[] {
+  const box = (text: string, x: number, base: number, size: number, middle = false): TextBox => {
+    const w = textWidth(text, size);
+    return { text, x: middle ? x - w / 2 : x, y: base - 0.8 * size, w, h: size * 1.05 };
+  };
+  return [
+    ...fp.captions.map((c) => box(c.text, c.x, fp.captionY, CAPTION_SIZE)),
+    ...fp.ports.map((p) => box(p.label, p.x + PORT_W / 2, p.labelY, LABEL_SIZE, true)),
+    ...fp.texts.map((t) => box(t.text, t.x, t.y, t.size)),
+  ];
 }
 
 // ---- what is plugged in -------------------------------------------------------

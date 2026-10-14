@@ -15,7 +15,9 @@ import {
 } from '@elastic/eui';
 import { DeviceNode, DevicePort, GraphEdge } from '../../../common';
 import {
+  CAPTION_SIZE,
   COMPACT_ABOVE,
+  LABEL_SIZE,
   Faceplate as Layout,
   faceplateOf,
   isInferred,
@@ -114,7 +116,7 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
         </>
       )}
       {!compact && (
-        <text className="vmFpLabel" x={x + w / 2} y={p.labelY} fontSize={7} textAnchor="middle">
+        <text className="vmFpLabel" x={x + w / 2} y={p.labelY} fontSize={LABEL_SIZE} textAnchor="middle">
           {p.label}
         </text>
       )}
@@ -126,7 +128,6 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
 export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, onSelectNode, width }: PanelProps & { width?: number }) {
   const { chassis, height: H, width: W } = fp;
   const rx = chassis === 'puck' ? H / 2 : chassis === 'desktop' ? 10 : chassis === 'rack' ? 5 : 4;
-  const textX = chassis === 'puck' ? 30 : 14;
   return (
     <svg
       className={`vmFaceplate vmFaceplate--${chassis}`}
@@ -140,20 +141,15 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, 
     >
       <rect className="vmFpChassis" x={1} y={1} width={W - 2} height={H - 2} rx={rx} strokeWidth={2} />
       {chassis === 'rack' && <rect className="vmFpChassisHi" x={1} y={1} width={W - 2} height={6} rx={3} />}
-      {node.vendor && (
-        <text className="vmFpLabel" x={textX} y={chassis === 'rack' || chassis === 'generic' ? 26 : 30} fontSize={10} fontWeight={700}>
-          {node.vendor}
+      {fp.texts.map((t) => (
+        <text key={t.text} className="vmFpLabel" x={t.x} y={t.y} fontSize={t.size} fontWeight={t.bold ? 700 : undefined}>
+          {t.text}
         </text>
-      )}
-      {node.model && (
-        <text className="vmFpLabel" x={textX} y={chassis === 'rack' || chassis === 'generic' ? 40 : 44} fontSize={8}>
-          {node.model}
-        </text>
-      )}
+      ))}
       {!compact &&
         fp.captions.map((c) => (
           <g key={`${c.text}-${c.x}`}>
-            <text className="vmFpLabel" x={c.x} y={fp.captionY} fontSize={7.5}>
+            <text className="vmFpLabel" x={c.x} y={fp.captionY} fontSize={CAPTION_SIZE}>
               {c.text}
             </text>
             <line className="vmFpRule" x1={c.x} y1={fp.captionY + 3} x2={c.x + c.width} y2={fp.captionY + 3} strokeWidth={0.6} />

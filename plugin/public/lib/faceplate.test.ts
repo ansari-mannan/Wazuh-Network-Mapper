@@ -1,3 +1,4 @@
+import type { DeviceNode } from '../../common';
 import {
   chassisFor,
   faceplateOf,
@@ -12,6 +13,9 @@ import {
   routePortKeys,
   shortName,
   speedText,
+  textBoxes,
+  PORT_W,
+  PORT_H,
 } from './faceplate';
 import {
   accessPoint,
@@ -231,5 +235,46 @@ describe('portTooltip', () => {
       'FastEthernet1/0/1. Up. Alias: Uplink to firewall. Speed: 100 Mb/s. Neighbour: fw wan1. On an attack route'
     );
     expect(portTooltip(port('dmz', 'shutdown'), [])).toEqual({ title: 'dmz', lines: ['Shut down (admin)'], route: false });
+  });
+});
+
+describe('no overlapping text', () => {
+  const fixtures: Array<[string, DeviceNode]> = [
+    ['24+2 switch', switch24],
+    ['48+2 switch', switch48],
+    ['8-port switch', switch8],
+    ['7-port switch', { ...switch8, ports: switch8.ports!.slice(0, 7) }],
+    ['switch with mgmt and 10G uplinks', {
+      ...switch8,
+      ports: [port('mgmt0', 'up'), ...switch8.ports!, port('TenGigabitEthernet1/1/1'), port('TenGigabitEthernet1/1/2')],
+    }],
+    ['FortiGate 60D', fortigate],
+    ['access point', accessPoint],
+    ['unknown device', unknownDevice],
+  ];
+  const hit = (a: { x: number; y: number; w: number; h: number }, b: typeof a) =>
+    a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+
+  it.each(fixtures)('%s', (_name, node) => {
+    const fp = faceplateOf(node);
+    const boxes = textBoxes(fp);
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        if (hit(boxes[i], boxes[j])) throw new Error(`"${boxes[i].text}" overlaps "${boxes[j].text}"`);
+      }
+    }
+    // no text on a socket, and every label clear of the caption rule and inside the chassis
+    const sockets = fp.ports.map((p) => ({ x: p.x, y: p.y, w: PORT_W, h: PORT_H }));
+    for (const b of boxes) {
+      for (const s of sockets) if (hit(b, s)) throw new Error(`"${b.text}" overlaps a port`);
+      expect(b.x).toBeGreaterThanOrEqual(0);
+      expect(b.x + b.w).toBeLessThanOrEqual(fp.width);
+      expect(b.y + b.h).toBeLessThanOrEqual(fp.height);
+    }
+    for (const p of fp.ports) {
+      expect(p.labelY - 0.8 * 7).toBeGreaterThan(fp.captionY + 3);
+      // a label is above its port or below it, never beside it
+      expect(p.labelY < p.y || p.labelY - 0.8 * 7 > p.y + PORT_H).toBe(true);
+    }
   });
 });
