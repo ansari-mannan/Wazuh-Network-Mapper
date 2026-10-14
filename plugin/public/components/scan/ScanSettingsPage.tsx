@@ -63,9 +63,12 @@ export function ScanSettingsPage() {
     ACTIVE_CHECKS.map(({ key }) => [key, choices[key] ?? Boolean(scan?.defaults?.[key])])
   ) as ActiveChecks;
   const running = scan?.status === 'running';
+  // a scan whose crawl polls no device keeps the previous map unless this is on
+  const [replaceEmpty, setReplaceEmpty] = useState(false);
+  const seeds = scan?.seeds ?? [];
 
   const run = () => {
-    if (!running) start(community, checks);
+    if (!running) start(community, { ...checks, replaceEmpty });
   };
 
   return (
@@ -91,6 +94,25 @@ export function ScanSettingsPage() {
                 autoComplete="new-password"
                 disabled={running}
                 data-test-subj="vmCommunity"
+              />
+            </EuiFormRow>
+            <EuiFormRow
+              label="Crawl starts from"
+              helpText="Set with vulnmapper.seeds in opensearch_dashboards.yml."
+            >
+              <EuiText size="s" data-test-subj="vmSeeds">
+                {seeds.length
+                  ? seeds.join(', ')
+                  : "The dashboard server's default gateway and LLDP neighbours (no vulnmapper.seeds set)"}
+              </EuiText>
+            </EuiFormRow>
+            <EuiFormRow helpText="Off: if no network device answers SNMP, the scan fails and the current map is kept.">
+              <EuiSwitch
+                label="Replace the map even if no device answered"
+                checked={replaceEmpty}
+                onChange={(e) => setReplaceEmpty(e.target.checked)}
+                disabled={running}
+                data-test-subj="vmReplaceEmpty"
               />
             </EuiFormRow>
             <EuiSpacer size="m" />

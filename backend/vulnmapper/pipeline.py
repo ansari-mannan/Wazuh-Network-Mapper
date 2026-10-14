@@ -21,6 +21,7 @@ from .checklist.stage import run_checklist
 from .common import StageResult, plural, setup_logging
 from .devicecves.stage import run_device_cves
 from .devicecves.vectors import run_cve_vectors
+from .network.document import CRAWL_EMPTY
 from .scoring.stage import run_ovss
 from .servicescan.stage import run_service_scan
 
@@ -293,9 +294,12 @@ def _read_network(scan: ScanContext) -> None:
         scan.timing["network_crawl_s"] = time.monotonic() - t0
 
     devices = sum(1 for n in scan.network_doc.get("nodes") or [] if n.get("pollable"))
+    empty = next((w for w in scan.network_doc.get("warnings") or []
+                  if w.get("type") == CRAWL_EMPTY), None)
     scan.record("Network crawl", scan.timing["network_crawl_s"],
                 "off" if args.no_network else
-                plural(devices, "device") + " polled" + (" (from a file)" if args.network else ""),
+                plural(devices, "device") + " polled" + (" (from a file)" if args.network else "")
+                + (f" ({empty['reason']})" if empty else ""),
                 ran=not args.no_network)
 
 
@@ -352,6 +356,7 @@ class Pipeline:
         _read_network(scan)
         t0 = time.monotonic()
         scan.document = assemble(scan.endpoints, scan.network_doc)
+        scan.document["metadata"]["warnings"].extend(scan.network_doc.get("warnings") or [])
         scan.timing["assemble_s"] = time.monotonic() - t0
 
         _run_stage(scan, "SNMP question to unmanaged hosts", hosts.run_snmp_question,

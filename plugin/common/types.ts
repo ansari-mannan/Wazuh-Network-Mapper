@@ -358,6 +358,8 @@ export type ScanState = {
   stage?: string | null;
   // Whether nmap is on the dashboard server's PATH (the nmap switch needs it).
   nmapAvailable?: boolean;
+  // vulnmapper.seeds: where the network crawl starts (empty: the server's default gateway).
+  seeds?: string[];
 };
 
 // Scheduled scans (schedule.json beside the graph; GET/POST /api/vulnmapper/schedule).

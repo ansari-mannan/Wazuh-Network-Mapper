@@ -8246,6 +8246,39 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 <div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Sent to the server with this scan only and never stored in the browser. Leave empty to use the SNMP settings of the dashboard server's environment.</div>
 </div>
 </div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Crawl starts from</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmSeeds\\" id=\\"X\\" aria-describedby=\\"X\\">The dashboard server's default gateway and LLDP neighbours (no vulnmapper.seeds set)</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Set with vulnmapper.seeds in opensearch_dashboards.yml.</div>
+</div>
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiSwitch euiSwitch--primary\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmReplaceEmpty\\" aria-describedby=\\"X\\">
+<span class=\\"euiSwitch__body\\">
+<span class=\\"euiSwitch__thumb\\">
+</span>
+<span class=\\"euiSwitch__track\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon euiSwitch__icon--checked\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+</span>
+</span>
+</button>
+<span class=\\"euiSwitch__label\\" id=\\"X\\">Replace the map even if no device answered</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Off: if no network device answers SNMP, the scan fails and the current map is kept.</div>
+</div>
+</div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Active checks: optional, off by default</h3>
@@ -8722,6 +8755,39 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 <div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Sent to the server with this scan only and never stored in the browser. Leave empty to use the SNMP settings of the dashboard server's environment.</div>
 </div>
 </div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Crawl starts from</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmSeeds\\" id=\\"X\\" aria-describedby=\\"X\\">The dashboard server's default gateway and LLDP neighbours (no vulnmapper.seeds set)</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Set with vulnmapper.seeds in opensearch_dashboards.yml.</div>
+</div>
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiSwitch euiSwitch--primary\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmReplaceEmpty\\" aria-describedby=\\"X\\">
+<span class=\\"euiSwitch__body\\">
+<span class=\\"euiSwitch__thumb\\">
+</span>
+<span class=\\"euiSwitch__track\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon euiSwitch__icon--checked\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+</span>
+</span>
+</button>
+<span class=\\"euiSwitch__label\\" id=\\"X\\">Replace the map even if no device answered</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Off: if no network device answers SNMP, the scan fails and the current map is kept.</div>
+</div>
+</div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Active checks: optional, off by default</h3>
@@ -9185,6 +9251,39 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 <div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Sent to the server with this scan only and never stored in the browser. Leave empty to use the SNMP settings of the dashboard server's environment.</div>
 </div>
 </div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Crawl starts from</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmSeeds\\" id=\\"X\\" aria-describedby=\\"X\\">The dashboard server's default gateway and LLDP neighbours (no vulnmapper.seeds set)</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Set with vulnmapper.seeds in opensearch_dashboards.yml.</div>
+</div>
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiSwitch euiSwitch--primary\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmReplaceEmpty\\" aria-describedby=\\"X\\">
+<span class=\\"euiSwitch__body\\">
+<span class=\\"euiSwitch__thumb\\">
+</span>
+<span class=\\"euiSwitch__track\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon euiSwitch__icon--checked\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+</span>
+</span>
+</button>
+<span class=\\"euiSwitch__label\\" id=\\"X\\">Replace the map even if no device answered</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Off: if no network device answers SNMP, the scan fails and the current map is kept.</div>
+</div>
+</div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Active checks: optional, off by default</h3>
@@ -9638,6 +9737,39 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 <div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Sent to the server with this scan only and never stored in the browser. Leave empty to use the SNMP settings of the dashboard server's environment.</div>
 </div>
 </div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Crawl starts from</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmSeeds\\" id=\\"X\\" aria-describedby=\\"X\\">The dashboard server's default gateway and LLDP neighbours (no vulnmapper.seeds set)</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Set with vulnmapper.seeds in opensearch_dashboards.yml.</div>
+</div>
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiSwitch euiSwitch--primary\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmReplaceEmpty\\" aria-describedby=\\"X\\">
+<span class=\\"euiSwitch__body\\">
+<span class=\\"euiSwitch__thumb\\">
+</span>
+<span class=\\"euiSwitch__track\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon euiSwitch__icon--checked\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+</span>
+</span>
+</button>
+<span class=\\"euiSwitch__label\\" id=\\"X\\">Replace the map even if no device answered</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Off: if no network device answers SNMP, the scan fails and the current map is kept.</div>
+</div>
+</div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <h3 class=\\"euiTitle euiTitle--xxsmall\\">Active checks: optional, off by default</h3>
@@ -10084,6 +10216,39 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 </div>
 </div>
 <div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Sent to the server with this scan only and never stored in the browser. Leave empty to use the SNMP settings of the dashboard server's environment.</div>
+</div>
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Crawl starts from</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmSeeds\\" id=\\"X\\" aria-describedby=\\"X\\">The dashboard server's default gateway and LLDP neighbours (no vulnmapper.seeds set)</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Set with vulnmapper.seeds in opensearch_dashboards.yml.</div>
+</div>
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiSwitch euiSwitch--primary euiSwitch-isDisabled\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" disabled=\\"\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmReplaceEmpty\\" aria-describedby=\\"X\\">
+<span class=\\"euiSwitch__body\\">
+<span class=\\"euiSwitch__thumb\\">
+</span>
+<span class=\\"euiSwitch__track\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon euiSwitch__icon--checked\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+</span>
+</span>
+</button>
+<span class=\\"euiSwitch__label\\" id=\\"X\\">Replace the map even if no device answered</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Off: if no network device answers SNMP, the scan fails and the current map is kept.</div>
 </div>
 </div>
 <div class=\\"euiSpacer euiSpacer--m\\">

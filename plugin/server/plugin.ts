@@ -39,14 +39,14 @@ export class VulnmapperPlugin implements Plugin<VulnmapperPluginSetup, Vulnmappe
       .create<VulnmapperConfig>()
       .pipe(first())
       .toPromise();
-    const { backendDir, graphPath, pythonBin, deviceCves } = this.config;
+    const { backendDir, graphPath, pythonBin, deviceCves, seeds } = this.config;
     if (backendDir && graphPath) {
       const logger = this.logger;
       this.scheduler = createScheduler({
         file: scheduleFilePath(graphPath),
         // no community argument: the scanner reads the server environment
         startScan: (onDone) =>
-          startScan({ pythonBin, backendDir, graphPath, deviceCves, checks: NO_ACTIVE_CHECKS, trigger: 'scheduled', onDone, logger }),
+          startScan({ pythonBin, backendDir, graphPath, deviceCves, seeds, checks: NO_ACTIVE_CHECKS, trigger: 'scheduled', onDone, logger }),
         hasCredential: () => hasEnvCredential(process.env),
         logger,
       });

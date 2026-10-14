@@ -58,6 +58,10 @@ interface ScanOptions {
   community?: string;
   // false: the scanner skips the device CVE stage (--no-device-cves)
   deviceCves?: boolean;
+  // vulnmapper.seeds: the IPs the crawl starts from
+  seeds?: string[];
+  // swap the new map in even when its crawl polled no device
+  replaceEmpty?: boolean;
   // the optional active checks that are on (see CHECK_FLAGS)
   checks?: Partial<ActiveChecks>;
   trigger?: ScanTrigger;
@@ -105,14 +109,38 @@ export function onPath(bin: string, pathEnv = process.env.PATH || ''): boolean {
 /** The scanner's arguments. Never a credential: those go through the environment. */
 export function scanArgs(
   out: { vulns: string; paths: string; targets: string },
-  { deviceCves = true, checks = {} }: { deviceCves?: boolean; checks?: Partial<ActiveChecks> }
+  {
+    deviceCves = true,
+    checks = {},
+    seeds = [],
+  }: { deviceCves?: boolean; checks?: Partial<ActiveChecks>; seeds?: string[] }
 ): string[] {
   const args = ['-m', 'vulnmapper', '--vulns-out', out.vulns, '--paths-out', out.paths, '--targets', out.targets];
+  // addresses are not secrets; the = form keeps a value from reading as a flag
+  for (const ip of seeds) args.push(`--seed=${ip}`);
   if (!deviceCves) args.push('--no-device-cves');
   for (const key of Object.keys(CHECK_FLAGS) as Array<keyof ActiveChecks>) {
     if (checks[key]) args.push(CHECK_FLAGS[key]);
   }
   return args;
+}
+
+/** The reason a graph's crawl polled no device (its crawl_empty warning), or null. */
+export function emptyCrawl(doc: unknown): string | null {
+  const warnings = (doc as { metadata?: { warnings?: unknown } })?.metadata?.warnings;
+  const hit = Array.isArray(warnings) ? warnings.find((w) => w?.type === 'crawl_empty') : undefined;
+  return hit ? String(hit.reason ?? 'no device answered') : null;
+}
+
+/**
+ * Whether a finished scan's graph may replace the current one: not when its
+ * crawl polled no device while the current map has devices (a wrong community
+ * or an unreachable gateway would otherwise wipe a good map), unless forced. Pure.
+ */
+export function shouldReplaceGraph(next: unknown, current: unknown, force: boolean): boolean {
+  if (force || emptyCrawl(next) === null) return true;
+  const nodes = (current as { nodes?: unknown })?.nodes;
+  return !(Array.isArray(nodes) && nodes.some((n) => n?.kind === 'device'));
 }
 
 let onScanDone: ScanOptions['onDone'];
@@ -143,6 +171,8 @@ export function startScan({
   community,
   deviceCves = true,
   checks = {},
+  seeds = [],
+  replaceEmpty = false,
   trigger = 'manual',
   onDone,
   logger,
@@ -170,7 +200,7 @@ export function startScan({
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
   // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
   // environment like the other credentials.
-  const args = scanArgs({ vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath) }, { deviceCves, checks });
+  const args = scanArgs({ vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath) }, { deviceCves, checks, seeds });
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
   const chunks: Buffer[] = [];
@@ -202,8 +232,27 @@ export function startScan({
       await discardVulns();
       return;
     }
+    let doc: unknown;
     try {
-      JSON.parse(out.toString()); // validate before replacing the good file
+      doc = JSON.parse(out.toString()); // validate before replacing the good file
+    } catch (e) {
+      finish('failed', `could not save scanner output: ${(e as Error).message}`);
+      logger.warn(`scan failed: ${scan.message}`);
+      await discardVulns();
+      return;
+    }
+    const current = await fs.readFile(graphPath, 'utf-8').then(JSON.parse).catch(() => null);
+    if (!shouldReplaceGraph(doc, current, replaceEmpty)) {
+      finish(
+        'failed',
+        `The network crawl polled no device (${emptyCrawl(doc)}), so the previous map was kept. Check the SNMP ` +
+          'credential and vulnmapper.seeds, or turn on "Replace the map even if no device answered".'
+      );
+      logger.warn(`scan failed: ${scan.message}`);
+      await discardVulns();
+      return;
+    }
+    try {
       const tmp = `${graphPath}.tmp-${process.pid}`;
       await fs.writeFile(tmp, out);
       await fs.rename(tmp, graphPath);

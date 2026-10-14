@@ -12,8 +12,9 @@ const POLL_MS = 1500;
 // moves to another page while it runs.
 interface ScanContextValue {
   scan: ScanState | null;
-  /** start a scan; the community is sent once with this request only */
-  start: (community: string, checks?: Partial<ActiveChecks>) => Promise<void>;
+  /** start a scan; the community is sent once with this request only. replaceEmpty swaps
+   * the map in even when the crawl polled no device. */
+  start: (community: string, checks?: Partial<ActiveChecks> & { replaceEmpty?: boolean }) => Promise<void>;
 }
 
 const ScanContext = createContext<ScanContextValue | null>(null);
@@ -60,7 +61,7 @@ export function ScanProvider({ children }: { children: ReactNode }) {
   }, [scan?.status, fetchStatus]);
 
   const start = useCallback(
-    async (community: string, checks: Partial<ActiveChecks> = {}) => {
+    async (community: string, checks: Partial<ActiveChecks> & { replaceEmpty?: boolean } = {}) => {
       try {
         const body = { ...(community ? { community } : {}), ...checks };
         setScan(await http.post<ScanState>('/api/vulnmapper/scan', { body: JSON.stringify(body) }));

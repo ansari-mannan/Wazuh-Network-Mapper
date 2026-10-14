@@ -39,6 +39,14 @@ describe('active checks config', () => {
   });
 });
 
+describe('seeds config', () => {
+  it('takes IP addresses only, none by default', () => {
+    expect(configSchema.validate({}).seeds).toEqual([]);
+    expect(configSchema.validate({ seeds: ['10.0.0.1', 'fe80::1'] }).seeds).toEqual(['10.0.0.1', 'fe80::1']);
+    expect(() => configSchema.validate({ seeds: ['--help'] })).toThrow();
+  });
+});
+
 describe('device CVE config', () => {
   it('looks devices up in NVD by default', () => {
     expect(configSchema.validate({}).deviceCves).toBe(true);

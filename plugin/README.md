@@ -58,6 +58,7 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.checkManagementPorts` | where the switch "Test whether telnet and web management answer on devices that do not report it" starts (default `false`); on, the scan runs with `--check-management-ports` |
 | `vulnmapper.probeUnmanagedSnmp` | where the switch "Ask unmanaged hosts for their identity over SNMP" starts (default `false`); on, the scan runs with `--probe-unmanaged-snmp` |
 | `vulnmapper.nmapUnmanaged` | where the switch "Service-scan unmanaged hosts with nmap" starts (default `false`); on, the scan runs with `--nmap-unmanaged`, which actively probes the discovered unmanaged hosts (nmap must be installed) |
+| `vulnmapper.seeds` | IP addresses the network crawl starts from, each passed as `--seed` (default none: the dashboard server's default gateway and LLDP neighbours, which is often wrong in a container or on a separate management network); shown on the Scan settings page |
 | `vulnmapper.reportOrg` | the organisation/owner name shown on the vulnerability report's cover (default `Network Vulnerability Assessment`) |
 
 `backendDir` and `graphPath` have no default; until they are set, the API
@@ -277,8 +278,8 @@ dashboard's own jest, from the dashboard folder:
 | Route | Purpose |
 |---|---|
 | `GET /api/vulnmapper/graph` | the current graph; file time in the `x-vulnmapper-graph-mtime` header |
-| `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string, "checkDefaultCommunities"?: boolean, "checkManagementPorts"?: boolean, "probeUnmanagedSnmp"?: boolean }` (each switch defaults to its `vulnmapper.*` key); 409 if one is running |
-| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, `stage` (the stage the scanner last announced, while running), `nmapAvailable` (nmap is on the server's PATH) and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp, nmapUnmanaged }` for the scan form |
+| `POST /api/vulnmapper/scan` | start a scan; body `{ "community"?: string, "checkDefaultCommunities"?: boolean, "checkManagementPorts"?: boolean, "probeUnmanagedSnmp"?: boolean, "replaceEmpty"?: boolean }` (each switch defaults to its `vulnmapper.*` key); 409 if one is running. A scan whose crawl polled no device (its graph has a `crawl_empty` warning) fails and keeps the current map when that map has devices, unless `replaceEmpty` is true |
+| `GET /api/vulnmapper/scan/status` | `idle`, `running` or `failed`, with a message, `stage` (the stage the scanner last announced, while running), `nmapAvailable` (nmap is on the server's PATH), `seeds` (`vulnmapper.seeds`) and `defaults: { checkDefaultCommunities, checkManagementPorts, probeUnmanagedSnmp, nmapUnmanaged }` for the scan form |
 | `GET /api/vulnmapper/liveness` | `{ enabled, intervalSeconds, checkedAt, nodes, graphMtime }`; `checkedAt` null and `nodes` empty when disabled or before the first pass; `graphMtime` is the graph file's modified time (null if there is none) |
 | `GET /api/vulnmapper/attack-paths` | the computed `attack_paths.json` read from beside the graph; a missing file is returned as `{ metadata: { state: "absent" }, ... }` rather than an error |
 | `GET /api/vulnmapper/vulnerabilities` | the full per-asset CVE list (`vulnerabilities.json`) read from beside the graph, plus `org` (from `vulnmapper.reportOrg`); a missing file is returned as `{ metadata: { state: "absent" }, cves: {}, hosts: {}, org }` rather than an error |

@@ -29,6 +29,7 @@ export function defineRoutes(
     ...getScan(),
     defaults: configuredChecks(config),
     nmapAvailable: onPath('nmap'),
+    seeds: config.seeds,
   });
 
   // The graph is read fresh from disk on every request so the file the scanner
@@ -248,6 +249,7 @@ export function defineRoutes(
             checkManagementPorts: schema.maybe(schema.boolean()),
             probeUnmanagedSnmp: schema.maybe(schema.boolean()),
             nmapUnmanaged: schema.maybe(schema.boolean()),
+            replaceEmpty: schema.maybe(schema.boolean()),
           })
         ),
       },
@@ -269,6 +271,8 @@ export function defineRoutes(
         backendDir,
         graphPath,
         community: request.body?.community || undefined,
+        seeds: config.seeds,
+        replaceEmpty: request.body?.replaceEmpty ?? false,
         logger,
       });
       if (!started) {

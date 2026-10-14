@@ -10,7 +10,7 @@ import logging
 from typing import Optional
 
 from .config import DEFAULT_CONCURRENCY, DEFAULT_MAX_NODES, Config
-from .document import build_document
+from .document import CRAWL_EMPTY, build_document
 from .identity import base_mac, fetch, vendor_from_descr
 from .model import (
     DISCOVERY_METHOD,
@@ -482,18 +482,24 @@ def _platform_model(platform: Optional[str]) -> Optional[str]:
 
 # ---- entry points -----------------------------------------------------------
 
+def _empty(reason: str, document: Optional[dict] = None) -> dict:
+    doc = document if document is not None else build_document([], [])
+    doc["warnings"] = [{"type": CRAWL_EMPTY, "reason": reason}]
+    return doc
+
+
 async def run(cfg: Config) -> dict:
     """Run the crawl ``cfg`` describes and return its document."""
     if not cfg.credentials:
         _log_runner.error("no SNMP credentials supplied. Pass --community / --v3-user (or set "
                           "$SNMP_COMMUNITIES). Emitting empty topology.")
-        return build_document([], [])
+        return _empty("no credentials")
 
     seeds = discover_seeds(cfg.seeds)
     if not seeds:
         _log_runner.error("no seed device found (no default gateway, no local LLDP neighbor, "
                           "no --seed). Emitting empty topology.")
-        return build_document([], [])
+        return _empty("no seed")
 
     _log_runner.info("seeds: %s", ", ".join(seeds))
     _log_runner.info(
@@ -516,7 +522,11 @@ async def run(cfg: Config) -> dict:
     )
     await crawler.seed(seeds)
     devices, links = await crawler.run()
-    return build_document(devices, links, pollable_only=cfg.pollable_only)
+    document = build_document(devices, links, pollable_only=cfg.pollable_only)
+    if not any(d.pollable for d in devices):
+        _log_runner.error("no device answered SNMP from seeds %s", ", ".join(seeds))
+        return _empty("no device answered", document)
+    return document
 
 
 async def crawl_more(client, seeds: list[str], known: dict, **crawler_kw) -> dict:
@@ -539,4 +549,4 @@ def crawl_document(cfg: Config) -> dict:
         return asyncio.run(run(cfg))
     except Exception:
         _log_runner.exception("crawl failed; emitting empty topology")
-        return build_document([], [])
+        return _empty("crawl error")

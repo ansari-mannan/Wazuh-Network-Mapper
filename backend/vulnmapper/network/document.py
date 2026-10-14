@@ -10,6 +10,11 @@ from datetime import datetime, timezone
 
 from .model import Device, Link
 
+# The warning on a crawl that polled no device, so the dashboard does not swap
+# a good map for an empty one: reason "no credentials", "no seed",
+# "crawl error" or "no device answered".
+CRAWL_EMPTY = "crawl_empty"
+
 
 def _dedupe_edges(links: list[Link]) -> list[dict]:
     """One edge per cable: A lists B and B lists A, so links are keyed on the

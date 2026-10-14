@@ -1,7 +1,16 @@
 import { mkdtempSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
-import { failureMessage, getScan, latestStage, onPath, runExclusive, scanArgs, startScan } from './scan';
+import {
+  failureMessage,
+  getScan,
+  latestStage,
+  onPath,
+  runExclusive,
+  scanArgs,
+  shouldReplaceGraph,
+  startScan,
+} from './scan';
 
 const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
 const FILES = ['--vulns-out', '/tmp/v.json', '--paths-out', '/tmp/p.json', '--targets', '/data/targets.json'];
@@ -29,6 +38,35 @@ describe('scanArgs', () => {
       ...FILES,
       '--no-device-cves',
     ]);
+  });
+});
+
+describe('seeds', () => {
+  it('passes each configured seed as --seed=IP', () => {
+    expect(scanArgs(OUT, { seeds: ['10.0.0.1', '10.0.0.2'] }).slice(2 + FILES.length)).toEqual([
+      '--seed=10.0.0.1',
+      '--seed=10.0.0.2',
+    ]);
+  });
+});
+
+describe('shouldReplaceGraph', () => {
+  const empty = { nodes: [], metadata: { warnings: [{ type: 'crawl_empty', reason: 'no seed' }] } };
+  const mapped = { nodes: [{ kind: 'device' }, { kind: 'endpoint' }], metadata: {} };
+  const hostsOnly = { nodes: [{ kind: 'endpoint' }], metadata: {} };
+
+  it('keeps a map with devices when the new crawl polled none', () => {
+    expect(shouldReplaceGraph(empty, mapped, false)).toBe(false);
+  });
+
+  it('replaces it when forced, or when the crawl found devices', () => {
+    expect(shouldReplaceGraph(empty, mapped, true)).toBe(true);
+    expect(shouldReplaceGraph(mapped, mapped, false)).toBe(true);
+  });
+
+  it('replaces a map without devices, or no map at all', () => {
+    expect(shouldReplaceGraph(empty, hostsOnly, false)).toBe(true);
+    expect(shouldReplaceGraph(empty, null, false)).toBe(true);
   });
 });
 

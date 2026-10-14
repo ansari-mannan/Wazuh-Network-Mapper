@@ -1,4 +1,5 @@
 // The plugin's settings (vulnmapper.* in opensearch_dashboards.yml) and their defaults.
+import { isIP } from 'net';
 import { schema, TypeOf } from '@osd/config-schema';
 import { ActiveChecks } from '../common';
 
@@ -29,6 +30,9 @@ import { ActiveChecks } from '../common';
 //                          probes the discovered unmanaged hosts (open ports,
 //                          service versions -> NVD CVEs), never managed hosts
 //                          or network devices. nmap must be installed.
+//   vulnmapper.seeds       IP addresses the network crawl starts from, each
+//                          passed as --seed (default none: the dashboard
+//                          server's default gateway and LLDP neighbours)
 //   vulnmapper.liveness.*  the background liveness check (off by default):
 //     enabled, intervalSeconds (min 10), missThreshold (min 1),
 //     agentMaxAgeSeconds (oldest Wazuh agent check-in that counts, default
@@ -47,6 +51,10 @@ export const configSchema = schema.object({
   checkManagementPorts: schema.boolean({ defaultValue: false }),
   probeUnmanagedSnmp: schema.boolean({ defaultValue: false }),
   nmapUnmanaged: schema.boolean({ defaultValue: false }),
+  seeds: schema.arrayOf(
+    schema.string({ validate: (v) => (isIP(v) ? undefined : `${v} is not an IP address`) }),
+    { defaultValue: [] }
+  ),
   // The organisation/owner name shown on the vulnerability report's cover.
   reportOrg: schema.string({ defaultValue: 'Network Vulnerability Assessment' }),
   liveness: schema.object({

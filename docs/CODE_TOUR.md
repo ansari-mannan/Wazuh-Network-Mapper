@@ -43,7 +43,12 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
    path stage reuses that engine, ranking equally likely routes by node OVSS.
 6. The scanner writes `graph.json`, `vulnerabilities.json` (every CVE
    finding) and `attack_paths.json` (routes to the protected assets). The
-   server swaps them in only if the scan succeeded.
+   server swaps them in only if the scan succeeded. A crawl that polled no
+   device (wrong community, no route, no usable gateway) marks the graph with a
+   `crawl_empty` warning, and the server then keeps the current map if it has
+   devices, unless the scan form's "Replace the map even if no device
+   answered" is on. The crawl starts from `vulnmapper.seeds` when set, else
+   from the dashboard server's own default gateway.
 7. On success the server also archives the three files in the scan history
    (below). A failed scan is not archived.
 8. The pages read those files through the server's API. While liveness is
