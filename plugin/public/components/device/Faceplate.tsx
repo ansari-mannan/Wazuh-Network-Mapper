@@ -28,9 +28,11 @@ import {
   portNeighbours,
   portTooltip,
   routePortKeys,
+  tipText,
 } from '../../lib/faceplate';
 import { graphColors } from '../../lib/theme';
 import { radioClients } from '../../lib/wireless';
+import { useHoverTip } from '../layout/HoverTip';
 
 interface PanelProps {
   node: DeviceNode;
@@ -52,7 +54,9 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
   const inferred = isInferred(port, node);
   const onRoute = onRouteOf(port, routeKeys);
   const count = kind === 'radio' ? clients.get(port.name) ?? 0 : undefined;
-  const tip = portTooltip(port, neighbours, { inferred, onRoute, clients: count }).join('\n');
+  const content = portTooltip(port, neighbours, { inferred, onRoute, clients: count });
+  const { tip, bind } = useHoverTip();
+  const events = bind(content);
   const target = onSelectNode && neighbours[0]?.nodeId;
   const select = target ? () => onSelectNode!(target) : undefined;
   const w = PORT_W;
@@ -62,12 +66,17 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
       className={`vmFpPort vmFpPort--${port.state}${select ? ' vmFpPort--link' : ''}`}
       data-port={port.name}
       onClick={select}
-      onKeyDown={select && ((e) => (e.key === 'Enter' || e.key === ' ') && select())}
-      tabIndex={select ? 0 : undefined}
+      {...events}
+      onKeyDown={(e) => {
+        events.onKeyDown(e);
+        if (select && (e.key === 'Enter' || e.key === ' ')) select();
+      }}
+      // focusable whether or not it is a button, so the keyboard gets the tooltip too
+      tabIndex={0}
       role={select ? 'button' : 'img'}
-      aria-label={tip.replace(/\n/g, '. ')}
+      aria-label={tipText(content)}
     >
-      <title>{tip}</title>
+      {tip}
       {onRoute && (
         <rect className="vmFpRoute" x={x - 3} y={y - 3} width={w + 6} height={h + 6} rx={4} fill="none" strokeWidth={2.2} />
       )}

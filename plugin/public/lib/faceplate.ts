@@ -328,22 +328,36 @@ export function speedText(mbps: number | null | undefined): string {
   return mbps >= 1000 ? `${mbps / 1000} Gb/s` : `${mbps} Mb/s`;
 }
 
+/** A hover/focus tooltip: a bold title, plain lines, and the route line in violet. */
+export interface TipContent {
+  title: string;
+  lines: string[];
+  route?: boolean;
+}
+
+export const ROUTE_LINE = 'On an attack route';
+
+/** The tooltip as one sentence per line, for an aria-label. */
+export function tipText(tip: TipContent): string {
+  return [tip.title, ...tip.lines, ...(tip.route ? [ROUTE_LINE] : [])].join('. ');
+}
+
 /**
- * A port's tooltip, one fact per line: full name, alias, speed, state in
- * words, neighbours, and whether it is inferred or on the shown route.
+ * A port's tooltip: its full name, then the state in words, an access
+ * point radio's client count, alias, speed, neighbours, whether it is
+ * inferred, and whether it is on the shown route.
  */
 export function portTooltip(
   port: DevicePort,
   neighbours: Neighbour[],
   flags: { inferred?: boolean; onRoute?: boolean; clients?: number } = {}
-): string[] {
-  const lines = [port.name];
+): TipContent {
+  const lines = [STATE_TEXT[port.state]];
   if (flags.clients !== undefined) lines.push(`${flags.clients} Wi-Fi client${flags.clients === 1 ? '' : 's'}`);
   if (port.alias) lines.push(`Alias: ${port.alias}`);
   const speed = speedText(port.speed_mbps);
-  lines.push(speed ? `${STATE_TEXT[port.state]} · ${speed}` : STATE_TEXT[port.state]);
+  if (speed) lines.push(`Speed: ${speed}`);
   if (neighbours.length) lines.push(`Neighbour: ${neighbours.map((n) => n.text).join(', ')}`);
   if (flags.inferred) lines.push('Known from the neighbour’s side of the link');
-  if (flags.onRoute) lines.push('On the highlighted attack route');
-  return lines;
+  return { title: port.name, lines, route: Boolean(flags.onRoute) };
 }

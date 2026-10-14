@@ -40,6 +40,15 @@ function render(node: DeviceNode, props: Partial<React.ComponentProps<typeof Fac
 const sockets = (el: ParentNode) => Array.from(el.querySelectorAll('[data-test-subj="vmFaceplate"] .vmFpPort'));
 const socket = (el: ParentNode, name: string) => el.querySelector(`.vmFpPort[data-port="${name}"]`)!;
 const labels = (el: ParentNode) => Array.from(el.querySelectorAll('.vmFpPort text')).map((t) => t.textContent);
+const fire = (target: Element, event: Event) =>
+  act(() => {
+    target.dispatchEvent(event);
+  });
+const hover = (target: Element, x = 10, y = 10) =>
+  fire(target, new MouseEvent('mousemove', { bubbles: true, clientX: x, clientY: y }));
+const box = () => document.querySelector('[data-test-subj="vmHoverTip"]') as HTMLElement | null;
+// the tooltip's lines: the bold name, then each line (the route line last)
+const tipLines = () => Array.from(box()!.children).map((c) => c.textContent);
 const html = () =>
   document.body.innerHTML.replace(/(id|aria-labelledby|aria-controls|aria-describedby)="[^"]*"/g, '$1="X"').replace(/></g, '>\n<');
 
@@ -56,9 +65,25 @@ describe('Faceplate', () => {
     // the route enters by Fa1/0/1 (from the firewall) and leaves by Fa1/0/15 (to the host)
     const ringed = Array.from(el.querySelectorAll('.vmFpRoute')).map((r) => r.parentElement!.getAttribute('data-port'));
     expect(ringed).toEqual(['FastEthernet1/0/1', 'FastEthernet1/0/15']);
-    expect(socket(el, 'FastEthernet1/0/1').querySelector('title')!.textContent).toBe(
-      'FastEthernet1/0/1\nAlias: Uplink to firewall\nUp · 100 Mb/s\nNeighbour: fw Layer-3_UPLINK\nOn the highlighted attack route'
+    const fa1 = socket(el, 'FastEthernet1/0/1');
+    expect(box()).toBeNull();
+    hover(fa1);
+    expect(tipLines()).toEqual([
+      'FastEthernet1/0/1',
+      'Up',
+      'Alias: Uplink to firewall',
+      'Speed: 100 Mb/s',
+      'Neighbour: fw Layer-3_UPLINK',
+      'On an attack route',
+    ]);
+    expect(box()!.querySelector('b')!.textContent).toBe('FastEthernet1/0/1');
+    expect(box()!.querySelector('.vmTip__route')!.textContent).toBe('On an attack route');
+    // screen readers get the same text from the port itself
+    expect(fa1.getAttribute('aria-label')).toBe(
+      'FastEthernet1/0/1. Up. Alias: Uplink to firewall. Speed: 100 Mb/s. Neighbour: fw Layer-3_UPLINK. On an attack route'
     );
+    fire(fa1, new MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }));
+    expect(box()).toBeNull();
     expect(el.textContent).toContain('Cisco');
     expect(el.textContent).toContain('WS-C3750-24TS');
     expect(el.querySelector('[data-test-subj="vmLogicalInterfaces"]')!.textContent).toContain(
@@ -81,6 +106,32 @@ describe('Faceplate', () => {
     expect(onSelectNode).toHaveBeenCalledWith('device:ap');
     // no neighbour: not a button
     expect(socket(el, 'FastEthernet1/0/3').getAttribute('role')).toBe('img');
+  });
+
+  it('the tooltip shows on keyboard focus and hides on blur and Escape', () => {
+    const el = render(switch24);
+    const fa3 = socket(el, 'FastEthernet1/0/3');
+    expect(fa3.getAttribute('tabindex')).toBe('0'); // no neighbour, still reachable by keyboard
+    fire(fa3, new FocusEvent('focus'));
+    expect(tipLines()).toEqual(['FastEthernet1/0/3', 'Not connected', 'Speed: 100 Mb/s']);
+    fire(fa3, new FocusEvent('blur'));
+    expect(box()).toBeNull();
+    fire(fa3, new FocusEvent('focus'));
+    fire(fa3, new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(box()).toBeNull();
+  });
+
+  it('keeps the tooltip inside the viewport near the right and bottom edges', () => {
+    const el = render(switch24);
+    const rect = { width: 200, height: 90, top: 0, left: 0, right: 200, bottom: 90, x: 0, y: 0, toJSON: () => ({}) };
+    const spy = jest.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(rect as DOMRect);
+    hover(socket(el, 'FastEthernet1/0/1'), window.innerWidth - 5, window.innerHeight - 5);
+    const { left, top } = box()!.style;
+    expect(parseFloat(left)).toBe(window.innerWidth - 200 - 8);
+    expect(parseFloat(top)).toBe(window.innerHeight - 5 - 90 - 14);
+    hover(socket(el, 'FastEthernet1/0/1'), 20, 30);
+    expect([box()!.style.left, box()!.style.top]).toEqual(['34px', '44px']);
+    spy.mockRestore();
   });
 
   it('48+2 switch: a compact panel and an Expand button that opens the full one in a modal', () => {
@@ -117,7 +168,10 @@ describe('Faceplate', () => {
     expect(wan1.getAttribute('class')).toContain('vmFpFace--inferred');
     expect(wan1.getAttribute('stroke-dasharray')).toBe('3 2');
     expect(socket(el, 'dmz').getAttribute('class')).toContain('vmFpPort--shutdown');
-    expect(socket(el, 'wan1').querySelector('title')!.textContent).toContain('Neighbour: sw24 Fa1/0/1');
+    hover(socket(el, 'wan1'));
+    expect(tipLines()).toContain('Neighbour: sw24 Fa1/0/1');
+    expect(box()!.querySelector('.vmTip__route')).toBeNull();
+    fire(socket(el, 'wan1'), new MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }));
     expect(el.textContent).toContain('Logical interfaces (1, 1 up)');
     expect(html()).toMatchSnapshot();
   });
@@ -129,8 +183,8 @@ describe('Faceplate', () => {
     // one client on the 2.4 GHz radio, two on the 5 GHz one (from the wifi links)
     expect(Array.from(el.querySelectorAll('.vmFpCount')).map((t) => t.textContent)).toEqual(['1', '2']);
     expect(labels(el)).toEqual(['1', '2.4 GHz', '2', '5 GHz', 'Gi0']);
-    expect(socket(el, 'Dot11Radio1').querySelector('title')!.textContent).toBe(
-      'Dot11Radio1\n2 Wi-Fi clients\nUp\nNeighbour: wifi2, wifi3'
+    expect(socket(el, 'Dot11Radio1').getAttribute('aria-label')).toBe(
+      'Dot11Radio1. Up. 2 Wi-Fi clients. Neighbour: wifi2, wifi3'
     );
     expect(el.textContent).toContain('Logical interfaces (3, 3 up)');
     expect(html()).toMatchSnapshot();

@@ -3,3 +3,24 @@
 .vmInnerPage {
   min-height: 0;
 }
+
+// The dark tooltip box (HoverTip.tsx): dark in both themes, like the mockup,
+// with a light edge so it still stands out on a dark page.
+.vmTip {
+  position: fixed;
+  z-index: 10000; // above flyouts and modals
+  pointer-events: none;
+  max-width: 280px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #11161d;
+  color: #e9eef5;
+  font-size: 12px;
+  line-height: 1.45;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  overflow-wrap: anywhere;
+
+  b { display: block; margin-bottom: 2px; }
+}
+.vmTip__route { color: #b79cff; }

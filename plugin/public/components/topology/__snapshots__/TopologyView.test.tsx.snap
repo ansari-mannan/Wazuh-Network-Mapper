@@ -12,8 +12,7 @@ exports[`map: wired and wireless clients draws the wireless link dashed with a W
 </path>
 </g>
 <g data-edge=\\"device:ap->host:wifi1\\" data-type=\\"wifi\\">
-<g class=\\"vmWifiEdge\\">
-<title>Wireless · OFFICE · 2.4 GHz (Dot11Radio0)</title>
+<g class=\\"vmWifiEdge\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Wireless · OFFICE · 2.4 GHz (Dot11Radio0)\\">
 <path style=\\"stroke: #0d9488; stroke-width: 2; stroke-dasharray: 5 5; stroke-linecap: round;\\" d=\\"M0,0 C0,51 100,51 100,102\\" class=\\"react-flow__edge-path\\" marker-end=\\"url(#end)\\">
 </path>
 <g class=\\"vmWifiGlyph\\" transform=\\"translate(50 51)\\">

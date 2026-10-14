@@ -22,6 +22,7 @@ import { CustomNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
 import { isWireless, wirelessText } from '../../lib/wireless';
+import { useHoverTip } from '../layout/HoverTip';
 
 const nodeTypes = { device: CustomNode };
 
@@ -73,13 +74,15 @@ export function WifiGlyph({ x, y, color, background }: { x: number; y: number; c
 }
 
 // A Wi-Fi client's link: the dashed line, the Wi-Fi mark at its middle and
-// "Wireless · SSID · band (radio)" on hover.
+// "Wireless · SSID · band (radio)" on hover or keyboard focus.
 function WifiEdge(props: EdgeProps<{ tooltip: string }>) {
   const { sourceX, sourceY, targetX, targetY, data, style } = props;
   const mid = pointOnLink(sourceX, sourceY, targetX, targetY, 0.5);
+  const { tip, bind } = useHoverTip();
+  const text = data?.tooltip || 'Wireless';
   return (
-    <g className="vmWifiEdge">
-      <title>{data?.tooltip}</title>
+    <g className="vmWifiEdge" tabIndex={0} role="img" aria-label={text} {...bind({ title: text, lines: [] })}>
+      {tip}
       <BezierEdge {...props} label={undefined} />
       <WifiGlyph x={mid.x} y={mid.y} color={String(style?.stroke)} background={themeVars.euiColorEmptyShade} />
     </g>

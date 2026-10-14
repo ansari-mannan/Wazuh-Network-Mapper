@@ -8,6 +8,7 @@ import {
   portNeighbours,
   portsOf,
   portTooltip,
+  tipText,
   routePortKeys,
   shortName,
   speedText,
@@ -218,15 +219,17 @@ describe('neighbours', () => {
 });
 
 describe('portTooltip', () => {
-  it('lists name, alias, speed, state, neighbour and flags', () => {
+  it('gives the name as title, then state, alias, speed, neighbour, and the route flag', () => {
     const fa1 = switch24.ports!.find((p) => p.name === 'FastEthernet1/0/1')!;
-    expect(portTooltip(fa1, [{ nodeId: 'device:fw', text: 'fw wan1' }], { onRoute: true })).toEqual([
-      'FastEthernet1/0/1',
-      'Alias: Uplink to firewall',
-      'Up · 100 Mb/s',
-      'Neighbour: fw wan1',
-      'On the highlighted attack route',
-    ]);
-    expect(portTooltip(port('dmz', 'shutdown'), [])).toEqual(['dmz', 'Shut down (admin)']);
+    const tip = portTooltip(fa1, [{ nodeId: 'device:fw', text: 'fw wan1' }], { onRoute: true });
+    expect(tip).toEqual({
+      title: 'FastEthernet1/0/1',
+      lines: ['Up', 'Alias: Uplink to firewall', 'Speed: 100 Mb/s', 'Neighbour: fw wan1'],
+      route: true,
+    });
+    expect(tipText(tip)).toBe(
+      'FastEthernet1/0/1. Up. Alias: Uplink to firewall. Speed: 100 Mb/s. Neighbour: fw wan1. On an attack route'
+    );
+    expect(portTooltip(port('dmz', 'shutdown'), [])).toEqual({ title: 'dmz', lines: ['Shut down (admin)'], route: false });
   });
 });

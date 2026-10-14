@@ -461,10 +461,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"14\\" y=\\"26\\" font-size=\\"10\\" font-weight=\\"700\\">Cisco</text>
 <text class=\\"vmFpLabel\\" x=\\"14\\" y=\\"40\\" font-size=\\"8\\">C2960</text>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet0/1\\" role=\\"img\\" aria-label=\\"FastEthernet0/1. Up. Neighbour: L3-Switch Fa1/0/2\\">
-<title>FastEthernet0/1
-Up
-Neighbour: L3-Switch Fa1/0/2</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet0/1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/1. Up. Neighbour: L3-Switch Fa1/0/2\\">
 <rect class=\\"vmFpFace\\" x=\\"120\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"126.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -484,9 +481,7 @@ Neighbour: L3-Switch Fa1/0/2</title>
 <rect class=\\"vmFpLed\\" x=\\"122\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/2\\" role=\\"img\\" aria-label=\\"FastEthernet0/2. Not connected\\">
-<title>FastEthernet0/2
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/2. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"120\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"126.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -506,9 +501,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"122\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/3\\" role=\\"img\\" aria-label=\\"FastEthernet0/3. Not connected\\">
-<title>FastEthernet0/3
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/3\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/3. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"146\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"152.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -528,9 +521,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"148\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/4\\" role=\\"img\\" aria-label=\\"FastEthernet0/4. Not connected\\">
-<title>FastEthernet0/4
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/4\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/4. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"146\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"152.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -550,9 +541,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"148\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/5\\" role=\\"img\\" aria-label=\\"FastEthernet0/5. Not connected\\">
-<title>FastEthernet0/5
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/5\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/5. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"172\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"178.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -572,9 +561,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"174\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/6\\" role=\\"img\\" aria-label=\\"FastEthernet0/6. Not connected\\">
-<title>FastEthernet0/6
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/6\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/6. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"172\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"178.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -594,9 +581,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"174\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/7\\" role=\\"img\\" aria-label=\\"FastEthernet0/7. Not connected\\">
-<title>FastEthernet0/7
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/7\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/7. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"198\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"204.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -616,9 +601,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"200\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/8\\" role=\\"img\\" aria-label=\\"FastEthernet0/8. Not connected\\">
-<title>FastEthernet0/8
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/8\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/8. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"198\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"204.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -638,9 +621,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"200\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/9\\" role=\\"img\\" aria-label=\\"FastEthernet0/9. Not connected\\">
-<title>FastEthernet0/9
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/9\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/9. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"224\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"230.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -660,9 +641,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"226\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/10\\" role=\\"img\\" aria-label=\\"FastEthernet0/10. Not connected\\">
-<title>FastEthernet0/10
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/10\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/10. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"224\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"230.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -682,9 +661,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"226\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/11\\" role=\\"img\\" aria-label=\\"FastEthernet0/11. Not connected\\">
-<title>FastEthernet0/11
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/11\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/11. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"250\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"256.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -704,9 +681,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"252\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/12\\" role=\\"img\\" aria-label=\\"FastEthernet0/12. Not connected\\">
-<title>FastEthernet0/12
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/12\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/12. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"250\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"256.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -726,9 +701,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"252\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/13\\" role=\\"img\\" aria-label=\\"FastEthernet0/13. Not connected\\">
-<title>FastEthernet0/13
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/13\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/13. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"288\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"294.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -748,9 +721,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"290\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/14\\" role=\\"img\\" aria-label=\\"FastEthernet0/14. Not connected\\">
-<title>FastEthernet0/14
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/14\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/14. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"288\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"294.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -770,9 +741,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"290\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/15\\" role=\\"img\\" aria-label=\\"FastEthernet0/15. Not connected\\">
-<title>FastEthernet0/15
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/15\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/15. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"314\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"320.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -792,9 +761,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"316\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/16\\" role=\\"img\\" aria-label=\\"FastEthernet0/16. Not connected\\">
-<title>FastEthernet0/16
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/16\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/16. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"314\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"320.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -814,9 +781,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"316\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/17\\" role=\\"img\\" aria-label=\\"FastEthernet0/17. Not connected\\">
-<title>FastEthernet0/17
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/17\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/17. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"340\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"346.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -836,9 +801,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"342\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/18\\" role=\\"img\\" aria-label=\\"FastEthernet0/18. Not connected\\">
-<title>FastEthernet0/18
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/18\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/18. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"340\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"346.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -858,9 +821,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"342\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/19\\" role=\\"img\\" aria-label=\\"FastEthernet0/19. Not connected\\">
-<title>FastEthernet0/19
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/19\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/19. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"366\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"372.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -880,9 +841,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"368\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/20\\" role=\\"img\\" aria-label=\\"FastEthernet0/20. Not connected\\">
-<title>FastEthernet0/20
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/20\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/20. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"366\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"372.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -902,9 +861,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"368\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/21\\" role=\\"img\\" aria-label=\\"FastEthernet0/21. Not connected\\">
-<title>FastEthernet0/21
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/21\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/21. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"392\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"398.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -924,9 +881,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"394\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/22\\" role=\\"img\\" aria-label=\\"FastEthernet0/22. Not connected\\">
-<title>FastEthernet0/22
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/22\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/22. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"392\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"398.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -946,9 +901,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"394\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/23\\" role=\\"img\\" aria-label=\\"FastEthernet0/23. Not connected\\">
-<title>FastEthernet0/23
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/23\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/23. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"418\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"424.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -968,9 +921,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"420\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/24\\" role=\\"img\\" aria-label=\\"FastEthernet0/24. Not connected\\">
-<title>FastEthernet0/24
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/24\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/24. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"418\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"424.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -990,9 +941,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"420\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/25\\" role=\\"img\\" aria-label=\\"FastEthernet0/25. Not connected\\">
-<title>FastEthernet0/25
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/25\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/25. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"456\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"462.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1012,9 +961,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"458\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/26\\" role=\\"img\\" aria-label=\\"FastEthernet0/26. Not connected\\">
-<title>FastEthernet0/26
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/26\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/26. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"456\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"462.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1034,9 +981,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"458\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/27\\" role=\\"img\\" aria-label=\\"FastEthernet0/27. Not connected\\">
-<title>FastEthernet0/27
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/27\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/27. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"482\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"488.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1056,9 +1001,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"484\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/28\\" role=\\"img\\" aria-label=\\"FastEthernet0/28. Not connected\\">
-<title>FastEthernet0/28
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/28\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/28. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"482\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"488.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1078,9 +1021,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"484\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/29\\" role=\\"img\\" aria-label=\\"FastEthernet0/29. Not connected\\">
-<title>FastEthernet0/29
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/29\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/29. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"508\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"514.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1100,9 +1041,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"510\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/30\\" role=\\"img\\" aria-label=\\"FastEthernet0/30. Not connected\\">
-<title>FastEthernet0/30
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/30\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/30. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"508\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"514.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1122,9 +1061,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"510\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/31\\" role=\\"img\\" aria-label=\\"FastEthernet0/31. Not connected\\">
-<title>FastEthernet0/31
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/31\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/31. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"534\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"540.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1144,9 +1081,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"536\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/32\\" role=\\"img\\" aria-label=\\"FastEthernet0/32. Not connected\\">
-<title>FastEthernet0/32
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/32\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/32. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"534\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"540.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1166,9 +1101,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"536\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/33\\" role=\\"img\\" aria-label=\\"FastEthernet0/33. Not connected\\">
-<title>FastEthernet0/33
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/33\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/33. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"560\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"566.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1188,9 +1121,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"562\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/34\\" role=\\"img\\" aria-label=\\"FastEthernet0/34. Not connected\\">
-<title>FastEthernet0/34
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/34\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/34. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"560\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"566.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1210,9 +1141,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"562\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/35\\" role=\\"img\\" aria-label=\\"FastEthernet0/35. Not connected\\">
-<title>FastEthernet0/35
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/35\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/35. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"586\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"592.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1232,9 +1161,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"588\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/36\\" role=\\"img\\" aria-label=\\"FastEthernet0/36. Not connected\\">
-<title>FastEthernet0/36
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/36\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/36. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"586\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"592.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1254,9 +1181,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"588\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/37\\" role=\\"img\\" aria-label=\\"FastEthernet0/37. Not connected\\">
-<title>FastEthernet0/37
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/37\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/37. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"624\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"630.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1276,9 +1201,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"626\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/38\\" role=\\"img\\" aria-label=\\"FastEthernet0/38. Not connected\\">
-<title>FastEthernet0/38
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/38\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/38. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"624\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"630.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1298,9 +1221,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"626\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/39\\" role=\\"img\\" aria-label=\\"FastEthernet0/39. Not connected\\">
-<title>FastEthernet0/39
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/39\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/39. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"650\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"656.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1320,9 +1241,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"652\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/40\\" role=\\"img\\" aria-label=\\"FastEthernet0/40. Not connected\\">
-<title>FastEthernet0/40
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/40\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/40. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"650\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"656.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1342,9 +1261,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"652\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/41\\" role=\\"img\\" aria-label=\\"FastEthernet0/41. Not connected\\">
-<title>FastEthernet0/41
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/41\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/41. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"676\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"682.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1364,9 +1281,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"678\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/42\\" role=\\"img\\" aria-label=\\"FastEthernet0/42. Not connected\\">
-<title>FastEthernet0/42
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/42\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/42. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"676\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"682.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1386,9 +1301,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"678\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/43\\" role=\\"img\\" aria-label=\\"FastEthernet0/43. Not connected\\">
-<title>FastEthernet0/43
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/43\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/43. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"702\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"708.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1408,9 +1321,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"704\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/44\\" role=\\"img\\" aria-label=\\"FastEthernet0/44. Not connected\\">
-<title>FastEthernet0/44
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/44\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/44. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"702\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"708.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1430,9 +1341,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"704\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/45\\" role=\\"img\\" aria-label=\\"FastEthernet0/45. Not connected\\">
-<title>FastEthernet0/45
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/45\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/45. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"728\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"734.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1452,9 +1361,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"730\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/46\\" role=\\"img\\" aria-label=\\"FastEthernet0/46. Not connected\\">
-<title>FastEthernet0/46
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/46\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/46. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"728\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"734.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1474,9 +1381,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"730\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/47\\" role=\\"img\\" aria-label=\\"FastEthernet0/47. Not connected\\">
-<title>FastEthernet0/47
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/47\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/47. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"754\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"760.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -1496,9 +1401,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"756\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/48\\" role=\\"img\\" aria-label=\\"FastEthernet0/48. Not connected\\">
-<title>FastEthernet0/48
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/48\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/48. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"754\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"760.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -1518,9 +1421,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"756\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/1\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/1. Not connected\\">
-<title>GigabitEthernet0/1
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/1. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"798\\" y=\\"28\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"804.6\\" y=\\"42\\" width=\\"8.8\\" height=\\"4\\">
@@ -1540,9 +1441,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"800\\" y=\\"36.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/2\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/2. Not connected\\">
-<title>GigabitEthernet0/2
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/2. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"824\\" y=\\"28\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"830.6\\" y=\\"42\\" width=\\"8.8\\" height=\\"4\\">
@@ -2448,11 +2347,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <line class=\\"vmFpRule\\" x1=\\"462\\" y1=\\"15\\" x2=\\"510\\" y2=\\"15\\" stroke-width=\\"0.6\\">
 </line>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/1\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/1. Alias: Uplink to firewall. Up · 100 Mb/s. Neighbour: 172.20.100.1 Layer-3_UPLINK\\">
-<title>FastEthernet1/0/1
-Alias: Uplink to firewall
-Up · 100 Mb/s
-Neighbour: 172.20.100.1 Layer-3_UPLINK</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/1. Up. Alias: Uplink to firewall. Speed: 100 Mb/s. Neighbour: 172.20.100.1 Layer-3_UPLINK\\">
 <rect class=\\"vmFpFace\\" x=\\"120\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"126.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2473,10 +2368,7 @@ Neighbour: 172.20.100.1 Layer-3_UPLINK</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"131\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">1</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/2\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/2. Up · 100 Mb/s. Neighbour: L2-Switch Fa0/1\\">
-<title>FastEthernet1/0/2
-Up · 100 Mb/s
-Neighbour: L2-Switch Fa0/1</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/2. Up. Speed: 100 Mb/s. Neighbour: L2-Switch Fa0/1\\">
 <rect class=\\"vmFpFace\\" x=\\"120\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"126.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2497,9 +2389,7 @@ Neighbour: L2-Switch Fa0/1</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"131\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">2</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/3\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/3. Up · 100 Mb/s\\">
-<title>FastEthernet1/0/3
-Up · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/3\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/3. Up. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"146\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"152.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2520,9 +2410,7 @@ Up · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"157\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">3</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/4\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/4. Up · 100 Mb/s\\">
-<title>FastEthernet1/0/4
-Up · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/4\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/4. Up. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"146\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"152.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2543,9 +2431,7 @@ Up · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"157\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">4</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/5\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/5. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/5
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/5\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/5. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"172\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"178.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2566,10 +2452,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"183\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">5</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/6\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/6. Up · 100 Mb/s. Neighbour: CYFOR-HP-Switch GigabitEthernet1/0/1\\">
-<title>FastEthernet1/0/6
-Up · 100 Mb/s
-Neighbour: CYFOR-HP-Switch GigabitEthernet1/0/1</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/6\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/6. Up. Speed: 100 Mb/s. Neighbour: CYFOR-HP-Switch GigabitEthernet1/0/1\\">
 <rect class=\\"vmFpFace\\" x=\\"172\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"178.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2590,9 +2473,7 @@ Neighbour: CYFOR-HP-Switch GigabitEthernet1/0/1</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"183\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">6</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/7\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/7. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/7
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/7\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/7. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"198\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"204.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2613,9 +2494,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"209\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">7</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/8\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/8. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/8
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/8\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/8. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"198\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"204.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2636,9 +2515,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"209\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">8</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/9\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/9. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/9
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/9\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/9. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"224\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"230.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2659,9 +2536,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"235\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">9</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/10\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/10. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/10
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/10\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/10. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"224\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"230.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2682,9 +2557,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"235\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">10</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/11\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/11. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/11
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/11\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/11. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"250\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"256.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2705,9 +2578,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"261\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">11</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/12\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/12. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/12
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/12\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/12. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"250\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"256.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2728,9 +2599,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"261\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">12</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/13\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/13. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/13
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/13\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/13. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"288\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"294.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2751,9 +2620,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"299\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">13</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/14\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/14. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/14
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/14\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/14. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"288\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"294.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2774,11 +2641,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"299\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">14</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/15\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/15. Alias: Wazuh server. Up · 100 Mb/s. Neighbour: CYFOR-AP1 GigabitEthernet0\\">
-<title>FastEthernet1/0/15
-Alias: Wazuh server
-Up · 100 Mb/s
-Neighbour: CYFOR-AP1 GigabitEthernet0</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet1/0/15\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/15. Up. Alias: Wazuh server. Speed: 100 Mb/s. Neighbour: CYFOR-AP1 GigabitEthernet0\\">
 <rect class=\\"vmFpFace\\" x=\\"314\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"320.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2799,9 +2662,7 @@ Neighbour: CYFOR-AP1 GigabitEthernet0</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"325\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">15</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/16\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/16. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/16
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/16\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/16. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"314\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"320.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2822,9 +2683,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"325\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">16</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/17\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/17. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/17
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/17\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/17. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"340\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"346.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2845,9 +2704,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"351\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">17</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/18\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/18. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/18
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/18\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/18. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"340\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"346.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2868,9 +2725,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"351\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">18</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/19\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/19. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/19
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/19\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/19. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"366\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"372.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2891,9 +2746,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"377\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">19</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/20\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/20. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/20
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/20\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/20. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"366\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"372.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2914,9 +2767,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"377\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">20</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/21\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/21. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/21
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/21\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/21. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"392\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"398.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2937,9 +2788,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"403\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">21</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/22\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/22. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/22
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/22\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/22. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"392\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"398.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -2960,9 +2809,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"403\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">22</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/23\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/23. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/23
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/23\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/23. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"418\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"424.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -2983,9 +2830,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"429\\" y=\\"13\\" font-size=\\"7\\" text-anchor=\\"middle\\">23</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/24\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/24. Not connected · 100 Mb/s\\">
-<title>FastEthernet1/0/24
-Not connected · 100 Mb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet1/0/24\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet1/0/24. Not connected. Speed: 100 Mb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"418\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"424.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -3006,9 +2851,7 @@ Not connected · 100 Mb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"429\\" y=\\"67\\" font-size=\\"7\\" text-anchor=\\"middle\\">24</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet1/0/1\\" role=\\"img\\" aria-label=\\"GigabitEthernet1/0/1. Not connected · 1 Gb/s\\">
-<title>GigabitEthernet1/0/1
-Not connected · 1 Gb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet1/0/1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet1/0/1. Not connected. Speed: 1 Gb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"462\\" y=\\"28\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"468.6\\" y=\\"42\\" width=\\"8.8\\" height=\\"4\\">
@@ -3029,9 +2872,7 @@ Not connected · 1 Gb/s</title>
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"473\\" y=\\"55\\" font-size=\\"7\\" text-anchor=\\"middle\\">G1</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet1/0/2\\" role=\\"img\\" aria-label=\\"GigabitEthernet1/0/2. Not connected · 1 Gb/s\\">
-<title>GigabitEthernet1/0/2
-Not connected · 1 Gb/s</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet1/0/2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet1/0/2. Not connected. Speed: 1 Gb/s\\">
 <rect class=\\"vmFpFace\\" x=\\"488\\" y=\\"28\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"494.6\\" y=\\"42\\" width=\\"8.8\\" height=\\"4\\">
@@ -4026,11 +3867,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <line class=\\"vmFpRule\\" x1=\\"182\\" y1=\\"27\\" x2=\\"204\\" y2=\\"27\\" stroke-width=\\"0.6\\">
 </line>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. 1 Wi-Fi client. Up. Neighbour: 172.20.80.1\\">
-<title>Dot11Radio0
-1 Wi-Fi client
-Up
-Neighbour: 172.20.80.1</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio0. Up. 1 Wi-Fi client. Neighbour: 172.20.80.1\\">
 <line class=\\"vmFpPin\\" x1=\\"121\\" y1=\\"43\\" x2=\\"121\\" y2=\\"28\\" stroke-width=\\"2\\">
 </line>
 <circle class=\\"vmFpLed\\" cx=\\"121\\" cy=\\"43\\" r=\\"7\\">
@@ -4038,11 +3875,7 @@ Neighbour: 172.20.80.1</title>
 <text class=\\"vmFpCount\\" x=\\"121\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
 <text class=\\"vmFpLabel\\" x=\\"121\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">2.4 GHz</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio1\\" role=\\"img\\" aria-label=\\"Dot11Radio1. 1 Wi-Fi client. Up. Neighbour: 172.20.80.3\\">
-<title>Dot11Radio1
-1 Wi-Fi client
-Up
-Neighbour: 172.20.80.3</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"Dot11Radio1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"Dot11Radio1. Up. 1 Wi-Fi client. Neighbour: 172.20.80.3\\">
 <line class=\\"vmFpPin\\" x1=\\"151\\" y1=\\"43\\" x2=\\"151\\" y2=\\"28\\" stroke-width=\\"2\\">
 </line>
 <circle class=\\"vmFpLed\\" cx=\\"151\\" cy=\\"43\\" r=\\"7\\">
@@ -4050,10 +3883,7 @@ Neighbour: 172.20.80.3</title>
 <text class=\\"vmFpCount\\" x=\\"151\\" y=\\"46\\" font-size=\\"8\\" font-weight=\\"700\\" text-anchor=\\"middle\\">1</text>
 <text class=\\"vmFpLabel\\" x=\\"151\\" y=\\"63\\" font-size=\\"7\\" text-anchor=\\"middle\\">5 GHz</text>
 </g>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"GigabitEthernet0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0. Up. Neighbour: L3-Switch FastEthernet1/0/15\\">
-<title>GigabitEthernet0
-Up
-Neighbour: L3-Switch FastEthernet1/0/15</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"GigabitEthernet0\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0. Up. Neighbour: L3-Switch FastEthernet1/0/15\\">
 <rect class=\\"vmFpFace\\" x=\\"182\\" y=\\"34\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"188.6\\" y=\\"48\\" width=\\"8.8\\" height=\\"4\\">
@@ -7442,10 +7272,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 </rect>
 <text class=\\"vmFpLabel\\" x=\\"14\\" y=\\"26\\" font-size=\\"10\\" font-weight=\\"700\\">Cisco</text>
 <text class=\\"vmFpLabel\\" x=\\"14\\" y=\\"40\\" font-size=\\"8\\">C2960</text>
-<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet0/1\\" role=\\"img\\" aria-label=\\"FastEthernet0/1. Up. Neighbour: 172.20.10.254 Fa1/0/2\\">
-<title>FastEthernet0/1
-Up
-Neighbour: 172.20.10.254 Fa1/0/2</title>
+<g class=\\"vmFpPort vmFpPort--up\\" data-port=\\"FastEthernet0/1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/1. Up. Neighbour: 172.20.10.254 Fa1/0/2\\">
 <rect class=\\"vmFpFace\\" x=\\"120\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"126.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7465,9 +7292,7 @@ Neighbour: 172.20.10.254 Fa1/0/2</title>
 <rect class=\\"vmFpLed\\" x=\\"122\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/2\\" role=\\"img\\" aria-label=\\"FastEthernet0/2. Not connected\\">
-<title>FastEthernet0/2
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/2. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"120\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"126.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7487,9 +7312,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"122\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/3\\" role=\\"img\\" aria-label=\\"FastEthernet0/3. Not connected\\">
-<title>FastEthernet0/3
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/3\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/3. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"146\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"152.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7509,9 +7332,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"148\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/4\\" role=\\"img\\" aria-label=\\"FastEthernet0/4. Not connected\\">
-<title>FastEthernet0/4
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/4\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/4. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"146\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"152.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7531,9 +7352,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"148\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/5\\" role=\\"img\\" aria-label=\\"FastEthernet0/5. Not connected\\">
-<title>FastEthernet0/5
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/5\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/5. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"172\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"178.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7553,9 +7372,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"174\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/6\\" role=\\"img\\" aria-label=\\"FastEthernet0/6. Not connected\\">
-<title>FastEthernet0/6
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/6\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/6. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"172\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"178.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7575,9 +7392,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"174\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/7\\" role=\\"img\\" aria-label=\\"FastEthernet0/7. Not connected\\">
-<title>FastEthernet0/7
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/7\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/7. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"198\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"204.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7597,9 +7412,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"200\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/8\\" role=\\"img\\" aria-label=\\"FastEthernet0/8. Not connected\\">
-<title>FastEthernet0/8
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/8\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/8. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"198\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"204.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7619,9 +7432,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"200\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/9\\" role=\\"img\\" aria-label=\\"FastEthernet0/9. Not connected\\">
-<title>FastEthernet0/9
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/9\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/9. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"224\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"230.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7641,9 +7452,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"226\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/10\\" role=\\"img\\" aria-label=\\"FastEthernet0/10. Not connected\\">
-<title>FastEthernet0/10
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/10\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/10. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"224\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"230.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7663,9 +7472,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"226\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/11\\" role=\\"img\\" aria-label=\\"FastEthernet0/11. Not connected\\">
-<title>FastEthernet0/11
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/11\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/11. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"250\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"256.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7685,9 +7492,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"252\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/12\\" role=\\"img\\" aria-label=\\"FastEthernet0/12. Not connected\\">
-<title>FastEthernet0/12
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/12\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/12. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"250\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"256.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7707,9 +7512,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"252\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/13\\" role=\\"img\\" aria-label=\\"FastEthernet0/13. Not connected\\">
-<title>FastEthernet0/13
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/13\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/13. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"288\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"294.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7729,9 +7532,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"290\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/14\\" role=\\"img\\" aria-label=\\"FastEthernet0/14. Not connected\\">
-<title>FastEthernet0/14
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/14\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/14. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"288\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"294.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7751,9 +7552,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"290\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/15\\" role=\\"img\\" aria-label=\\"FastEthernet0/15. Not connected\\">
-<title>FastEthernet0/15
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/15\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/15. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"314\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"320.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7773,9 +7572,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"316\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/16\\" role=\\"img\\" aria-label=\\"FastEthernet0/16. Not connected\\">
-<title>FastEthernet0/16
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/16\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/16. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"314\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"320.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7795,9 +7592,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"316\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/17\\" role=\\"img\\" aria-label=\\"FastEthernet0/17. Not connected\\">
-<title>FastEthernet0/17
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/17\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/17. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"340\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"346.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7817,9 +7612,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"342\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/18\\" role=\\"img\\" aria-label=\\"FastEthernet0/18. Not connected\\">
-<title>FastEthernet0/18
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/18\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/18. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"340\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"346.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7839,9 +7632,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"342\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/19\\" role=\\"img\\" aria-label=\\"FastEthernet0/19. Not connected\\">
-<title>FastEthernet0/19
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/19\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/19. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"366\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"372.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7861,9 +7652,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"368\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/20\\" role=\\"img\\" aria-label=\\"FastEthernet0/20. Not connected\\">
-<title>FastEthernet0/20
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/20\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/20. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"366\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"372.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7883,9 +7672,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"368\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/21\\" role=\\"img\\" aria-label=\\"FastEthernet0/21. Not connected\\">
-<title>FastEthernet0/21
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/21\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/21. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"392\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"398.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7905,9 +7692,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"394\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/22\\" role=\\"img\\" aria-label=\\"FastEthernet0/22. Not connected\\">
-<title>FastEthernet0/22
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/22\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/22. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"392\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"398.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7927,9 +7712,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"394\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/23\\" role=\\"img\\" aria-label=\\"FastEthernet0/23. Not connected\\">
-<title>FastEthernet0/23
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/23\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/23. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"418\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"424.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7949,9 +7732,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"420\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/24\\" role=\\"img\\" aria-label=\\"FastEthernet0/24. Not connected\\">
-<title>FastEthernet0/24
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/24\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/24. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"418\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"424.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -7971,9 +7752,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"420\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/25\\" role=\\"img\\" aria-label=\\"FastEthernet0/25. Not connected\\">
-<title>FastEthernet0/25
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/25\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/25. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"456\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"462.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -7993,9 +7772,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"458\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/26\\" role=\\"img\\" aria-label=\\"FastEthernet0/26. Not connected\\">
-<title>FastEthernet0/26
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/26\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/26. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"456\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"462.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8015,9 +7792,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"458\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/27\\" role=\\"img\\" aria-label=\\"FastEthernet0/27. Not connected\\">
-<title>FastEthernet0/27
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/27\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/27. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"482\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"488.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8037,9 +7812,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"484\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/28\\" role=\\"img\\" aria-label=\\"FastEthernet0/28. Not connected\\">
-<title>FastEthernet0/28
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/28\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/28. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"482\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"488.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8059,9 +7832,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"484\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/29\\" role=\\"img\\" aria-label=\\"FastEthernet0/29. Not connected\\">
-<title>FastEthernet0/29
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/29\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/29. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"508\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"514.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8081,9 +7852,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"510\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/30\\" role=\\"img\\" aria-label=\\"FastEthernet0/30. Not connected\\">
-<title>FastEthernet0/30
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/30\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/30. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"508\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"514.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8103,9 +7872,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"510\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/31\\" role=\\"img\\" aria-label=\\"FastEthernet0/31. Not connected\\">
-<title>FastEthernet0/31
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/31\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/31. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"534\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"540.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8125,9 +7892,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"536\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/32\\" role=\\"img\\" aria-label=\\"FastEthernet0/32. Not connected\\">
-<title>FastEthernet0/32
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/32\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/32. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"534\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"540.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8147,9 +7912,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"536\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/33\\" role=\\"img\\" aria-label=\\"FastEthernet0/33. Not connected\\">
-<title>FastEthernet0/33
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/33\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/33. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"560\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"566.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8169,9 +7932,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"562\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/34\\" role=\\"img\\" aria-label=\\"FastEthernet0/34. Not connected\\">
-<title>FastEthernet0/34
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/34\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/34. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"560\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"566.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8191,9 +7952,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"562\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/35\\" role=\\"img\\" aria-label=\\"FastEthernet0/35. Not connected\\">
-<title>FastEthernet0/35
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/35\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/35. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"586\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"592.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8213,9 +7972,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"588\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/36\\" role=\\"img\\" aria-label=\\"FastEthernet0/36. Not connected\\">
-<title>FastEthernet0/36
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/36\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/36. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"586\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"592.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8235,9 +7992,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"588\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/37\\" role=\\"img\\" aria-label=\\"FastEthernet0/37. Not connected\\">
-<title>FastEthernet0/37
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/37\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/37. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"624\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"630.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8257,9 +8012,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"626\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/38\\" role=\\"img\\" aria-label=\\"FastEthernet0/38. Not connected\\">
-<title>FastEthernet0/38
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/38\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/38. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"624\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"630.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8279,9 +8032,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"626\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/39\\" role=\\"img\\" aria-label=\\"FastEthernet0/39. Not connected\\">
-<title>FastEthernet0/39
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/39\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/39. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"650\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"656.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8301,9 +8052,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"652\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/40\\" role=\\"img\\" aria-label=\\"FastEthernet0/40. Not connected\\">
-<title>FastEthernet0/40
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/40\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/40. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"650\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"656.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8323,9 +8072,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"652\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/41\\" role=\\"img\\" aria-label=\\"FastEthernet0/41. Not connected\\">
-<title>FastEthernet0/41
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/41\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/41. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"676\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"682.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8345,9 +8092,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"678\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/42\\" role=\\"img\\" aria-label=\\"FastEthernet0/42. Not connected\\">
-<title>FastEthernet0/42
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/42\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/42. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"676\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"682.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8367,9 +8112,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"678\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/43\\" role=\\"img\\" aria-label=\\"FastEthernet0/43. Not connected\\">
-<title>FastEthernet0/43
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/43\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/43. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"702\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"708.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8389,9 +8132,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"704\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/44\\" role=\\"img\\" aria-label=\\"FastEthernet0/44. Not connected\\">
-<title>FastEthernet0/44
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/44\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/44. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"702\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"708.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8411,9 +8152,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"704\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/45\\" role=\\"img\\" aria-label=\\"FastEthernet0/45. Not connected\\">
-<title>FastEthernet0/45
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/45\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/45. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"728\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"734.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8433,9 +8172,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"730\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/46\\" role=\\"img\\" aria-label=\\"FastEthernet0/46. Not connected\\">
-<title>FastEthernet0/46
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/46\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/46. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"728\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"734.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8455,9 +8192,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"730\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/47\\" role=\\"img\\" aria-label=\\"FastEthernet0/47. Not connected\\">
-<title>FastEthernet0/47
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/47\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/47. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"754\\" y=\\"16\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"760.6\\" y=\\"30\\" width=\\"8.8\\" height=\\"4\\">
@@ -8477,9 +8212,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"756\\" y=\\"24.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/48\\" role=\\"img\\" aria-label=\\"FastEthernet0/48. Not connected\\">
-<title>FastEthernet0/48
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"FastEthernet0/48\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"FastEthernet0/48. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"754\\" y=\\"40\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"760.6\\" y=\\"54\\" width=\\"8.8\\" height=\\"4\\">
@@ -8499,9 +8232,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"756\\" y=\\"48.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/1\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/1. Not connected\\">
-<title>GigabitEthernet0/1
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/1\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/1. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"798\\" y=\\"28\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"804.6\\" y=\\"42\\" width=\\"8.8\\" height=\\"4\\">
@@ -8521,9 +8252,7 @@ Not connected</title>
 <rect class=\\"vmFpLed\\" x=\\"800\\" y=\\"36.1\\" width=\\"18\\" height=\\"5.3999999999999995\\" rx=\\"1.5\\">
 </rect>
 </g>
-<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/2\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/2. Not connected\\">
-<title>GigabitEthernet0/2
-Not connected</title>
+<g class=\\"vmFpPort vmFpPort--unused\\" data-port=\\"GigabitEthernet0/2\\" tabindex=\\"0\\" role=\\"img\\" aria-label=\\"GigabitEthernet0/2. Not connected\\">
 <rect class=\\"vmFpFace\\" x=\\"824\\" y=\\"28\\" width=\\"22\\" height=\\"18\\" rx=\\"2\\" stroke-width=\\"1\\">
 </rect>
 <rect class=\\"vmFpNotch\\" x=\\"830.6\\" y=\\"42\\" width=\\"8.8\\" height=\\"4\\">

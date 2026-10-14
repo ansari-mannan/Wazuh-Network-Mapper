@@ -77,14 +77,25 @@ describe('map: wired and wireless clients', () => {
     render(<TopologyView graph={graph} onSelect={() => {}} selectedId={null} />);
     const wifi = edgeOf('host:wifi1', 'device:ap');
     expect(wifi.getAttribute('data-type')).toBe('wifi');
-    expect(wifi.querySelector('title')!.textContent).toBe('Wireless · OFFICE · 2.4 GHz (Dot11Radio0)');
+    const target = wifi.querySelector('.vmWifiEdge')!;
+    expect(target.getAttribute('aria-label')).toBe('Wireless · OFFICE · 2.4 GHz (Dot11Radio0)');
+    act(() => {
+      target.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 5, clientY: 5 }));
+    });
+    // the same dark box as the front panel's ports
+    const tip = document.querySelector('.vmTip[data-test-subj="vmHoverTip"]')!;
+    expect(tip.querySelector('b')!.textContent).toBe('Wireless · OFFICE · 2.4 GHz (Dot11Radio0)');
+    act(() => {
+      target.dispatchEvent(new MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }));
+    });
+    expect(document.querySelector('.vmTip')).toBeNull();
     expect(wifi.querySelector('.vmWifiGlyph')).not.toBeNull();
     expect((wifi.querySelector('path.react-flow__edge-path') as SVGElement).style.strokeDasharray).toBe('5 5');
 
     const wired = edgeOf('endpoint:101', 'device:sw24');
     expect(wired.getAttribute('data-type')).toBe('default');
     expect(wired.querySelector('.vmWifiGlyph')).toBeNull();
-    expect(wired.querySelector('title')).toBeNull();
+    expect(wired.querySelector('.vmWifiEdge')).toBeNull();
     expect(root.innerHTML.replace(/></g, '>\n<')).toMatchSnapshot();
   });
 
