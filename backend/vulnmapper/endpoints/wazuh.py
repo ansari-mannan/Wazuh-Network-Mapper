@@ -185,6 +185,14 @@ class WazuhSource:
             })
         return nodes
 
+    def tls_warnings(self) -> list:
+        """A ``tls_unverified`` warning naming the Wazuh services whose
+        certificate is not checked (verification off is the lab default, see
+        schema.tls_verify), or nothing."""
+        unverified = [name for name, cfg in (("Wazuh Manager API", self._wcfg),
+                                             ("Wazuh Indexer", self._icfg)) if cfg.verify is False]
+        return [{"type": "tls_unverified", "services": unverified}] if unverified else []
+
     def _inventory(self, agent_id, is_server: bool) -> tuple:
         """``(netiface, hardware, netaddr, netproto, failed)`` for one agent;
         empty lists and ``failed`` when syscollector could not be read."""

@@ -8,6 +8,7 @@ every PC (the plugin keeps the previous graph only when a scan fails).
 import offline  # noqa: F401  (no test reaches the internet)
 import contextlib
 import io
+import json
 import os
 import tempfile
 import unittest
@@ -191,6 +192,37 @@ class TestAgentPaging(unittest.TestCase):
         self.assertEqual(len(nodes), 2003)
         self.assertEqual(offsets, [0, 1000, 2000])
 
+
+class TestTlsWarning(unittest.TestCase):
+    def warnings(self, wazuh_verify, indexer_verify):
+        return WazuhSource(WazuhConfig(host="w", port="55000", user="u", password="p",
+                                       verify=wazuh_verify),
+                           IndexerConfig(host="i", port="9200", user="u", password="p",
+                                         verify=indexer_verify)).tls_warnings()
+
+    def test_names_each_unverified_service(self):
+        self.assertEqual(self.warnings(False, "/ca.pem"),
+                         [{"type": "tls_unverified", "services": ["Wazuh Manager API"]}])
+        self.assertEqual(self.warnings(False, False)[0]["services"],
+                         ["Wazuh Manager API", "Wazuh Indexer"])
+
+    def test_none_when_both_verify(self):
+        self.assertEqual(self.warnings(True, "/ca.pem"), [])
+
+    def test_a_live_scan_puts_it_on_the_graph(self):
+        source = mock.Mock(collect=mock.Mock(return_value=[]), score=mock.Mock(return_value=[]),
+                           cves={}, collect_warnings=[], warnings=[],
+                           tls_warnings=mock.Mock(return_value=[{"type": "tls_unverified",
+                                                                 "services": ["Wazuh Indexer"]}]))
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch("vulnmapper.endpoints.WazuhSource", return_value=source), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            out = os.path.join(tmp, "graph.json")
+            self.assertEqual(Pipeline().run(["--no-network", "--no-device-cves", "--no-cve-vectors",
+                                             "--no-name-lookup", "-o", out]), 0)
+            with open(out, encoding="utf-8") as f:
+                warnings = json.load(f)["metadata"]["warnings"]
+        self.assertIn({"type": "tls_unverified", "services": ["Wazuh Indexer"]}, warnings)
 
 if __name__ == "__main__":
     unittest.main()

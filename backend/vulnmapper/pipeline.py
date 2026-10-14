@@ -263,7 +263,7 @@ def _read_endpoints(scan: ScanContext) -> None:
         scan.endpoints = source.score(agents)
         scan.timing["endpoint_score_s"] = time.monotonic() - t0
         scan.cves = source.cves
-        scan.score_warnings = source.collect_warnings + source.warnings
+        scan.score_warnings = source.tls_warnings() + source.collect_warnings + source.warnings
 
     collect_s = scan.timing["endpoint_collect_s"]
     scan.record("Wazuh endpoints", collect_s and collect_s + scan.timing["endpoint_score_s"],

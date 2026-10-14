@@ -24,6 +24,7 @@ import { ThemeToggle } from '../layout/ThemeToggle';
 import { SummaryPanels } from './SummaryPanels';
 import { SinceLastScan } from './SinceLastScan';
 import { threatFeedWarning } from '../../lib/ovssText';
+import { tlsWarning } from '../../lib/tlsWarning';
 
 function PageCards() {
   const { history } = useServices();
@@ -84,6 +85,12 @@ export function Overview() {
         {threatFeedWarning(graph?.metadata.threat_feeds) && (
           <>
             <EuiCallOut color="warning" iconType="alert" title={threatFeedWarning(graph?.metadata.threat_feeds)} data-test-subj="vmThreatFeeds" />
+            <EuiSpacer size="m" />
+          </>
+        )}
+        {tlsWarning(graph?.metadata.warnings) && (
+          <>
+            <EuiCallOut color="warning" iconType="lock" title={tlsWarning(graph?.metadata.warnings)} data-test-subj="vmTlsUnverified" />
             <EuiSpacer size="m" />
           </>
         )}
