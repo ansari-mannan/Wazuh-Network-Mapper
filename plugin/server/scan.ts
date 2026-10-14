@@ -58,6 +58,8 @@ interface ScanOptions {
   community?: string;
   // false: the scanner skips the device CVE stage (--no-device-cves)
   deviceCves?: boolean;
+  // vulnmapper.scanTimeoutSeconds: a scan running longer is killed and fails
+  timeoutSeconds?: number;
   // vulnmapper.seeds: the IPs the crawl starts from
   seeds?: string[];
   // swap the new map in even when its crawl polled no device
@@ -173,6 +175,7 @@ export function startScan({
   checks = {},
   seeds = [],
   replaceEmpty = false,
+  timeoutSeconds = 1800,
   trigger = 'manual',
   onDone,
   logger,
@@ -216,7 +219,22 @@ export function startScan({
     if (stage && scan.status === 'running') scan = { ...scan, stage };
   });
 
+  // A hung scan (a stuck SNMP or TLS call) would otherwise hold the lock, and
+  // refuse every later scan and protected-asset change, until a restart.
+  let timedOut = false;
+  let hardKill: NodeJS.Timeout | undefined;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    child.kill('SIGTERM');
+    hardKill = setTimeout(() => child.kill('SIGKILL'), 10_000);
+  }, timeoutSeconds * 1000);
+  const stopTimers = () => {
+    clearTimeout(timer);
+    if (hardKill) clearTimeout(hardKill);
+  };
+
   child.on('error', (e: Error) => {
+    stopTimers();
     // The binary itself could not be launched (missing python, bad cwd).
     finish('failed', `failed to start ${pythonBin}: ${e.message}`);
     logger.warn(`scan failed: ${scan.message}`);
@@ -224,7 +242,14 @@ export function startScan({
   });
 
   child.on('close', async (code: number | null) => {
+    stopTimers();
     if (scan.status !== 'running') return; // spawn error already recorded
+    if (timedOut) {
+      finish('failed', `scan timed out after ${timeoutSeconds} s`);
+      logger.warn(`scan failed: ${scan.message}`);
+      await discardVulns();
+      return;
+    }
     const out = Buffer.concat(chunks);
     if (code !== 0 || !out.length) {
       finish('failed', failureMessage(stderr, code, community));

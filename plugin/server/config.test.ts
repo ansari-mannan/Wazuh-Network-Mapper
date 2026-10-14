@@ -39,6 +39,13 @@ describe('active checks config', () => {
   });
 });
 
+describe('scan timeout config', () => {
+  it('stops a scan after 30 minutes by default, at least 60 s', () => {
+    expect(configSchema.validate({}).scanTimeoutSeconds).toBe(1800);
+    expect(() => configSchema.validate({ scanTimeoutSeconds: 59 })).toThrow();
+  });
+});
+
 describe('seeds config', () => {
   it('takes IP addresses only, none by default', () => {
     expect(configSchema.validate({}).seeds).toEqual([]);

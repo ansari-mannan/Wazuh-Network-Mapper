@@ -30,6 +30,8 @@ import { ActiveChecks } from '../common';
 //                          probes the discovered unmanaged hosts (open ports,
 //                          service versions -> NVD CVEs), never managed hosts
 //                          or network devices. nmap must be installed.
+//   vulnmapper.scanTimeoutSeconds  a scan still running after this long is
+//                          stopped and fails (default 1800, min 60)
 //   vulnmapper.seeds       IP addresses the network crawl starts from, each
 //                          passed as --seed (default none: the dashboard
 //                          server's default gateway and LLDP neighbours)
@@ -51,6 +53,7 @@ export const configSchema = schema.object({
   checkManagementPorts: schema.boolean({ defaultValue: false }),
   probeUnmanagedSnmp: schema.boolean({ defaultValue: false }),
   nmapUnmanaged: schema.boolean({ defaultValue: false }),
+  scanTimeoutSeconds: schema.number({ defaultValue: 1800, min: 60 }),
   seeds: schema.arrayOf(
     schema.string({ validate: (v) => (isIP(v) ? undefined : `${v} is not an IP address`) }),
     { defaultValue: [] }

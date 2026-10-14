@@ -58,6 +58,7 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.checkManagementPorts` | where the switch "Test whether telnet and web management answer on devices that do not report it" starts (default `false`); on, the scan runs with `--check-management-ports` |
 | `vulnmapper.probeUnmanagedSnmp` | where the switch "Ask unmanaged hosts for their identity over SNMP" starts (default `false`); on, the scan runs with `--probe-unmanaged-snmp` |
 | `vulnmapper.nmapUnmanaged` | where the switch "Service-scan unmanaged hosts with nmap" starts (default `false`); on, the scan runs with `--nmap-unmanaged`, which actively probes the discovered unmanaged hosts (nmap must be installed) |
+| `vulnmapper.scanTimeoutSeconds` | a scan still running after this many seconds is stopped (SIGTERM, then SIGKILL 10 s later) and fails with "scan timed out", keeping the previous files (default `1800`, at least `60`) |
 | `vulnmapper.seeds` | IP addresses the network crawl starts from, each passed as `--seed` (default none: the dashboard server's default gateway and LLDP neighbours, which is often wrong in a container or on a separate management network); shown on the Scan settings page |
 | `vulnmapper.reportOrg` | the organisation/owner name shown on the vulnerability report's cover (default `Network Vulnerability Assessment`) |
 

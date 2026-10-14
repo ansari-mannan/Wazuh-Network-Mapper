@@ -272,6 +272,7 @@ export function defineRoutes(
         graphPath,
         community: request.body?.community || undefined,
         seeds: config.seeds,
+        timeoutSeconds: config.scanTimeoutSeconds,
         replaceEmpty: request.body?.replaceEmpty ?? false,
         logger,
       });

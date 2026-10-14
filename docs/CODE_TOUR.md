@@ -48,7 +48,8 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
    `crawl_empty` warning, and the server then keeps the current map if it has
    devices, unless the scan form's "Replace the map even if no device
    answered" is on. The crawl starts from `vulnmapper.seeds` when set, else
-   from the dashboard server's own default gateway.
+   from the dashboard server's own default gateway. A scan still running after
+   `vulnmapper.scanTimeoutSeconds` (default 30 minutes) is killed and fails.
 7. On success the server also archives the three files in the scan history
    (below). A failed scan is not archived.
 8. The pages read those files through the server's API. While liveness is

@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import {
@@ -120,6 +120,30 @@ describe('startScan', () => {
     const [ok] = await ended;
     expect(ok).toBe(false);
     expect(getScan().status).toBe('failed');
+  });
+});
+
+describe('scan timeout', () => {
+  it('kills a hung scan, fails it and discards its temporary files', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-hang-'));
+    const hang = path.join(dir, 'hang.sh'); // a "python" that never finishes
+    writeFileSync(hang, '#!/bin/sh\nexec sleep 30\n', { mode: 0o755 });
+    const temps = ['vulnerabilities.json', 'attack_paths.json'].map((f) => path.join(dir, `${f}.tmp-${process.pid}`));
+    temps.forEach((f) => writeFileSync(f, '{}'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const ended = new Promise<[boolean, string]>((resolve) => {
+      startScan({
+        pythonBin: hang,
+        backendDir: dir,
+        graphPath: path.join(dir, 'graph.json'),
+        timeoutSeconds: 0.2,
+        onDone: (ok, m) => resolve([ok, m]),
+        logger,
+      });
+    });
+    expect(await ended).toEqual([false, 'scan timed out after 0.2 s']);
+    expect(getScan().status).toBe('failed');
+    temps.forEach((f) => expect(existsSync(f)).toBe(false));
   });
 });
 
