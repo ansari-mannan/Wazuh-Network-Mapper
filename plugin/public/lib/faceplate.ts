@@ -60,8 +60,6 @@ export interface Faceplate {
   chassis: Chassis;
   width: number;
   height: number;
-  /** where the vendor/model text and system LEDs go, from x = 0 */
-  brandWidth: number;
   ports: PlacedPort[];
   captions: Caption[];
   /** the captions' baseline; their rule is 3 below */
@@ -81,7 +79,6 @@ const GAP_X = 4;
 const GAP_Y = 6;
 const BLOCK_GAP = 12; // between blocks of 12 access ports
 const GROUP_GAP = 22; // between console, access and uplink blocks
-const RIGHT_PAD = 12;
 const EAR_W = 14; // a 1U chassis's rack ears
 
 /** Above this many physical ports the card shows a compact panel and an Expand button. */
@@ -169,21 +166,30 @@ export function shortName(name: string): string {
 // labels. A caption never shares a line with a port label, and a label sits
 // only above the top row or below the bottom row (a one-row block sits
 // halfway down with its labels below it, in its own columns).
-export const CAPTION_SIZE = 7.5;
-export const LABEL_SIZE = 7;
-const CAPTION_Y = 10; // caption baseline; its rule is 3 below
-const ROW1_ONE = 24; // the row of a one-row panel
-const MIN_HEIGHT = 66; // room for the brand area: vendor, name plate, PWR
-const ROW1_TWO = 27; // the top row of a two-row panel
+// At scale 1 (the smallest the card draws a full panel at) text is >= 9 px.
+export const CAPTION_SIZE = 9;
+export const LABEL_SIZE = 9;
+const STRIP_SIZE = 9; // the top strip: vendor, name plate, PWR
+const STRIP_BASE = 15.5; // the strip's text baseline; the strip ends at y = 20
+const CAPTION_Y = 31; // caption baseline, under the strip; its rule is 3 below
+const ROW1_ONE = 38; // the row of a one-row panel
+const ROW1_TWO = 47; // the top row of a two-row panel (its labels above it)
 const LABEL_GAP = 4; // from a row to the baseline above it / the label's top below it
 
-/** A text's width as drawn (generous: capitals of the dashboard's sans font). */
-export const textWidth = (text: string, size: number) => text.length * size * 0.65;
+// A character's width in ems, generous for the dashboard's sans font:
+// capitals (W, M above all) are wider than digits and small letters.
+const charWidth = (c: string) => (/[MW]/.test(c) ? 0.9 : /[A-Z]/.test(c) ? 0.72 : /[0-9]/.test(c) ? 0.6 : 0.56);
+
+/** A text's width as drawn. */
+export const textWidth = (text: string, size: number) =>
+  Array.from(text).reduce((w, c) => w + charWidth(c), 0) * size;
 
 /** `text` cut with an ellipsis to fit `width` at font `size`. */
 export function fitText(text: string, width: number, size: number): string {
-  const max = Math.floor(width / (size * 0.65));
-  return text.length <= max ? text : `${text.slice(0, Math.max(1, max - 1))}…`;
+  if (textWidth(text, size) <= width + 1e-6) return text; // a text that fits exactly is not cut
+  let cut = text;
+  while (cut.length > 1 && textWidth(`${cut}…`, size) > width) cut = cut.slice(0, -1);
+  return `${cut}…`;
 }
 
 type Entry = { port: DevicePort; kind: PortKind };
@@ -247,7 +253,7 @@ function placeBlocks(blocks: Block[], x0: number) {
     captionY: CAPTION_Y,
     dividers,
     right: x,
-    height: Math.max(MIN_HEIGHT, (rows === 2 ? below(row2) : below(row1)) + 8),
+    height: (rows === 2 ? below(row2) : below(row1)) + 8,
   };
 }
 
@@ -306,6 +312,9 @@ function groupOf({ port, kind }: Entry): string {
 }
 const rank = (g: string) => (g === 'RADIO' ? -1 : DESKTOP_ORDER.indexOf(g));
 
+const numberOf = (e: Entry) => Number(trailingNumber(e.port.name) ?? 1e9); // named ports after numbered ones
+const byNumber = (list: Entry[]) => [...list].sort((a, b) => numberOf(a) - numberOf(b));
+
 /** A desktop port's label: the INTERNAL number, else its own short name in full (WAN1, DMZ2, HA, MGMT). */
 function desktopLabel(group: string, name: string): string {
   if (group === 'INTERNAL' && trailingNumber(name)) return trailingNumber(name)!;
@@ -319,7 +328,7 @@ function desktopLabel(group: string, name: string): string {
  * the far right behind a divider; an access point's radios come first, as
  * antenna LEDs.
  */
-function rowBlocks(physical: Entry[]): Block[] {
+function rowBlocks(physical: Entry[], split = false): Block[] {
   const groups = new Map<string, Entry[]>();
   for (const p of physical) {
     const g = groupOf(p);
@@ -327,11 +336,13 @@ function rowBlocks(physical: Entry[]): Block[] {
   }
   const order = [...groups.keys()].sort((a, b) => rank(a) - rank(b));
   return order.map((g) => {
-    const list = groups.get(g)!;
+    // INTERNAL reads 1, 2, 3... then any named port (LAN), whatever the ifIndex order
+    const list = g === 'INTERNAL' ? byNumber(groups.get(g)!) : groups.get(g)!;
     const wan = g === 'WAN';
     return {
       list,
-      twoRows: list.length > 12,
+      // split: every group of more than 2 ports on two rows, to fit a narrow card
+      twoRows: list.length > 12 || (split && list.length > 2),
       byRow: true,
       caption: wan ? WAN_CAPTION : g,
       gapBefore: wan ? WAN_GAP : 20,
@@ -342,45 +353,60 @@ function rowBlocks(physical: Entry[]): Block[] {
   });
 }
 
-/** The whole front panel of one device. */
-export function faceplateOf(node: DeviceNode): Faceplate {
+const PLATE_MAX = 200; // the name plate never makes the panel wider than this needs
+const GRILLE_MIN = 24;
+
+/**
+ * The whole front panel of one device. `split` puts every desktop or puck
+ * group of more than 2 ports on two rows, for a card too narrow for one.
+ */
+export function faceplateOf(node: DeviceNode, { split = false }: { split?: boolean } = {}): Faceplate {
   const chassis = chassisFor(node);
   const all = portsOf(node).map((port) => ({ port, kind: portKind(port) }));
   const logical = all.filter((p) => p.kind === 'logical' || (p.kind === 'radio' && chassis !== 'puck'));
   const physical = all.filter((p) => !logical.includes(p));
   const ear = chassis === 'rack' ? EAR_W : 0;
-  const brandWidth = ear + (chassis === 'generic' ? 104 : chassis === 'puck' ? 116 : chassis === 'desktop' ? 150 : 116);
-  const blocks = chassis === 'desktop' || chassis === 'puck' ? rowBlocks(physical) : rackBlocks(physical);
-  const { ports, captions, captionY, dividers, right, height } = placeBlocks(blocks, brandWidth);
-  // The brand area, top to bottom: the vendor (plain text, no logo), the
-  // name plate with hostname and model, then the PWR LED beside the grille.
-  const textX = ear + (chassis === 'puck' ? 24 : 10);
-  const room = brandWidth - textX - 10;
-  const plate = { x: textX - 3, y: 21, w: room + 6, h: 25 };
+  // a puck's rounded ends take room on both sides
+  const inset = ear + (chassis === 'puck' ? 26 : 10);
+  const blocks = chassis === 'desktop' || chassis === 'puck' ? rowBlocks(physical, split) : rackBlocks(physical);
+  const { ports, captions, captionY, dividers, right, height } = placeBlocks(blocks, inset);
+
+  // The top strip, left to right: the vendor (plain text, no logo), the
+  // recessed name plate (hostname · model), the vent grille, the PWR LED.
+  const vendor = node.vendor || '';
+  const plateText = [node.hostname || node.ip, node.model].filter(Boolean).join(' · ');
+  const vendorW = vendor ? textWidth(vendor, STRIP_SIZE) + 8 : 0;
+  const pwrW = 10 + textWidth('PWR', STRIP_SIZE);
+  const plateNatural = plateText ? Math.min(PLATE_MAX, textWidth(plateText, STRIP_SIZE) + 8) : 0;
+  // the ports or the strip, whichever is wider, with the same margin both sides
+  const width = Math.max(right, inset + vendorW + plateNatural + 6 + GRILLE_MIN + 6 + pwrW) + inset;
+  const stripRight = width - inset;
+  const pwrX = stripRight - pwrW;
+  const plateX = inset + vendorW;
+  const plateW = Math.max(0, Math.min(plateNatural, pwrX - 6 - GRILLE_MIN - 6 - plateX));
   const texts: PanelText[] = [];
-  if (node.vendor) texts.push({ text: fitText(node.vendor, room, 9), x: textX, y: 16, size: 9, bold: true });
-  const name = node.hostname || node.ip || '';
-  if (name) texts.push({ text: fitText(name, room, 8), x: textX, y: 31, size: 8, bold: true, decor: true });
-  if (node.model) texts.push({ text: fitText(node.model, room, 7), x: textX, y: 41, size: 7, decor: true });
-  texts.push({ text: 'PWR', x: textX + 7, y: 58, size: 6.5 });
-  const grilleX = textX + 7 + textWidth('PWR', 6.5) + 6;
+  if (vendor) texts.push({ text: fitText(vendor, width / 3, STRIP_SIZE), x: inset, y: STRIP_BASE, size: STRIP_SIZE, bold: true });
+  if (plateText && plateW > 0) {
+    texts.push({ text: fitText(plateText, plateW - 8, STRIP_SIZE), x: plateX + 4, y: STRIP_BASE, size: STRIP_SIZE, decor: true });
+  }
+  texts.push({ text: 'PWR', x: pwrX + 10, y: STRIP_BASE, size: STRIP_SIZE });
+  const grilleX = plateX + plateW + 6;
   const furniture: Furniture = {
     ear,
-    plate,
-    grille: { x: grilleX, y: 51, w: Math.max(0, textX + room - grilleX), h: 8 },
-    pwr: { cx: textX + 2.5, cy: 55.5, on: node.status === 'online' },
+    plate: { x: plateX, y: 5, w: plateW, h: 14 },
+    grille: { x: grilleX, y: 8, w: Math.max(0, pwrX - 6 - grilleX), h: 8 },
+    pwr: { cx: pwrX + 3, cy: STRIP_BASE - 3, on: node.status === 'online' },
   };
   return {
     furniture,
     chassis,
-    brandWidth,
     logical: logical.map((p) => p.port),
     ports,
     captions,
     captionY,
     dividers,
     texts,
-    width: Math.max(right, brandWidth) + (chassis === 'desktop' || chassis === 'puck' ? 16 : RIGHT_PAD) + ear,
+    width,
     height,
   };
 }
@@ -522,4 +548,19 @@ export function portTooltip(
   if (neighbours.length) lines.push(`Neighbour: ${neighbours.map((n) => n.text).join(', ')}`);
   if (flags.inferred) lines.push('Known from the neighbour’s side of the link');
   return { title: port.name, lines, route: Boolean(flags.onRoute) };
+}
+
+/**
+ * The panel for a card `available` px wide, drawn at scale >= 1 so a port is
+ * never under 22 px: the full panel if it fits, else the split one (groups on
+ * two rows), else a compact panel scaled to fit, with an Expand button.
+ * `available` 0 means not measured yet: compact only above COMPACT_ABOVE ports.
+ */
+export function pickLayout(node: DeviceNode, available: number): { fp: Faceplate; compact: boolean } {
+  const full = faceplateOf(node);
+  if (!available) return { fp: full, compact: full.ports.length > COMPACT_ABOVE };
+  if (full.width <= available) return { fp: full, compact: false };
+  const split = faceplateOf(node, { split: true });
+  if (split.width <= available) return { fp: split, compact: false };
+  return { fp: split.width < full.width ? split : full, compact: true };
 }

@@ -8,12 +8,14 @@ import {
   portKind,
   portNeighbours,
   portsOf,
+  pickLayout,
   portTooltip,
   tipText,
   routePortKeys,
   shortName,
   speedText,
   speedLed,
+  textWidth,
   textBoxes,
   PORT_W,
   PORT_H,
@@ -23,6 +25,7 @@ import {
   fortigate,
   fortigate200D,
   fortigateStatusOnly,
+  fortigateLabStyle,
   port,
   smallGraph,
   switch24,
@@ -315,14 +318,20 @@ describe('no overlapping text', () => {
     ['FortiGate 60D', fortigate],
     ['FortiGate 200D', fortigate200D],
     ['FortiGate with only port_status', fortigateStatusOnly],
+    ['lab-style FortiGate', fortigateLabStyle],
     ['access point', accessPoint],
     ['unknown device', unknownDevice],
   ];
   const hit = (a: { x: number; y: number; w: number; h: number }, b: typeof a) =>
     a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-  it.each(fixtures)('%s', (_name, node) => {
-    const fp = faceplateOf(node);
+  // every fixture in both layouts: the full one and the split one for a narrow card
+  const cases = fixtures.flatMap(([name, node]) => [
+    [name, node, false],
+    [`${name}, split`, node, true],
+  ]) as Array<[string, DeviceNode, boolean]>;
+  it.each(cases)('%s', (_name, node, split) => {
+    const fp = faceplateOf(node, { split });
     const boxes = textBoxes(fp);
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
@@ -357,7 +366,8 @@ describe('speed LED and furniture', () => {
 
   it('cuts a long hostname to the name plate', () => {
     const fp = faceplateOf({ ...switch24, hostname: 'core-distribution-switch-building-7-floor-2' });
-    const name = fp.texts.find((t) => t.decor && t.bold)!;
+    const name = fp.texts.find((t) => t.decor)!;
+    expect(name.text.startsWith('core-distribution')).toBe(true);
     expect(name.text.endsWith('…')).toBe(true);
     expect(textBoxes(fp).find((b) => b.text === name.text)!.w).toBeLessThanOrEqual(fp.furniture.plate.w);
   });
@@ -391,5 +401,46 @@ describe('desktop layout from port_status only', () => {
     expect(other.captions.map((c) => c.text)).toEqual(['MGMT/HA', 'INTERNAL', 'DMZ', 'PORTS', 'WAN (internet)']);
     const labels = other.ports.filter((p) => ['srv-net', 'x1'].includes(p.port.name)).map((p) => p.label);
     expect(labels).toEqual(['srv-net', 'X1']);
+  });
+});
+
+describe('fitting the card', () => {
+  it('uses the full panel when it fits at scale 1, the split one next, compact last', () => {
+    const full = faceplateOf(fortigateLabStyle);
+    const split = faceplateOf(fortigateLabStyle, { split: true });
+    expect(split.width).toBeLessThan(full.width);
+    expect(pickLayout(fortigateLabStyle, full.width)).toEqual({ fp: full, compact: false });
+    expect(pickLayout(fortigateLabStyle, full.width - 1)).toEqual({ fp: split, compact: false });
+    expect(pickLayout(fortigateLabStyle, split.width - 1)).toEqual({ fp: split, compact: true });
+    // a switch has no split layout: too narrow means compact
+    const sw = faceplateOf(switch48);
+    expect(pickLayout(switch48, 560)).toEqual({ fp: sw, compact: true });
+    // not measured yet: the old rule
+    expect(pickLayout(switch48, 0).compact).toBe(true);
+    expect(pickLayout(switch24, 0).compact).toBe(false);
+  });
+
+  it('splits each group of more than 2 ports onto two rows, left to right, WAN still last', () => {
+    const split = faceplateOf(fortigateLabStyle, { split: true });
+    const at = (name: string) => split.ports.find((p) => p.port.name === name)!;
+    // INTERNAL is port1-4 then lan: 1, 2, 3 on top, 4 and LAN below
+    expect(at('port1').y).toBe(at('port3').y);
+    expect(at('port4').y).toBeGreaterThan(at('port1').y);
+    expect(at('port4').x).toBe(at('port1').x);
+    expect(at('lan').x).toBe(at('port2').x);
+    expect(split.captions.map((c) => c.text)).toEqual(['MGMT/HA', 'INTERNAL', 'DMZ', 'PORTS', 'WAN (internet)']);
+    expect(Math.min(at('wan1').x, at('wan2').x)).toBeGreaterThan(split.dividers[0]);
+  });
+
+  it('puts the strip on top: vendor and name plate left, PWR right, above every caption', () => {
+    const fp = faceplateOf(fortigate200D);
+    const pwr = fp.texts.find((t) => t.text === 'PWR')!;
+    const vendor = fp.texts.find((t) => t.text === 'Fortinet')!;
+    expect(vendor.x).toBeLessThan(fp.furniture.plate.x);
+    expect(pwr.x).toBeGreaterThan(fp.furniture.plate.x + fp.furniture.plate.w);
+    expect(pwr.x + textWidth('PWR', pwr.size)).toBeLessThanOrEqual(fp.width);
+    for (const t of fp.texts) expect(t.y).toBeLessThan(fp.captionY - 9);
+    // ports start at the left margin: no brand column any more
+    expect(Math.min(...fp.ports.map((p) => p.x))).toBeLessThan(20);
   });
 });

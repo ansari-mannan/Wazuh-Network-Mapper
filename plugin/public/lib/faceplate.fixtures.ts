@@ -130,6 +130,29 @@ export const fortigateStatusOnly = device('device:fwold', 'router', undefined, {
   neighbor_ports: ['port3'],
 });
 
+/**
+ * Shaped like a lab FortiGate seen only through port_status: mgmt, port1-4,
+ * lan, dmz1-2, one custom-named port and wan1-2 (names made up, not lab data).
+ */
+export const fortigateLabStyle = device('device:fwlab', 'router', undefined, {
+  vendor: 'Fortinet',
+  model: 'FortiGate-200D',
+  hostname: 'edge-fw',
+  port_status: {
+    mgmt: 'up',
+    wan1: 'up',
+    wan2: 'down',
+    dmz1: 'up',
+    dmz2: 'down',
+    lan: 'down',
+    port1: 'up',
+    port2: 'up',
+    port3: 'down',
+    'srv-net': 'up',
+    port4: 'down',
+  },
+});
+
 /** An access point with two radios. */
 export const accessPoint = device(
   'device:ap',

@@ -2,7 +2,7 @@
 // sockets with a link LED each, the route ring and the dashed outline of an
 // inferred port, a legend, and the logical interfaces folded underneath.
 // Colours are CSS classes (faceplate.scss), so they follow the dashboard theme.
-import React, { useMemo, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   EuiAccordion,
   EuiButtonEmpty,
@@ -16,7 +16,6 @@ import {
 import { DeviceNode, DevicePort, GraphEdge } from '../../../common';
 import {
   CAPTION_SIZE,
-  COMPACT_ABOVE,
   LABEL_SIZE,
   Faceplate as Layout,
   faceplateOf,
@@ -28,6 +27,7 @@ import {
   PORT_W,
   portKey,
   portNeighbours,
+  pickLayout,
   portTooltip,
   routePortKeys,
   speedLed,
@@ -85,7 +85,7 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
       )}
       {kind === 'radio' ? (
         <>
-          <line className="vmFpPin" x1={x + w / 2} y1={y + h / 2} x2={x + w / 2} y2={y - 6} strokeWidth={2} />
+          <line className="vmFpPin" x1={x + w / 2} y1={y + h / 2} x2={x + w / 2} y2={y - 2} strokeWidth={2} />
           <circle className="vmFpLed" cx={x + w / 2} cy={y + h / 2} r={7} />
           <text className="vmFpCount" x={x + w / 2} y={y + h / 2 + 3} fontSize={8} fontWeight={700} textAnchor="middle">
             {count}
@@ -195,15 +195,17 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, 
             {t.text}
           </text>
         ))}
-      {!compact &&
-        fp.captions.map((c) => (
-          <g key={`${c.text}-${c.x}`}>
-            <text className="vmFpLabel" x={c.x} y={fp.captionY} fontSize={CAPTION_SIZE}>
-              {c.text}
-            </text>
+      {fp.captions.map((c) => (
+        <g key={`${c.text}-${c.x}`}>
+          <text className="vmFpLabel" x={c.x} y={fp.captionY} fontSize={CAPTION_SIZE}>
+            {c.text}
+          </text>
+          {/* the underline goes on the compact panel, the caption stays */}
+          {!compact && (
             <line className="vmFpRule" x1={c.x} y1={fp.captionY + 3} x2={c.x + c.width} y2={fp.captionY + 3} strokeWidth={0.6} />
-          </g>
-        ))}
+          )}
+        </g>
+      ))}
       {fp.dividers.map((dx) => (
         <line key={dx} className="vmFpDivider" x1={dx} y1={4} x2={dx} y2={H - 4} strokeWidth={1} />
       ))}
@@ -269,6 +271,29 @@ function LogicalInterfaces({ node, ports }: { node: DeviceNode; ports: DevicePor
   );
 }
 
+type ObserverClass = new (callback: (entries: Array<{ contentRect: { width: number } }>) => void) => {
+  observe: (el: Element) => void;
+  disconnect: () => void;
+};
+
+/** The element's width in px, kept up to date; 0 until measured (and in tests without layout). */
+function useWidth(): [React.RefObject<HTMLDivElement>, number] {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    setWidth(el.clientWidth);
+    // the dashboard's TS lib types ResizeObserver but does not declare the global
+    const Observer = (window as unknown as { ResizeObserver?: ObserverClass }).ResizeObserver;
+    if (!Observer) return;
+    const observer = new Observer((entries) => setWidth(Math.floor(entries[0].contentRect.width)));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width];
+}
+
 export function Faceplate({
   node,
   edges,
@@ -283,15 +308,18 @@ export function Faceplate({
   onSelectNode?: (nodeId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const fp = useMemo(() => faceplateOf(node), [node]);
+  const [box, available] = useWidth();
+  const { fp, compact } = useMemo(() => pickLayout(node, available), [node, available]);
   const byPort = useMemo(() => portNeighbours(node.node_id, edges), [node.node_id, edges]);
   const routeKeys = useMemo(() => routePortKeys(node.node_id, route, byPort), [node.node_id, route, byPort]);
   const clients = useMemo(() => radioClients(node.node_id, edges), [node.node_id, edges]);
-  const compact = fp.ports.length > COMPACT_ABOVE;
   const panel = { node, fp, byPort, routeKeys, clients, onSelectNode };
+  const full = useMemo(() => faceplateOf(node), [node]); // the Expand modal's, at full size
+  // measured: scale 1 up to 1.6 when it fits, the card's width when compact
+  const cardWidth = available ? (compact ? available : Math.min(available, Math.round(fp.width * 1.6))) : undefined;
   return (
-    <div className="vmFp" style={{ '--vm-route': graphColors.route } as React.CSSProperties}>
-      <FaceplatePanel {...panel} compact={compact} />
+    <div ref={box} className="vmFp" style={{ '--vm-route': graphColors.route } as React.CSSProperties}>
+      <FaceplatePanel {...panel} compact={compact} width={cardWidth} />
       {compact && (
         <EuiButtonEmpty size="xs" iconType="expand" onClick={() => setExpanded(true)} data-test-subj="vmFaceplateExpand">
           Expand ({fp.ports.length} ports)
@@ -309,7 +337,8 @@ export function Faceplate({
             <div className="vmFp vmFpScroll" style={{ '--vm-route': graphColors.route } as React.CSSProperties}>
               <FaceplatePanel
                 {...panel}
-                width={Math.round(fp.width * 1.6)}
+                fp={full}
+                width={Math.round(full.width * 1.6)}
                 onSelectNode={
                   onSelectNode &&
                   ((id) => {

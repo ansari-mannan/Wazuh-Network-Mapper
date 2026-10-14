@@ -8,11 +8,13 @@ import ReactDOM from 'react-dom';
 import { act } from 'react-dom/test-utils';
 import { DeviceNode } from '../../../common';
 import { Faceplate } from './Faceplate';
+import { faceplateOf } from '../../lib/faceplate';
 import {
   accessPoint,
   fortigate,
   fortigate200D,
   fortigateStatusOnly,
+  fortigateLabStyle,
   smallGraph,
   switch24,
   switch48,
@@ -278,5 +280,64 @@ describe('Faceplate', () => {
       'vmFpPort vmFpPort--unused',
     ]);
     expect(html()).toMatchSnapshot();
+  });
+
+  describe('in a measured card', () => {
+    // jsdom has no layout: the card (.vmFp) reports the width under test
+    let width = 560;
+    beforeEach(() => {
+      jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(function (this: HTMLElement) {
+        return this.classList.contains('vmFp') ? width : 0;
+      });
+    });
+    afterEach(() => jest.restoreAllMocks());
+
+    // on-screen size of one viewBox unit: the drawn width over the viewBox width
+    const scaleOf = (svg: Element) => Number(svg.getAttribute('width')) / Number(svg.getAttribute('viewBox')!.split(' ')[2]);
+    const card = (el: ParentNode) => el.querySelector('[data-test-subj="vmFaceplate"]')!;
+
+    it.each([
+      ['FortiGate 200D', fortigate200D],
+      ['lab-style firewall', fortigateLabStyle],
+      ['24+2 switch', switch24],
+    ] as Array<[string, DeviceNode]>)('%s in 560 px: one readable panel, ports >= 22 px, labels >= 9 px', (_n, node) => {
+      width = 560;
+      const el = render(node);
+      const svg = card(el);
+      expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).toBeNull();
+      expect(Number(svg.getAttribute('width'))).toBeLessThanOrEqual(560);
+      const port = Number(svg.querySelector('.vmFpFace')!.getAttribute('width'));
+      expect(port * scaleOf(svg)).toBeGreaterThanOrEqual(22);
+      for (const t of Array.from(svg.querySelectorAll('.vmFpPort text.vmFpLabel'))) {
+        expect(Number(t.getAttribute('font-size')) * scaleOf(svg)).toBeGreaterThanOrEqual(9);
+      }
+    });
+
+    it('a card too narrow for one row splits the groups onto two rows, WAN still far right', () => {
+      // as wide as the split panel needs: too narrow for the one-row one
+      width = Math.ceil(faceplateOf(fortigateLabStyle, { split: true }).width);
+      expect(faceplateOf(fortigateLabStyle).width).toBeGreaterThan(width);
+      const el = render(fortigateLabStyle);
+      const svg = card(el);
+      expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).toBeNull();
+      expect(Number(svg.querySelector('.vmFpFace')!.getAttribute('width')) * scaleOf(svg)).toBeGreaterThanOrEqual(22);
+      const y = (name: string) => Number(socket(el, name).querySelector('.vmFpFace')!.getAttribute('y'));
+      expect(y('port4')).toBeGreaterThan(y('port1')); // INTERNAL on two rows
+      const faceX = (name: string) => Number(socket(el, name).querySelector('.vmFpFace')!.getAttribute('x'));
+      const dx = Number(svg.querySelector('line.vmFpDivider')!.getAttribute('x1'));
+      expect(dx).toBeLessThan(Math.min(faceX('wan1'), faceX('wan2')));
+      expect(Math.max(faceX('srv-net'), faceX('dmz2'), faceX('lan'))).toBeLessThan(dx);
+      expect(html()).toMatchSnapshot();
+    });
+
+    it('a 48-port switch in 560 px is compact: captions kept without their underline, and Expand', () => {
+      width = 560;
+      const el = render(switch48);
+      const svg = card(el);
+      expect(svg.textContent).toContain('UPLINK');
+      expect(svg.querySelector('.vmFpRule')).toBeNull();
+      expect(Number(svg.getAttribute('width'))).toBe(560);
+      expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).not.toBeNull();
+    });
   });
 });
