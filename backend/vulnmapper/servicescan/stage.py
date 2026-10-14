@@ -6,13 +6,14 @@ stage and before the vectors, so its CVEs flow on to the attack paths.
 from __future__ import annotations
 
 import logging
+import time
 from typing import TYPE_CHECKING, Optional
 
 from ..common import StageResult, plural
 from ..hosts import question_targets
 from ..devicecves import families
 from ..devicecves.cache import Cache
-from ..devicecves.lookup import STATUS_OK, lookup
+from ..devicecves.lookup import STATUS_OK, Lookup, lookup
 from ..devicecves.nvd import NvdClient
 from ..devicecves.stage import apply_result, device_entry
 from .nmap import NmapBudgetExceeded, NmapRunner, parse_nmap_xml
@@ -37,13 +38,17 @@ log = logging.getLogger("vulnmapper.servicescan")
 
 DEFAULT_HOSTS_CAP = 256
 DEFAULT_BUDGET_S = 300.0
+# Hosts per nmap run: a run cut off by the budget loses only its own batch.
+BATCH_SIZE = 16
 SOURCE = "nmap"
 _PORT_KEYS = ("port", "protocol", "service", "product", "version")
 
 
-def ident_from_ports(open_ports: list) -> Optional[dict]:
-    """A CPE lookup identity from the first service with an application CPE that
-    carries a version, or None. nmap emits CPE 2.2 (``cpe:/a:vendor:product:ver``)."""
+def idents_from_ports(open_ports: list) -> list:
+    """A CPE lookup identity for each distinct application CPE that carries a
+    version, in port order (an old OpenSSH and an old Apache on one host are
+    both looked up). nmap emits CPE 2.2 (``cpe:/a:vendor:product:ver``)."""
+    idents: dict = {}
     for p in open_ports:
         for cpe in p.get("cpes") or []:
             parts = cpe.split(":")        # cpe:/a:vendor:product:version[:...]
@@ -52,10 +57,29 @@ def ident_from_ports(open_ports: list) -> Optional[dict]:
             vendor, product, cpe_version = parts[2], parts[3], parts[4]
             version = p.get("version") or cpe_version
             label = " ".join(x for x in (p.get("product") or product, version) if x)
-            return {"match": "cpe", "version": version, "product": label,
-                    "cpe": f"cpe:2.3:a:{vendor}:{product}:{families.cpe_value(cpe_version)}"
-                           ":*:*:*:*:*:*:*"}
-    return None
+            key = f"cpe:2.3:a:{vendor}:{product}:{families.cpe_value(cpe_version)}:*:*:*:*:*:*:*"
+            idents.setdefault(key, {"match": "cpe", "version": version, "product": label, "cpe": key})
+    return list(idents.values())
+
+
+def merge_lookups(results: list) -> Lookup:
+    """One host's lookups as one: its products and CPEs joined, the CVE rows of
+    every answered lookup with each CVE once. ok when any lookup answered;
+    otherwise the first lookup's status."""
+    ok = [r for r in results if r.status == STATUS_OK]
+    first = (ok or results)[0]
+    rows, seen = [], set()
+    for r in ok:
+        for row in r.rows or []:
+            if row.get("cve") not in seen:
+                seen.add(row.get("cve"))
+                rows.append(row)
+    return Lookup(status=first.status, match=first.match, reason=first.reason,
+                  product="; ".join(r.product for r in results if r.product) or None,
+                  cpe=", ".join(r.cpe for r in results if r.cpe) or None,
+                  rows=rows if ok else None,
+                  fetched_at=min((r.fetched_at for r in ok if r.fetched_at), default=first.fetched_at),
+                  stale=any(r.stale for r in ok))
 
 
 def _apply_host(node: dict, scan: dict, client: NvdClient, cache: Cache,
@@ -67,10 +91,11 @@ def _apply_host(node: dict, scan: dict, client: NvdClient, cache: Cache,
     if scan.get("device_hint") and not node.get("role"):
         node["device_hint"] = scan["device_hint"]
 
-    ident = ident_from_ports(scan["open_ports"])
-    if ident is None:
+    idents = idents_from_ports(scan["open_ports"])
+    if not idents:
         return
-    result = lookup(ident, client, cache)
+    # every lookup shares the scan's NVD client, so its request budget
+    result = merge_lookups([lookup(ident, client, cache) for ident in idents])
     rows = apply_result(node, result)
     node["cve_lookup"]["source"] = SOURCE
     node["cve_lookup"]["potential"] = True
@@ -101,17 +126,25 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
         out.block = block
         return out
 
-    block["scanned"] = len(targets)
-    block["nmap_requests"] = 1
-    try:
-        xml_text = runner.scan([n["ip"] for n in targets], budget_s)
-    except NmapBudgetExceeded:
-        log.warning("nmap time budget (%.0f s) ran out; the hosts are left for the next scan", budget_s)
-        out.warnings.append({"type": "nmap_budget_exceeded", "budget_s": budget_s})
-        block["budget_exceeded"] = True
-        out.block = block
-        return out
-    scans = parse_nmap_xml(xml_text)
+    # In batches, each with the budget that is left, so the hosts of every
+    # batch that finished are kept when a later one runs out of time.
+    scans: dict = {}
+    started = time.monotonic()
+    for i in range(0, len(targets), BATCH_SIZE):
+        batch = [n["ip"] for n in targets[i:i + BATCH_SIZE]]
+        left = budget_s - (time.monotonic() - started)
+        try:
+            if left <= 0:
+                raise NmapBudgetExceeded()
+            block["nmap_requests"] += 1
+            scans.update(parse_nmap_xml(runner.scan(batch, left)))
+        except NmapBudgetExceeded:
+            log.warning("nmap time budget (%.0f s) ran out; %d host(s) are left for the next scan",
+                        budget_s, len(targets) - i)
+            out.warnings.append({"type": "nmap_budget_exceeded", "budget_s": budget_s})
+            block["budget_exceeded"] = True
+            break
+        block["scanned"] += len(batch)
 
     for node in targets:
         scan = scans.get(node["ip"])

@@ -699,8 +699,9 @@ succeeds).
 **What it probes, and what it never touches.** Only nodes that are
 `unmanaged: true` and have a known IP, taken from the graph the pipeline just
 built — never a managed host, never a network device, never an address the
-scan did not already see. One `nmap -sV` run (service/version detection,
-nmap's default port set and timing) over a host-list file, plus the benign
+scan did not already see. `nmap -sV` runs (service/version detection,
+nmap's default port set and timing) over a host-list file of up to 16 hosts
+each, plus the benign
 `nbstat` discovery script for a Windows host's NetBIOS name. No OS detection,
 no vuln scripts, no aggressive options. The host list carries IP addresses
 only, in a temp file nmap reads and that is removed afterwards; nmap's
@@ -708,17 +709,19 @@ arguments carry no secret.
 
 **Bounds.** `--nmap-hosts-cap` (default 256) caps the hosts scanned per run and
 `--nmap-budget` (default 300 s) the whole scan's time; over either, the rest
-are left for the next run (`nmap_cap_reached`, `nmap_budget_exceeded`). A
+are left for the next run (`nmap_cap_reached`, `nmap_budget_exceeded`); the
+hosts of every batch that finished before the budget ran out are kept. A
 per-host timeout bounds each host.
 
 **What a host that answered gets.** Its `open_ports` (port, protocol and, where
 nmap detected them, service, product and version) — recorded even when no CVE
 is found, because the ports are useful on their own and are the honest
-evidence. When nmap detected a product with a version (through the CPE it
-emits), that version is turned into a CPE lookup and run through the same
+evidence. Each product nmap detected with a version (through the CPE it
+emits) is turned into a CPE lookup and run through the same
 device-CVE NVD path (same client, cache and time budget), so the host gains
 `cve_summary`, `top_cves`, `max_cvss` and a `cve_lookup` like a
-device's — with `source: "nmap"` and `potential: true`. **Potential** means a
+device's (several products are merged: `product` and `cpe` list them, separated
+by `; ` and `, `, and a CVE found for two of them counts once) — with `source: "nmap"` and `potential: true`. **Potential** means a
 detected service version is not proof the vulnerable build is running, the same
 caution as a device's version match. A host that answered with no identifiable
 service, or no CVE, keeps its `open_ports` and is otherwise unchanged. The host

@@ -11,6 +11,7 @@ import json
 import os
 import tempfile
 import unittest
+import unittest.mock
 
 from test_cdp import crawl, lab
 from test_nvd import FakeClock, FakeNvd, listed, metric, record
@@ -19,11 +20,15 @@ from vulnmapper.devicecves.cache import Cache
 from vulnmapper.pipeline import Pipeline
 from vulnmapper.servicescan import nmap as nmapmod
 from vulnmapper.servicescan.nmap import NmapBudgetExceeded, NmapRunner, parse_nmap_xml
-from vulnmapper.servicescan.stage import ident_from_ports, run_stage
+from vulnmapper.servicescan import stage as stagemod
+from vulnmapper.servicescan.stage import idents_from_ports, run_stage
 
 SSH_CPE = "cpe:2.3:a:openbsd:openssh:8.2p1:*:*:*:*:*:*:*"
 SSH_CVES = [record("CVE-2020-0001", metric("3.1", 9.8, severity="CRITICAL")),
             record("CVE-2020-0002", metric("3.1", 5.3, severity="MEDIUM"))]
+HTTPD_CPE = "cpe:2.3:a:apache:http_server:2.4.41:*:*:*:*:*:*:*"
+HTTPD_CVES = [record("CVE-2021-0003", metric("3.1", 7.5, severity="HIGH")),
+              record("CVE-2020-0002", metric("3.1", 5.3, severity="MEDIUM"))]   # shared
 
 
 def host_xml(ip, ports="", scripts=""):
@@ -40,6 +45,10 @@ SSH_SERVICE_PORT = (
     '<port protocol="tcp" portid="22"><state state="open"/>'
     '<service name="ssh" product="OpenSSH" version="8.2p1">'
     '<cpe>cpe:/a:openbsd:openssh:8.2p1</cpe></service></port>')
+HTTPD_PORT = (
+    '<port protocol="tcp" portid="80"><state state="open"/>'
+    '<service name="http" product="Apache httpd" version="2.4.41">'
+    '<cpe>cpe:/a:apache:http_server:2.4.41</cpe></service></port>')
 IPP_PORT = '<port protocol="tcp" portid="631"><state state="open"/><service name="ipp"/></port>'
 NBSTAT = '<hostscript><script id="nbstat" output="NetBIOS name: PRINT01, NetBIOS MAC: x"/></hostscript>'
 
@@ -80,7 +89,8 @@ def graph(*nodes):
 
 
 def lab_nvd(clock):
-    return FakeNvd(clock=clock, cves={SSH_CPE: SSH_CVES}, dictionary={SSH_CPE: listed(SSH_CPE)})
+    return FakeNvd(clock=clock, cves={SSH_CPE: SSH_CVES, HTTPD_CPE: HTTPD_CVES},
+                   dictionary={SSH_CPE: listed(SSH_CPE), HTTPD_CPE: listed(HTTPD_CPE)})
 
 
 class TestParsing(unittest.TestCase):
@@ -98,7 +108,7 @@ class TestParsing(unittest.TestCase):
         scans = parse_nmap_xml(nmaprun(host_xml("10.0.0.6", port(80, service='name="http"'))))
         p = scans["10.0.0.6"]["open_ports"][0]
         self.assertEqual((p["service"], p["product"], p["version"]), ("http", None, None))
-        self.assertIsNone(ident_from_ports(scans["10.0.0.6"]["open_ports"]))  # no CPE -> no lookup
+        self.assertEqual(idents_from_ports(scans["10.0.0.6"]["open_ports"]), [])  # no CPE -> no lookup
 
     def test_host_that_did_not_answer_has_no_open_ports(self):
         scans = parse_nmap_xml(nmaprun(host_xml("10.0.0.9", port(80, state="closed"))))
@@ -196,6 +206,34 @@ class TestStage(unittest.TestCase):
         client = self.client()
         run_stage(graph(endpoint("ep:a", ip="10.0.0.5")), client, cache, runner=FakeRunner(xml))
         self.assertEqual(client.requests, 0)
+
+    def test_every_versioned_service_is_looked_up(self):
+        node = endpoint("ep:a", ip="10.0.0.5")
+        self.run_it(graph(node), FakeRunner(nmaprun(host_xml("10.0.0.5", SSH_SERVICE_PORT + HTTPD_PORT))))
+        self.assertEqual(node["cve_summary"]["total"], 3)          # the shared CVE once
+        self.assertEqual(node["cve_lookup"]["product"], "OpenSSH 8.2p1; Apache httpd 2.4.41")
+        self.assertEqual(node["cve_lookup"]["cpe"], f"{SSH_CPE}, {HTTPD_CPE}")
+        self.assertEqual(node["cve_lookup"]["total"], 3)
+
+    def test_a_batch_over_budget_keeps_the_batches_before_it(self):
+        nodes = [endpoint(f"ep:{i}", ip=f"10.0.{i}.5") for i in range(3)]
+
+        class SecondTimesOut(FakeRunner):
+            calls = 0
+
+            def scan(self, ips, budget_s, per_host_timeout_s=60.0):
+                self.calls += 1
+                if self.calls == 2:
+                    raise NmapBudgetExceeded()
+                return nmaprun(*(host_xml(ip, SSH_SERVICE_PORT) for ip in ips))
+
+        runner = SecondTimesOut()
+        with unittest.mock.patch.object(stagemod, "BATCH_SIZE", 2):
+            result = self.run_it(graph(*nodes), runner)
+        self.assertEqual([("open_ports" in n) for n in nodes], [True, True, False])
+        self.assertEqual(nodes[0]["max_cvss"], 9.8)
+        self.assertTrue(result.block["budget_exceeded"])
+        self.assertEqual((result.block["scanned"], result.block["nmap_requests"]), (2, 2))
 
     def test_block_counts(self):
         node = endpoint("ep:a", ip="10.0.0.5")
