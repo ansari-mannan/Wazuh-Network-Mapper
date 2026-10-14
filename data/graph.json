@@ -1,606 +1,571 @@
 {
   "nodes": [
     {
-      "node_id": "device:00:23:ac:75:06:ea",
+      "node_id": "device:0c:00:00:00:10:01",
       "kind": "device",
-      "ip": "172.20.40.254",
-      "hostname": "L3-Switch",
+      "ip": "10.10.0.1",
+      "hostname": "core-sw",
       "vendor": "Cisco",
-      "model": "C3750",
-      "firmware": "12.2(55)SE12",
+      "model": "C9300",
+      "firmware": null,
       "serial": null,
-      "mac": "00:23:ac:75:06:ea",
+      "mac": null,
       "discovery_method": "snmp_lldp",
       "status": "online",
       "role": "l3-switch",
-      "risk_score": 8.9,
-      "max_cvss": 10.0,
+      "risk_score": null,
+      "max_cvss": null,
       "discovery_order": 0,
       "parent_id": null,
-      "chassis_id": "00:23:ac:75:06:ea",
+      "chassis_id": "0c:00:00:00:10:01",
       "pollable": true,
-      "neighbor_ports": [
-        "Fa1/0/1",
-        "Fa1/0/15",
-        "Fa1/0/2",
-        "Fa1/0/6"
-      ],
-      "uplink_ports": [
-        "Fa1/0/1",
-        "Fa1/0/2",
-        "Fa1/0/6"
-      ],
+      "neighbor_ports": [],
+      "uplink_ports": [],
       "port_status": {
-        "Vl1": "down",
-        "Vl10": "up",
-        "Vl20": "up",
-        "Vl30": "up",
-        "Vl40": "up",
-        "Vl50": "down",
-        "Vl70": "up",
-        "Vl80": "up",
-        "Vl99": "up",
-        "Vl100": "up",
-        "StackPort1": "down",
-        "StackSub-St1-1": "down",
-        "StackSub-St1-2": "down",
-        "Fa1/0/1": "up",
-        "Fa1/0/2": "up",
-        "Fa1/0/3": "up",
-        "Fa1/0/4": "up",
-        "Fa1/0/5": "down",
-        "Fa1/0/6": "up",
-        "Fa1/0/7": "down",
-        "Fa1/0/8": "down",
-        "Fa1/0/9": "down",
-        "Fa1/0/10": "down",
-        "Fa1/0/11": "down",
-        "Fa1/0/12": "down",
-        "Fa1/0/13": "down",
-        "Fa1/0/14": "down",
-        "Fa1/0/15": "up",
-        "Fa1/0/16": "down",
-        "Fa1/0/17": "down",
-        "Fa1/0/18": "down",
-        "Fa1/0/19": "down",
-        "Fa1/0/20": "down",
-        "Fa1/0/21": "down",
-        "Fa1/0/22": "down",
-        "Fa1/0/23": "down",
-        "Fa1/0/24": "down",
-        "Gi1/0/1": "down",
-        "Gi1/0/2": "down",
-        "Nu0": "up"
-      },
-      "top_cves": [
-        {
-          "cve": "CVE-2006-4950",
-          "cvss": 10.0,
-          "cvss_version": "2.0",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
-          "reference": "http://secunia.com/advisories/21974",
-          "published_at": "2006-09-23T10:07:00.000Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2017-12240",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
-          "reference": "http://www.securityfocus.com/bid/101034",
-          "published_at": "2017-09-29T01:34:49.077Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2007-5552",
-          "cvss": 9.3,
-          "cvss_version": "2.0",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "Integer overflow in Cisco IOS allows remote attackers to execute arbitrary code via unspecified vectors.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
-          "reference": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
-          "published_at": "2007-10-18T20:17:00.000Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2025-20363",
-          "cvss": 9.0,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "A vulnerability in the web services of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software, Cisco Secure Firewall Threat Defense (FTD) Software, Cisco IOS Software, Cisco IOS XE Software, and Cisco IOS XR Software could allow an unauthenticated, remote attacker (Cisco ASA and FTD Software) or authenticated, remote attacker (Cisco IOS, IOS XE, and IOS XR Software) with low user privileges to execute arbitrary code on an affected device. \r\n\r This vulnerability is due to improper validation of user-supplied input in HTTP requests. An attacker could exploit this vulnerability by sending crafted HTTP requests to a targeted web service on an affected device after obtaining additional information about the system, overcoming exploit mitigations, or both. A successful exploit could allow the attacker to execute arbitrary code as root, which may lead to the complete compromise of the affected device.\r\n\r For more information about this vulnerability, see the Details [\"#details\"] section of this advisory.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-http-code-exec-WmfP3h3O",
-          "published_at": "2025-09-25T16:15:32.497Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2017-6736",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.213Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2017-6737",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.243Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2017-6738",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.290Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2017-6739",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.337Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2017-6740",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.370Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        },
-        {
-          "cve": "CVE-2017-6742",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(55)SE12",
-          "version": "12.2(55)SE12",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.447Z",
-          "detected_at": "2026-10-08T23:09:10.453101+00:00"
-        }
-      ],
-      "cve_summary": {
-        "total": 90,
-        "critical": 4,
-        "high": 44,
-        "medium": 40,
-        "low": 2,
-        "unknown": 0,
-        "max_cvss": 10.0
-      },
-      "cve_lookup": {
-        "status": "ok",
-        "match": "cpe",
-        "product": "Cisco IOS 12.2(55)SE12",
-        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(55\\)se12:*:*:*:*:*:*:*",
-        "source": "nvd",
-        "fetched_at": "2026-10-08T23:09:10.453101+00:00",
-        "stale": false,
-        "total": 90
+        "Gi1/0/1": "up",
+        "Gi1/0/2": "up",
+        "Gi1/0/3": "up",
+        "Gi1/0/4": "up",
+        "Gi1/0/5": "up",
+        "Gi1/0/6": "up"
       },
       "config_checks": [
         {
           "id": "mgmt-telnet-enabled",
           "title": "Telnet management enabled",
           "result": "unknown",
-          "reason": "the device does not list its TCP listeners over SNMP, and the connection test is not enabled"
+          "reason": "configuration data was not collected"
         },
         {
           "id": "mgmt-http-enabled",
           "title": "Plain HTTP management enabled",
           "result": "unknown",
-          "reason": "the device does not list its TCP listeners over SNMP, and the connection test is not enabled"
+          "reason": "configuration data was not collected"
         },
         {
           "id": "snmp-no-auth",
           "title": "SNMP managed with a community string",
-          "result": "fail"
+          "result": "unknown",
+          "reason": "configuration data was not collected"
         },
         {
           "id": "snmp-default-community",
           "title": "Default SNMP community name",
-          "result": "not_checked",
-          "reason": "probe not enabled"
+          "result": "unknown",
+          "reason": "configuration data was not collected"
         },
         {
           "id": "spare-ports-in-used-vlan",
           "title": "Spare access ports in a VLAN in use",
-          "result": "fail"
+          "result": "unknown",
+          "reason": "configuration data was not collected"
         },
         {
           "id": "access-ports-default-vlan",
           "title": "Access ports in the default VLAN",
-          "result": "fail"
+          "result": "unknown",
+          "reason": "configuration data was not collected"
         },
         {
           "id": "bpdu-guard-missing",
           "title": "BPDU guard missing on access ports",
-          "result": "fail"
+          "result": "unknown",
+          "reason": "configuration data was not collected"
         },
         {
           "id": "port-security-disabled",
           "title": "Port security disabled on access ports",
-          "result": "fail"
+          "result": "unknown",
+          "reason": "configuration data was not collected"
         }
       ],
-      "config_findings": [
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "severity": "medium",
-          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
-          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220604",
-              "stig_id": "CISC-ND-001130",
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-001967",
-              "nist": "IA-3 (1)",
-              "relation": "requires"
-            },
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220605",
-              "stig_id": "CISC-ND-001140",
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-000068",
-              "nist": "AC-17 (2)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "snmp_version": "v2c"
-          }
-        },
-        {
-          "id": "spare-ports-in-used-vlan",
-          "title": "Spare access ports in a VLAN in use",
-          "severity": "medium",
-          "why": "A port nobody uses but that sits in a live VLAN gives anyone who plugs into the socket, or turns the port on, a place on that VLAN.",
-          "remediation": "Move every access port that is not in use to an unused (parking) VLAN that no trunk carries.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220641",
-              "stig_id": "CISC-L2-000210",
-              "srg_id": "SRG-NET-000512-L2S-000007",
-              "title": "The Cisco switch must have all disabled switch ports assigned to an unused VLAN.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220641",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-004891",
-              "nist": "SC-7 (29)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              {
-                "port": "FastEthernet1/0/5",
-                "vlan": 40
-              },
-              {
-                "port": "FastEthernet1/0/8",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet1/0/9",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet1/0/10",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet1/0/11",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet1/0/12",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet1/0/13",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet1/0/14",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet1/0/16",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet1/0/17",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet1/0/18",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet1/0/19",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet1/0/20",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet1/0/21",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet1/0/22",
-                "vlan": 30
-              },
-              {
-                "port": "FastEthernet1/0/23",
-                "vlan": 99
-              },
-              {
-                "port": "FastEthernet1/0/24",
-                "vlan": 99
-              },
-              {
-                "port": "GigabitEthernet1/0/1",
-                "vlan": 1
-              },
-              {
-                "port": "GigabitEthernet1/0/2",
-                "vlan": 1
-              }
-            ],
-            "total": 19,
-            "enabled": 18,
-            "shut_down": 1,
-            "down_recently_not_counted": 0,
-            "unused_vlans": [
-              50
-            ]
-          }
-        },
-        {
-          "id": "access-ports-default-vlan",
-          "title": "Access ports in the default VLAN",
-          "severity": "medium",
-          "why": "VLAN 1 carries the switch's own control traffic, so hosts placed in it share a segment with the infrastructure.",
-          "remediation": "Assign every host port to a user VLAN other than VLAN 1.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220642",
-              "stig_id": "CISC-L2-000220",
-              "srg_id": "SRG-NET-000512-L2S-000008",
-              "title": "The Cisco switch must not have the default VLAN assigned to any host-facing switch ports.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220642",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-004891",
-              "nist": "SC-7 (29)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              "GigabitEthernet1/0/1",
-              "GigabitEthernet1/0/2"
-            ],
-            "total": 2,
-            "with_link": 0
-          }
-        },
-        {
-          "id": "bpdu-guard-missing",
-          "title": "BPDU guard missing on access ports",
-          "severity": "medium",
-          "why": "Without BPDU guard, a switch plugged into an access port can take part in spanning tree and even become its root.",
-          "remediation": "Enable BPDU guard on every user-facing access port.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220630",
-              "stig_id": "CISC-L2-000100",
-              "srg_id": "SRG-NET-000362-L2S-000022",
-              "title": "The Cisco switch must have Bridge Protocol Data Unit (BPDU) Guard enabled on all user-facing or untrusted access switch ports.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220630",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-002385",
-              "nist": "SC-5 a",
-              "relation": "requires"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              "FastEthernet1/0/3",
-              "FastEthernet1/0/4",
-              "FastEthernet1/0/5",
-              "FastEthernet1/0/7",
-              "FastEthernet1/0/8",
-              "FastEthernet1/0/9",
-              "FastEthernet1/0/10",
-              "FastEthernet1/0/11",
-              "FastEthernet1/0/12",
-              "FastEthernet1/0/13",
-              "FastEthernet1/0/14",
-              "FastEthernet1/0/16",
-              "FastEthernet1/0/17",
-              "FastEthernet1/0/18",
-              "FastEthernet1/0/19",
-              "FastEthernet1/0/20",
-              "FastEthernet1/0/21",
-              "FastEthernet1/0/22",
-              "FastEthernet1/0/23",
-              "FastEthernet1/0/24"
-            ],
-            "total": 22
-          }
-        },
-        {
-          "id": "port-security-disabled",
-          "title": "Port security disabled on access ports",
-          "severity": null,
-          "why": "Without port security an access port accepts any number of MAC addresses, so a rogue switch or a MAC flood goes unchecked.",
-          "remediation": "Enable port security with a small MAC limit, or 802.1x authentication, on every access port.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220623",
-              "stig_id": "CISC-L2-000020",
-              "srg_id": "SRG-NET-000148-L2S-000015",
-              "title": "The Cisco switch must uniquely identify and authenticate all network-connected endpoint devices before establishing any connection.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220623",
-              "severity": "high",
-              "category": "CAT I",
-              "cci": "CCI-000778",
-              "nist": "IA-3",
-              "relation": "related"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              "FastEthernet1/0/3",
-              "FastEthernet1/0/4",
-              "FastEthernet1/0/5",
-              "FastEthernet1/0/7",
-              "FastEthernet1/0/8",
-              "FastEthernet1/0/9",
-              "FastEthernet1/0/10",
-              "FastEthernet1/0/11",
-              "FastEthernet1/0/12",
-              "FastEthernet1/0/13",
-              "FastEthernet1/0/14",
-              "FastEthernet1/0/16",
-              "FastEthernet1/0/17",
-              "FastEthernet1/0/18",
-              "FastEthernet1/0/19",
-              "FastEthernet1/0/20",
-              "FastEthernet1/0/21",
-              "FastEthernet1/0/22",
-              "FastEthernet1/0/23",
-              "FastEthernet1/0/24"
-            ],
-            "total": 22
-          }
-        }
-      ],
+      "config_findings": [],
       "config_summary": {
         "checks": 8,
         "results": {
           "pass": 0,
-          "fail": 5,
+          "fail": 0,
           "not_applicable": 0,
-          "unknown": 2,
-          "not_checked": 1
+          "unknown": 8,
+          "not_checked": 0
         },
         "findings": {
           "high": 0,
-          "medium": 4,
+          "medium": 0,
           "low": 0,
-          "advisory": 1
+          "advisory": 0
         }
       },
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2006-4950",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 10.0
-      }
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 1.0,
+      "importance": 0.5,
+      "kev_count": 0
     },
     {
-      "node_id": "endpoint:000",
+      "node_id": "endpoint:101",
       "kind": "endpoint",
-      "ip": "172.20.40.1",
-      "hostname": "wazuh-server",
+      "ip": "10.10.0.11",
+      "hostname": "web-01",
       "vendor": "ubuntu",
       "model": "Ubuntu",
-      "firmware": "22.04.5 LTS",
-      "serial": " ",
-      "mac": "c6:6f:b8:b4:ad:e3",
+      "firmware": "22.04",
+      "serial": null,
+      "mac": "d4:be:d9:00:00:11",
       "discovery_method": "wazuh",
       "status": "active",
       "role": "host",
-      "risk_score": 0.0,
-      "max_cvss": null,
+      "risk_score": 2.817,
+      "max_cvss": 9.8,
       "discovery_order": 1,
-      "parent_id": "device:00:23:ac:75:06:ea",
-      "agent_id": "000",
+      "parent_id": "device:0c:00:00:00:10:01",
+      "agent_id": "101",
+      "stale": false,
+      "top_cves": [
+        {
+          "cve": "CVE-2026-90000",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "lib0",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90000",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.817,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90001",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "lib1",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90001 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90001",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.817,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90002",
+          "cvss": 9.1,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "lib2",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90002",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.616,
+          "tier": "P2",
+          "cvss_tool": 9.1,
+          "cvss_used": 9.1,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90003",
+          "cvss": 8.8,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib3",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90003 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90003",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.53,
+          "tier": "P2",
+          "cvss_tool": 8.8,
+          "cvss_used": 8.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90004",
+          "cvss": 8.1,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib4",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90004 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90004",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.329,
+          "tier": "P3",
+          "cvss_tool": 8.1,
+          "cvss_used": 8.1,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90005",
+          "cvss": 7.5,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib0",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90005 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90005",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.156,
+          "tier": "P3",
+          "cvss_tool": 7.5,
+          "cvss_used": 7.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90006",
+          "cvss": 7.5,
+          "cvss_version": "3.1",
+          "severity": "High",
+          "package": "lib1",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90006 in lib1: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90006",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.156,
+          "tier": "P3",
+          "cvss_tool": 7.5,
+          "cvss_used": 7.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90007",
+          "cvss": 6.5,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "lib2",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90007 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90007",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.869,
+          "tier": "P3",
+          "cvss_tool": 6.5,
+          "cvss_used": 6.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90008",
+          "cvss": 5.9,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "lib3",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90008 in lib3: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90008",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.696,
+          "tier": "P3",
+          "cvss_tool": 5.9,
+          "cvss_used": 5.9,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90009",
+          "cvss": 5.3,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "lib4",
+          "version": "1.0",
+          "description": "Synthetic fixture vulnerability CVE-2026-90009 in lib4: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90009",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.524,
+          "tier": "P3",
+          "cvss_tool": 5.3,
+          "cvss_used": 5.3,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 0.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        }
+      ],
+      "cve_summary": {
+        "total": 14,
+        "critical": 3,
+        "high": 4,
+        "medium": 4,
+        "low": 2,
+        "unknown": 1,
+        "max_cvss": 9.8
+      },
+      "vlan": 10,
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc.",
+      "node_tier": "P2",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 4,
+        "P3": 9,
+        "Unrated": 1
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
+    },
+    {
+      "node_id": "endpoint:102",
+      "kind": "endpoint",
+      "ip": "10.10.0.12",
+      "hostname": "db-01",
+      "vendor": "ubuntu",
+      "model": "Ubuntu",
+      "firmware": "22.04",
+      "serial": null,
+      "mac": "d4:be:d9:00:00:12",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
+      "risk_score": 4.043,
+      "max_cvss": 9.8,
+      "discovery_order": 2,
+      "parent_id": "device:0c:00:00:00:10:01",
+      "agent_id": "102",
+      "stale": false,
+      "top_cves": [
+        {
+          "cve": "CVE-2026-90000",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "openssl",
+          "version": "3.0.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90000 in openssl: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90000",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 4.043,
+          "tier": "P2",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90020",
+          "cvss": 6.1,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "postgresql",
+          "version": "14.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90020 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90020",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.516,
+          "tier": "P2",
+          "cvss_tool": 6.1,
+          "cvss_used": 6.1,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90021",
+          "cvss": 5.5,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "postgresql",
+          "version": "14.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90021 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90021",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 2.269,
+          "tier": "P3",
+          "cvss_tool": 5.5,
+          "cvss_used": 5.5,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90022",
+          "cvss": 4.0,
+          "cvss_version": "3.1",
+          "severity": "Medium",
+          "package": "postgresql",
+          "version": "14.2",
+          "description": "Synthetic fixture vulnerability CVE-2026-90022 in postgresql: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90022",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": "2026-10-01T08:00:00Z",
+          "score": 1.65,
+          "tier": "P3",
+          "cvss_tool": 4.0,
+          "cvss_used": 4.0,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.3,
+          "dependency": 1.0,
+          "confidence": "confirmed",
+          "conflict": 0
+        }
+      ],
+      "cve_summary": {
+        "total": 4,
+        "critical": 1,
+        "high": 0,
+        "medium": 3,
+        "low": 0,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "vlan": 10,
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc.",
+      "node_tier": "P2",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 2,
+        "P3": 2,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 1.0,
+      "importance": 1.0,
+      "kev_count": 0
+    },
+    {
+      "node_id": "endpoint:103",
+      "kind": "endpoint",
+      "ip": "10.10.0.13",
+      "hostname": "kiosk-01",
+      "vendor": "windows",
+      "model": "Windows 11",
+      "firmware": "10.0.22631",
+      "serial": null,
+      "mac": "d4:be:d9:00:00:13",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
+      "risk_score": null,
+      "max_cvss": null,
+      "discovery_order": 3,
+      "parent_id": "device:0c:00:00:00:10:01",
+      "agent_id": "103",
       "stale": false,
       "top_cves": [],
       "cve_summary": {
@@ -612,2698 +577,334 @@
         "unknown": 0,
         "max_cvss": null
       },
-      "is_wazuh_server": true,
-      "vlan": 40,
+      "vlan": 10,
       "unmanaged": false,
-      "mac_type": "local",
-      "mac_vendor": null,
-      "reachable_cve": {
-        "status": "none_found",
-        "source": "top_cves"
-      }
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc.",
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
+      },
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
-      "node_id": "device:90:6c:ac:e9:40:41",
-      "kind": "device",
-      "ip": "172.20.100.1",
-      "hostname": "CYFOR-Firewall.cyfor.lab",
-      "vendor": "Fortinet",
-      "model": "FortiGate 200D",
-      "firmware": "6.0.16",
-      "serial": "ZY218V8T07397189",
-      "mac": null,
-      "discovery_method": "snmp_lldp",
-      "status": "online",
-      "role": "router",
-      "risk_score": 8.5,
-      "max_cvss": 9.8,
-      "discovery_order": 2,
-      "parent_id": "device:00:23:ac:75:06:ea",
-      "chassis_id": "90:6c:ac:e9:40:41",
-      "pollable": true,
-      "neighbor_ports": [],
-      "uplink_ports": [],
-      "port_status": {
-        "mgmt": "down",
-        "wan1": "up",
-        "wan2": "down",
-        "dmz1": "down",
-        "dmz2": "down",
-        "modem": "down",
-        "ssl.root": "up",
-        "lan": "up",
-        "port1": "up",
-        "port2": "up"
-      },
-      "top_cves": [
-        {
-          "cve": "CVE-2023-25610",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A buffer underwrite ('buffer underflow') vulnerability in the administrative interface of Fortinet FortiOS version 7.2.0 through 7.2.3, version 7.0.0 through 7.0.6, version 6.4.0 through 6.4.11 and version 6.2.12 and below, FortiProxy version 7.2.0 through 7.2.2, version 7.0.0 through 7.0.8, version 2.0.12 and below and FortiOS-6K7K version 7.0.5, version 6.4.0 through 6.4.10 and version 6.2.0 through 6.2.10 and below allows a remote unauthenticated attacker to execute arbitrary code or commands via specifically crafted requests.",
-          "reference": "https://fortiguard.com/psirt/FG-IR-23-001",
-          "published_at": "2025-03-24T16:15:17.273Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2023-27997",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A heap-based buffer overflow vulnerability [CWE-122] in FortiOS version 7.2.4 and below, version 7.0.11 and below, version 6.4.12 and below, version 6.0.16 and below and FortiProxy version 7.2.3 and below, version 7.0.9 and below, version 2.0.12 and below, version 1.2 all versions, version 1.1 all versions SSL-VPN may allow a remote attacker to execute arbitrary code or commands via specifically crafted requests.",
-          "reference": "https://fortiguard.com/psirt/FG-IR-23-097",
-          "published_at": "2023-06-13T09:15:16.613Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2024-21762",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A out-of-bounds write in Fortinet FortiOS versions 7.4.0 through 7.4.2, 7.2.0 through 7.2.6, 7.0.0 through 7.0.13, 6.4.0 through 6.4.14, 6.2.0 through 6.2.15, 6.0.0 through 6.0.17, FortiProxy versions 7.4.0 through 7.4.2, 7.2.0 through 7.2.8, 7.0.0 through 7.0.14, 2.0.0 through 2.0.13, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7 allows attacker to execute unauthorized code or commands via specifically crafted requests",
-          "reference": "https://fortiguard.com/psirt/FG-IR-24-015",
-          "published_at": "2024-02-09T09:15:08.087Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2024-26011",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A missing authentication for critical function in Fortinet FortiManager version 7.4.0 through 7.4.2, 7.2.0 through 7.2.4, 7.0.0 through 7.0.11, 6.4.0 through 6.4.14, FortiPAM version 1.2.0, 1.1.0 through 1.1.2, 1.0.0 through 1.0.3, FortiProxy version 7.4.0 through 7.4.2, 7.2.0 through 7.2.9, 7.0.0 through 7.0.17, 2.0.0 through 2.0.14, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7, FortiSwitchManager version 7.2.0 through 7.2.3, 7.0.0 through 7.0.3, FortiPortal version 6.0.0 through 6.0.14, FortiOS version 7.4.0 through 7.4.3, 7.2.0 through 7.2.7, 7.0.0 through 7.0.14, 6.4.0 through 6.4.15, 6.2.0 through 6.2.16, 6.0.0 through 6.0.18 allows attacker to execute unauthorized code or commands via specially crafted packets.",
-          "reference": "https://fortiguard.fortinet.com/psirt/FG-IR-24-032",
-          "published_at": "2024-11-12T19:15:08.320Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2021-24018",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A buffer underwrite vulnerability in the firmware verification routine of FortiOS before 7.0.1 may allow an attacker located in the adjacent network to potentially execute arbitrary code via a specifically crafted firmware image.",
-          "reference": "https://fortiguard.com/advisory/FG-IR-21-046",
-          "published_at": "2021-08-04T15:15:08.983Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2023-22640",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A out-of-bounds write in Fortinet FortiOS version 7.2.0 through 7.2.3, FortiOS version 7.0.0 through 7.0.10, FortiOS version 6.4.0 through 6.4.11, FortiOS version 6.2.0 through 6.2.13, FortiOS all versions 6.0,  FortiProxy version 7.2.0 through 7.2.1, FortiProxy version 7.0.0 through 7.0.7, FortiProxy all versions 2.0, FortiProxy all versions 1.2, FortiProxy all versions 1.1, FortiProxy all versions 1.0 allows an authenticated attacker to execute unauthorized code or commands via specifically crafted requests.",
-          "reference": "https://fortiguard.com/psirt/FG-IR-22-475",
-          "published_at": "2023-05-03T22:15:17.857Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2023-29181",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A use of externally-controlled format string in Fortinet FortiOS 7.2.0 through 7.2.4, 7.0.0 through 7.0.11, 6.4.0 through 6.4.12, 6.2.0 through 6.2.14, 6.0.0 through 6.0.16, FortiProxy 7.2.0 through 7.2.4, 7.0.0 through 7.0.10, 2.0.0 through 2.0.12, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7, FortiPAM 1.0.0 through 1.0.3 allows attacker to execute unauthorized code or commands via specially crafted command.",
-          "reference": "https://fortiguard.com/psirt/FG-IR-23-119",
-          "published_at": "2024-02-22T10:15:08.140Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2023-36639",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A use of externally-controlled format string in Fortinet FortiProxy versions 7.2.0 through 7.2.4, 7.0.0 through 7.0.10, FortiOS versions 7.4.0, 7.2.0 through 7.2.4, 7.0.0 through 7.0.11, 6.4.0 through 6.4.12, 6.2.0 through 6.2.15, 6.0.0 through 6.0.17, FortiPAM versions 1.0.0 through 1.0.3 allows attacker to execute unauthorized code or commands  via specially crafted API requests.",
-          "reference": "https://fortiguard.com/psirt/FG-IR-23-138",
-          "published_at": "2023-12-13T07:15:12.900Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2023-41677",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "A insufficiently protected credentials in Fortinet FortiProxy 7.4.0, 7.2.0 through 7.2.6, 7.0.0 through 7.0.12, 2.0.0 through 2.0.13, 1.2.0 through 1.2.13, 1.1.0 through 1.1.6, 1.0.0 through 1.0.7, Fortinet FortiOS 7.4.0 through 7.4.1, 7.2.0 through 7.2.6, 7.0.0 through 7.0.12, 6.4.0 through 6.4.14, 6.2.0 through 6.2.15, 6.0.0 through 6.0.17 allows attacker to execute unauthorized code or commands via targeted social engineering attack",
-          "reference": "https://fortiguard.com/psirt/FG-IR-23-493",
-          "published_at": "2024-04-09T15:15:27.400Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        },
-        {
-          "cve": "CVE-2024-26009",
-          "cvss": 8.1,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Fortinet FortiOS 6.0.16",
-          "version": "6.0.16",
-          "description": "An authentication bypass using an alternate path or channel [CWE-288] vulnerability in Fortinet FortiOS 6.4.0 through 6.4.15, FortiOS 6.2.0 through 6.2.16, FortiOS 6.0 all versions, FortiPAM 1.2.0, FortiPAM 1.1.0 through 1.1.2, FortiPAM 1.0.0 through 1.0.3, FortiProxy 7.4.0 through 7.4.2, FortiProxy 7.2.0 through 7.2.8, FortiProxy 7.0.0 through 7.0.15, FortiSwitchManager 7.2.0 through 7.2.3, FortiSwitchManager 7.0.0 through 7.0.3 allows an unauthenticated attacker to seize control of a managed device via crafted FGFM requests, if the device is managed by a FortiManager, and if the attacker knows that FortiManager's serial number.",
-          "reference": "https://fortiguard.fortinet.com/psirt/FG-IR-24-042",
-          "published_at": "2025-08-12T19:15:27.230Z",
-          "detected_at": "2026-10-08T23:09:21.608036+00:00"
-        }
-      ],
-      "cve_summary": {
-        "total": 44,
-        "critical": 4,
-        "high": 18,
-        "medium": 21,
-        "low": 1,
-        "unknown": 0,
-        "max_cvss": 9.8
-      },
-      "cve_lookup": {
-        "status": "ok",
-        "match": "cpe",
-        "product": "Fortinet FortiOS 6.0.16",
-        "cpe": "cpe:2.3:o:fortinet:fortios:6.0.16:*:*:*:*:*:*:*",
-        "source": "nvd",
-        "fetched_at": "2026-10-08T23:09:21.608036+00:00",
-        "stale": false,
-        "total": 44
-      },
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2023-25610",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "device:00:17:95:9c:3e:bc",
-      "kind": "device",
-      "ip": "172.20.10.100",
-      "hostname": "L2-Switch",
-      "vendor": "Cisco",
-      "model": "C2960",
-      "firmware": "12.2(58)SE2",
+      "node_id": "endpoint:104",
+      "kind": "endpoint",
+      "ip": "10.10.0.14",
+      "hostname": "laptop-07",
+      "vendor": "windows",
+      "model": "Windows 10",
+      "firmware": "10.0.19045",
       "serial": null,
-      "mac": "00:17:95:9c:3e:bc",
-      "discovery_method": "snmp_lldp",
-      "status": "online",
-      "role": "l2-switch",
-      "risk_score": 9.0,
-      "max_cvss": 10.0,
-      "discovery_order": 3,
-      "parent_id": "device:00:23:ac:75:06:ea",
-      "chassis_id": "00:17:95:9c:3e:bc",
-      "pollable": true,
-      "neighbor_ports": [
-        "Fa0/1"
-      ],
-      "uplink_ports": [
-        "Fa0/1"
-      ],
-      "port_status": {
-        "Vl1": "down",
-        "Vl10": "up",
-        "Vl20": "up",
-        "Vl30": "up",
-        "Vl99": "up",
-        "Fa0/1": "up",
-        "Fa0/2": "down",
-        "Fa0/3": "down",
-        "Fa0/4": "down",
-        "Fa0/5": "down",
-        "Fa0/6": "down",
-        "Fa0/7": "down",
-        "Fa0/8": "down",
-        "Fa0/9": "down",
-        "Fa0/10": "down",
-        "Fa0/11": "down",
-        "Fa0/12": "down",
-        "Fa0/13": "down",
-        "Fa0/14": "down",
-        "Fa0/15": "down",
-        "Fa0/16": "down",
-        "Fa0/17": "down",
-        "Fa0/18": "down",
-        "Fa0/19": "down",
-        "Fa0/20": "down",
-        "Fa0/21": "down",
-        "Fa0/22": "down",
-        "Fa0/23": "down",
-        "Fa0/24": "down",
-        "Fa0/25": "down",
-        "Fa0/26": "down",
-        "Fa0/27": "down",
-        "Fa0/28": "down",
-        "Fa0/29": "down",
-        "Fa0/30": "down",
-        "Fa0/31": "down",
-        "Fa0/32": "down",
-        "Fa0/33": "down",
-        "Fa0/34": "down",
-        "Fa0/35": "down",
-        "Fa0/36": "down",
-        "Fa0/37": "down",
-        "Fa0/38": "down",
-        "Fa0/39": "down",
-        "Fa0/40": "down",
-        "Fa0/41": "down",
-        "Fa0/42": "down",
-        "Fa0/43": "down",
-        "Fa0/44": "down",
-        "Fa0/45": "down",
-        "Fa0/46": "down",
-        "Fa0/47": "down",
-        "Fa0/48": "down",
-        "Gi0/1": "down",
-        "Gi0/2": "down",
-        "Nu0": "up"
-      },
-      "top_cves": [
-        {
-          "cve": "CVE-2006-4950",
-          "cvss": 10.0,
-          "cvss_version": "2.0",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "Cisco IOS 12.2 through 12.4 before 20060920, as used by Cisco IAD2430, IAD2431, and IAD2432 Integrated Access Devices, the VG224 Analog Phone Gateway, and the MWR 1900 and 1941 Mobile Wireless Edge Routers, is incorrectly identified as supporting DOCSIS, which allows remote attackers to gain read-write access via a hard-coded cable-docsis community string and read or modify arbitrary SNMP variables.",
-          "reference": "http://secunia.com/advisories/21974",
-          "published_at": "2006-09-23T10:07:00.000Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2017-12240",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
-          "reference": "http://www.securityfocus.com/bid/101034",
-          "published_at": "2017-09-29T01:34:49.077Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2007-5552",
-          "cvss": 9.3,
-          "cvss_version": "2.0",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "Integer overflow in Cisco IOS allows remote attackers to execute arbitrary code via unspecified vectors.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
-          "reference": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
-          "published_at": "2007-10-18T20:17:00.000Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2023-20186",
-          "cvss": 9.1,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "A vulnerability in the Authentication, Authorization, and Accounting (AAA) feature of Cisco IOS Software and Cisco IOS XE Software could allow an authenticated, remote attacker to bypass command authorization and copy files to or from the file system of an affected device using the Secure Copy Protocol (SCP).\r\n\r This vulnerability is due to incorrect processing of SCP commands in AAA command authorization checks. An attacker with valid credentials and level 15 privileges could exploit this vulnerability by using SCP to connect to an affected device from an external machine. A successful exploit could allow the attacker to obtain or change the configuration of the affected device and put files on or retrieve files from the affected device.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-aaascp-Tyj4fEJm",
-          "published_at": "2023-09-27T18:15:11.050Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2025-20363",
-          "cvss": 9.0,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "A vulnerability in the web services of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software, Cisco Secure Firewall Threat Defense (FTD) Software, Cisco IOS Software, Cisco IOS XE Software, and Cisco IOS XR Software could allow an unauthenticated, remote attacker (Cisco ASA and FTD Software) or authenticated, remote attacker (Cisco IOS, IOS XE, and IOS XR Software) with low user privileges to execute arbitrary code on an affected device. \r\n\r This vulnerability is due to improper validation of user-supplied input in HTTP requests. An attacker could exploit this vulnerability by sending crafted HTTP requests to a targeted web service on an affected device after obtaining additional information about the system, overcoming exploit mitigations, or both. A successful exploit could allow the attacker to execute arbitrary code as root, which may lead to the complete compromise of the affected device.\r\n\r For more information about this vulnerability, see the Details [\"#details\"] section of this advisory.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-http-code-exec-WmfP3h3O",
-          "published_at": "2025-09-25T16:15:32.497Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2017-6736",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.213Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2017-6737",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.243Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2017-6738",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.290Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2017-6739",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.337Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        },
-        {
-          "cve": "CVE-2017-6740",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 12.2(58)SE2",
-          "version": "12.2(58)SE2",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.370Z",
-          "detected_at": "2026-10-08T23:09:38.009129+00:00"
-        }
-      ],
-      "cve_summary": {
-        "total": 108,
-        "critical": 5,
-        "high": 60,
-        "medium": 41,
-        "low": 2,
-        "unknown": 0,
-        "max_cvss": 10.0
-      },
-      "cve_lookup": {
-        "status": "ok",
-        "match": "cpe",
-        "product": "Cisco IOS 12.2(58)SE2",
-        "cpe": "cpe:2.3:o:cisco:ios:12.2\\(58\\)se2:*:*:*:*:*:*:*",
-        "source": "nvd",
-        "fetched_at": "2026-10-08T23:09:38.009129+00:00",
-        "stale": false,
-        "total": 108
-      },
-      "config_checks": [
-        {
-          "id": "mgmt-telnet-enabled",
-          "title": "Telnet management enabled",
-          "result": "unknown",
-          "reason": "the device does not list its TCP listeners over SNMP, and the connection test is not enabled"
-        },
-        {
-          "id": "mgmt-http-enabled",
-          "title": "Plain HTTP management enabled",
-          "result": "unknown",
-          "reason": "the device does not list its TCP listeners over SNMP, and the connection test is not enabled"
-        },
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "result": "fail"
-        },
-        {
-          "id": "snmp-default-community",
-          "title": "Default SNMP community name",
-          "result": "not_checked",
-          "reason": "probe not enabled"
-        },
-        {
-          "id": "spare-ports-in-used-vlan",
-          "title": "Spare access ports in a VLAN in use",
-          "result": "fail"
-        },
-        {
-          "id": "access-ports-default-vlan",
-          "title": "Access ports in the default VLAN",
-          "result": "fail"
-        },
-        {
-          "id": "bpdu-guard-missing",
-          "title": "BPDU guard missing on access ports",
-          "result": "fail"
-        },
-        {
-          "id": "port-security-disabled",
-          "title": "Port security disabled on access ports",
-          "result": "fail"
-        }
-      ],
-      "config_findings": [
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "severity": "medium",
-          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
-          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220604",
-              "stig_id": "CISC-ND-001130",
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-001967",
-              "nist": "IA-3 (1)",
-              "relation": "requires"
-            },
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220605",
-              "stig_id": "CISC-ND-001140",
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-000068",
-              "nist": "AC-17 (2)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "snmp_version": "v2c"
-          }
-        },
-        {
-          "id": "spare-ports-in-used-vlan",
-          "title": "Spare access ports in a VLAN in use",
-          "severity": "medium",
-          "why": "A port nobody uses but that sits in a live VLAN gives anyone who plugs into the socket, or turns the port on, a place on that VLAN.",
-          "remediation": "Move every access port that is not in use to an unused (parking) VLAN that no trunk carries.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220641",
-              "stig_id": "CISC-L2-000210",
-              "srg_id": "SRG-NET-000512-L2S-000007",
-              "title": "The Cisco switch must have all disabled switch ports assigned to an unused VLAN.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220641",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-004891",
-              "nist": "SC-7 (29)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              {
-                "port": "FastEthernet0/2",
-                "vlan": 1
-              },
-              {
-                "port": "FastEthernet0/3",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/4",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/5",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/6",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/7",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/8",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/9",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/10",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/11",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/12",
-                "vlan": 10
-              },
-              {
-                "port": "FastEthernet0/13",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/14",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/15",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/16",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/17",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/18",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/19",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/20",
-                "vlan": 20
-              },
-              {
-                "port": "FastEthernet0/21",
-                "vlan": 20
-              }
-            ],
-            "total": 48,
-            "enabled": 48,
-            "shut_down": 0,
-            "down_recently_not_counted": 0,
-            "unused_vlans": []
-          }
-        },
-        {
-          "id": "access-ports-default-vlan",
-          "title": "Access ports in the default VLAN",
-          "severity": "medium",
-          "why": "VLAN 1 carries the switch's own control traffic, so hosts placed in it share a segment with the infrastructure.",
-          "remediation": "Assign every host port to a user VLAN other than VLAN 1.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220642",
-              "stig_id": "CISC-L2-000220",
-              "srg_id": "SRG-NET-000512-L2S-000008",
-              "title": "The Cisco switch must not have the default VLAN assigned to any host-facing switch ports.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220642",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-004891",
-              "nist": "SC-7 (29)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              "FastEthernet0/2",
-              "GigabitEthernet0/2"
-            ],
-            "total": 2,
-            "with_link": 0
-          }
-        },
-        {
-          "id": "bpdu-guard-missing",
-          "title": "BPDU guard missing on access ports",
-          "severity": "medium",
-          "why": "Without BPDU guard, a switch plugged into an access port can take part in spanning tree and even become its root.",
-          "remediation": "Enable BPDU guard on every user-facing access port.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220630",
-              "stig_id": "CISC-L2-000100",
-              "srg_id": "SRG-NET-000362-L2S-000022",
-              "title": "The Cisco switch must have Bridge Protocol Data Unit (BPDU) Guard enabled on all user-facing or untrusted access switch ports.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220630",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-002385",
-              "nist": "SC-5 a",
-              "relation": "requires"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              "FastEthernet0/2",
-              "FastEthernet0/3",
-              "FastEthernet0/4",
-              "FastEthernet0/5",
-              "FastEthernet0/6",
-              "FastEthernet0/7",
-              "FastEthernet0/8",
-              "FastEthernet0/9",
-              "FastEthernet0/10",
-              "FastEthernet0/11",
-              "FastEthernet0/12",
-              "FastEthernet0/13",
-              "FastEthernet0/14",
-              "FastEthernet0/15",
-              "FastEthernet0/16",
-              "FastEthernet0/17",
-              "FastEthernet0/18",
-              "FastEthernet0/19",
-              "FastEthernet0/20",
-              "FastEthernet0/21"
-            ],
-            "total": 48
-          }
-        },
-        {
-          "id": "port-security-disabled",
-          "title": "Port security disabled on access ports",
-          "severity": null,
-          "why": "Without port security an access port accepts any number of MAC addresses, so a rogue switch or a MAC flood goes unchecked.",
-          "remediation": "Enable port security with a small MAC limit, or 802.1x authentication, on every access port.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch L2S STIG",
-              "release": "V3R3 (2026-09-01)",
-              "rule_id": "V-220623",
-              "stig_id": "CISC-L2-000020",
-              "srg_id": "SRG-NET-000148-L2S-000015",
-              "title": "The Cisco switch must uniquely identify and authenticate all network-connected endpoint devices before establishing any connection.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_l2s/2026-05-01/finding/V-220623",
-              "severity": "high",
-              "category": "CAT I",
-              "cci": "CCI-000778",
-              "nist": "IA-3",
-              "relation": "related"
-            }
-          ],
-          "cwe": null,
-          "evidence": {
-            "ports": [
-              "FastEthernet0/2",
-              "FastEthernet0/3",
-              "FastEthernet0/4",
-              "FastEthernet0/5",
-              "FastEthernet0/6",
-              "FastEthernet0/7",
-              "FastEthernet0/8",
-              "FastEthernet0/9",
-              "FastEthernet0/10",
-              "FastEthernet0/11",
-              "FastEthernet0/12",
-              "FastEthernet0/13",
-              "FastEthernet0/14",
-              "FastEthernet0/15",
-              "FastEthernet0/16",
-              "FastEthernet0/17",
-              "FastEthernet0/18",
-              "FastEthernet0/19",
-              "FastEthernet0/20",
-              "FastEthernet0/21"
-            ],
-            "total": 48
-          }
-        }
-      ],
-      "config_summary": {
-        "checks": 8,
-        "results": {
-          "pass": 0,
-          "fail": 5,
-          "not_applicable": 0,
-          "unknown": 2,
-          "not_checked": 1
-        },
-        "findings": {
-          "high": 0,
-          "medium": 4,
-          "low": 0,
-          "advisory": 1
-        }
-      },
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2006-4950",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 10.0
-      }
-    },
-    {
-      "node_id": "device:5c:8a:38:e1:0b:ee",
-      "kind": "device",
-      "ip": "172.20.99.4",
-      "hostname": "CYFOR-HP-Switch",
-      "vendor": "HP",
-      "model": "HP 1920-48G",
-      "firmware": "5.20.99 Release 1107",
-      "serial": null,
-      "mac": "5c:8a:38:e1:0b:ee",
-      "discovery_method": "snmp_lldp",
-      "status": "online",
-      "role": "l3-switch",
+      "mac": "d4:be:d9:00:00:14",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
       "risk_score": null,
       "max_cvss": null,
       "discovery_order": 4,
-      "parent_id": "device:00:23:ac:75:06:ea",
-      "chassis_id": "5c:8a:38:e1:0b:ee",
-      "pollable": true,
-      "neighbor_ports": [
-        "GigabitEthernet1/0/1",
-        "GigabitEthernet1/0/15",
-        "GigabitEthernet1/0/26",
-        "GigabitEthernet1/0/37"
-      ],
-      "uplink_ports": [
-        "GigabitEthernet1/0/1"
-      ],
-      "port_status": {
-        "GigabitEthernet1/0/1": "up",
-        "GigabitEthernet1/0/2": "down",
-        "GigabitEthernet1/0/3": "down",
-        "GigabitEthernet1/0/4": "down",
-        "GigabitEthernet1/0/5": "down",
-        "GigabitEthernet1/0/6": "down",
-        "GigabitEthernet1/0/7": "down",
-        "GigabitEthernet1/0/8": "down",
-        "GigabitEthernet1/0/9": "down",
-        "GigabitEthernet1/0/10": "down",
-        "GigabitEthernet1/0/11": "down",
-        "GigabitEthernet1/0/12": "down",
-        "GigabitEthernet1/0/13": "down",
-        "GigabitEthernet1/0/14": "up",
-        "GigabitEthernet1/0/15": "up",
-        "GigabitEthernet1/0/16": "down",
-        "GigabitEthernet1/0/17": "down",
-        "GigabitEthernet1/0/18": "down",
-        "GigabitEthernet1/0/19": "down",
-        "GigabitEthernet1/0/20": "down",
-        "GigabitEthernet1/0/21": "down",
-        "GigabitEthernet1/0/22": "down",
-        "GigabitEthernet1/0/23": "down",
-        "GigabitEthernet1/0/24": "down",
-        "GigabitEthernet1/0/25": "down",
-        "GigabitEthernet1/0/26": "up",
-        "GigabitEthernet1/0/27": "down",
-        "GigabitEthernet1/0/28": "down",
-        "GigabitEthernet1/0/29": "down",
-        "GigabitEthernet1/0/30": "down",
-        "GigabitEthernet1/0/31": "down",
-        "GigabitEthernet1/0/32": "down",
-        "GigabitEthernet1/0/33": "down",
-        "GigabitEthernet1/0/34": "down",
-        "GigabitEthernet1/0/35": "down",
-        "GigabitEthernet1/0/36": "down",
-        "GigabitEthernet1/0/37": "up",
-        "GigabitEthernet1/0/38": "down",
-        "GigabitEthernet1/0/39": "down",
-        "GigabitEthernet1/0/40": "up",
-        "GigabitEthernet1/0/41": "down",
-        "GigabitEthernet1/0/42": "down",
-        "GigabitEthernet1/0/43": "down",
-        "GigabitEthernet1/0/44": "down",
-        "GigabitEthernet1/0/45": "down",
-        "GigabitEthernet1/0/46": "down",
-        "GigabitEthernet1/0/47": "down",
-        "GigabitEthernet1/0/48": "down",
-        "GigabitEthernet1/0/49": "down",
-        "GigabitEthernet1/0/50": "down",
-        "GigabitEthernet1/0/51": "down",
-        "GigabitEthernet1/0/52": "down",
-        "NULL0": "up",
-        "Vlan-interface1": "down",
-        "Vlan-interface99": "up"
-      },
+      "parent_id": "device:0c:00:00:00:10:01",
+      "agent_id": "104",
+      "stale": false,
       "top_cves": [],
       "cve_summary": null,
-      "cve_lookup": {
-        "status": "ok",
-        "match": "keyword",
-        "product": "HP Comware 5.20.99 Release 1107",
-        "cpe": null,
-        "source": "nvd",
-        "fetched_at": "2026-10-08T23:09:39.322715+00:00",
-        "stale": false,
-        "total": 0
+      "vlan": 10,
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc.",
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
       },
-      "config_checks": [
-        {
-          "id": "mgmt-telnet-enabled",
-          "title": "Telnet management enabled",
-          "result": "fail"
-        },
-        {
-          "id": "mgmt-http-enabled",
-          "title": "Plain HTTP management enabled",
-          "result": "fail"
-        },
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "result": "fail"
-        },
-        {
-          "id": "snmp-default-community",
-          "title": "Default SNMP community name",
-          "result": "not_checked",
-          "reason": "probe not enabled"
-        },
-        {
-          "id": "spare-ports-in-used-vlan",
-          "title": "Spare access ports in a VLAN in use",
-          "result": "unknown",
-          "reason": "the VLAN of each port was not read"
-        },
-        {
-          "id": "access-ports-default-vlan",
-          "title": "Access ports in the default VLAN",
-          "result": "unknown",
-          "reason": "the VLAN of each port was not read"
-        },
-        {
-          "id": "bpdu-guard-missing",
-          "title": "BPDU guard missing on access ports",
-          "result": "not_applicable",
-          "reason": "no data source for this vendor"
-        },
-        {
-          "id": "port-security-disabled",
-          "title": "Port security disabled on access ports",
-          "result": "not_applicable",
-          "reason": "no data source for this vendor"
-        }
-      ],
-      "config_findings": [
-        {
-          "id": "mgmt-telnet-enabled",
-          "title": "Telnet management enabled",
-          "severity": "high",
-          "why": "Telnet sends the administrator's password and every command in clear text, so anyone on the path can read them.",
-          "remediation": "Turn off Telnet on the management lines and use SSH instead.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Network Device Management SRG",
-              "release": "V5R5 (2026-05-23)",
-              "rule_id": "V-202118",
-              "stig_id": null,
-              "srg_id": "SRG-APP-000412-NDM-000331",
-              "title": "The network device must be configured to implement cryptographic mechanisms using a FIPS 140-2 approved algorithm to protect the confidentiality of remote maintenance sessions.",
-              "url": "https://www.stigviewer.com/stigs/network_device_management_security_requirements_guide/2026-05-23/finding/V-202118",
-              "severity": "high",
-              "category": "CAT I",
-              "cci": "CCI-003123",
-              "nist": "MA-4 (6)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "port": 23
-          }
-        },
-        {
-          "id": "mgmt-http-enabled",
-          "title": "Plain HTTP management enabled",
-          "severity": "high",
-          "why": "The web interface on TCP 80 sends logins and settings in clear text.",
-          "remediation": "Turn off the HTTP server; if web management is needed, use HTTPS only.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Network Device Management SRG",
-              "release": "V5R5 (2026-05-23)",
-              "rule_id": "V-202049",
-              "stig_id": null,
-              "srg_id": "SRG-APP-000142-NDM-000245",
-              "title": "The network device must be configured to prohibit the use of all unnecessary and/or nonsecure functions, ports, protocols, and/or services.",
-              "url": "https://www.stigviewer.com/stigs/network_device_management_security_requirements_guide/2026-05-23/finding/V-202049",
-              "severity": "high",
-              "category": "CAT I",
-              "cci": "CCI-000382",
-              "nist": "CM-7 b",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "port": 80
-          }
-        },
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "severity": "medium",
-          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
-          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Network Device Management SRG",
-              "release": "V5R5 (2026-05-23)",
-              "rule_id": "V-202111",
-              "stig_id": null,
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The network device must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
-              "url": "https://www.stigviewer.com/stigs/network_device_management_security_requirements_guide/2026-05-23/finding/V-202111",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-001967",
-              "nist": "IA-3 (1)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "snmp_version": "v2c"
-          }
-        }
-      ],
-      "config_summary": {
-        "checks": 8,
-        "results": {
-          "pass": 0,
-          "fail": 3,
-          "not_applicable": 2,
-          "unknown": 2,
-          "not_checked": 1
-        },
-        "findings": {
-          "high": 2,
-          "medium": 1,
-          "low": 0,
-          "advisory": 0
-        }
-      },
-      "reachable_cve": null
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     },
     {
-      "node_id": "endpoint:003",
+      "node_id": "host:0c:00:00:00:99:aa",
       "kind": "endpoint",
-      "ip": "172.20.40.11",
-      "hostname": "CYFOR-4",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.19045.3803",
-      "serial": "/ZJAEW6H/DT071787EQ06YZ/",
-      "mac": "d4:be:d9:53:f2:dd",
-      "discovery_method": "wazuh",
-      "status": "active",
+      "ip": "10.10.0.50",
+      "hostname": null,
+      "vendor": null,
+      "model": null,
+      "firmware": null,
+      "serial": null,
+      "mac": "0c:00:00:00:99:aa",
+      "discovery_method": "snmp_fdb",
+      "status": "discovered",
       "role": "host",
-      "risk_score": 9.8,
-      "max_cvss": 9.9,
+      "risk_score": null,
+      "max_cvss": null,
       "discovery_order": 5,
-      "parent_id": "device:5c:8a:38:e1:0b:ee",
-      "agent_id": "003",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2025-55315",
-          "cvss": 9.9,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft ASP.NET Core 8.0.14 - Shared Framework (x86)",
-          "version": "8.0.14.25112",
-          "description": "Inconsistent interpretation of http requests ('http request/response smuggling') in ASP.NET Core allows an authorized attacker to bypass a security feature over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-55315, https://andrewlock.net/understanding-the-worst-dotnet-vulnerability-request-smuggling-and-cve-2025-55315/, https://gist.github.com/N3mes1s/d0897c13ca199e739ecc2b562f466040",
-          "published_at": "2025-10-14T17:15:44Z",
-          "detected_at": "2026-10-08T12:26:44.659Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "LOW",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2026-57092",
-          "cvss": 9.9,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Use after free in Windows VMSwitch allows an authorized attacker to elevate privileges over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-57092",
-          "published_at": "2026-07-14T18:18:33Z",
-          "detected_at": "2026-10-08T12:26:44.449Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "LOW",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2025-60724",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-60724",
-          "published_at": "2025-11-11T18:15:41Z",
-          "detected_at": "2026-10-08T12:26:44.495Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2026-33824",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Double free in Windows IKE Extension allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://unit42.paloaltonetworks.com/autonomous-ai-cyber-attack-campaign/, https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-33824, https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-33824",
-          "published_at": "2026-04-14T18:17:34Z",
-          "detected_at": "2026-10-08T12:26:44.495Z"
-        },
-        {
-          "cve": "CVE-2026-42990",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Heap-based buffer overflow in SQL Server ODBC driver allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-42990",
-          "published_at": "2026-07-14T17:16:48Z",
-          "detected_at": "2026-10-08T12:26:44.511Z"
-        },
-        {
-          "cve": "CVE-2026-44815",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Stack-based buffer overflow in Windows DHCP Client allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-44815",
-          "published_at": "2026-06-09T17:17:17Z",
-          "detected_at": "2026-10-08T12:26:44.512Z"
-        },
-        {
-          "cve": "CVE-2026-47291",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Integer overflow or wraparound in Windows HTTP.sys allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-47291",
-          "published_at": "2026-06-09T17:17:34Z",
-          "detected_at": "2026-10-08T12:26:44.463Z"
-        },
-        {
-          "cve": "CVE-2026-49172",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Heap-based buffer overflow in Windows FTP Service allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-49172",
-          "published_at": "2026-07-14T17:16:52Z",
-          "detected_at": "2026-10-08T12:26:44.514Z"
-        },
-        {
-          "cve": "CVE-2026-50447",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Heap-based buffer overflow in Windows Message Queuing allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-50447",
-          "published_at": "2026-07-14T18:17:49Z",
-          "detected_at": "2026-10-08T12:26:44.465Z"
-        },
-        {
-          "cve": "CVE-2026-56190",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.3803",
-          "version": "10.0.19045.3803",
-          "description": "Use of uninitialized resource in Windows RDP allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-56190",
-          "published_at": "2026-07-14T18:18:29Z",
-          "detected_at": "2026-10-08T12:26:44.493Z"
-        }
-      ],
-      "cve_summary": {
-        "total": 1489,
-        "critical": 38,
-        "high": 1104,
-        "medium": 342,
-        "low": 5,
-        "unknown": 0,
-        "max_cvss": 9.9
-      },
-      "vlan": 40,
-      "unmanaged": false,
-      "mac_type": "global",
-      "mac_vendor": "Dell Inc.",
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2025-60724",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "endpoint:005",
-      "kind": "endpoint",
-      "ip": "172.20.30.22",
-      "hostname": "CYFOR-3",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.19042.631",
-      "serial": "/T9BXH9C/AH981392GO72B2/",
-      "mac": "d4:be:d9:f4:93:05",
-      "discovery_method": "wazuh",
-      "status": "active",
-      "role": "host",
-      "risk_score": 9.2,
-      "max_cvss": 9.8,
-      "discovery_order": 6,
-      "parent_id": "device:5c:8a:38:e1:0b:ee",
-      "agent_id": "005",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2022-35744",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Windows Point-to-Point Protocol (PPP) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2022-35744",
-          "published_at": "2023-05-31T19:15:16Z",
-          "detected_at": "2026-10-08T12:26:46.136Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2023-21554",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Microsoft Message Queuing (MSMQ) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21554",
-          "published_at": "2023-04-11T21:15:15Z",
-          "detected_at": "2026-10-08T12:26:46.163Z"
-        },
-        {
-          "cve": "CVE-2023-21689",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Microsoft Protected Extensible Authentication Protocol (PEAP) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21689",
-          "published_at": "2023-02-14T20:15:12Z",
-          "detected_at": "2026-10-08T12:26:45.963Z"
-        },
-        {
-          "cve": "CVE-2023-21690",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Microsoft Protected Extensible Authentication Protocol (PEAP) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21690",
-          "published_at": "2023-02-14T20:15:12Z",
-          "detected_at": "2026-10-08T12:26:45.980Z"
-        },
-        {
-          "cve": "CVE-2023-21692",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Microsoft Protected Extensible Authentication Protocol (PEAP) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21692",
-          "published_at": "2023-02-14T20:15:12Z",
-          "detected_at": "2026-10-08T12:26:45.930Z"
-        },
-        {
-          "cve": "CVE-2023-21708",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Remote Procedure Call Runtime Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21708",
-          "published_at": "2023-03-14T17:15:11Z",
-          "detected_at": "2026-10-08T12:26:45.724Z"
-        },
-        {
-          "cve": "CVE-2023-21803",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Windows iSCSI Discovery Service Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-21803",
-          "published_at": "2023-02-14T20:15:15Z",
-          "detected_at": "2026-10-08T12:26:45.655Z"
-        },
-        {
-          "cve": "CVE-2023-23415",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Internet Control Message Protocol (ICMP) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-23415",
-          "published_at": "2023-03-14T17:15:14Z",
-          "detected_at": "2026-10-08T12:26:46.140Z"
-        },
-        {
-          "cve": "CVE-2023-24943",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Windows Pragmatic General Multicast (PGM) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-24943",
-          "published_at": "2023-05-09T18:15:12Z",
-          "detected_at": "2026-10-08T12:26:46.072Z"
-        },
-        {
-          "cve": "CVE-2023-28250",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19042.631",
-          "version": "10.0.19042.631",
-          "description": "Windows Pragmatic General Multicast (PGM) Remote Code Execution Vulnerability",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2023-28250",
-          "published_at": "2023-04-11T21:15:24Z",
-          "detected_at": "2026-10-08T12:26:45.994Z"
-        }
-      ],
-      "cve_summary": {
-        "total": 302,
-        "critical": 39,
-        "high": 205,
-        "medium": 58,
-        "low": 0,
-        "unknown": 0,
-        "max_cvss": 9.8
-      },
-      "vlan": 30,
-      "unmanaged": false,
-      "mac_type": "global",
-      "mac_vendor": "Dell Inc.",
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2022-35744",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "endpoint:002",
-      "kind": "endpoint",
-      "ip": "172.20.20.24",
-      "hostname": "CYFOR-2",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.18363.449",
-      "serial": "/VVHFS9X/KM657987PN76HX/",
-      "mac": "d4:be:d9:18:d3:a6",
-      "discovery_method": "wazuh",
-      "status": "active",
-      "role": "host",
-      "risk_score": 8.9,
-      "max_cvss": 9.8,
-      "discovery_order": 7,
-      "parent_id": "device:5c:8a:38:e1:0b:ee",
-      "agent_id": "002",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2026-100810",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Other issue in the DevTools component. This vulnerability was fixed in Thunderbird 157 and Firefox 157.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2064034, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-97/",
-          "published_at": "2026-09-29T13:17:46Z",
-          "detected_at": "2026-10-08T12:26:43.967Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2026-100770",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to use-after-free in the DOM: Content Processes component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068322, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:41Z",
-          "detected_at": "2026-10-08T12:26:43.968Z"
-        },
-        {
-          "cve": "CVE-2026-100775",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape in the Graphics component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068367, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:42Z",
-          "detected_at": "2026-10-08T12:26:43.968Z"
-        },
-        {
-          "cve": "CVE-2026-100778",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to use-after-free in the DOM: Core & HTML component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068406, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:42Z",
-          "detected_at": "2026-10-08T12:26:43.968Z"
-        },
-        {
-          "cve": "CVE-2026-100781",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to incorrect boundary conditions in the Graphics: WebRender component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068434, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:43Z",
-          "detected_at": "2026-10-08T12:26:43.968Z"
-        },
-        {
-          "cve": "CVE-2026-100786",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to use-after-free in the Graphics component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2071067, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:43Z",
-          "detected_at": "2026-10-08T12:26:43.969Z"
-        },
-        {
-          "cve": "CVE-2026-100787",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape in the XUL component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 153.4, and Firefox 157.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2071068, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/",
-          "published_at": "2026-09-29T13:17:43Z",
-          "detected_at": "2026-10-08T12:26:43.969Z"
-        },
-        {
-          "cve": "CVE-2026-100811",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to use-after-free in the DOM: Core & HTML component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2067973, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:46Z",
-          "detected_at": "2026-10-08T12:26:43.967Z"
-        },
-        {
-          "cve": "CVE-2026-100818",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to use-after-free in the Widget: Gtk component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2069399, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:47Z",
-          "detected_at": "2026-10-08T12:26:43.968Z"
-        },
-        {
-          "cve": "CVE-2026-100819",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "157.0",
-          "description": "Sandbox escape due to incorrect boundary conditions in the XPCOM component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2071069, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:47Z",
-          "detected_at": "2026-10-08T12:26:43.967Z"
-        }
-      ],
-      "cve_summary": {
-        "total": 155,
-        "critical": 10,
-        "high": 69,
-        "medium": 62,
-        "low": 14,
-        "unknown": 0,
-        "max_cvss": 9.8
-      },
-      "vlan": 20,
-      "unmanaged": false,
-      "mac_type": "global",
-      "mac_vendor": "Dell Inc.",
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2026-100810",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "host:28:f1:0e:93:2b:b6",
-      "kind": "endpoint",
-      "ip": "172.20.20.21",
-      "hostname": null,
-      "vendor": null,
-      "model": null,
-      "firmware": null,
-      "serial": null,
-      "mac": "28:f1:0e:93:2b:b6",
-      "discovery_method": "snmp_fdb",
-      "status": "discovered",
-      "role": "host",
-      "risk_score": null,
-      "max_cvss": null,
-      "discovery_order": 8,
-      "parent_id": "device:5c:8a:38:e1:0b:ee",
+      "parent_id": "device:0c:00:00:00:10:01",
       "agent_id": null,
       "stale": false,
       "top_cves": [],
       "cve_summary": null,
-      "vlan": 20,
+      "vlan": 10,
       "unmanaged": true,
       "mac_type": "global",
-      "mac_vendor": "Dell Inc.",
-      "reachable_cve": null
-    },
-    {
-      "node_id": "host:d8:d3:85:6a:3b:d7",
-      "kind": "endpoint",
-      "ip": "172.20.40.12",
-      "hostname": null,
-      "vendor": null,
-      "model": null,
-      "firmware": null,
-      "serial": null,
-      "mac": "d8:d3:85:6a:3b:d7",
-      "discovery_method": "snmp_fdb",
-      "status": "discovered",
-      "role": "host",
-      "risk_score": null,
-      "max_cvss": null,
-      "discovery_order": 9,
-      "parent_id": "device:5c:8a:38:e1:0b:ee",
-      "agent_id": null,
-      "stale": false,
-      "top_cves": [],
-      "cve_summary": null,
-      "vlan": 40,
-      "unmanaged": true,
-      "mac_type": "global",
-      "mac_vendor": "Hewlett Packard",
-      "reachable_cve": null
-    },
-    {
-      "node_id": "device:ip:172.20.99.21",
-      "kind": "device",
-      "ip": "172.20.99.21",
-      "hostname": "CYFOR-AP1",
-      "vendor": "Cisco",
-      "model": "C1140",
-      "firmware": "15.3(3)JB",
-      "serial": null,
-      "mac": null,
-      "discovery_method": "snmp_lldp",
-      "status": "online",
-      "role": "access-point",
-      "risk_score": 8.7,
-      "max_cvss": 9.8,
-      "discovery_order": 10,
-      "parent_id": "device:00:23:ac:75:06:ea",
-      "chassis_id": "ip:172.20.99.21",
-      "pollable": true,
-      "neighbor_ports": [
-        "Gi0"
-      ],
-      "uplink_ports": [
-        "Gi0"
-      ],
-      "port_status": {
-        "Do0": "up",
-        "Do1": "up",
-        "Gi0": "up",
-        "Nu0": "up",
-        "Do0.80": "up",
-        "Do1.80": "up",
-        "Gi0.80": "up",
-        "Gi0.99": "up",
-        "BV1": "up"
-      },
-      "wifi_clients": 1,
-      "top_cves": [
-        {
-          "cve": "CVE-2017-12240",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "The DHCP relay subsystem of Cisco IOS 12.2 through 15.6 and Cisco IOS XE Software contains a vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary code and gain full control of an affected system. The attacker could also cause an affected system to reload, resulting in a denial of service (DoS) condition. The vulnerability is due to a buffer overflow condition in the DHCP relay subsystem of the affected software. An attacker could exploit this vulnerability by sending a crafted DHCP Version 4 (DHCPv4) packet to an affected system. A successful exploit could allow the attacker to execute arbitrary code and gain full control of the affected system or cause the affected system to reload, resulting in a DoS condition. Cisco Bug IDs: CSCsm45390, CSCuw77959.",
-          "reference": "http://www.securityfocus.com/bid/101034",
-          "published_at": "2017-09-29T01:34:49.077Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2007-5552",
-          "cvss": 9.3,
-          "cvss_version": "2.0",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "Integer overflow in Cisco IOS allows remote attackers to execute arbitrary code via unspecified vectors.  NOTE: as of 20071016, the only disclosure is a vague pre-advisory with no actionable information. However, since it is from a well-known researcher, it is being assigned a CVE identifier for tracking purposes.",
-          "reference": "http://www.irmplc.com/index.php/111-Vendor-Alerts",
-          "published_at": "2007-10-18T20:17:00.000Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2025-20363",
-          "cvss": 9.0,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "A vulnerability in the web services of Cisco Secure Firewall Adaptive Security Appliance (ASA) Software, Cisco Secure Firewall Threat Defense (FTD) Software, Cisco IOS Software, Cisco IOS XE Software, and Cisco IOS XR Software could allow an unauthenticated, remote attacker (Cisco ASA and FTD Software) or authenticated, remote attacker (Cisco IOS, IOS XE, and IOS XR Software) with low user privileges to execute arbitrary code on an affected device. \r\n\r This vulnerability is due to improper validation of user-supplied input in HTTP requests. An attacker could exploit this vulnerability by sending crafted HTTP requests to a targeted web service on an affected device after obtaining additional information about the system, overcoming exploit mitigations, or both. A successful exploit could allow the attacker to execute arbitrary code as root, which may lead to the complete compromise of the affected device.\r\n\r For more information about this vulnerability, see the Details [\"#details\"] section of this advisory.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-http-code-exec-WmfP3h3O",
-          "published_at": "2025-09-25T16:15:32.497Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6736",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.213Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6737",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.243Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6738",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.290Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6739",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.337Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6740",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r The vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r Customers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r   There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.370Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6742",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "A vulnerability in the SNMP implementation of could allow an authenticated, remote attacker to cause a reload of the affected system or to remotely execute code. An attacker could exploit this vulnerability by sending a crafted SNMP packet to the affected device.&nbsp;\r\n\r\n\r\n\r\nThe vulnerability is due to a buffer overflow in the affected code area. The vulnerability affects all versions of SNMP (versions 1, 2c, and 3). The attacker must know the SNMP read only community string (SNMP version 2c or earlier) or the user credentials (SNMPv3). An exploit could allow the attacker to execute arbitrary code and obtain full control of the system or to cause a reload of the affected system.\r\n\r\n\r\n\r\nOnly traffic directed to the affected system can be used to exploit this vulnerability.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.447Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        },
-        {
-          "cve": "CVE-2017-6743",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Cisco IOS 15.3(3)JB",
-          "version": "15.3(3)JB",
-          "description": "The Simple Network Management Protocol (SNMP) subsystem of Cisco IOS and IOS XE Software contains multiple vulnerabilities that could allow an authenticated, remote attacker to remotely execute code on an affected system or cause an affected system to reload. An attacker could exploit these vulnerabilities by sending a crafted SNMP packet to an affected system via IPv4 or IPv6. Only traffic directed to an affected system can be used to exploit these vulnerabilities.\r\n\r\nThe vulnerabilities are due to a buffer overflow condition in the SNMP subsystem of the affected software. The vulnerabilities affect all versions of SNMP - Versions 1, 2c, and 3. To exploit these vulnerabilities via SNMP Version 2c or earlier, the attacker must know the SNMP read-only community string for the affected system. To exploit these vulnerabilities via SNMP Version 3, the attacker must have user credentials for the affected system. A successful exploit could allow the attacker to execute arbitrary code and obtain full control of the affected system or cause the affected system to reload.\r\n\r\nCustomers are advised to apply the workaround as contained in the Workarounds section below. Fixed software information is available via the Cisco IOS Software Checker. All devices that have enabled SNMP and have not explicitly excluded the affected MIBs or OIDs should be considered vulnerable.\r\n\r\n  There are workarounds that address these vulnerabilities.",
-          "reference": "https://sec.cloudapps.cisco.com/security/center/content/CiscoSecurityAdvisory/cisco-sa-20170629-snmp",
-          "published_at": "2017-07-17T21:29:00.477Z",
-          "detected_at": "2026-10-08T23:09:55.500531+00:00"
-        }
-      ],
-      "cve_summary": {
-        "total": 72,
-        "critical": 3,
-        "high": 45,
-        "medium": 23,
-        "low": 1,
-        "unknown": 0,
-        "max_cvss": 9.8
-      },
-      "cve_lookup": {
-        "status": "ok",
-        "match": "cpe",
-        "product": "Cisco IOS 15.3(3)JB",
-        "cpe": "cpe:2.3:o:cisco:ios:15.3\\(3\\)jb:*:*:*:*:*:*:*",
-        "source": "nvd",
-        "fetched_at": "2026-10-08T23:09:55.500531+00:00",
-        "stale": false,
-        "total": 72
-      },
-      "config_checks": [
-        {
-          "id": "mgmt-telnet-enabled",
-          "title": "Telnet management enabled",
-          "result": "pass"
-        },
-        {
-          "id": "mgmt-http-enabled",
-          "title": "Plain HTTP management enabled",
-          "result": "fail"
-        },
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "result": "fail"
-        },
-        {
-          "id": "snmp-default-community",
-          "title": "Default SNMP community name",
-          "result": "not_checked",
-          "reason": "probe not enabled"
-        },
-        {
-          "id": "spare-ports-in-used-vlan",
-          "title": "Spare access ports in a VLAN in use",
-          "result": "not_applicable",
-          "reason": "applies to switches"
-        },
-        {
-          "id": "access-ports-default-vlan",
-          "title": "Access ports in the default VLAN",
-          "result": "not_applicable",
-          "reason": "applies to switches"
-        },
-        {
-          "id": "bpdu-guard-missing",
-          "title": "BPDU guard missing on access ports",
-          "result": "not_applicable",
-          "reason": "applies to switches"
-        },
-        {
-          "id": "port-security-disabled",
-          "title": "Port security disabled on access ports",
-          "result": "not_applicable",
-          "reason": "applies to switches"
-        }
-      ],
-      "config_findings": [
-        {
-          "id": "mgmt-http-enabled",
-          "title": "Plain HTTP management enabled",
-          "severity": "high",
-          "why": "The web interface on TCP 80 sends logins and settings in clear text.",
-          "remediation": "Turn off the HTTP server; if web management is needed, use HTTPS only.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220586",
-              "stig_id": "CISC-ND-000470",
-              "srg_id": "SRG-APP-000142-NDM-000245",
-              "title": "The Cisco switch must be configured to prohibit the use of all unnecessary and non-secure functions and services.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220586",
-              "severity": "high",
-              "category": "CAT I",
-              "cci": "CCI-000382",
-              "nist": "CM-7 b",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "port": 80
-          }
-        },
-        {
-          "id": "snmp-no-auth",
-          "title": "SNMP managed with a community string",
-          "severity": "medium",
-          "why": "SNMP v1 and v2c use a shared community string sent in clear text, with no real authentication and no encryption of what is read.",
-          "remediation": "Move management to SNMPv3 with authentication and privacy (authPriv) and remove the v1/v2c communities.",
-          "references": [
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220604",
-              "stig_id": "CISC-ND-001130",
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The Cisco switch must be configured to authenticate SNMP messages using a FIPS-validated Keyed-Hash Message Authentication Code (HMAC).",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220604",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-001967",
-              "nist": "IA-3 (1)",
-              "relation": "requires"
-            },
-            {
-              "source": "DISA",
-              "document": "Cisco IOS Switch NDM STIG",
-              "release": "V3R9 (2026-09-01)",
-              "rule_id": "V-220605",
-              "stig_id": "CISC-ND-001140",
-              "srg_id": "SRG-APP-000395-NDM-000310",
-              "title": "The Cisco switch must be configured to encrypt SNMP messages using a FIPS 140-2 approved algorithm.",
-              "url": "https://www.stigviewer.com/stigs/cisco_ios_switch_ndm/2026-06-05/finding/V-220605",
-              "severity": "medium",
-              "category": "CAT II",
-              "cci": "CCI-000068",
-              "nist": "AC-17 (2)",
-              "relation": "requires"
-            }
-          ],
-          "cwe": "CWE-319",
-          "evidence": {
-            "snmp_version": "v2c"
-          }
-        }
-      ],
-      "config_summary": {
-        "checks": 8,
-        "results": {
-          "pass": 1,
-          "fail": 2,
-          "not_applicable": 4,
-          "unknown": 0,
-          "not_checked": 1
-        },
-        "findings": {
-          "high": 1,
-          "medium": 1,
-          "low": 0,
-          "advisory": 0
-        }
-      },
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2017-12240",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "host:76:82:7b:f5:6f:65",
-      "kind": "endpoint",
-      "ip": "172.20.80.2",
-      "hostname": null,
-      "vendor": null,
-      "model": null,
-      "firmware": null,
-      "serial": null,
-      "mac": "76:82:7b:f5:6f:65",
-      "discovery_method": "snmp_fdb",
-      "status": "discovered",
-      "role": "host",
-      "risk_score": null,
-      "max_cvss": null,
-      "discovery_order": 11,
-      "parent_id": "device:ip:172.20.99.21",
-      "agent_id": null,
-      "stale": false,
-      "top_cves": [],
-      "cve_summary": null,
-      "wifi": {
-        "ssid": "BIG-CYFOR",
-        "access_point": "device:ip:172.20.99.21",
-        "radio": "Do0"
-      },
-      "unmanaged": true,
-      "mac_type": "local",
       "mac_vendor": null,
-      "reachable_cve": null
-    },
-    {
-      "node_id": "endpoint:001",
-      "kind": "endpoint",
-      "ip": "172.20.80.3",
-      "hostname": "Mannan-PC",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.19045.6466",
-      "serial": "M1OU95J89L7",
-      "mac": "e4:a7:a0:9f:75:42",
-      "discovery_method": "wazuh",
-      "status": "active",
-      "role": "host",
-      "risk_score": 9.8,
-      "max_cvss": 9.9,
-      "discovery_order": 12,
-      "parent_id": null,
-      "agent_id": "001",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2026-57092",
-          "cvss": 9.9,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Use after free in Windows VMSwitch allows an authorized attacker to elevate privileges over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-57092",
-          "published_at": "2026-07-14T18:18:33Z",
-          "detected_at": "2026-10-08T12:26:40.890Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "LOW",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2007-4559",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Python 3.11.0 (64-bit)",
-          "version": "3.11.150.0",
-          "description": "Directory traversal vulnerability in the (1) extract and (2) extractall functions in the tarfile module in Python allows user-assisted remote attackers to overwrite arbitrary files via a .. (dot dot) sequence in filenames in a TAR archive, a related issue to CVE-2001-1267.",
-          "reference": "http://secunia.com/advisories/26623, http://www.vupen.com/english/advisories/2007/3022, http://mail.python.org/pipermail/python-dev/2007-August/074292.html, https://bugzilla.redhat.com/show_bug.cgi?id=263261, http://mail.python.org/pipermail/python-dev/2007-August/074290.html, https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/CVBB7NU3YIRRDOKLYVN647WPRR3IAKR6/, https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/FI55PGL47ES3OU2FQPGEHOI2EK3S2OBH/, https://lists.fedoraproject.org/archives/list/package-announce%40lists.fedoraproject.org/message/KA4Z44ZAI4SY7THCFBUDNT5EEFO4XQ3A/, https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/CVBB7NU3YIRRDOKLYVN647WPRR3IAKR6/, https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/FI55PGL47ES3OU2FQPGEHOI2EK3S2OBH/, https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/KA4Z44ZAI4SY7THCFBUDNT5EEFO4XQ3A/, https://security.gentoo.org/glsa/202309-06",
-          "published_at": "2007-08-28T01:17:00Z",
-          "detected_at": "2026-10-08T12:26:42.020Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2025-60724",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Heap-based buffer overflow in Microsoft Graphics Component allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-60724",
-          "published_at": "2025-11-11T18:15:41Z",
-          "detected_at": "2026-10-08T12:26:40.857Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2026-33824",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Double free in Windows IKE Extension allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://unit42.paloaltonetworks.com/autonomous-ai-cyber-attack-campaign/, https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-33824, https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2026-33824",
-          "published_at": "2026-04-14T18:17:34Z",
-          "detected_at": "2026-10-08T12:26:40.830Z"
-        },
-        {
-          "cve": "CVE-2026-42990",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Heap-based buffer overflow in SQL Server ODBC driver allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-42990",
-          "published_at": "2026-07-14T17:16:48Z",
-          "detected_at": "2026-10-08T12:26:40.862Z"
-        },
-        {
-          "cve": "CVE-2026-44815",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Stack-based buffer overflow in Windows DHCP Client allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-44815",
-          "published_at": "2026-06-09T17:17:17Z",
-          "detected_at": "2026-10-08T12:26:40.834Z"
-        },
-        {
-          "cve": "CVE-2026-47291",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Integer overflow or wraparound in Windows HTTP.sys allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-47291",
-          "published_at": "2026-06-09T17:17:34Z",
-          "detected_at": "2026-10-08T12:26:40.863Z"
-        },
-        {
-          "cve": "CVE-2026-49172",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Heap-based buffer overflow in Windows FTP Service allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-49172",
-          "published_at": "2026-07-14T17:16:52Z",
-          "detected_at": "2026-10-08T12:26:40.879Z"
-        },
-        {
-          "cve": "CVE-2026-50447",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Heap-based buffer overflow in Windows Message Queuing allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-50447",
-          "published_at": "2026-07-14T18:17:49Z",
-          "detected_at": "2026-10-08T12:26:40.883Z"
-        },
-        {
-          "cve": "CVE-2026-56190",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Windows 10 Pro 10.0.19045.6466",
-          "version": "10.0.19045.6466",
-          "description": "Use of uninitialized resource in Windows RDP allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-56190",
-          "published_at": "2026-07-14T18:18:29Z",
-          "detected_at": "2026-10-08T12:26:40.884Z"
-        }
-      ],
-      "cve_summary": {
-        "total": 1559,
-        "critical": 38,
-        "high": 1132,
-        "medium": 374,
-        "low": 15,
-        "unknown": 0,
-        "max_cvss": 9.9
+      "node_tier": null,
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0,
+        "Unrated": 0
       },
-      "unmanaged": false,
-      "mac_type": "global",
-      "mac_vendor": "Intel Corporate",
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2007-4559",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "endpoint:004",
-      "kind": "endpoint",
-      "ip": "172.20.10.21",
-      "hostname": "CYFOR-1",
-      "vendor": "windows",
-      "model": "Microsoft Windows 10 Pro",
-      "firmware": "10.0.18363.449",
-      "serial": "/ANGLG3B/WP140342QO28L6/",
-      "mac": "d4:be:d9:79:3f:d4",
-      "discovery_method": "wazuh",
-      "status": "disconnected",
-      "role": "host",
-      "risk_score": 8.9,
-      "max_cvss": 9.8,
-      "discovery_order": 13,
-      "parent_id": null,
-      "agent_id": "004",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2026-100810",
-          "cvss": 9.8,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Other issue in the DevTools component. This vulnerability was fixed in Thunderbird 157 and Firefox 157.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2064034, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-97/",
-          "published_at": "2026-09-29T13:17:46Z",
-          "detected_at": "2026-10-08T12:26:44.965Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2026-100770",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to use-after-free in the DOM: Content Processes component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068322, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:41Z",
-          "detected_at": "2026-10-08T12:26:44.965Z"
-        },
-        {
-          "cve": "CVE-2026-100775",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape in the Graphics component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068367, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:42Z",
-          "detected_at": "2026-10-08T12:26:44.965Z"
-        },
-        {
-          "cve": "CVE-2026-100778",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to use-after-free in the DOM: Core & HTML component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068406, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:42Z",
-          "detected_at": "2026-10-08T12:26:44.965Z"
-        },
-        {
-          "cve": "CVE-2026-100781",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to incorrect boundary conditions in the Graphics: WebRender component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2068434, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:43Z",
-          "detected_at": "2026-10-08T12:26:44.966Z"
-        },
-        {
-          "cve": "CVE-2026-100786",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to use-after-free in the Graphics component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2071067, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:43Z",
-          "detected_at": "2026-10-08T12:26:44.966Z"
-        },
-        {
-          "cve": "CVE-2026-100787",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape in the XUL component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 153.4, and Firefox 157.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2071068, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/",
-          "published_at": "2026-09-29T13:17:43Z",
-          "detected_at": "2026-10-08T12:26:44.966Z"
-        },
-        {
-          "cve": "CVE-2026-100811",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to use-after-free in the DOM: Core & HTML component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2067973, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:46Z",
-          "detected_at": "2026-10-08T12:26:44.965Z"
-        },
-        {
-          "cve": "CVE-2026-100818",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to use-after-free in the Widget: Gtk component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2069399, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:47Z",
-          "detected_at": "2026-10-08T12:26:44.966Z"
-        },
-        {
-          "cve": "CVE-2026-100819",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Mozilla Firefox (x64 en-US)",
-          "version": "156.0.1",
-          "description": "Sandbox escape due to incorrect boundary conditions in the XPCOM component. This vulnerability was fixed in Firefox ESR 153.4, Thunderbird 157, Thunderbird 140.17, Thunderbird 153.4, Firefox 157, Firefox ESR 115.42, and Firefox ESR 140.17.",
-          "reference": "https://bugzilla.mozilla.org/show_bug.cgi?id=2071069, https://www.mozilla.org/security/advisories/mfsa2026-100/, https://www.mozilla.org/security/advisories/mfsa2026-101/, https://www.mozilla.org/security/advisories/mfsa2026-102/, https://www.mozilla.org/security/advisories/mfsa2026-103/, https://www.mozilla.org/security/advisories/mfsa2026-97/, https://www.mozilla.org/security/advisories/mfsa2026-98/, https://www.mozilla.org/security/advisories/mfsa2026-99/",
-          "published_at": "2026-09-29T13:17:47Z",
-          "detected_at": "2026-10-08T12:26:44.964Z"
-        }
-      ],
-      "cve_summary": {
-        "total": 156,
-        "critical": 10,
-        "high": 69,
-        "medium": 62,
-        "low": 15,
-        "unknown": 0,
-        "max_cvss": 9.8
-      },
-      "unmanaged": false,
-      "mac_type": "global",
-      "mac_vendor": "Dell Inc.",
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2026-100810",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 9.8
-      }
-    },
-    {
-      "node_id": "endpoint:006",
-      "kind": "endpoint",
-      "ip": "172.20.80.1",
-      "hostname": "Laptop-1",
-      "vendor": "windows",
-      "model": "Microsoft Windows 11 Home Single Language",
-      "firmware": "10.0.26200.9550",
-      "serial": "PMBVUI33LJT4X8",
-      "mac": "10:6f:d9:31:80:89",
-      "discovery_method": "wazuh",
-      "status": "disconnected",
-      "role": "host",
-      "risk_score": 8.9,
-      "max_cvss": 10.0,
-      "discovery_order": 14,
-      "parent_id": null,
-      "agent_id": "006",
-      "stale": false,
-      "top_cves": [
-        {
-          "cve": "CVE-2026-21636",
-          "cvss": 10.0,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Node.js",
-          "version": "25.2.1",
-          "description": "A flaw in Node.js's permission model allows Unix Domain Socket (UDS) connections to bypass network restrictions when `--permission` is enabled. Even without `--allow-net`, attacker-controlled inputs (such as URLs or socketPath options) can connect to arbitrary local sockets via net, tls, or undici/fetch. This breaks the intended security boundary of the permission model and enables access to privileged local services, potentially leading to privilege escalation, data exposure, or local code execution.\n\n* The issue affects users of the Node.js permission model on version v25.\n\nIn the moment of this vulnerability, network permissions (`--allow-net`) are still in the experimental phase.",
-          "reference": "https://nodejs.org/en/blog/vulnerability/december-2025-security-releases",
-          "published_at": "2026-01-20T21:16:05Z",
-          "detected_at": "2026-10-08T12:26:46.556Z",
-          "attack_vector": "NETWORK",
-          "attack_complexity": "LOW",
-          "privileges_required": "NONE",
-          "user_interaction": "NONE"
-        },
-        {
-          "cve": "CVE-2026-81376",
-          "cvss": 9.6,
-          "cvss_version": "3.1",
-          "severity": "Critical",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Incomplete comparison with missing factors in Visual Studio Code allows an unauthorized attacker to bypass a security feature over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-81376",
-          "published_at": "2026-09-08T18:20:53Z",
-          "detected_at": "2026-10-08T12:26:46.386Z"
-        },
-        {
-          "cve": "CVE-2025-47273",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "setuptools",
-          "version": "75.6.0",
-          "description": "### Summary \nA path traversal vulnerability in `PackageIndex` was fixed in setuptools version 78.1.1\n\n### Details\n```\n    def _download_url(self, url, tmpdir):\n        # Determine download filename\n        #\n        name, _fragment = egg_info_for_url(url)\n        if name:\n            while '..' in name:\n                name = name.replace('..', '.').replace('\\\\', '_')\n        else:\n            name = \"__downloaded__\"  # default if URL has no path contents\n\n        if name.endswith('.[egg.zip](http://egg.zip/)'):\n            name = name[:-4]  # strip the extra .zip before download\n\n -->       filename = os.path.join(tmpdir, name)\n```\n\nHere: https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88\n\n`os.path.join()` discards the first argument `tmpdir` if the second begins with a slash or drive letter.\n`name` is derived from a URL without sufficient sanitization. While there is some attempt to sanitize by replacing instances of '..' with '.', it is insufficient.\n\n### Risk Assessment\nAs easy_install and package_index are deprecated, the exploitation surface is reduced.\nHowever, it seems this could be exploited in a similar fashion like https://github.com/advisories/GHSA-r9hx-vwmv-q579, and as described by POC 4 in https://github.com/advisories/GHSA-cx63-2mw6-8hw5 report: via malicious URLs present on the pages of a package index.\n\n### Impact\nAn attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to RCE depending on the context.\n\n### References\nhttps://huntr.com/bounties/d6362117-ad57-4e83-951f-b8141c6e7ca5\nhttps://github.com/pypa/setuptools/issues/4946",
-          "reference": "https://github.com/pypa/advisory-database/tree/main/vulns/setuptools/PYSEC-2025-49.yaml, https://github.com/pypa/setuptools, https://github.com/pypa/setuptools/blob/6ead555c5fb29bc57fe6105b1bffc163f56fd558/setuptools/package_index.py#L810C1-L825C88, https://github.com/pypa/setuptools/commit/250a6d17978f9f6ac3ac887091f2d32886fbbb0b, https://github.com/pypa/setuptools/issues/4946, https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf, https://lists.debian.org/debian-lts-announce/2025/05/msg00035.html, https://nvd.nist.gov/vuln/detail/CVE-2025-47273",
-          "published_at": "2025-05-17T16:15:19Z",
-          "detected_at": "2026-10-08T12:26:46.544Z"
-        },
-        {
-          "cve": "CVE-2025-8088",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "WinRAR 7.01 (64-bit)",
-          "version": "7.01.0",
-          "description": "A path traversal vulnerability affecting the Windows version of WinRAR allows the attackers to execute arbitrary code by crafting malicious archive files. This vulnerability was exploited in the wild and was discovered by\u00a0Anton Cherepanov, Peter Ko\u0161in\u00e1r, and Peter Str\u00fd\u010dek\n     from ESET.",
-          "reference": "https://www.vicarius.io/vsociety/posts/cve-2025-8088-mitigate-winrar-zero-day-using-srp-and-ifeo, https://www.win-rar.com/singlenewsview.html?&L=0&tx_ttnews%5Btt_news%5D=283&cHash=a64b4a8f662d3639dec8d65f47bc93c5, https://support.dtsearch.com/faq/dts0245.htm, https://www.vicarius.io/vsociety/posts/cve-2025-8088-detect-winrar-zero-day, https://arstechnica.com/security/2025/08/high-severity-winrar-0-day-exploited-for-weeks-by-2-groups/, https://www.welivesecurity.com/en/eset-research/update-winrar-tools-now-romcom-and-others-exploiting-zero-day-vulnerability/#the-discovery-of-cve-2025-8088, https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2025-8088",
-          "published_at": "2025-08-08T12:15:29Z",
-          "detected_at": "2026-10-08T12:26:46.626Z"
-        },
-        {
-          "cve": "CVE-2026-57102",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Inclusion of functionality from untrusted control sphere in Visual Studio Code allows an unauthorized attacker to bypass a security feature over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-57102",
-          "published_at": "2026-07-14T18:18:34Z",
-          "detected_at": "2026-10-08T12:26:46.385Z"
-        },
-        {
-          "cve": "CVE-2026-59113",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Missing authorization in Visual Studio Code allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-59113",
-          "published_at": "2026-08-11T17:18:05Z",
-          "detected_at": "2026-10-08T12:26:46.385Z"
-        },
-        {
-          "cve": "CVE-2026-69320",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Improper neutralization of special elements used in an os command ('os command injection') in Visual Studio Code allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-69320",
-          "published_at": "2026-08-11T17:19:07Z",
-          "detected_at": "2026-10-08T12:26:46.385Z"
-        },
-        {
-          "cve": "CVE-2026-70336",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Improper control of generation of code ('code injection') in Visual Studio Code allows an unauthorized attacker to execute code over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-70336",
-          "published_at": "2026-08-11T17:19:11Z",
-          "detected_at": "2026-10-08T12:26:46.386Z"
-        },
-        {
-          "cve": "CVE-2026-78462",
-          "cvss": 8.8,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Authorization bypass through user-controlled key in Visual Studio Code allows an unauthorized attacker to bypass a security feature over a network.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-78462",
-          "published_at": "2026-09-08T18:20:44Z",
-          "detected_at": "2026-10-08T12:26:46.386Z"
-        },
-        {
-          "cve": "CVE-2026-50520",
-          "cvss": 8.4,
-          "cvss_version": "3.1",
-          "severity": "High",
-          "package": "Microsoft Visual Studio Code (User)",
-          "version": "1.123.2",
-          "description": "Improper neutralization of special elements used in a command ('command injection') in Visual Studio Code allows an unauthorized attacker to execute code locally.",
-          "reference": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2026-50520",
-          "published_at": "2026-07-14T17:17:01Z",
-          "detected_at": "2026-10-08T12:26:46.385Z"
-        }
-      ],
-      "cve_summary": {
-        "total": 95,
-        "critical": 2,
-        "high": 53,
-        "medium": 35,
-        "low": 5,
-        "unknown": 0,
-        "max_cvss": 10.0
-      },
-      "unmanaged": false,
-      "mac_type": "global",
-      "mac_vendor": "CLOUD NETWORK TECHNOLOGY SINGAPORE PTE. LTD.",
-      "reachable_cve": {
-        "status": "found",
-        "source": "top_cves",
-        "cve": "CVE-2026-21636",
-        "attack_vector": "NETWORK",
-        "attack_complexity": "LOW",
-        "privileges_required": "NONE",
-        "user_interaction": "NONE",
-        "cvss": 10.0
-      }
+      "ovss_status": "Unassessed",
+      "ovss_reason": "no findings returned",
+      "exposure": 0.3,
+      "exposure_flag": null,
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 0
     }
   ],
   "edges": [
     {
-      "source": "device:00:23:ac:75:06:ea",
-      "source_name": "L3-Switch",
-      "target": "device:90:6c:ac:e9:40:41",
-      "target_name": "CYFOR-Firewall.cyfor.lab",
-      "type": "lldp",
-      "local_port": "Fa1/0/1",
-      "remote_port": "Layer-3_UPLINK"
-    },
-    {
-      "source": "device:00:17:95:9c:3e:bc",
-      "source_name": "L2-Switch",
-      "target": "device:00:23:ac:75:06:ea",
-      "target_name": "L3-Switch",
-      "type": "lldp",
-      "local_port": "Fa0/1",
-      "remote_port": "Fa1/0/2"
-    },
-    {
-      "source": "device:00:23:ac:75:06:ea",
-      "source_name": "L3-Switch",
-      "target": "device:5c:8a:38:e1:0b:ee",
-      "target_name": "CYFOR-HP-Switch",
-      "type": "lldp",
-      "local_port": "Fa1/0/6",
-      "remote_port": "GigabitEthernet1/0/1"
-    },
-    {
-      "source": "device:00:23:ac:75:06:ea",
-      "source_name": "L3-Switch",
-      "target": "device:ip:172.20.99.21",
-      "target_name": "CYFOR-AP1",
-      "type": "lldp",
-      "local_port": "Fa1/0/15",
-      "remote_port": "GigabitEthernet0",
-      "protocol": "cdp"
-    },
-    {
-      "source": "endpoint:003",
-      "source_name": "CYFOR-4",
-      "target": "device:5c:8a:38:e1:0b:ee",
-      "target_name": "CYFOR-HP-Switch",
+      "source": "endpoint:101",
+      "source_name": "web-01",
+      "target": "device:0c:00:00:00:10:01",
+      "target_name": "core-sw",
       "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/37",
-      "confidence": "lldp"
-    },
-    {
-      "source": "endpoint:005",
-      "source_name": "CYFOR-3",
-      "target": "device:5c:8a:38:e1:0b:ee",
-      "target_name": "CYFOR-HP-Switch",
-      "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/26",
-      "confidence": "lldp"
-    },
-    {
-      "source": "endpoint:000",
-      "source_name": "wazuh-server",
-      "target": "device:00:23:ac:75:06:ea",
-      "target_name": "L3-Switch",
-      "type": "endpoint_link",
-      "local_port": "Fa1/0/4",
+      "local_port": "Gi1/0/1",
       "confidence": "resolved"
     },
     {
-      "source": "endpoint:002",
-      "source_name": "CYFOR-2",
-      "target": "device:5c:8a:38:e1:0b:ee",
-      "target_name": "CYFOR-HP-Switch",
+      "source": "endpoint:102",
+      "source_name": "db-01",
+      "target": "device:0c:00:00:00:10:01",
+      "target_name": "core-sw",
       "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/15",
+      "local_port": "Gi1/0/2",
       "confidence": "resolved"
     },
     {
-      "source": "host:76:82:7b:f5:6f:65",
-      "source_name": "172.20.80.2",
-      "target": "device:ip:172.20.99.21",
-      "target_name": "CYFOR-AP1",
+      "source": "endpoint:103",
+      "source_name": "kiosk-01",
+      "target": "device:0c:00:00:00:10:01",
+      "target_name": "core-sw",
       "type": "endpoint_link",
-      "local_port": "Do0",
-      "confidence": "wifi"
+      "local_port": "Gi1/0/3",
+      "confidence": "resolved"
     },
     {
-      "source": "host:28:f1:0e:93:2b:b6",
-      "source_name": "172.20.20.21",
-      "target": "device:5c:8a:38:e1:0b:ee",
-      "target_name": "CYFOR-HP-Switch",
+      "source": "endpoint:104",
+      "source_name": "laptop-07",
+      "target": "device:0c:00:00:00:10:01",
+      "target_name": "core-sw",
       "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/14",
-      "confidence": "fdb"
+      "local_port": "Gi1/0/4",
+      "confidence": "resolved"
     },
     {
-      "source": "host:d8:d3:85:6a:3b:d7",
-      "source_name": "172.20.40.12",
-      "target": "device:5c:8a:38:e1:0b:ee",
-      "target_name": "CYFOR-HP-Switch",
+      "source": "host:0c:00:00:00:99:aa",
+      "source_name": "10.10.0.50",
+      "target": "device:0c:00:00:00:10:01",
+      "target_name": "core-sw",
       "type": "endpoint_link",
-      "local_port": "GigabitEthernet1/0/40",
+      "local_port": "Gi1/0/6",
       "confidence": "fdb"
     }
   ],
   "metadata": {
-    "scan_time": "2026-10-08T12:58:20.994981+00:00",
-    "network_scan_time": "2026-10-08T12:58:20.990548+00:00",
-    "seed": null,
-    "warnings": [],
-    "attack_path_sources": [
-      "endpoint:000",
-      "endpoint:001",
-      "endpoint:002",
-      "endpoint:003",
-      "endpoint:005"
-    ],
-    "counts": {
-      "nodes": 15,
-      "endpoints": 7,
-      "devices": 5,
-      "fdb_discovered_hosts": 3,
-      "lldp_edges": 4,
-      "endpoint_edges": 7,
-      "unparented_endpoints": 3
-    },
-    "confidence": {
-      "lldp": 2,
-      "resolved": 2,
-      "wifi": 1,
-      "fdb": 2
-    },
-    "merged_lldp_endpoints": 3,
-    "fdb_discovered_hosts": 3,
-    "fdb_enriched_nodes": 2,
-    "unparented_endpoints": [
+    "scan_time": "2026-10-14T10:52:52.634422+00:00",
+    "network_scan_time": "2026-10-07T08:00:00+00:00",
+    "seed": "10.10.0.1",
+    "warnings": [
       {
-        "node_id": "endpoint:001",
-        "hostname": "Mannan-PC",
-        "reason": "mac_absent_from_all_fdb"
+        "type": "checklist_data_missing",
+        "node_ids": [
+          "device:0c:00:00:00:10:01"
+        ]
       },
       {
-        "node_id": "endpoint:004",
-        "hostname": "CYFOR-1",
-        "reason": "host_offline_no_l2_evidence"
+        "type": "threat_feeds_unavailable",
+        "feeds": [
+          "kev",
+          "epss"
+        ]
       },
       {
-        "node_id": "endpoint:006",
-        "hostname": "Laptop-1",
-        "reason": "host_offline_no_l2_evidence"
+        "type": "indexer_unreachable",
+        "error": "503 Server Error: Service Unavailable",
+        "agents": [
+          "104"
+        ],
+        "node_ids": [
+          "endpoint:104"
+        ]
       }
     ],
-    "unreachable_boundaries": [],
-    "timing": {
-      "endpoint_collect_s": 1.3123664550003014,
-      "endpoint_score_s": 1.351387661001354,
-      "network_crawl_s": 16.357222169001034,
-      "assemble_s": 0.0023474350018659607,
-      "total_s": 19.183329441999376,
-      "started_at": "2026-10-08T12:58:01.811650+00:00",
-      "finished_at": "2026-10-08T12:58:20.994981+00:00"
+    "attack_path_sources": [
+      "endpoint:101",
+      "endpoint:102",
+      "endpoint:103",
+      "endpoint:104"
+    ],
+    "counts": {
+      "nodes": 6,
+      "endpoints": 4,
+      "devices": 1,
+      "fdb_discovered_hosts": 1,
+      "lldp_edges": 0,
+      "endpoint_edges": 5,
+      "unparented_endpoints": 0
     },
-    "device_cves": {
-      "looked_up": 5,
-      "by_status": {
-        "ok": 5
-      },
-      "from_cache": 5,
-      "nvd_requests": 0,
-      "stale": 0,
-      "api_key": false,
-      "budget_s": 180.0,
-      "refreshed_at": "2026-10-08T23:10:10.028816+00:00"
+    "confidence": {
+      "resolved": 4,
+      "fdb": 1
+    },
+    "merged_lldp_endpoints": 0,
+    "fdb_discovered_hosts": 1,
+    "fdb_enriched_nodes": 0,
+    "unparented_endpoints": [],
+    "unreachable_boundaries": [],
+    "coverage": {
+      "hosts": 5,
+      "managed": 4,
+      "unmanaged": 1,
+      "managed_share": 0.8
     },
     "checklist": {
-      "devices_checked": 4,
+      "devices_checked": 1,
       "results": {
-        "pass": 1,
-        "fail": 15,
-        "not_applicable": 6,
-        "unknown": 6,
-        "not_checked": 4
+        "pass": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "unknown": 8,
+        "not_checked": 0
       },
       "findings": {
-        "high": 3,
-        "medium": 10,
+        "high": 0,
+        "medium": 0,
         "low": 0,
-        "advisory": 2
+        "advisory": 0
       },
       "probe_enabled": false,
       "port_test_enabled": false,
-      "source": "captures 2026-10-08"
+      "source": "scan"
     },
-    "coverage": {
-      "hosts": 10,
-      "managed": 7,
-      "unmanaged": 3,
-      "managed_share": 0.7
+    "threat_feeds": {
+      "kev": "unavailable",
+      "epss": "unavailable",
+      "kev_date": null,
+      "epss_date": null
     },
-    "cve_vectors": {
-      "assets": 15,
-      "by_status": {
-        "found": 10,
-        "none_found": 1
+    "ovss": {
+      "findings_by_tier": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 6,
+        "P3": 11,
+        "Unrated": 1
       },
-      "looked_up": 10,
-      "nvd_requests": 10,
-      "api_key": false,
-      "budget_s": 900.0,
-      "refreshed_at": "2026-10-10T08:30:02.432406+00:00"
-    }
+      "nodes_by_status": {
+        "Unassessed": 4,
+        "assessed": 2
+      },
+      "cve_records": {
+        "hits": 0,
+        "fetched": 0,
+        "not_found": 0,
+        "expired_used": 0,
+        "unanswered": 17
+      }
+    },
+    "timing": {
+      "endpoint_collect_s": null,
+      "endpoint_score_s": null,
+      "network_crawl_s": null,
+      "assemble_s": 0.06861858701449819,
+      "device_cves_s": null,
+      "total_s": 0.07371060902369209,
+      "started_at": "2026-10-14T10:52:52.560725+00:00",
+      "finished_at": "2026-10-14T10:52:52.634422+00:00",
+      "checklist_s": 0.0002578900021035224,
+      "ovss_s": 0.003886260004946962,
+      "attack_paths_s": 0.0014674220001325011
+    },
+    "stages": [
+      {
+        "name": "Wazuh endpoints",
+        "status": "ran",
+        "seconds": null,
+        "note": "4 endpoints (from a file)"
+      },
+      {
+        "name": "Network crawl",
+        "status": "ran",
+        "seconds": null,
+        "note": "1 device polled (from a file)"
+      },
+      {
+        "name": "SNMP question to unmanaged hosts",
+        "status": "skipped",
+        "seconds": null,
+        "note": "off"
+      },
+      {
+        "name": "Reverse DNS names",
+        "status": "skipped",
+        "seconds": null,
+        "note": "off"
+      },
+      {
+        "name": "Device CVEs (NVD)",
+        "status": "skipped",
+        "seconds": null,
+        "note": "off"
+      },
+      {
+        "name": "nmap service scan",
+        "status": "skipped",
+        "seconds": null,
+        "note": "off"
+      },
+      {
+        "name": "CVE vectors (NVD)",
+        "status": "skipped",
+        "seconds": null,
+        "note": "off"
+      },
+      {
+        "name": "Configuration checks",
+        "status": "ran",
+        "seconds": 0.0,
+        "note": "1 device checked"
+      },
+      {
+        "name": "OVSS scoring",
+        "status": "ran",
+        "seconds": 0.0,
+        "note": "17 findings scored on 2 assets; KEV unavailable, EPSS unavailable"
+      },
+      {
+        "name": "Attack paths",
+        "status": "ran",
+        "seconds": 0.0,
+        "note": "0 routes to 2 protected assets"
+      }
+    ]
   }
 }

@@ -1,10 +1,10 @@
 {
-  "endpoint:000": {
+  "endpoint:102": {
     "importance": "high",
-    "note": "Wazuh server (the is_wazuh_server node); losing it is a high impact (FIPS 199)."
+    "note": "db-01 in the synthetic sample network; losing it is a high impact (FIPS 199)."
   },
-  "device:00:23:ac:75:06:ea": {
+  "device:0c:00:00:00:10:01": {
     "importance": "moderate",
-    "note": "the device that routes the most VLANs (lowest id on a tie); a moderate impact (FIPS 199)."
+    "note": "core-sw, the sample network's core switch; a moderate impact (FIPS 199)."
   }
 }

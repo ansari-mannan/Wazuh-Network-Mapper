@@ -38,7 +38,8 @@ instead of reading CVE lists per host in isolation.
 ```
 backend/   the Python scanner (vulnmapper), its tests and maintenance scripts
 plugin/    the OpenSearch Dashboards plugin (Wazuh dashboard)
-data/      a sample graph and its attack paths, from the lab
+data/      a synthetic sample scan (graph, findings, attack paths), rebuilt by
+           backend/scripts/make_sample_data.py from the saved test inputs
 docs/      the code tour, and archived documents from earlier stages
 scripts/   start the dashboard with the plugin, build and install the plugin
 ```
