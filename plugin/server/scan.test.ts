@@ -3,6 +3,7 @@ import os from 'os';
 import path from 'path';
 import * as history from './history';
 import {
+  appendTail,
   failureMessage,
   getScan,
   latestStage,
@@ -11,6 +12,7 @@ import {
   scanArgs,
   shouldReplaceGraph,
   startScan,
+  STDERR_TAIL,
 } from './scan';
 
 const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
@@ -68,6 +70,16 @@ describe('shouldReplaceGraph', () => {
   it('replaces a map without devices, or no map at all', () => {
     expect(shouldReplaceGraph(empty, hostsOnly, false)).toBe(true);
     expect(shouldReplaceGraph(empty, null, false)).toBe(true);
+  });
+});
+
+describe('appendTail', () => {
+  it('keeps a bounded tail with the last line intact', () => {
+    let buffer = '';
+    for (let i = 0; i < 2000; i++) buffer = appendTail(buffer, `INFO line ${i} of a long scan log\n`);
+    buffer = appendTail(buffer, 'vulnmapper: the last line\n');
+    expect(buffer.length).toBe(STDERR_TAIL);
+    expect(failureMessage(buffer, 1)).toBe('vulnmapper: the last line');
   });
 });
 

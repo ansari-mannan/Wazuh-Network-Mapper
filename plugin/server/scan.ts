@@ -146,6 +146,14 @@ export function shouldReplaceGraph(next: unknown, current: unknown, force: boole
   return !(Array.isArray(nodes) && nodes.some((n) => n?.kind === 'device'));
 }
 
+// Only the last stderr line is ever shown, so keep a bounded tail of it.
+export const STDERR_TAIL = 8192;
+
+/** buffer + text, cut to its last STDERR_TAIL characters. Pure. */
+export function appendTail(buffer: string, text: string): string {
+  return (buffer + text).slice(-STDERR_TAIL);
+}
+
 let onScanDone: ScanOptions['onDone'];
 
 function finish(status: ScanState['status'], message: string) {
@@ -222,7 +230,7 @@ export function startScan({
   child.stdout.on('data', (d: Buffer) => chunks.push(d));
   child.stderr.on('data', (d: Buffer) => {
     const text = d.toString();
-    stderr += text;
+    stderr = appendTail(stderr, text);
     const lines = (partial + text).split('\n');
     partial = lines.pop() || '';
     const stage = latestStage(lines.join('\n'));
