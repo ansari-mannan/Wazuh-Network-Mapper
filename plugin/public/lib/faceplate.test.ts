@@ -31,6 +31,7 @@ import {
   switch24,
   switch48,
   switch8,
+  switchHp48,
   unknownDevice,
 } from './faceplate.fixtures';
 
@@ -309,6 +310,7 @@ describe('no overlapping text', () => {
   const fixtures: Array<[string, DeviceNode]> = [
     ['24+2 switch', switch24],
     ['48+2 switch', switch48],
+    ['48+4 HP switch', switchHp48],
     ['8-port switch', switch8],
     ['7-port switch', { ...switch8, ports: switch8.ports!.slice(0, 7) }],
     ['switch with mgmt and 10G uplinks', {
@@ -325,13 +327,14 @@ describe('no overlapping text', () => {
   const hit = (a: { x: number; y: number; w: number; h: number }, b: typeof a) =>
     a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
-  // every fixture in both layouts: the full one and the split one for a narrow card
+  // every fixture in every layout: one row, split (a narrow card) and banded (a big rack)
   const cases = fixtures.flatMap(([name, node]) => [
-    [name, node, false],
-    [`${name}, split`, node, true],
-  ]) as Array<[string, DeviceNode, boolean]>;
-  it.each(cases)('%s', (_name, node, split) => {
-    const fp = faceplateOf(node, { split });
+    [name, node, {}],
+    [`${name}, split`, node, { split: true }],
+    [`${name}, banded`, node, { banded: true }],
+  ]) as Array<[string, DeviceNode, { split?: boolean; banded?: boolean }]>;
+  it.each(cases)('%s', (_name, node, options) => {
+    const fp = faceplateOf(node, options);
     const boxes = textBoxes(fp);
     for (let i = 0; i < boxes.length; i++) {
       for (let j = i + 1; j < boxes.length; j++) {
@@ -412,9 +415,13 @@ describe('fitting the card', () => {
     expect(pickLayout(fortigateLabStyle, full.width)).toEqual({ fp: full, compact: false });
     expect(pickLayout(fortigateLabStyle, full.width - 1)).toEqual({ fp: split, compact: false });
     expect(pickLayout(fortigateLabStyle, split.width - 1)).toEqual({ fp: split, compact: true });
-    // a switch has no split layout: too narrow means compact
-    const sw = faceplateOf(switch48);
-    expect(pickLayout(switch48, 560)).toEqual({ fp: sw, compact: true });
+    // a big rack switch: banded before compact, compact only when even banded won't fit
+    const banded = faceplateOf(switch48, { banded: true });
+    expect(banded.width).toBeLessThanOrEqual(560);
+    expect(pickLayout(switch48, 560)).toEqual({ fp: banded, compact: false });
+    expect(pickLayout(switch48, banded.width - 1)).toEqual({ fp: banded, compact: true });
+    // a 24-port switch still fits in one row
+    expect(pickLayout(switch24, 560)).toEqual({ fp: faceplateOf(switch24), compact: false });
     // not measured yet: the old rule
     expect(pickLayout(switch48, 0).compact).toBe(true);
     expect(pickLayout(switch24, 0).compact).toBe(false);
@@ -442,5 +449,43 @@ describe('fitting the card', () => {
     for (const t of fp.texts) expect(t.y).toBeLessThan(fp.captionY - 9);
     // ports start at the left margin: no brand column any more
     expect(Math.min(...fp.ports.map((p) => p.x))).toBeLessThan(20);
+  });
+});
+
+describe('banded rack layout', () => {
+  it.each([
+    ['48+2 Cisco', switch48, 'FastEthernet0/', 'GigabitEthernet0/1'],
+    ['48+4 HP', switchHp48, 'GigabitEthernet1/0/', 'Ten-GigabitEthernet1/0/49'],
+  ] as Array<[string, DeviceNode, string, string]>)('%s: 1-24 on top, 25-48 below, uplinks right of the first band', (_n, node, prefix, uplink) => {
+    const full = faceplateOf(node);
+    const fp = faceplateOf(node, { banded: true });
+    const at = (n: number) => fp.ports.find((p) => p.port.name === `${prefix}${n}`)!;
+    expect(fp.width).toBeLessThan(full.width);
+    expect(fp.height).toBeGreaterThan(full.height);
+    // each band as before: odd on top, even below, in blocks of 12
+    expect(at(1).y).toBe(at(23).y);
+    expect(at(2).y).toBeGreaterThan(at(1).y);
+    // the second band sits under the first, lined up with it
+    expect(at(25).x).toBe(at(1).x);
+    expect(at(25).y).toBeGreaterThan(at(24).y);
+    expect(at(26).y).toBeGreaterThan(at(25).y);
+    expect(at(48).x).toBe(at(24).x);
+    // the uplinks to the right of the first band, at its height
+    const up = fp.ports.find((p) => p.port.name === uplink)!;
+    expect(up.x).toBeGreaterThan(at(23).x);
+    expect(up.y).toBeLessThan(at(25).y);
+    // every port once, numbered
+    expect(new Set(fp.ports.map((p) => p.port.name)).size).toBe(fp.ports.length);
+    expect(fp.ports.length).toBe(full.ports.length);
+    expect(at(37).label).toBe('37');
+  });
+
+  it('labels HP Ten-Gigabit uplinks as SFP', () => {
+    const fp = faceplateOf(switchHp48, { banded: true });
+    expect(fp.captions.map((c) => c.text)).toEqual(['SFP']);
+  });
+
+  it('a switch of 24 or fewer has a single band', () => {
+    expect(faceplateOf(switch24, { banded: true })).toEqual(faceplateOf(switch24));
   });
 });

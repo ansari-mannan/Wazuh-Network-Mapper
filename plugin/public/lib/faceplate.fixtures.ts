@@ -71,6 +71,20 @@ export const switch48 = device(
   { model: 'WS-C2960-48TT-L' }
 );
 
+/** 48 Gigabit access ports + 4 Ten-Gigabit SFP+ uplinks, Comware-style names. */
+export const switchHp48 = device(
+  'device:hp48',
+  'l3-switch',
+  [
+    port('Vlan-interface1', 'up'),
+    ...range(48).map((n) =>
+      port(`GigabitEthernet1/0/${n}`, n <= 3 || n === 30 ? 'up' : n === 40 ? 'link_lost' : 'unused', { speed_mbps: n <= 3 || n === 30 ? 1000 : null })
+    ),
+    ...[49, 50, 51, 52].map((n) => port(`Ten-GigabitEthernet1/0/${n}`, n === 49 ? 'up' : 'unused', { speed_mbps: n === 49 ? 10000 : null })),
+  ],
+  { vendor: 'HP', model: '5130-48G-4SFP+' }
+);
+
 /** An 8-port desk switch. */
 export const switch8 = device(
   'device:sw8',

@@ -19,6 +19,7 @@ import {
   switch24,
   switch48,
   switch8,
+  switchHp48,
   unknownDevice,
 } from '../../lib/faceplate.fixtures';
 
@@ -330,13 +331,44 @@ describe('Faceplate', () => {
       expect(html()).toMatchSnapshot();
     });
 
-    it('a 48-port switch in 560 px is compact: captions kept without their underline, and Expand', () => {
+    it.each([
+      ['48+2 Cisco', switch48, 'FastEthernet0/'],
+      ['48+4 HP', switchHp48, 'GigabitEthernet1/0/'],
+    ] as Array<[string, DeviceNode, string]>)('%s in 560 px: banded, full detail, ports >= 22 px, no Expand', (_n, node, prefix) => {
       width = 560;
+      const el = render(node);
+      const svg = card(el);
+      expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).toBeNull();
+      // ears spanning the full height, name plate, grille, PWR and every port number
+      const height = Number(svg.getAttribute('viewBox')!.split(' ')[3]);
+      const ears = Array.from(svg.querySelectorAll('.vmFpEar rect'));
+      expect(ears).toHaveLength(2);
+      for (const ear of ears) expect(Number(ear.getAttribute('height'))).toBe(height - 2);
+      expect(svg.querySelector('.vmFpPlate')).not.toBeNull();
+      expect(svg.querySelector('.vmFpGrille')).not.toBeNull();
+      expect(svg.querySelector('.vmFpPwr')).not.toBeNull();
+      expect(labels(el).filter((l) => /^\d+$/.test(l!)).map(Number).sort((a, b) => a - b)).toEqual(
+        Array.from({ length: 48 }, (_, i) => i + 1)
+      );
+      expect(labels(el).filter((l) => !/^\d+$/.test(l!))).toEqual(
+        node === switchHp48 ? ['T49', 'T50', 'T51', 'T52'] : ['G1', 'G2']
+      );
+      // bands: 25 under 1
+      const face = (n: number) => socket(el, `${prefix}${n}`).querySelector('.vmFpFace')!;
+      expect(face(25).getAttribute('x')).toBe(face(1).getAttribute('x'));
+      expect(Number(face(25).getAttribute('y'))).toBeGreaterThan(Number(face(2).getAttribute('y')));
+      const port = Number(face(1).getAttribute('width'));
+      expect(port * scaleOf(svg)).toBeGreaterThanOrEqual(22);
+      expect(html()).toMatchSnapshot();
+    });
+
+    it('a card too narrow even for bands is compact: captions kept without underline, and Expand', () => {
+      width = 300;
       const el = render(switch48);
       const svg = card(el);
       expect(svg.textContent).toContain('UPLINK');
       expect(svg.querySelector('.vmFpRule')).toBeNull();
-      expect(Number(svg.getAttribute('width'))).toBe(560);
+      expect(Number(svg.getAttribute('width'))).toBe(300);
       expect(el.querySelector('[data-test-subj="vmFaceplateExpand"]')).not.toBeNull();
     });
   });
