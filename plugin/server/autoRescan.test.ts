@@ -1,5 +1,5 @@
 import { ScanState } from '../common';
-import { createAutoRescan } from './autoRescan';
+import { createAutoRescan, MAX_BACKOFF_SECONDS } from './autoRescan';
 
 const idle: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
 const suggested = { rescan_suggested: true, rescan_reasons: ['port Gi1/0/9 on L3-Switch came up'] };
@@ -27,7 +27,8 @@ function setup(opts: { enabled?: boolean; minIntervalSeconds?: number } = {}) {
     starts,
     logs,
     tick: (seconds: number) => (clock += seconds * 1000),
-    finishScan: () => (scan = { ...scan, status: 'idle', finishedAt: new Date(clock).toISOString() }),
+    finishScan: (status: ScanState['status'] = 'idle') =>
+      (scan = { ...scan, status, finishedAt: new Date(clock).toISOString() }),
     setScan: (s: ScanState) => (scan = s),
   };
 }
@@ -60,13 +61,15 @@ describe('auto rescan', () => {
     t.onPass(suggested);
     t.tick(30);
     t.finishScan();
+    // a new reason, so only the interval holds it back
+    const next = { rescan_suggested: true, rescan_reasons: ['port Gi1/0/2 on L3-Switch came up'] };
     for (let i = 0; i < 8; i++) {
       t.tick(10); // a pass every 10 s, still suggesting
-      t.onPass(suggested);
+      t.onPass(next);
     }
     expect(t.starts).toHaveLength(1); // 110 s after the first
     t.tick(10); // 120 s
-    expect(t.onPass(suggested)).toBe(true);
+    expect(t.onPass(next)).toBe(true);
     expect(t.starts).toHaveLength(2);
   });
 
@@ -82,5 +85,56 @@ describe('auto rescan', () => {
     const t = setup({ enabled: false });
     expect(t.onPass(suggested)).toBe(false);
     expect(t.starts).toHaveLength(0);
+  });
+
+  it('does not rescan for reasons a completed automatic scan left in place', () => {
+    const t = setup();
+    t.onPass(suggested);
+    t.finishScan();
+    t.tick(3600);
+    expect(t.onPass(suggested)).toBe(false); // the scan could not clear it
+    t.tick(3600);
+    expect(t.onPass(suggested)).toBe(false);
+    expect(t.starts).toHaveLength(1);
+    expect(t.logs.some((m) => m.includes('left unresolved'))).toBe(true);
+  });
+
+  it('a new reason starts one, and so does a settled reason that went away and came back', () => {
+    const t = setup();
+    t.onPass(suggested);
+    t.finishScan();
+    t.tick(300);
+    const more = { rescan_suggested: true, rescan_reasons: [...suggested.rescan_reasons, 'active Wazuh agent 007 is not in the graph'] };
+    expect(t.onPass(more)).toBe(true);
+    expect(t.logs[t.logs.length - 1]).toBe('automatic rescan started: active Wazuh agent 007 is not in the graph');
+    t.finishScan();
+    t.tick(300);
+    expect(t.onPass({ rescan_suggested: false, rescan_reasons: [] })).toBe(false); // both cleared
+    t.tick(300);
+    expect(t.onPass(suggested)).toBe(true);
+  });
+
+  it('backs off after failed automatic scans and resets after a completed one', () => {
+    const t = setup({ minIntervalSeconds: 120 });
+    t.onPass(suggested);
+    t.finishScan('failed');
+    t.tick(120);
+    expect(t.onPass(suggested)).toBe(false); // failure 1: wait 240 s
+    t.tick(120);
+    expect(t.onPass(suggested)).toBe(true);
+    t.finishScan('failed');
+    t.tick(240);
+    expect(t.onPass(suggested)).toBe(false); // failure 2: wait 480 s
+    t.tick(240);
+    expect(t.onPass(suggested)).toBe(true);
+    for (let i = 0; i < 10; i++) {
+      t.finishScan('failed');
+      t.tick(MAX_BACKOFF_SECONDS);
+      expect(t.onPass(suggested)).toBe(true); // never longer than the cap
+    }
+    t.finishScan();
+    t.tick(120);
+    const other = { rescan_suggested: true, rescan_reasons: ['port Gi1/0/2 on L3-Switch came up'] };
+    expect(t.onPass(other)).toBe(true); // a completed scan reset the back-off
   });
 });

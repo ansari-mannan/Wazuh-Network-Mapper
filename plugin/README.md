@@ -326,8 +326,12 @@ When a pass sees something new (a switch port came up with nothing on the map
 linked to it, or an active Wazuh agent that is not on the map) and
 `autoRescan` is on, the server starts a scan the way the Scan settings page
 does: never while one is running, and never sooner than
-`minRescanIntervalSeconds` after the last scan started. The map reloads the
-graph by itself when the graph file changes.
+`minRescanIntervalSeconds` after the last scan started. A reason that an
+automatic scan completed without clearing (an agent the scan does not collect,
+say) is logged once and does not start another scan; only a new reason does.
+After each failed automatic scan the interval doubles, up to an hour, and a
+completed one resets it. The map reloads the graph by itself when the graph
+file changes.
 
 Wi-Fi clients of an access point are checked against the AP's client list
 (a client that leaves it is inactive at once), and a wired host that ignores
