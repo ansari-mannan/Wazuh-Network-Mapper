@@ -1,7 +1,8 @@
 // A discoverable second entry to the same action as the Topology panel's "Protect
 // this asset": it lists the marked targets and lets the owner add, re-rank or
 // remove one. Reuses POST /api/vulnmapper/targets and the attack-paths provider
-// (which reloads the computed routes after the server recompute); no new server logic.
+// (which reloads the computed routes after the server rescore), then re-reads the
+// rescored graph and findings; no new server logic.
 import React, { useState } from 'react';
 import {
   EuiButton,
@@ -20,6 +21,7 @@ import {
 import { GraphResponse, Importance } from '../../../common';
 import { useAttackPaths } from '../../lib/attackPathsData';
 import { useGraph } from '../../lib/graph';
+import { useVulnerabilities } from '../../lib/vulnerabilities';
 import { useServices } from '../../lib/services';
 import { IMPORTANCE_LEVELS, IMPORTANCE_SHORT } from '../../lib/attackPaths';
 
@@ -49,7 +51,8 @@ function ImportanceButtons({
 
 export function ProtectedAssets() {
   const { doc, reload } = useAttackPaths();
-  const { graph } = useGraph();
+  const { graph, reload: reloadGraph } = useGraph();
+  const { reload: reloadVulns } = useVulnerabilities();
   const { http } = useServices();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +70,8 @@ export function ProtectedAssets() {
     setError(null);
     try {
       await http.post('/api/vulnmapper/targets', { body: JSON.stringify({ id, importance }) });
-      await reload();
+      // the server rescored the graph and the findings too, not only the routes
+      await Promise.all([reload(), reloadGraph(), reloadVulns()]);
     } catch (e) {
       setError(e.body?.message || e.message);
     } finally {

@@ -610,6 +610,18 @@ python -m vulnmapper.attackpaths --graph data/graph.json
 
 which reads the graph, `targets.json` and `vulnerabilities.json` if present,
 rewrites `attack_paths.json`, changes neither input and makes no network call.
+After `targets.json` changes, rescore instead (the dashboard does this when an
+asset is marked):
+
+```
+python -m vulnmapper.scoring.rescore --graph data/graph.json
+```
+
+An asset's importance is an OVSS input, so this rescores `graph.json` and
+`vulnerabilities.json` with the threat feeds and CVE records cached beside
+them, then recomputes `attack_paths.json`, writing all three atomically. It
+never downloads (a cache older than a day is used as it is) and keeps
+`metadata.scan_time`.
 
 **Limits.** Firewall and access-control rules are not read, so a route that
 crosses a router shows only that the two VLANs are routed. Attacks that need an

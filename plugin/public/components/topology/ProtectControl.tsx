@@ -1,5 +1,5 @@
 // Mark this asset as one to protect: the owner picks its FIPS 199 importance (or
-// unmarks it). Saving runs the recompute on the server, then re-reads the paths.
+// unmarks it). Saving rescores on the server, then re-reads the graph, findings and paths.
 import React, { useState } from 'react';
 import {
   EuiBadge,
@@ -13,12 +13,16 @@ import {
 } from '@elastic/eui';
 import { Importance } from '../../../common';
 import { useAttackPaths } from '../../lib/attackPathsData';
+import { useGraph } from '../../lib/graph';
+import { useVulnerabilities } from '../../lib/vulnerabilities';
 import { useServices } from '../../lib/services';
 import { IMPORTANCE_LEVELS, IMPORTANCE_META, IMPORTANCE_SHORT } from '../../lib/attackPaths';
 import { Section } from './DetailSections';
 
 export function ProtectControl({ nodeId }: { nodeId: string }) {
   const { doc, reload } = useAttackPaths();
+  const { reload: reloadGraph } = useGraph();
+  const { reload: reloadVulns } = useVulnerabilities();
   const { http } = useServices();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +33,8 @@ export function ProtectControl({ nodeId }: { nodeId: string }) {
     setError(null);
     try {
       await http.post('/api/vulnmapper/targets', { body: JSON.stringify({ id: nodeId, importance }) });
-      await reload();
+      // the server rescored the graph and the findings too, not only the routes
+      await Promise.all([reload(), reloadGraph(), reloadVulns()]);
     } catch (e) {
       setError(e.body?.message || e.message);
     } finally {

@@ -120,7 +120,9 @@ export function defineRoutes(
   );
 
   // Mark, re-rate or unmark one protected asset (targets.json beside the graph),
-  // then recompute attack_paths.json with the engine. importance null unmarks.
+  // then rescore: importance is an OVSS input, so graph.json and
+  // vulnerabilities.json are rescored and attack_paths.json recomputed, from
+  // cached threat data only. importance null unmarks.
   // No credential is passed; marking needs no network scan, so this is quick.
   router.post(
     {
@@ -162,6 +164,7 @@ export function defineRoutes(
           backendDir,
           graphPath,
           livenessFile: config.liveness.enabled ? livenessPath(config) : null,
+          rescore: true,
           logger,
         });
       } catch (e) {

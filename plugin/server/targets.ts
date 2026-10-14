@@ -39,30 +39,43 @@ export function applyTarget(current: TargetsFile, id: string, importance: Import
 }
 
 /**
- * Run `<pythonBin> -m vulnmapper.attackpaths --graph <graphPath>` in backendDir,
- * which rewrites attack_paths.json (and reads targets.json) beside the graph.
- * With livenessFile (liveness on), hosts its pass marks inactive are not used
- * as starts, provided the pass was made for this graph. No credential is
- * passed: paths are the only arguments. Resolves on success, rejects with the
- * scanner's last stderr line otherwise.
+ * The backend command that refreshes the files after a change. Plain: only
+ * attack_paths.json (`vulnmapper.attackpaths`, as after a liveness pass).
+ * rescore: also the OVSS scores in graph.json and vulnerabilities.json, which
+ * read each asset's importance (`vulnmapper.scoring.rescore`, after targets.json
+ * changed); it uses the cached threat data and never downloads. Paths are the
+ * only arguments: no credential is passed. Pure.
+ */
+export function recomputeArgs(graphPath: string, livenessFile?: string | null, rescore = false): string[] {
+  const args = ['-m', rescore ? 'vulnmapper.scoring.rescore' : 'vulnmapper.attackpaths', '--graph', graphPath];
+  if (livenessFile) args.push('--liveness', livenessFile);
+  return args;
+}
+
+/**
+ * Run recomputeArgs' command in backendDir. With livenessFile (liveness on),
+ * hosts its pass marks inactive are not used as starts, provided the pass was
+ * made for this graph. Resolves on success, rejects with the last stderr line
+ * otherwise.
  */
 export function recomputeAttackPaths({
   pythonBin,
   backendDir,
   graphPath,
   livenessFile,
+  rescore = false,
   logger,
 }: {
   pythonBin: string;
   backendDir: string;
   graphPath: string;
   livenessFile?: string | null;
+  rescore?: boolean;
   logger: Logger;
 }): Promise<void> {
   return new Promise((resolve, reject) => {
-    const args = ['-m', 'vulnmapper.attackpaths', '--graph', graphPath];
-    if (livenessFile) args.push('--liveness', livenessFile);
-    logger.info(`attack-paths recompute: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
+    const args = recomputeArgs(graphPath, livenessFile, rescore);
+    logger.info(`${rescore ? 'rescore' : 'attack-paths recompute'}: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
     const child = spawn(pythonBin, args, { cwd: backendDir });
     let stderr = '';
     child.stderr.on('data', (d: Buffer) => {

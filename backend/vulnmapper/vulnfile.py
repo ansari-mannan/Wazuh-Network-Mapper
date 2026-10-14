@@ -88,9 +88,9 @@ def build_document(endpoints: list[dict], cves: Optional[dict], scan_time: str,
     }
 
 
-def write_atomic(path: str, document: dict) -> None:
+def write_atomic(path: str, document: dict, indent: Optional[int] = None) -> None:
     """Write via a temp file in the same folder, then rename over ``path``.
-    Compact JSON: the file grows with hosts times CVEs."""
+    Compact JSON unless ``indent``: the file grows with hosts times CVEs."""
     folder = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(prefix=".vulnerabilities.", suffix=".tmp", dir=folder)
     try:
@@ -99,7 +99,7 @@ def write_atomic(path: str, document: dict) -> None:
         os.umask(umask)
         os.chmod(tmp, 0o666 & ~umask)
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(document, f, separators=(",", ":"))
+            json.dump(document, f, indent=indent, separators=None if indent else (",", ":"))
             f.write("\n")
         os.replace(tmp, path)
     except BaseException:

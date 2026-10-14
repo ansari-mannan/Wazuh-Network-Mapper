@@ -1,4 +1,4 @@
-import { applyTarget, attackPathsFilePath, targetsFilePath } from './targets';
+import { applyTarget, attackPathsFilePath, recomputeArgs, targetsFilePath } from './targets';
 
 describe('applyTarget', () => {
   it('adds a new target with the UI note', () => {
@@ -30,5 +30,17 @@ describe('file paths', () => {
   it('place both files beside the graph', () => {
     expect(targetsFilePath('/data/graph.json')).toBe('/data/targets.json');
     expect(attackPathsFilePath('/data/graph.json')).toBe('/data/attack_paths.json');
+  });
+});
+
+describe('recomputeArgs', () => {
+  it('rescores after a target change, with the liveness state when given', () => {
+    expect(recomputeArgs('/d/graph.json', '/d/liveness.json', true)).toEqual([
+      '-m', 'vulnmapper.scoring.rescore', '--graph', '/d/graph.json', '--liveness', '/d/liveness.json',
+    ]);
+  });
+
+  it('only recomputes the attack paths otherwise', () => {
+    expect(recomputeArgs('/d/graph.json')).toEqual(['-m', 'vulnmapper.attackpaths', '--graph', '/d/graph.json']);
   });
 });

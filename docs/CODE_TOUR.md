@@ -49,9 +49,13 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 8. The pages read those files through the server's API. While liveness is
    on, the server re-checks the nodes on a timer and writes `liveness.json`;
    the map greys out what has gone, and a change can trigger a new scan.
-   When a protected asset is marked, and after a liveness pass whose inactive
+   When a protected asset is marked the server rescores the scan
+   (`python -m vulnmapper.scoring.rescore`: the asset's importance is an OVSS
+   input, so `graph.json`, `vulnerabilities.json` and `attack_paths.json` are
+   rewritten from the cached threat data, with no download and the same
+   `scan_time`). After a liveness pass whose inactive
    hosts differ from the last pass's (or the first pass for a new graph), the
-   server recomputes `attack_paths.json` with `--liveness`
+   server recomputes `attack_paths.json`. Both pass `--liveness`
    (`server/livenessRecompute.ts`, never during a scan): a host that liveness pass marks inactive is listed under
    `offline_starts` instead of being a start, but only if the pass was made for
    this graph (its `graph_scan_time` is the graph's `scan_time`). A scan
@@ -68,7 +72,7 @@ credential from the server environment only.
 
 | File | Written by | Holds |
 |---|---|---|
-| `graph.json`, `vulnerabilities.json`, `attack_paths.json` | a scan; attack paths also by a recompute | the scan's output |
+| `graph.json`, `vulnerabilities.json`, `attack_paths.json` | a scan; all three by a rescore after a protected asset changes; attack paths also by a liveness recompute | the scan's output |
 | `targets.json` | the protected-asset control | the owner's important assets (also OVSS's importance) |
 | `nvd-cache.json`, `cve-records.json`, `kev.json`, `epss_scores-current.csv.gz` | a scan | NVD answers, CVE records (30 days; 1 day for not found), and the KEV and EPSS feeds (refreshed at most daily); all optional caches |
 | `recommendations.json` | the Recommendations page | each action's status |
