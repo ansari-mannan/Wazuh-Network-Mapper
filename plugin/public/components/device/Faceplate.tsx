@@ -155,6 +155,9 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, 
             <line className="vmFpRule" x1={c.x} y1={fp.captionY + 3} x2={c.x + c.width} y2={fp.captionY + 3} strokeWidth={0.6} />
           </g>
         ))}
+      {fp.dividers.map((dx) => (
+        <line key={dx} className="vmFpDivider" x1={dx} y1={4} x2={dx} y2={H - 4} strokeWidth={1} />
+      ))}
       {fp.ports.map((p) => (
         <Socket
           key={p.port.name}

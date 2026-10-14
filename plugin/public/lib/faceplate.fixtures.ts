@@ -93,6 +93,22 @@ export const fortigate = device(
   { vendor: 'Fortinet', model: 'FortiGate-60D', inferred_ports: ['Layer-3_UPLINK'], neighbor_ports: ['Layer-3_UPLINK'] }
 );
 
+/** A larger firewall: mgmt, ha, port1-16, wan1-2 and dmz1-2, in its own ifIndex order. */
+export const fortigate200D = device(
+  'device:fw200',
+  'router',
+  [
+    port('mgmt', 'up'),
+    port('ha', 'unused'),
+    ...range(16).map((n) => port(`port${n}`, n <= 5 ? 'up' : n === 9 ? 'link_lost' : n === 16 ? 'shutdown' : 'unused')),
+    port('wan1', 'up', { speed_mbps: 1000 }),
+    port('wan2', 'unused'),
+    port('dmz1', 'up', { speed_mbps: 100 }),
+    port('dmz2', 'unused'),
+  ],
+  { vendor: 'Fortinet', model: 'FortiGate-200D' }
+);
+
 /** An access point with two radios. */
 export const accessPoint = device(
   'device:ap',

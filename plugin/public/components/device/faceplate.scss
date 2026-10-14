@@ -22,6 +22,7 @@
   .vmFpLabel { fill: $label; font-family: $euiFontFamily; }
   .vmFpCount { fill: $socket; font-family: $euiFontFamily; }
   .vmFpRule { stroke: $label; opacity: 0.6; }
+  .vmFpDivider { stroke: $label; opacity: 0.45; }
   .vmFpFace { fill: $socket; stroke: $pin; }
   .vmFpFace--inferred { stroke: $up; }
   .vmFpPin { stroke: $pin; }

@@ -11,6 +11,7 @@ import { Faceplate } from './Faceplate';
 import {
   accessPoint,
   fortigate,
+  fortigate200D,
   smallGraph,
   switch24,
   switch48,
@@ -173,6 +174,31 @@ describe('Faceplate', () => {
     expect(box()!.querySelector('.vmTip__route')).toBeNull();
     fire(socket(el, 'wan1'), new MouseEvent('mouseout', { bubbles: true, relatedTarget: document.body }));
     expect(el.textContent).toContain('Logical interfaces (1, 1 up)');
+    expect(html()).toMatchSnapshot();
+  });
+
+  it('FortiGate 200D: MGMT/HA, INTERNAL on two rows, DMZ, and WAN rightmost behind a divider', () => {
+    const el = render(fortigate200D);
+    const svg = el.querySelector('[data-test-subj="vmFaceplate"]')!;
+    const captions = Array.from(svg.querySelectorAll('g > text.vmFpLabel'))
+      .map((t) => t.textContent)
+      .filter((t) => ['MGMT/HA', 'INTERNAL', 'DMZ', 'WAN (internet)'].includes(t!));
+    expect(captions).toEqual(['MGMT/HA', 'INTERNAL', 'DMZ', 'WAN (internet)']);
+    expect(labels(el)).toEqual([
+      'MGMT', 'HA', ...Array.from({ length: 16 }, (_, i) => String(i + 1)), 'DMZ1', 'DMZ2', 'WAN1', 'WAN2',
+    ]);
+    // every port drawn once
+    const drawn = sockets(el).map((s) => s.getAttribute('data-port'));
+    expect(new Set(drawn).size).toBe(22);
+    const faceX = (name: string) => Number(socket(el, name).querySelector('.vmFpFace')!.getAttribute('x'));
+    const nonWan = drawn.filter((n) => !n!.startsWith('wan')).map((n) => faceX(n!));
+    const divider = svg.querySelectorAll('line.vmFpDivider');
+    expect(divider).toHaveLength(1);
+    const dx = Number(divider[0].getAttribute('x1'));
+    expect(Math.max(...nonWan)).toBeLessThan(dx);
+    expect(dx).toBeLessThan(Math.min(faceX('wan1'), faceX('wan2')));
+    expect(socket(el, 'port9').getAttribute('class')).toContain('vmFpPort--link_lost');
+    expect(socket(el, 'port16').getAttribute('class')).toContain('vmFpPort--shutdown');
     expect(html()).toMatchSnapshot();
   });
 

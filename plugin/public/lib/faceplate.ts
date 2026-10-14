@@ -46,6 +46,8 @@ export interface Faceplate {
   captionY: number;
   /** text on the chassis itself (vendor, model) */
   texts: PanelText[];
+  /** x of each thin vertical divider (before a firewall's WAN group) */
+  dividers: number[];
   /** Vlan, Loopback, sub-interfaces...: listed under the panel, not drawn on it */
   logical: DevicePort[];
 }
@@ -167,6 +169,10 @@ interface Block {
   blockCols?: number;
   /** space before this block (default GROUP_GAP) */
   gapBefore?: number;
+  /** a thin vertical line in the middle of the gap before this block */
+  divider?: boolean;
+  /** two rows filled left to right (1-8 on top, 9-16 below), not odd/even */
+  byRow?: boolean;
 }
 
 /**
@@ -182,15 +188,21 @@ function placeBlocks(blocks: Block[], x0: number) {
   const below = (y: number) => y + PORT_H + LABEL_GAP + LABEL_SIZE;
   const ports: PlacedPort[] = [];
   const captions: Caption[] = [];
+  const dividers: number[] = [];
   let x = x0;
   blocks.forEach((b, n) => {
-    if (n > 0) x += b.gapBefore ?? GROUP_GAP;
+    if (n > 0) {
+      const gap = b.gapBefore ?? GROUP_GAP;
+      if (b.divider) dividers.push(x + gap / 2);
+      x += gap;
+    }
+    const perRow = Math.ceil(b.list.length / 2);
     let right = x;
     // columns wide enough for the block's longest label
     const pitch = Math.max(PORT_W + GAP_X, ...b.list.map(({ port }) => textWidth(b.label(port), LABEL_SIZE) + 3));
     b.list.forEach(({ port, kind }, i) => {
-      const col = b.twoRows ? Math.floor(i / 2) : i;
-      const bottom = b.twoRows && i % 2 === 1;
+      const col = !b.twoRows ? i : b.byRow ? i % perRow : Math.floor(i / 2);
+      const bottom = b.twoRows && (b.byRow ? i >= perRow : i % 2 === 1);
       const px = x + col * pitch + Math.floor(col / (b.blockCols ?? Infinity)) * BLOCK_GAP;
       const y = !b.twoRows ? (rows === 2 ? middle : row1) : bottom ? row2 : row1;
       const labelY = b.twoRows && !bottom ? row1 - LABEL_GAP : below(y);
@@ -205,6 +217,7 @@ function placeBlocks(blocks: Block[], x0: number) {
     ports,
     captions,
     captionY: CAPTION_Y,
+    dividers,
     right: x,
     height: (rows === 2 ? below(row2) : below(row1)) + 8,
   };
@@ -244,40 +257,60 @@ function rackBlocks(physical: Entry[]): Block[] {
   ];
 }
 
+// A desktop box's groups, left to right. Any other family (a router's Gi0/0...)
+// goes between DMZ and WAN; WAN is always last, on the far right.
 const DESKTOP_GROUPS: Array<[RegExp, string]> = [
+  [/^(mgmt|ha|console)\d*$/i, 'MGMT/HA'],
   [/^(port|internal|lan)\d*$/i, 'INTERNAL'],
   [/^dmz\d*$/i, 'DMZ'],
   [/^wan\d*$/i, 'WAN'],
 ];
-const groupOf = (name: string) =>
-  (DESKTOP_GROUPS.find(([re]) => re.test(name)) || [null, name.slice(0, 2).toUpperCase()])[1];
-// INTERNAL first and the WAN side last, like the box's own print
-const groupRank = (g: string) => (g === 'INTERNAL' ? 0 : g === 'DMZ' ? 2 : g === 'WAN' ? 3 : 1);
+const DESKTOP_ORDER = ['MGMT/HA', 'INTERNAL', 'DMZ', '', 'WAN'];
+export const WAN_CAPTION = 'WAN (internet)';
+const WAN_GAP = 40; // the WAN side stands apart, behind a divider
+
+function groupOf({ port, kind }: Entry): string {
+  if (kind === 'radio') return 'RADIO';
+  const hit = DESKTOP_GROUPS.find(([re]) => re.test(port.name));
+  if (hit) return hit[1];
+  return kind === 'console' ? 'MGMT/HA' : shortName(family(port.name).replace(/[/:.\s]+$/, '')).slice(0, 2).toUpperCase();
+}
+const rank = (g: string) => (g === 'RADIO' ? -1 : DESKTOP_ORDER.includes(g) ? DESKTOP_ORDER.indexOf(g) : DESKTOP_ORDER.indexOf(''));
+
+/** A desktop port's label: the INTERNAL number, else its own short name in full (WAN1, DMZ2, HA, MGMT). */
+function desktopLabel(group: string, name: string): string {
+  if (group === 'INTERNAL' && trailingNumber(name)) return trailingNumber(name)!;
+  return name.length <= 6 ? name.toUpperCase() : shortName(name);
+}
 
 /**
- * A desktop box (router, firewall) or an access point's puck: one row of
- * sockets, grouped and captioned by name family (port1-7 as INTERNAL, dmz,
- * wan1-2...). An access point's radios come first, as antenna LEDs.
+ * A desktop box (router, firewall) or an access point's puck: ports grouped
+ * and captioned by name family, one row per group (two, filled left to
+ * right, above 12 ports). Firewalls read MGMT/HA, INTERNAL, DMZ, then WAN at
+ * the far right behind a divider; an access point's radios come first, as
+ * antenna LEDs.
  */
 function rowBlocks(physical: Entry[]): Block[] {
   const groups = new Map<string, Entry[]>();
   for (const p of physical) {
-    const g = p.kind === 'radio' ? 'RADIO' : groupOf(p.port.name);
+    const g = groupOf(p);
     groups.set(g, [...(groups.get(g) || []), p]);
   }
-  const order = [...groups.keys()].sort(
-    (a, b) => (a === 'RADIO' ? -1 : b === 'RADIO' ? 1 : groupRank(a) - groupRank(b))
-  );
-  return order.map((g) => ({
-    list: groups.get(g)!,
-    twoRows: false,
-    caption: g,
-    gapBefore: 20,
-    label: (p: DevicePort) =>
-      (g === 'INTERNAL' && trailingNumber(p.name)) ||
-      (g === 'RADIO' && (bandOf(p.name) || `R${trailingNumber(p.name) ?? ''}`)) ||
-      shortName(p.name),
-  }));
+  const order = [...groups.keys()].sort((a, b) => rank(a) - rank(b));
+  return order.map((g) => {
+    const list = groups.get(g)!;
+    const wan = g === 'WAN';
+    return {
+      list,
+      twoRows: list.length > 12,
+      byRow: true,
+      caption: wan ? WAN_CAPTION : g,
+      gapBefore: wan ? WAN_GAP : 20,
+      divider: wan && order.length > 1,
+      label: (p: DevicePort) =>
+        g === 'RADIO' ? bandOf(p.name) || `R${trailingNumber(p.name) ?? ''}` : desktopLabel(g, p.name),
+    };
+  });
 }
 
 /** The whole front panel of one device. */
@@ -288,7 +321,7 @@ export function faceplateOf(node: DeviceNode): Faceplate {
   const physical = all.filter((p) => !logical.includes(p));
   const brandWidth = chassis === 'generic' ? 96 : chassis === 'puck' ? 110 : chassis === 'desktop' ? 150 : 120;
   const blocks = chassis === 'desktop' || chassis === 'puck' ? rowBlocks(physical) : rackBlocks(physical);
-  const { ports, captions, captionY, right, height } = placeBlocks(blocks, brandWidth);
+  const { ports, captions, captionY, dividers, right, height } = placeBlocks(blocks, brandWidth);
   // vendor and model, plain text, cut to the brand area
   const textX = chassis === 'puck' ? 30 : 14;
   const room = brandWidth - textX - 8;
@@ -302,6 +335,7 @@ export function faceplateOf(node: DeviceNode): Faceplate {
     ports,
     captions,
     captionY,
+    dividers,
     texts,
     width: Math.max(right, brandWidth) + (chassis === 'desktop' || chassis === 'puck' ? 16 : RIGHT_PAD),
     height,

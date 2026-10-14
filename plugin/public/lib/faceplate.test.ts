@@ -20,6 +20,7 @@ import {
 import {
   accessPoint,
   fortigate,
+  fortigate200D,
   port,
   smallGraph,
   switch24,
@@ -147,9 +148,9 @@ describe('rack layout', () => {
 });
 
 describe('desktop layout (firewall)', () => {
-  it('groups by name family: INTERNAL, DMZ, WAN, in one row', () => {
+  it('groups by name family: INTERNAL, DMZ, WAN (internet), in one row', () => {
     const fp = faceplateOf(fortigate);
-    expect(fp.captions.map((c) => c.text)).toEqual(['INTERNAL', 'DMZ', 'WAN']);
+    expect(fp.captions.map((c) => c.text)).toEqual(['INTERNAL', 'DMZ', 'WAN (internet)']);
     expect(fp.ports.map((p) => p.label)).toEqual(['1', '2', '3', '4', '5', '6', '7', 'DMZ', 'WAN1', 'WAN2']);
     expect(new Set(fp.ports.map((p) => p.y)).size).toBe(1);
     expect(fp.logical.map((p) => p.name)).toEqual(['ssl.root']);
@@ -159,6 +160,52 @@ describe('desktop layout (firewall)', () => {
     const wan1 = fortigate.ports!.find((p) => p.name === 'wan1')!;
     expect(isInferred(wan1, fortigate)).toBe(true);
     expect(isInferred(fortigate.ports![0], fortigate)).toBe(false);
+  });
+});
+
+describe('desktop layout (FortiGate 200D)', () => {
+  const fp = faceplateOf(fortigate200D);
+  const x = (name: string) => fp.ports.find((p) => p.port.name === name)!.x;
+
+  it('groups MGMT/HA, INTERNAL, DMZ, then WAN (internet), each captioned', () => {
+    expect(fp.captions.map((c) => c.text)).toEqual(['MGMT/HA', 'INTERNAL', 'DMZ', 'WAN (internet)']);
+    expect(fp.ports.map((p) => p.port.name)).toEqual([
+      'mgmt', 'ha', ...Array.from({ length: 16 }, (_, i) => `port${i + 1}`), 'dmz1', 'dmz2', 'wan1', 'wan2',
+    ]);
+  });
+
+  it('shows every port exactly once, labelled by its full short name', () => {
+    const names = fp.ports.map((p) => p.port.name);
+    expect(new Set(names).size).toBe(names.length);
+    expect(names).toHaveLength(fortigate200D.ports!.length);
+    expect(fp.ports.map((p) => p.label)).toEqual([
+      'MGMT', 'HA', ...Array.from({ length: 16 }, (_, i) => String(i + 1)), 'DMZ1', 'DMZ2', 'WAN1', 'WAN2',
+    ]);
+    // a number, or a whole name in capitals: never a one-letter abbreviation like "W1"
+    for (const p of fp.ports) expect(p.label).toMatch(/^(\d+|[A-Z]{2,}\d*)$/);
+  });
+
+  it('puts 16 internal ports on two rows, 1-8 on top and 9-16 below, not odd/even', () => {
+    expect(x('port1')).toBe(x('port9'));
+    expect(fp.ports.find((p) => p.port.name === 'port2')!.y).toBe(fp.ports.find((p) => p.port.name === 'port1')!.y);
+    expect(fp.ports.find((p) => p.port.name === 'port9')!.y).toBeGreaterThan(fp.ports.find((p) => p.port.name === 'port1')!.y);
+  });
+
+  it('keeps WAN rightmost, behind a divider and a wider gap', () => {
+    const others = fp.ports.filter((p) => !p.port.name.startsWith('wan'));
+    const lastOther = Math.max(...others.map((p) => p.x + PORT_W));
+    const wanCaption = fp.captions.find((c) => c.text === 'WAN (internet)')!;
+    expect(Math.min(x('wan1'), x('wan2'))).toBeGreaterThan(lastOther);
+    expect(fp.captions[fp.captions.length - 1]).toBe(wanCaption);
+    expect(fp.dividers).toHaveLength(1);
+    const dmzCaption = fp.captions.find((c) => c.text === 'DMZ')!;
+    expect(fp.dividers[0]).toBeGreaterThan(Math.max(lastOther, dmzCaption.x + dmzCaption.width));
+    expect(fp.dividers[0]).toBeLessThan(x('wan1'));
+    expect(x('wan1') - lastOther).toBeGreaterThan(30);
+  });
+
+  it('switches have no divider', () => {
+    expect(faceplateOf(switch24).dividers).toEqual([]);
   });
 });
 
@@ -249,6 +296,7 @@ describe('no overlapping text', () => {
       ports: [port('mgmt0', 'up'), ...switch8.ports!, port('TenGigabitEthernet1/1/1'), port('TenGigabitEthernet1/1/2')],
     }],
     ['FortiGate 60D', fortigate],
+    ['FortiGate 200D', fortigate200D],
     ['access point', accessPoint],
     ['unknown device', unknownDevice],
   ];
