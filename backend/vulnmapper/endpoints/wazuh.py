@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
@@ -24,6 +25,8 @@ SERVER_AGENT_ID = "000"
 # A busy Manager API answers syscollector requests with a 5xx after ~10 s:
 # wait this long and retry once.
 INVENTORY_RETRY_DELAY_S = 3
+# Agents whose syscollector inventory is fetched at once.
+INVENTORY_WORKERS = 8
 # For hours after the Wazuh server restarts, its API refuses or times out the
 # login. Try this many times, this far apart, then fail the scan with one line.
 LOGIN_ATTEMPTS = 3
@@ -162,10 +165,14 @@ class WazuhSource:
 
         nodes: list[dict] = []
         agents = self._agents("id,name,ip,os.name,os.version,os.platform,status")
-        for agent in agents:
+        # three or four requests per agent: fetched a few agents at a time, in order
+        with ThreadPoolExecutor(max_workers=INVENTORY_WORKERS) as pool:
+            inventories = list(pool.map(
+                lambda a: self._inventory(a["id"], a["id"] == SERVER_AGENT_ID), agents))
+        for agent, inventory in zip(agents, inventories):
             agent_id = agent["id"]
             is_server = agent_id == SERVER_AGENT_ID
-            netiface, hardware, netaddr, netproto, failed = self._inventory(agent_id, is_server)
+            netiface, hardware, netaddr, netproto, failed = inventory
             if not is_server:
                 if failed:
                     unavailable.append(agent_id)

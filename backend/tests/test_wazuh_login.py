@@ -11,6 +11,8 @@ import io
 import json
 import os
 import tempfile
+import threading
+import time
 import unittest
 from unittest import mock
 
@@ -191,6 +193,33 @@ class TestAgentPaging(unittest.TestCase):
             nodes = src.collect()
         self.assertEqual(len(nodes), 2003)
         self.assertEqual(offsets, [0, 1000, 2000])
+
+
+class TestInventoryInParallel(unittest.TestCase):
+    def test_a_few_agents_at_once_in_order(self):
+        src = source()
+        agents = [{"id": f"{i:03d}", "name": f"pc{i}", "ip": f"10.0.0.{i}"} for i in range(1, 21)]
+        lock, state = threading.Lock(), {"now": 0, "max": 0}
+
+        def slow_inventory(agent_id, is_server):
+            with lock:
+                state["now"] += 1
+                state["max"] = max(state["max"], state["now"])
+            time.sleep(0.002 * (30 - int(agent_id)))     # later agents finish first
+            with lock:
+                state["now"] -= 1
+            mac = f"d4:be:d9:00:00:{int(agent_id):02x}"
+            return ([{"name": "eth0", "mac": mac, "state": "up"}], [],
+                    [{"iface": "eth0", "proto": "ipv4", "address": f"10.0.0.{int(agent_id)}"}], [], False)
+
+        with mock.patch.object(src, "_login"), mock.patch.object(src, "_get", return_value=agents), \
+                mock.patch.object(src, "_inventory", slow_inventory):
+            nodes = src.collect()
+        self.assertEqual([n["agent_id"] for n in nodes], [a["id"] for a in agents])
+        self.assertEqual([n["mac"] for n in nodes],               # each with its own
+                         [f"d4:be:d9:00:00:{i:02x}" for i in range(1, 21)])
+        self.assertGreater(state["max"], 1)
+        self.assertLessEqual(state["max"], ep_mod.INVENTORY_WORKERS)
 
 
 class TestTlsWarning(unittest.TestCase):
