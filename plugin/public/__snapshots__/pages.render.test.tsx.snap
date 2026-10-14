@@ -13057,6 +13057,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 "<div>
 <div class=\\"vmReportPage\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow euiPanel--hasBorder vmReportControls vmScreenOnly\\" data-test-subj=\\"vmReportControls\\">
+<div>
 <div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexEnd euiFlexGroup--directionRow euiFlexGroup--responsive euiFlexGroup--wrap\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiFormRow\\" id=\\"X\\">
@@ -13092,7 +13093,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"euiFormRow__fieldWrapper\\">
 <div class=\\"euiFormControlLayout\\">
 <div class=\\"euiFormControlLayout__childrenWrapper\\">
-<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 90px;\\" value=\\"10\\">
+<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 90px;\\" data-test-subj=\\"vmTopN\\" value=\\"10\\">
 </div>
 </div>
 </div>
@@ -13106,7 +13107,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"euiFormRow__fieldWrapper\\">
 <div class=\\"euiFormControlLayout\\">
 <div class=\\"euiFormControlLayout__childrenWrapper\\">
-<select id=\\"X\\" class=\\"euiSelect\\">
+<select id=\\"X\\" class=\\"euiSelect\\" data-test-subj=\\"vmConfidence\\">
 <option value=\\"all\\">All</option>
 <option value=\\"confirmed\\">Confirmed only</option>
 <option value=\\"potential\\">Potential only</option>
@@ -13165,28 +13166,14 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\" style=\\"max-width: 280px;\\">
 <div class=\\"euiFormRow\\" id=\\"X\\">
 <div class=\\"euiFormRow__labelWrapper\\">
-<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Per-asset CVE cap (PDF)</label>
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Attack paths</label>
 </div>
 <div class=\\"euiFormRow__fieldWrapper\\">
-<div class=\\"euiFormControlLayout\\">
-<div class=\\"euiFormControlLayout__childrenWrapper\\">
-<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 110px;\\" value=\\"200\\">
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiFormRow\\" id=\\"X\\">
-<div class=\\"euiFormRow__labelWrapper\\">
-<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">On an attack path</label>
-</div>
-<div class=\\"euiFormRow__fieldWrapper euiFormRow__fieldWrapperDisplayOnly\\">
 <div class=\\"euiSwitch euiSwitch--primary\\">
-<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmOnPathSwitch\\" aria-describedby=\\"X\\">
 <span class=\\"euiSwitch__body\\">
 <span class=\\"euiSwitch__thumb\\">
 </span>
@@ -13202,8 +13189,48 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </span>
 </span>
 </button>
-<span class=\\"euiSwitch__label\\" id=\\"X\\">
+<span class=\\"euiSwitch__label\\" id=\\"X\\">On an attack path</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Only assets on a route to a protected asset. Mark protected assets on the map or the Attack paths page.</div>
+</div>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiFormRow euiFormRow--hasEmptyLabelSpace\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\" id=\\"X\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--fill euiButton-isDisabled vmApply\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmApplyFilters\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiIcon-isLoading euiButtonContent__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M5.277 10.088c.02.014.04.03.057.047.582.55 1.134.812 1.666.812.586 0 1.84-.293 3.713-.88L9 6.212V2H7v4.212l-1.723 3.876Zm-.438.987L3.539 14h8.922l-1.32-2.969C9.096 11.677 7.733 12 7 12c-.74 0-1.463-.315-2.161-.925ZM6 2H5V1h6v1h-1v4l3.375 7.594A1 1 0 0 1 12.461 15H3.54a1 1 0 0 1-.914-1.406L6 6V2Z\\">
+</path>
+</svg>
+<span class=\\"euiButton__text\\">Apply</span>
 </span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButtonEmpty euiButtonEmpty--primary euiButtonEmpty--small\\" type=\\"button\\" data-test-subj=\\"vmResetFilters\\">
+<span class=\\"euiButtonContent euiButtonEmpty__content\\">
+<span class=\\"euiButtonEmpty__text\\">Reset</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Per-asset CVE cap (PDF)</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 110px;\\" value=\\"200\\">
+</div>
 </div>
 </div>
 </div>
@@ -13225,7 +13252,17 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--l\\">
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap vmScreenOnly\\" data-test-subj=\\"vmReportResult\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong data-test-subj=\\"vmReportResultText\\">Showing 9 assets, 24 findings</strong>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <div class=\\"vmReport\\" data-test-subj=\\"vmReport\\">
 <section class=\\"vmReportSection vmCover\\">
@@ -14694,6 +14731,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 "<div>
 <div class=\\"vmReportPage\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow euiPanel--hasBorder vmReportControls vmScreenOnly\\" data-test-subj=\\"vmReportControls\\">
+<div>
 <div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexEnd euiFlexGroup--directionRow euiFlexGroup--responsive euiFlexGroup--wrap\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiFormRow\\" id=\\"X\\">
@@ -14729,7 +14767,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"euiFormRow__fieldWrapper\\">
 <div class=\\"euiFormControlLayout\\">
 <div class=\\"euiFormControlLayout__childrenWrapper\\">
-<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 90px;\\" value=\\"10\\">
+<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 90px;\\" data-test-subj=\\"vmTopN\\" value=\\"10\\">
 </div>
 </div>
 </div>
@@ -14743,7 +14781,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"euiFormRow__fieldWrapper\\">
 <div class=\\"euiFormControlLayout\\">
 <div class=\\"euiFormControlLayout__childrenWrapper\\">
-<select id=\\"X\\" class=\\"euiSelect\\">
+<select id=\\"X\\" class=\\"euiSelect\\" data-test-subj=\\"vmConfidence\\">
 <option value=\\"all\\">All</option>
 <option value=\\"confirmed\\">Confirmed only</option>
 <option value=\\"potential\\">Potential only</option>
@@ -14802,28 +14840,14 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\" style=\\"max-width: 280px;\\">
 <div class=\\"euiFormRow\\" id=\\"X\\">
 <div class=\\"euiFormRow__labelWrapper\\">
-<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Per-asset CVE cap (PDF)</label>
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Attack paths</label>
 </div>
 <div class=\\"euiFormRow__fieldWrapper\\">
-<div class=\\"euiFormControlLayout\\">
-<div class=\\"euiFormControlLayout__childrenWrapper\\">
-<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 110px;\\" value=\\"200\\">
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
-<div class=\\"euiFormRow\\" id=\\"X\\">
-<div class=\\"euiFormRow__labelWrapper\\">
-<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">On an attack path</label>
-</div>
-<div class=\\"euiFormRow__fieldWrapper euiFormRow__fieldWrapperDisplayOnly\\">
 <div class=\\"euiSwitch euiSwitch--primary\\">
-<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmOnPathSwitch\\" aria-describedby=\\"X\\">
 <span class=\\"euiSwitch__body\\">
 <span class=\\"euiSwitch__thumb\\">
 </span>
@@ -14839,8 +14863,48 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </span>
 </span>
 </button>
-<span class=\\"euiSwitch__label\\" id=\\"X\\">
+<span class=\\"euiSwitch__label\\" id=\\"X\\">On an attack path</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Only assets on a route to a protected asset. Mark protected assets on the map or the Attack paths page.</div>
+</div>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiFormRow euiFormRow--hasEmptyLabelSpace\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\" id=\\"X\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--fill euiButton-isDisabled vmApply\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmApplyFilters\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiButtonContent__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+<span class=\\"euiButton__text\\">Apply</span>
 </span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButtonEmpty euiButtonEmpty--primary euiButtonEmpty--small\\" type=\\"button\\" data-test-subj=\\"vmResetFilters\\">
+<span class=\\"euiButtonContent euiButtonEmpty__content\\">
+<span class=\\"euiButtonEmpty__text\\">Reset</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">Per-asset CVE cap (PDF)</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"number\\" id=\\"X\\" min=\\"1\\" class=\\"euiFieldNumber\\" style=\\"width: 110px;\\" value=\\"200\\">
+</div>
 </div>
 </div>
 </div>
@@ -14862,7 +14926,17 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--l\\">
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap vmScreenOnly\\" data-test-subj=\\"vmReportResult\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong data-test-subj=\\"vmReportResultText\\">Showing 10 assets, 28 findings</strong>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <div class=\\"vmReport\\" data-test-subj=\\"vmReport\\">
 <section class=\\"vmReportSection vmCover\\">

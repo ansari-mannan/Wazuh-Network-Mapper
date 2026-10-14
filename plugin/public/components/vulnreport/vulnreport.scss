@@ -313,3 +313,7 @@
     }
   }
 }
+
+// staged filters: an Apply button with changes waiting stands out
+.vmApply--dirty { box-shadow: 0 0 0 3px rgba($euiColorPrimary, 0.3); }
+.vmFiltersChanged { margin-top: $euiSizeS; }

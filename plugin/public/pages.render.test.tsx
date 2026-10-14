@@ -6,7 +6,7 @@
 // fails here. EUI's generated element ids differ per run and are blanked.
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { act } from 'react-dom/test-utils';
+import { act, Simulate } from 'react-dom/test-utils';
 import labGraph from '../test/fixtures/lab.graph.json';
 import labVulns from '../test/fixtures/lab.vulnerabilities.json';
 import labPaths from '../test/fixtures/lab.attack_paths.json';
@@ -32,6 +32,7 @@ jest.mock('./lib/liveness', () => {
 import { VulnerabilityReportPage } from './components/vulnreport/VulnerabilityReportPage';
 import { DeviceDetail } from './components/topology/DeviceDetail';
 import { ScanSettingsPage } from './components/scan/ScanSettingsPage';
+import { ON_PATH_HELP } from './components/vulnreport/ReportControls';
 import { DRAWER_PAD, DRAWER_WIDTH, drawerWidth } from './lib/faceplate';
 import { accessPoint, fortigate, smallGraph, switch24, switch48, switchHp1920 } from './lib/faceplate.fixtures';
 
@@ -177,5 +178,114 @@ describe('device drawer width', () => {
     const { flyout, scrolls } = open(switchHp1920, 800);
     expect(flyout.style.width).toBe('720px');
     expect(scrolls).toBe(true);
+  });
+});
+
+describe('vulnerability report: staged filters', () => {
+  beforeAll(() => jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-10-12T12:00:00Z')));
+  afterAll(() => jest.restoreAllMocks());
+  let root: HTMLDivElement;
+  beforeEach(() => {
+    load(labGraph);
+    root = document.createElement('div');
+    document.body.appendChild(root);
+    act(() => {
+      ReactDOM.render(<VulnerabilityReportPage />, root);
+    });
+  });
+  afterEach(() => {
+    act(() => {
+      ReactDOM.unmountComponentAtNode(root);
+    });
+    document.body.innerHTML = '';
+  });
+
+  const q = (subj: string) => root.querySelector(`[data-test-subj="${subj}"]`) as HTMLElement | null;
+  const result = () => q('vmReportResultText')!.textContent;
+  const report = () => q('vmReport')!.innerHTML;
+  const confidence = () => q('vmConfidence') as HTMLSelectElement;
+  const pick = (value: string) =>
+    act(() => {
+      Simulate.change(confidence(), { target: { value } } as any);
+    });
+  const click = (el: HTMLElement) =>
+    act(() => {
+      el.click();
+    });
+  const applyButton = () => q('vmApplyFilters') as HTMLButtonElement;
+
+  it('a changed filter does not change the report until Apply', () => {
+    const before = { result: result(), report: report() };
+    expect(applyButton().disabled).toBe(true);
+    expect(q('vmFiltersChanged')).toBeNull();
+    pick('confirmed');
+    // the draft changed, the report did not
+    expect(result()).toBe(before.result);
+    expect(report()).toBe(before.report);
+    expect(applyButton().disabled).toBe(false);
+    expect(applyButton().className).toContain('vmApply--dirty');
+    expect(q('vmFiltersChanged')!.textContent).toBe('Filters changed: press Apply');
+    click(applyButton());
+    expect(report()).not.toBe(before.report);
+    expect(result()).not.toBe(before.result);
+    expect(q('vmFilterBadge-confidence')!.textContent).toContain('Confirmed only');
+    expect(applyButton().disabled).toBe(true);
+    expect(q('vmFiltersChanged')).toBeNull();
+  });
+
+  it('Enter in a control applies the draft', () => {
+    const before = result();
+    pick('potential');
+    expect(result()).toBe(before);
+    act(() => {
+      Simulate.keyDown(confidence(), { key: 'Enter' });
+    });
+    expect(result()).not.toBe(before);
+    expect(q('vmFilterBadge-confidence')!.textContent).toContain('Potential only');
+  });
+
+  it('Reset restores the defaults and applies them', () => {
+    const before = { result: result(), report: report() };
+    pick('confirmed');
+    click(applyButton());
+    expect(result()).not.toBe(before.result);
+    click(q('vmResetFilters')!);
+    expect(result()).toBe(before.result);
+    expect(report()).toBe(before.report);
+    expect(confidence().value).toBe('all');
+    expect(q('vmFilterBadge-confidence')).toBeNull();
+  });
+
+  it('removing a badge applies at once', () => {
+    const before = result();
+    pick('confirmed');
+    click(applyButton());
+    const remove = q('vmFilterBadge-confidence')!.querySelector('button')!;
+    expect(remove.getAttribute('aria-label')).toBe('Remove filter: Confirmed only');
+    click(remove);
+    expect(result()).toBe(before);
+    expect(q('vmFilterBadge-confidence')).toBeNull();
+    expect(confidence().value).toBe('all');
+  });
+
+  it('shows what the applied filters show', () => {
+    expect(result()).toMatch(/^Showing \d+ assets?, \d+ findings?$/);
+  });
+
+  it('explains the attack path switch, and disables it with no protected asset', () => {
+    expect(root.textContent).toContain(ON_PATH_HELP);
+    const enabled = q('vmOnPathSwitch') as HTMLButtonElement;
+    expect(enabled.disabled).toBe(false);
+    act(() => {
+      ReactDOM.unmountComponentAtNode(root);
+    });
+    data.paths = { doc: { ...labPaths, targets: [] }, loading: false, error: null, reload: async () => {} };
+    act(() => {
+      ReactDOM.render(<VulnerabilityReportPage />, root);
+    });
+    const disabled = q('vmOnPathSwitch') as HTMLButtonElement;
+    expect(disabled.disabled).toBe(true);
+    // the help is the tooltip on the disabled switch
+    expect(disabled.closest('.euiToolTipAnchor')).not.toBeNull();
   });
 });
