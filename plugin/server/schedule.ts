@@ -6,6 +6,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { schema } from '@osd/config-schema';
 import { ScheduleFile, ScheduleFrequency, ScheduledRun, ScheduleResponse } from '../common';
+import { writeFileAtomic } from './fsutil';
 
 export const FREQUENCIES: ScheduleFrequency[] = ['off', '1h', '3h', '6h', '12h', 'daily'];
 const EVERY_HOURS: Partial<Record<ScheduleFrequency, number>> = { '1h': 1, '3h': 3, '6h': 6, '12h': 12 };
@@ -100,9 +101,7 @@ export function createScheduler(deps: SchedulerDeps) {
     const text = JSON.stringify(state, null, 2);
     writing = writing
       .then(async () => {
-        const tmp = `${deps.file}.tmp-${process.pid}`;
-        await fs.writeFile(tmp, text);
-        await fs.rename(tmp, deps.file);
+        await writeFileAtomic(deps.file, text);
       })
       .catch((e) => deps.logger.warn(`could not save ${deps.file}: ${(e as Error).message}`));
     return writing;

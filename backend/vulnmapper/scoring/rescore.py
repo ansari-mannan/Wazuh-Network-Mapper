@@ -20,7 +20,7 @@ import sys
 from typing import Optional
 
 from .. import attackpaths, vulnfile
-from ..common import setup_logging
+from ..common import setup_logging, write_json_atomic
 from .feeds import FeedUnavailable
 from .stage import WARNING, score
 
@@ -69,9 +69,9 @@ def rescore(graph_path: str, liveness_path: Optional[str] = None, clock=None) ->
     paths = attackpaths.compute(graph, targets, vulns, liveness=liveness)
 
     if vulns is not None:
-        vulnfile.write_atomic(vulns_path, vulns)
-    vulnfile.write_atomic(attackpaths.default_path(graph_path), paths)
-    vulnfile.write_atomic(graph_path, graph, indent=2)
+        write_json_atomic(vulns_path, vulns)
+    write_json_atomic(attackpaths.default_path(graph_path), paths)
+    write_json_atomic(graph_path, graph, indent=2)
     log.info("rescored: %s", result.note)
     return paths
 

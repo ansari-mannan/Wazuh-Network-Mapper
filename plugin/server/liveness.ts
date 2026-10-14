@@ -13,6 +13,7 @@ import { configuredChecks } from './config';
 import { getLastChecks, getLastCommunity, getScan, runExclusive, startScan } from './scan';
 import { createLivenessRecompute } from './livenessRecompute';
 import { recomputeAttackPaths } from './targets';
+import { writeFileAtomic } from './fsutil';
 
 
 let timer: NodeJS.Timeout | null = null;
@@ -86,9 +87,7 @@ async function runPass(config: VulnmapperConfig, logger: Logger, onPass: (doc: u
     let doc: unknown;
     try {
       doc = JSON.parse(out.toString()); // validate before replacing the good file
-      const tmp = `${outPath}.tmp-${process.pid}`;
-      await fs.writeFile(tmp, out);
-      await fs.rename(tmp, outPath);
+      await writeFileAtomic(outPath, out);
       done();
       logger.debug(`liveness pass saved to ${outPath}`);
     } catch (e) {

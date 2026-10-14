@@ -7,9 +7,10 @@ from __future__ import annotations
 import json
 import logging
 import os
-import tempfile
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+
+from ..common import write_json_atomic
 
 log = logging.getLogger("vulnmapper.devicecves")
 
@@ -115,18 +116,5 @@ class Cache:
     def save(self) -> None:
         if not self.path or not self.dirty:
             return
-        folder = os.path.dirname(os.path.abspath(self.path))
-        fd, tmp = tempfile.mkstemp(prefix=".cache.", suffix=".tmp", dir=folder)
-        try:
-            umask = os.umask(0)
-            os.umask(umask)
-            os.chmod(tmp, 0o666 & ~umask)
-            with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-                json.dump({"format": FORMAT, "entries": self.entries}, f, separators=(",", ":"))
-                f.write("\n")
-            os.replace(tmp, self.path)
-            self.dirty = False
-        except BaseException:
-            if os.path.exists(tmp):
-                os.unlink(tmp)
-            raise
+        write_json_atomic(self.path, {"format": FORMAT, "entries": self.entries})
+        self.dirty = False

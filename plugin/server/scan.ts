@@ -7,6 +7,7 @@ import { Logger } from '../../../src/core/server';
 import { ActiveChecks, ScanState, ScanTrigger } from '../common';
 import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 import { archiveScan } from './history';
+import { writeFileAtomic } from './fsutil';
 
 // One module-level state object: the server process runs one scan at a time.
 let scan: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
@@ -198,9 +199,8 @@ export function startScan({
   const vulnsTmp = `${vulnsPath}.tmp-${process.pid}`;
   const pathsPath = attackPathsFilePath(graphPath);
   const pathsTmp = `${pathsPath}.tmp-${process.pid}`;
-  const graphTmp = `${graphPath}.tmp-${process.pid}`;
   const discardTemps = () =>
-    Promise.all([vulnsTmp, pathsTmp, graphTmp].map((f) => fs.unlink(f).catch(() => undefined)));
+    Promise.all([vulnsTmp, pathsTmp].map((f) => fs.unlink(f).catch(() => undefined)));
   // Every ending removes the temp files before finish() releases the lock: the
   // next scan reuses the same names, and must not lose them to this cleanup.
   let ended = false;
@@ -272,8 +272,7 @@ export function startScan({
       );
     }
     try {
-      await fs.writeFile(graphTmp, out);
-      await fs.rename(graphTmp, graphPath);
+      await writeFileAtomic(graphPath, out);
     } catch (e) {
       return end('failed', `could not save scanner output: ${(e as Error).message}`, true);
     }

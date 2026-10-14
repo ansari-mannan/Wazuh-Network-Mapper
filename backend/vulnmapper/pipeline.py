@@ -20,7 +20,7 @@ from typing import Callable, Optional
 from . import attackpaths, hosts, vulnfile
 from .assemble import assemble
 from .checklist.stage import run_checklist
-from .common import StageResult, plural, setup_logging
+from .common import StageResult, plural, setup_logging, write_json_atomic
 from .devicecves.stage import run_device_cves
 from .devicecves.vectors import run_cve_vectors
 from .network.document import CRAWL_EMPTY
@@ -457,7 +457,7 @@ class Pipeline:
     @staticmethod
     def _write_vulnerabilities(scan: ScanContext) -> None:
         if scan.vulns_path:
-            vulnfile.write_atomic(scan.vulns_path,
+            write_json_atomic(scan.vulns_path,
                                   scan.vulnerabilities(scan.document["metadata"]["scan_time"]))
             log.info("wrote vulnerabilities to %s", scan.vulns_path)
         else:

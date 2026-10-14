@@ -6,9 +6,7 @@ attack-path stage read the full lists from it.
 
 from __future__ import annotations
 
-import json
 import os
-import tempfile
 from typing import Optional
 
 from .schema import endpoint_node_id
@@ -86,23 +84,3 @@ def build_document(endpoints: list[dict], cves: Optional[dict], scan_time: str,
         "cves": section,
         "hosts": hosts,
     }
-
-
-def write_atomic(path: str, document: dict, indent: Optional[int] = None) -> None:
-    """Write via a temp file in the same folder, then rename over ``path``.
-    Compact JSON unless ``indent``: the file grows with hosts times CVEs."""
-    folder = os.path.dirname(os.path.abspath(path))
-    fd, tmp = tempfile.mkstemp(prefix=".vulnerabilities.", suffix=".tmp", dir=folder)
-    try:
-        # mkstemp creates 0600; give the file the mode a plain open() would.
-        umask = os.umask(0)
-        os.umask(umask)
-        os.chmod(tmp, 0o666 & ~umask)
-        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(document, f, indent=indent, separators=None if indent else (",", ":"))
-            f.write("\n")
-        os.replace(tmp, path)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
-        raise

@@ -10,10 +10,9 @@ import json
 import logging
 import os
 import sys
-import tempfile
 from typing import Optional
 
-from ..common import setup_logging
+from ..common import setup_logging, write_json_atomic
 from .. import vulnfile
 from .cache import Cache, default_path
 from .nvd import NvdClient, SystemClock
@@ -27,23 +26,6 @@ log = logging.getLogger("vulnmapper.devicecves")
 # Warnings this stage writes; a refresh replaces the previous ones.
 STAGE_WARNINGS = {"nvd_unreachable", "nvd_stale_cache", "nvd_budget_exceeded",
                   "device_unidentified"}
-
-
-def _write_json_atomic(path: str, doc: dict, indent: Optional[int]) -> None:
-    folder = os.path.dirname(os.path.abspath(path))
-    fd, tmp = tempfile.mkstemp(prefix=".graph.", suffix=".tmp", dir=folder)
-    try:
-        umask = os.umask(0)
-        os.umask(umask)
-        os.chmod(tmp, 0o666 & ~umask)
-        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-            json.dump(doc, f, indent=indent)
-            f.write("\n")
-        os.replace(tmp, path)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
-        raise
 
 
 def _load(path: str) -> Optional[dict]:
@@ -135,9 +117,9 @@ def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
                         if not (isinstance(w, dict) and w.get("type") == WARNING)]
     meta["warnings"].extend(scored.warnings)
 
-    _write_json_atomic(args.graph, graph, indent=2)
+    write_json_atomic(args.graph, graph, indent=2)
     log.info("refreshed device CVEs and OVSS in %s", args.graph)
-    vulnfile.write_atomic(vulns_path, vulns)
+    write_json_atomic(vulns_path, vulns)
     log.info("updated device entries in %s", vulns_path)
     return 0
 

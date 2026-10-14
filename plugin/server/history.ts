@@ -6,6 +6,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { schema } from '@osd/config-schema';
 import { GraphResponse, HistoryEntry, ScanTrigger, VulnerabilitiesDoc } from '../common';
+import { writeFileAtomic } from './fsutil';
 
 export const HISTORY_KEEP = 10;
 export const ARCHIVED_FILES = ['graph.json', 'vulnerabilities.json', 'attack_paths.json'] as const;
@@ -109,9 +110,7 @@ export function archiveScan(graphPath: string, trigger: ScanTrigger, time = new 
     };
     const { index, dropped } = pruneIndex(await readIndex(dir), entry);
     const file = path.join(dir, 'index.json');
-    const tmp = `${file}.tmp-${process.pid}`;
-    await fs.writeFile(tmp, JSON.stringify(index, null, 2));
-    await fs.rename(tmp, file);
+    await writeFileAtomic(file, JSON.stringify(index, null, 2));
     for (const old of dropped) await fs.rm(path.join(dir, old.id), { recursive: true, force: true });
     return entry;
   };

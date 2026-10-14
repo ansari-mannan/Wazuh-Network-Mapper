@@ -23,13 +23,12 @@ import json
 import logging
 import os
 import sys
-import tempfile
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
-from ..common import VulnmapperError, setup_logging
+from ..common import VulnmapperError, setup_logging, write_bytes_atomic
 
 log = logging.getLogger("vulnmapper.scoring")
 
@@ -102,17 +101,8 @@ def parse_epss(raw: bytes) -> tuple:
     return {row["cve"]: float(row["epss"]) for row in reader if row.get("cve")}, date
 
 
-def _write_bytes_atomic(path: str, data: bytes, fetched: datetime) -> None:
-    folder = os.path.dirname(os.path.abspath(path))
-    fd, tmp = tempfile.mkstemp(prefix=".feed.", suffix=".tmp", dir=folder)
-    try:
-        with os.fdopen(fd, "wb") as f:
-            f.write(data)
-        os.replace(tmp, path)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
-        raise
+def _write_feed(path: str, data: bytes, fetched: datetime) -> None:
+    write_bytes_atomic(path, data)
     # the modification time is the fetch time, on the scan's clock
     ts = fetched.timestamp()
     os.utime(path, (ts, ts))
@@ -122,7 +112,7 @@ def store(raw: bytes, path: str, parse: Callable, clock) -> tuple:
     """Validate a feed body (``parse`` raises ValueError/KeyError on a bad one)
     and keep it at ``path`` as fetched now; returns ``(data, feed date)``."""
     data, date = parse(raw)
-    _write_bytes_atomic(path, raw, clock.now())
+    _write_feed(path, raw, clock.now())
     return data, date
 
 

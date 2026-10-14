@@ -13,6 +13,7 @@ import requests
 
 from vulnmapper.endpoints import wazuh as ep_mod
 from vulnmapper import vulnfile
+from vulnmapper.common import write_json_atomic
 from vulnmapper.endpoints import WazuhSource, enrich_agent, parse_hit
 from vulnmapper.schema import IndexerConfig, WazuhConfig
 
@@ -329,7 +330,7 @@ class TestScale(unittest.TestCase):
         document = vulnfile.build_document(scored, src.cves, "2026-10-07T00:00:00+00:00")
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, vulnfile.FILENAME)
-            vulnfile.write_atomic(path, document)
+            write_json_atomic(path, document)
             with open(path, encoding="utf-8") as f:
                 text = f.read()
             self.size = os.path.getsize(path)

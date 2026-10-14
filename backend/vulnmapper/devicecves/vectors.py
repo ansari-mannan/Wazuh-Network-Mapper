@@ -13,10 +13,10 @@ import sys
 from collections import Counter
 from typing import TYPE_CHECKING, Optional
 
-from ..common import StageResult, plural, setup_logging
+from ..common import StageResult, plural, setup_logging, write_json_atomic
 from .. import vulnfile
 from ..endpoints import distinct_cves
-from .__main__ import _load, _write_json_atomic
+from .__main__ import _load
 from .cache import Cache, default_path
 from .lookup import Unanswered, lookup_cve
 from .nvd import VECTOR_FIELDS, NvdClient, SystemClock, vector_fields
@@ -230,10 +230,10 @@ def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
                         if not (isinstance(w, dict) and w.get("type") == WARNING)]
     meta["warnings"].extend(result.warnings)
     meta["cve_vectors"] = {**result.block, "refreshed_at": clock.now().isoformat()}
-    _write_json_atomic(args.graph, graph, indent=2)
+    write_json_atomic(args.graph, graph, indent=2)
     log.info("refreshed CVE vectors in %s", args.graph)
     if vulns is not None:
-        vulnfile.write_atomic(vulns_path, vulns)
+        write_json_atomic(vulns_path, vulns)
         log.info("updated the CVE catalogue in %s", vulns_path)
     return 0
 

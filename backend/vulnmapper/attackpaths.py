@@ -21,7 +21,7 @@ from . import vulnfile
 from .checklist import catalogue
 from .checklist import tables as t
 from .checklist.evaluate import l3_vlans
-from .common import StageResult, plural, setup_logging
+from .common import StageResult, plural, setup_logging, write_json_atomic
 
 if TYPE_CHECKING:
     from .pipeline import ScanContext
@@ -595,7 +595,7 @@ def run_stage(graph: dict, targets: Optional[dict], vulns: Optional[dict],
     The graph gains no fields."""
     document = compute(graph, targets, vulns, keep, liveness)
     if paths_out:
-        vulnfile.write_atomic(paths_out, document)
+        write_json_atomic(paths_out, document)
         log.info("wrote attack paths to %s", paths_out)
     return document
 
@@ -606,7 +606,7 @@ def run_attack_paths(scan: "ScanContext") -> StageResult:
     on the engine the OVSS stage built and scored the nodes with.
     No liveness here: any liveness.json describes the previous graph."""
     document = scan.engine.compute()
-    vulnfile.write_atomic(scan.paths_out, document)
+    write_json_atomic(scan.paths_out, document)
     log.info("wrote attack paths to %s", scan.paths_out)
     c = document["metadata"]["counts"]
     return StageResult(note=f"{plural(c['routes'], 'route')} to "
