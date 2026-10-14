@@ -12,6 +12,7 @@ import { scheduleBody, Scheduler } from '../schedule';
 import { historyDir, historyParams, readChanges, readIndex } from '../history';
 import { attackPathsFilePath, fileTimes, recomputeAttackPaths, targetsFilePath, updateTarget, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
+import { withFileLock, writeFileAtomic } from '../fsutil';
 
 export function defineRoutes(
   router: IRouter,
@@ -153,11 +154,7 @@ export function defineRoutes(
               return {}; // no targets file yet: start from nothing
             }
           },
-          write: async (next) => {
-            const tmp = `${file}.tmp-${process.pid}`;
-            await fs.writeFile(tmp, JSON.stringify(next, null, 2));
-            await fs.rename(tmp, file);
-          },
+          write: (next) => writeFileAtomic(file, JSON.stringify(next, null, 2)),
           recompute: () =>
             recomputeAttackPaths({
               pythonBin,
@@ -220,27 +217,30 @@ export function defineRoutes(
       const { graphPath } = config;
       if (!graphPath) return response.customError(notConfigured('graphPath'));
       const file = recommendationsFilePath(graphPath);
-      let data: string | null = null;
+      // read, change and write under the file's lock, so two requests at once
+      // (two analysts, a double click) both land
       try {
-        data = await fs.readFile(file, 'utf-8');
-      } catch {
-        // no tracker yet: start empty
-      }
-      const next = applyRecommendationStatus(readRecommendations(data), request.body.key, request.body.status, {
-        affected: request.body.affected,
-        findings: request.body.findings,
-      });
-      try {
-        const tmp = `${file}.tmp-${process.pid}`;
-        await fs.writeFile(tmp, JSON.stringify(next, null, 2));
-        await fs.rename(tmp, file);
+        const next = await withFileLock(file, async () => {
+          let data: string | null = null;
+          try {
+            data = await fs.readFile(file, 'utf-8');
+          } catch {
+            // no tracker yet: start empty
+          }
+          const updated = applyRecommendationStatus(readRecommendations(data), request.body.key, request.body.status, {
+            affected: request.body.affected,
+            findings: request.body.findings,
+          });
+          await writeFileAtomic(file, JSON.stringify(updated, null, 2));
+          return updated;
+        });
+        return response.ok({ body: next });
       } catch (e) {
         return response.customError({
           statusCode: 500,
           body: { message: `could not save recommendations: ${(e as Error).message}` },
         });
       }
-      return response.ok({ body: next });
     }
   );
 

@@ -28,6 +28,7 @@ import { useVulnerabilities } from '../../lib/vulnerabilities';
 import { useAttackPaths } from '../../lib/attackPathsData';
 import { useRecommendations } from '../../lib/recommendationsData';
 import { useOfflineHosts } from '../../lib/liveness';
+import { useServices } from '../../lib/services';
 import { buildRecommendations, Recommendation, recommendationProgress } from '../../lib/recommendations';
 import { SEV_META } from '../vulnreport/format';
 import { Chip } from '../vulnreport/parts';
@@ -112,6 +113,7 @@ export function RecommendationsPage() {
   const { doc: vulns, loading: vLoading, error: vError } = useVulnerabilities();
   const { doc: attackPaths } = useAttackPaths();
   const { file, setStatus } = useRecommendations();
+  const { notifications } = useServices();
 
   const [statusFilter, setStatusFilter] = useState<'all' | RecommendationStatus>('all');
   const [severityFilter, setSeverityFilter] = useState('all');
@@ -135,7 +137,17 @@ export function RecommendationsPage() {
   const onStatus = (rec: Recommendation, status: RecommendationStatus) => {
     const { key } = rec;
     setPending((p) => ({ ...p, [key]: status }));
-    setStatus(key, status, { affected: rec.affected.map((a) => a.id), findings: rec.findingCount }).catch(() => setPending((p) => { const { [key]: _drop, ...rest } = p; return rest; }));
+    // The override only bridges the request: success brings the server's file,
+    // failure reverts the item and says why.
+    const drop = () =>
+      setPending((p) => {
+        const { [key]: _drop, ...rest } = p;
+        return rest;
+      });
+    setStatus(key, status, { affected: rec.affected.map((a) => a.id), findings: rec.findingCount }).then(drop, (e) => {
+      drop();
+      notifications.toasts.addDanger({ title: 'Could not save the status', text: e.body?.message || e.message });
+    });
   };
 
   if ((gLoading && !graph) || (vLoading && !vulns)) return <EuiLoadingSpinner size="xl" />;
