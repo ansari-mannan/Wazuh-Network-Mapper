@@ -1,5 +1,5 @@
 import { ScanState } from '../../common';
-import { scanEndToast } from './scan';
+import { backgroundScanText, scanEndToast } from './scan';
 
 const ended = (status: ScanState['status'], trigger: ScanState['trigger']): ScanState => ({
   status,
@@ -40,5 +40,30 @@ describe('scanEndToast', () => {
     scanEndToast(ended('idle', 'scheduled'), nvd);
     scanEndToast(ended('failed', 'manual'), nvd);
     expect(nvd).not.toHaveBeenCalled();
+  });
+});
+
+describe('backgroundScanText', () => {
+  const running = (trigger: ScanState['trigger'], stage: string | null): ScanState => ({
+    status: 'running',
+    trigger,
+    stage,
+    message: null,
+    startedAt: '2026-10-15T10:00:00Z',
+    finishedAt: null,
+  });
+  const now = Date.parse('2026-10-15T10:00:42Z');
+
+  it('offers to stop an automatic or scheduled scan, with its stage and age', () => {
+    expect(backgroundScanText(running('automatic', 'Looking up device CVEs in NVD'), now)).toBe(
+      'An automatic scan is running (stage: Looking up device CVEs in NVD, 42 s in)'
+    );
+    expect(backgroundScanText(running('scheduled', null), now)).toBe('A scheduled scan is running (stage: starting, 42 s in)');
+  });
+
+  it('offers nothing for a manual scan or when none runs', () => {
+    expect(backgroundScanText(running('manual', 'x'), now)).toBeNull();
+    expect(backgroundScanText({ ...running('automatic', 'x'), status: 'idle' }, now)).toBeNull();
+    expect(backgroundScanText(null, now)).toBeNull();
   });
 });

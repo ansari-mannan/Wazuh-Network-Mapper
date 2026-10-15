@@ -7,7 +7,7 @@ import { IRouter, Logger } from '../../../../src/core/server';
 import { LivenessResponse, ScanState } from '../../common';
 import { configuredChecks, VulnmapperConfig } from '../config';
 import { livenessPath } from '../liveness';
-import { getScan, onPath, runExclusive, startScan } from '../scan';
+import { getScan, onPath, runExclusive, startScan, stopBackgroundScan } from '../scan';
 import { scheduleBody, Scheduler } from '../schedule';
 import { historyDir, historyParams, readChanges, readIndex } from '../history';
 import { attackPathsFilePath, fileTimes, recomputeAttackPaths, targetsFilePath, updateTarget, vulnerabilitiesFilePath } from '../targets';
@@ -257,6 +257,8 @@ export function defineRoutes(
             nmapUnmanaged: schema.maybe(schema.boolean()),
             replaceEmpty: schema.maybe(schema.boolean()),
             freshServiceScan: schema.maybe(schema.boolean()),
+            // stop a running automatic or scheduled scan first (never a manual one)
+            preempt: schema.maybe(schema.boolean()),
           })
         ),
       },
@@ -265,6 +267,7 @@ export function defineRoutes(
       const { backendDir, graphPath, pythonBin } = config;
       if (!backendDir) return response.customError(notConfigured('backendDir'));
       if (!graphPath) return response.customError(notConfigured('graphPath'));
+      if (request.body?.preempt) await stopBackgroundScan();
       const started = startScan({
         deviceCves: config.deviceCves,
         // the form's choices; the configured default for any it does not send

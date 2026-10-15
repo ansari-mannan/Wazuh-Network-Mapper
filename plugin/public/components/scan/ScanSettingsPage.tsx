@@ -17,7 +17,7 @@ import {
   EuiTitle,
 } from '@elastic/eui';
 import { ActiveChecks } from '../../../common';
-import { useScan } from '../../lib/scan';
+import { backgroundScanText, useScan } from '../../lib/scan';
 import { GraphSource } from './GraphSource';
 import { ScanStatus } from './ScanStatus';
 import { ScheduledScans } from './ScheduledScans';
@@ -63,6 +63,10 @@ export function ScanSettingsPage() {
     ACTIVE_CHECKS.map(({ key }) => [key, choices[key] ?? Boolean(scan?.defaults?.[key])])
   ) as ActiveChecks;
   const running = scan?.status === 'running';
+  // an automatic or scheduled scan, which Run scan may stop; a manual one keeps the form locked
+  const background = running && (scan?.trigger === 'automatic' || scan?.trigger === 'scheduled');
+  const busy = running && !background;
+  const [offer, setOffer] = useState<string | null>(null);
   // a scan whose crawl polls no device keeps the previous map unless this is on
   const [replaceEmpty, setReplaceEmpty] = useState(false);
   // nmap every host again rather than reusing what it found in the last 24 h
@@ -70,7 +74,13 @@ export function ScanSettingsPage() {
   const seeds = scan?.seeds ?? [];
 
   const run = () => {
-    if (!running) start(community, { ...checks, replaceEmpty, freshServiceScan });
+    if (busy) return;
+    if (background) return setOffer(backgroundScanText(scan, Date.now()));
+    start(community, { ...checks, replaceEmpty, freshServiceScan });
+  };
+  const stopAndRun = () => {
+    setOffer(null);
+    start(community, { ...checks, replaceEmpty, freshServiceScan, preempt: true });
   };
 
   return (
@@ -94,7 +104,7 @@ export function ScanSettingsPage() {
                   if (e.key === 'Enter') run();
                 }}
                 autoComplete="new-password"
-                disabled={running}
+                disabled={busy}
                 data-test-subj="vmCommunity"
               />
             </EuiFormRow>
@@ -113,7 +123,7 @@ export function ScanSettingsPage() {
                 label="Replace the map even if no device answered"
                 checked={replaceEmpty}
                 onChange={(e) => setReplaceEmpty(e.target.checked)}
-                disabled={running}
+                disabled={busy}
                 data-test-subj="vmReplaceEmpty"
               />
             </EuiFormRow>
@@ -131,7 +141,7 @@ export function ScanSettingsPage() {
                   label={label}
                   checked={checks[key]}
                   onChange={(e) => setChoices({ ...choices, [key]: e.target.checked })}
-                  disabled={running}
+                  disabled={busy}
                   data-test-subj={testSubj}
                 />
               </EuiFormRow>
@@ -142,7 +152,7 @@ export function ScanSettingsPage() {
                   label="Fresh service scan"
                   checked={freshServiceScan}
                   onChange={(e) => setFreshServiceScan(e.target.checked)}
-                  disabled={running}
+                  disabled={busy}
                   data-test-subj="vmFreshServiceScan"
                 />
               </EuiFormRow>
@@ -159,8 +169,27 @@ export function ScanSettingsPage() {
               </EuiCallOut>
             )}
             <EuiSpacer size="m" />
-            <EuiButton fill iconType="play" onClick={run} isLoading={running} data-test-subj="vmRunScan">
-              {running ? 'Scanning…' : 'Run scan'}
+            {offer && background && (
+              <>
+                <EuiCallOut size="s" color="primary" iconType="clock" title={offer} data-test-subj="vmBackgroundScanOffer">
+                  <EuiFlexGroup gutterSize="s" responsive={false}>
+                    <EuiFlexItem grow={false}>
+                      <EuiButton size="s" onClick={() => setOffer(null)} data-test-subj="vmWaitForScan">
+                        Wait for it
+                      </EuiButton>
+                    </EuiFlexItem>
+                    <EuiFlexItem grow={false}>
+                      <EuiButton size="s" color="warning" onClick={stopAndRun} data-test-subj="vmStopAndRun">
+                        Stop it and run mine
+                      </EuiButton>
+                    </EuiFlexItem>
+                  </EuiFlexGroup>
+                </EuiCallOut>
+                <EuiSpacer size="m" />
+              </>
+            )}
+            <EuiButton fill iconType="play" onClick={run} isLoading={busy} data-test-subj="vmRunScan">
+              {busy ? 'Scanning…' : 'Run scan'}
             </EuiButton>
           </EuiForm>
           <EuiSpacer size="m" />

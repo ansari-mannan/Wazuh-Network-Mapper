@@ -15,6 +15,7 @@ import {
   shouldReplaceGraph,
   startScan,
   STDERR_TAIL,
+  stopBackgroundScan,
 } from './scan';
 
 const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
@@ -275,6 +276,49 @@ describe('scan timeout', () => {
     expect(await ended).toEqual([false, 'scan timed out after 0.2 s']);
     expect(getScan().status).toBe('failed');
     temps.forEach((f) => expect(existsSync(f)).toBe(false));
+  });
+});
+
+describe('a manual scan before a background one', () => {
+  const hanging = (dir: string) => {
+    const hang = path.join(dir, 'hang.sh'); // a scan that runs until it is stopped
+    writeFileSync(hang, '#!/bin/sh\nexec sleep 30\n', { mode: 0o755 });
+    return hang;
+  };
+
+  it('stops an automatic scan, discards its temp files, then the manual scan starts', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-preempt-'));
+    const temps = ['vulnerabilities.json', 'attack_paths.json'].map((f) => path.join(dir, `${f}.tmp-${process.pid}`));
+    temps.forEach((f) => writeFileSync(f, '{}'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const opts = { backendDir: dir, graphPath: path.join(dir, 'graph.json'), logger };
+    const onDone = jest.fn();
+    expect(startScan({ ...opts, pythonBin: hanging(dir), trigger: 'automatic', onDone })).toBe(true);
+    expect(startScan({ ...opts, pythonBin: hanging(dir), trigger: 'manual' })).toBe(false); // the offer, not a start
+
+    expect(await stopBackgroundScan()).toBe(true);
+    temps.forEach((f) => expect(existsSync(f)).toBe(false)); // gone before the next scan starts
+    expect(getScan().status).toBe('idle'); // not failed
+    expect(onDone).not.toHaveBeenCalled(); // the scheduler / auto-rescan see no outcome
+    expect(logger.warn).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledWith('automatic scan stopped to run a manual scan');
+
+    const ended = new Promise<void>((resolve) => {
+      expect(startScan({ ...opts, pythonBin: hanging(dir), trigger: 'manual', timeoutSeconds: 0.2, onDone: () => resolve() })).toBe(true);
+    });
+    expect(getScan()).toMatchObject({ status: 'running', trigger: 'manual' });
+    await ended;
+  });
+
+  it('never stops a manual scan', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-nopreempt-'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const ended = new Promise<void>((resolve) => {
+      startScan({ backendDir: dir, graphPath: path.join(dir, 'graph.json'), pythonBin: hanging(dir), trigger: 'manual', timeoutSeconds: 0.3, onDone: () => resolve(), logger });
+    });
+    expect(await stopBackgroundScan()).toBe(false);
+    expect(getScan()).toMatchObject({ status: 'running', trigger: 'manual' });
+    await ended;
   });
 });
 

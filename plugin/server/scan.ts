@@ -19,6 +19,8 @@ let lastCommunity: string | undefined;
 let lastChecks: Partial<ActiveChecks> | undefined;
 // A finished scan's scanner while it still fetches CVE records (refining).
 let refiner: ChildProcess | null = null;
+// Stops the running scan for a manual one (null when none runs).
+let stopRunning: (() => Promise<void>) | null = null;
 
 export function getScan(): ScanState {
   return scan;
@@ -28,6 +30,18 @@ export function getScan(): ScanState {
 // liveness pass's attack-path recompute and a protected-asset rescore, which
 // write the same files. It holds the same lock: no scan starts while it runs.
 let exclusiveTask = false;
+
+/**
+ * Stop a running automatic or scheduled scan the way the timeout does (SIGTERM,
+ * SIGKILL after 10 s) and resolve once its temp files are gone and the lock is
+ * free, so a manual scan can start. false when none runs (no scan, or a manual
+ * one, which is never stopped this way).
+ */
+export async function stopBackgroundScan(): Promise<boolean> {
+  if (scan.status !== 'running' || scan.trigger === 'manual' || !stopRunning) return false;
+  await stopRunning();
+  return true;
+}
 
 /** Run task unless a scan or another such task is running; null if refused. */
 export function runExclusive(task: () => Promise<void>): Promise<void> | null {
@@ -186,6 +200,7 @@ export function appendTail(buffer: string, text: string): string {
 let onScanDone: ScanOptions['onDone'];
 
 function finish(status: ScanState['status'], message: string) {
+  stopRunning = null;
   scan = { ...scan, status, message, stage: null, finishedAt: new Date().toISOString() };
   const done = onScanDone;
   onScanDone = undefined;
@@ -287,11 +302,25 @@ export function startScan({
   // refuse every later scan and protected-asset change, until a restart.
   let timedOut = false;
   let hardKill: NodeJS.Timeout | undefined;
-  const timer = setTimeout(() => {
-    timedOut = true;
+  const terminate = () => {
     child.kill('SIGTERM');
     hardKill = setTimeout(() => child.kill('SIGKILL'), 10_000);
+  };
+  const timer = setTimeout(() => {
+    timedOut = true;
+    terminate();
   }, timeoutSeconds * 1000);
+  // A manual scan may stop an automatic or scheduled one (stopBackgroundScan):
+  // the same kill, then the temp files go and the lock is freed without a
+  // failure or onDone. It resolves once that is done.
+  let stopped = false;
+  let whenStopped: () => void = () => undefined;
+  stopRunning = () =>
+    new Promise<void>((resolve) => {
+      stopped = true;
+      whenStopped = resolve;
+      terminate();
+    });
   const stopTimers = () => {
     clearTimeout(timer);
     if (hardKill) clearTimeout(hardKill);
@@ -307,7 +336,7 @@ export function startScan({
   // Every file is written when stdout ends; the scanner may still be fetching
   // CVE records. Nothing on stdout: wait for the exit, which says why.
   child.stdout.on('end', () => {
-    if (ended || timedOut || !chunks.length) return;
+    if (ended || timedOut || stopped || !chunks.length) return;
     completion = complete();
   });
 
@@ -316,7 +345,17 @@ export function startScan({
     stopTimers();
     if (completion) {
       await completion;
+      if (stopped) whenStopped(); // it had finished: nothing to discard
       return refined(code);
+    }
+    if (stopped && !ended) {
+      ended = true;
+      await discardTemps();
+      stopRunning = null;
+      onScanDone = undefined; // not a failure: the scheduler or auto-rescan sees no outcome
+      scan = { ...scan, status: 'idle', stage: null, message: `The ${trigger} scan was stopped for a manual scan.`, finishedAt: new Date().toISOString() };
+      logger.info(`${trigger} scan stopped to run a manual scan`);
+      return whenStopped();
     }
     if (ended) return; // spawn error already recorded
     if (timedOut) return end('failed', `scan timed out after ${timeoutSeconds} s`, true);

@@ -21,7 +21,22 @@ interface ScanContextValue {
 }
 
 // The scan form's switches: the active checks, and two that change only how the scan is kept or reused.
-type ScanChoices = Partial<ActiveChecks> & { replaceEmpty?: boolean; freshServiceScan?: boolean };
+// preempt: stop a running automatic or scheduled scan first.
+type ScanChoices = Partial<ActiveChecks> & { replaceEmpty?: boolean; freshServiceScan?: boolean; preempt?: boolean };
+
+/**
+ * "An automatic scan is running (stage: …, 42 s in)" when an automatic or
+ * scheduled scan runs, which Run scan may stop; null otherwise (a manual scan
+ * is never stopped). Pure.
+ */
+export function backgroundScanText(scan: ScanState | null, now: number): string | null {
+  if (scan?.status !== 'running' || (scan.trigger !== 'automatic' && scan.trigger !== 'scheduled')) return null;
+  const started = scan.startedAt ? Date.parse(scan.startedAt) : NaN;
+  const seconds = Number.isNaN(started) ? null : Math.max(0, Math.round((now - started) / 1000));
+  const kind = scan.trigger === 'automatic' ? 'An automatic' : 'A scheduled';
+  const stage = scan.stage || 'starting';
+  return `${kind} scan is running (stage: ${stage}${seconds === null ? '' : `, ${seconds} s in`})`;
+}
 
 const ScanContext = createContext<ScanContextValue | null>(null);
 
