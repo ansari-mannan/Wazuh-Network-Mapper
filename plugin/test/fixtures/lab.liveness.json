@@ -118,6 +118,20 @@
           "last_checked": "2026-10-07T09:00:20+00:00",
           "proven_methods": [],
           "reason": "agent_not_listed"
+        },
+        "endpoint:000": {
+          "state": "active",
+          "method": "agent",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:20+00:00",
+          "last_checked": "2026-10-07T09:00:20+00:00",
+          "proven_methods": [
+            "agent"
+          ],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "9999-12-31T23:59:59Z"
+          }
         }
       },
       "ports": {
@@ -253,6 +267,20 @@
           "last_checked": "2026-10-07T09:00:40+00:00",
           "proven_methods": [],
           "reason": "agent_not_listed"
+        },
+        "endpoint:000": {
+          "state": "active",
+          "method": "agent",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:00:40+00:00",
+          "last_checked": "2026-10-07T09:00:40+00:00",
+          "proven_methods": [
+            "agent"
+          ],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "9999-12-31T23:59:59Z"
+          }
         }
       },
       "ports": {
@@ -388,6 +416,20 @@
           "last_checked": "2026-10-07T09:01:00+00:00",
           "proven_methods": [],
           "reason": "agent_not_listed"
+        },
+        "endpoint:000": {
+          "state": "active",
+          "method": "agent",
+          "misses": 0,
+          "last_seen": "2026-10-07T09:01:00+00:00",
+          "last_checked": "2026-10-07T09:01:00+00:00",
+          "proven_methods": [
+            "agent"
+          ],
+          "agent": {
+            "status": "active",
+            "last_keepalive": "9999-12-31T23:59:59Z"
+          }
         }
       },
       "ports": {

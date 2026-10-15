@@ -44,8 +44,11 @@ class ScanContext:
 
     def __init__(self, args: argparse.Namespace, *, nvd_transport=None, clock=None,
                  resolver=None, snmp_client=None, nmap_runner=None,
-                 threat_transport=None) -> None:
+                 threat_transport=None, server_inventory=None, osv_transport=None) -> None:
         self.args = args
+        # the Wazuh server's (os, packages); a live collect sets it
+        self.server_inventory = server_inventory
+        self.osv_transport = osv_transport
         self.resolver = resolver
         self.snmp_client = snmp_client
         self.nmap_runner = nmap_runner
@@ -300,12 +303,30 @@ def _read_endpoints(scan: ScanContext) -> None:
         scan.timing["endpoint_score_s"] = time.monotonic() - t0
         scan.cves = source.cves
         scan.score_warnings = source.tls_warnings() + source.collect_warnings + source.warnings
+        scan.server_inventory = scan.server_inventory or source.server_inventory
 
     collect_s = scan.timing["endpoint_collect_s"]
     scan.record("Wazuh endpoints", collect_s and collect_s + scan.timing["endpoint_score_s"],
                 "off" if args.no_endpoints else
                 plural(len(scan.endpoints), "endpoint") + (" (from a file)" if args.scored else ""),
                 ran=not args.no_endpoints)
+
+
+def _server_osv(scan: ScanContext) -> None:
+    """The Wazuh server's own packages matched with OSV.dev, when Wazuh
+    indexed none for it (vulnmapper.endpoints.osv); a line in metadata.stages
+    only when it ran."""
+    from .endpoints import osv
+
+    if scan.server_inventory is None or osv.unscored_server(scan.endpoints) is None:
+        return
+    t0 = _begin("Matching the Wazuh server's packages with OSV.dev")
+    result = osv.score_server(scan.endpoints, scan.score_warnings, scan.server_inventory,
+                              osv.cache(scan.cache_folder(), scan.clock),
+                              osv.OsvClient(scan.clock, scan.osv_transport), scan.clock,
+                              scan.cves)
+    scan.add_findings(result)
+    scan.record(osv.STAGE, time.monotonic() - t0, result.note, ran=result.ran)
 
 
 def _read_network(scan: ScanContext) -> None:
@@ -419,14 +440,18 @@ class Pipeline:
     (tests serve saved replies); ``threat_transport`` the downloads of the
     KEV and EPSS feeds and the CVE records; ``resolver`` replaces the reverse
     DNS lookup, ``snmp_client`` the SNMP client of the question to unmanaged
-    hosts and ``nmap_runner`` nmap.
+    hosts and ``nmap_runner`` nmap; ``server_inventory`` the Wazuh server's
+    package list (a ``--scored`` run has none otherwise) and ``osv_transport``
+    the OSV.dev calls.
     """
 
     def __init__(self, nvd_transport=None, clock=None, resolver=None,
-                 snmp_client=None, nmap_runner=None, threat_transport=None) -> None:
+                 snmp_client=None, nmap_runner=None, threat_transport=None,
+                 server_inventory=None, osv_transport=None) -> None:
         self._services = dict(nvd_transport=nvd_transport, clock=clock, resolver=resolver,
                               snmp_client=snmp_client, nmap_runner=nmap_runner,
-                              threat_transport=threat_transport)
+                              threat_transport=threat_transport,
+                              server_inventory=server_inventory, osv_transport=osv_transport)
 
     def run(self, argv: Optional[list[str]] = None) -> int:
         setup_logging()
@@ -436,6 +461,7 @@ class Pipeline:
         scan.timing["started_at"] = datetime.now(timezone.utc).isoformat()
 
         _read_endpoints(scan)
+        _server_osv(scan)
         scan.prefetch_records()             # cve.org overlaps the crawl and the stages below
         _read_network(scan)
         t0 = time.monotonic()

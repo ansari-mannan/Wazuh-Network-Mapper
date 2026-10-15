@@ -97,6 +97,7 @@ def score_graph(graph: dict, vulns: dict, targets: Optional[dict], engine: "Atta
         dependency, weight = dependency_of(dependants.get(nid, 0), n_nodes,
                                            (targets.get(nid) or {}).get("importance"))
         host = hosts.get(nid) or {}
+        # an agent's own findings are confirmed, except the server's OSV matches
         confidence = CONFIRMED if host.get("agent_id") else POTENTIAL
         # the full findings (one row per CVE and package); when they are not
         # known (an old-shape --scored file), the worst few the node carries
@@ -110,7 +111,8 @@ def score_graph(graph: dict, vulns: dict, targets: Optional[dict], engine: "Atta
                 per_cve[cve] = finding_record(
                     cve, c.get("cvss"), c.get("cvss_version"), recs.get(cve),
                     kev_ids=threat.kev, epss_scores=threat.epss, exposure=exposure,
-                    dependency=dependency, confidence=confidence)
+                    dependency=dependency,
+                    confidence=POTENTIAL if f.get("source") == "osv" else confidence)
             f.update(per_cve[cve])
         for r in node.get("top_cves") or []:      # the rows the dashboard lists
             r.update(per_cve.get(r.get("cve")) or {})

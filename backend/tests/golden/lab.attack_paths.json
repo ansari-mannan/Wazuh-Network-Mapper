@@ -14,8 +14,8 @@
       "pairs_with_route": 2,
       "pairs_total": 4,
       "placed": 5,
-      "not_placed": 6,
-      "assets_verified": 11,
+      "not_placed": 7,
+      "assets_verified": 12,
       "assets_unverified": 0,
       "cves_v4_unread": 0
     },
@@ -190,6 +190,14 @@
       "routes_through": 0
     },
     {
+      "id": "endpoint:000",
+      "kind": "endpoint",
+      "label": "wazuh-server",
+      "dependants": 0,
+      "verified": true,
+      "routes_through": 0
+    },
+    {
       "id": "endpoint:101",
       "kind": "endpoint",
       "label": "web-01",
@@ -261,6 +269,10 @@
     },
     {
       "id": "endpoint:104",
+      "reason": "no known VLAN"
+    },
+    {
+      "id": "endpoint:000",
       "reason": "no known VLAN"
     }
   ]

@@ -2,10 +2,10 @@
   "metadata": {
     "scan_time": "FROZEN",
     "counts": {
-      "hosts": 4,
+      "hosts": 5,
       "devices": 5,
       "cves": 27,
-      "findings": 29
+      "findings": 31
     }
   },
   "cves": {
@@ -626,6 +626,51 @@
       "hostname": "laptop-07",
       "agent_id": "104",
       "findings": null
+    },
+    "endpoint:000": {
+      "kind": "endpoint",
+      "hostname": "wazuh-server",
+      "agent_id": "000",
+      "findings": [
+        {
+          "cve": "CVE-2026-90000",
+          "package": "libsynth0",
+          "version": "1.0-1ubuntu0.1",
+          "detected_at": null,
+          "source": "osv",
+          "confidence": "potential",
+          "score": 6.125,
+          "tier": "P1",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": true,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90002",
+          "package": "libsynth0",
+          "version": "1.0-1ubuntu0.1",
+          "detected_at": null,
+          "source": "osv",
+          "confidence": "potential",
+          "score": 2.344,
+          "tier": "P3",
+          "cvss_tool": 9.1,
+          "cvss_used": 7.5,
+          "cvss_src": "CNA",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "conflict": 1
+        }
+      ]
     },
     "device:00:23:ac:e5:74:00": {
       "kind": "device",

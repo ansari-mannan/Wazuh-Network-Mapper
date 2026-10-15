@@ -101,9 +101,11 @@ def enrich_agent(agent, cves):
 
 
 def slim_findings(cves):
-    """The per-host finding rows for vulnerabilities.json (no CVE text)."""
+    """The per-host finding rows for vulnerabilities.json (no CVE text); a
+    row not from Wazuh keeps its ``source`` and ``confidence`` (endpoints.osv)."""
     return [{"cve": c.get("cve"), "package": c.get("package"),
-             "version": c.get("version"), "detected_at": c.get("detected_at")}
+             "version": c.get("version"), "detected_at": c.get("detected_at"),
+             **{k: c[k] for k in ("source", "confidence") if k in c}}
             for c in cves]
 
 

@@ -4559,7 +4559,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <dt class=\\"euiDescriptionList__title\\">Exposure</dt>
 <dd class=\\"euiDescriptionList__description\\">Internal (0.5)</dd>
 <dt class=\\"euiDescriptionList__title\\">Dependency</dt>
-<dd class=\\"euiDescriptionList__description\\">0.2</dd>
+<dd class=\\"euiDescriptionList__description\\">0.182</dd>
 <dt class=\\"euiDescriptionList__title\\">Importance</dt>
 <dd class=\\"euiDescriptionList__description\\">not marked</dd>
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
@@ -5044,6 +5044,373 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 <dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
 <dd class=\\"euiDescriptionList__description\\">—</dd>
 </dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div data-focus-guard=\\"true\\" tabindex=\\"0\\" style=\\"width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;\\" data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
+</div>
+</div>"
+`;
+
+exports[`page rendering on the golden lab outputs device detail: lab endpoint:000 1`] = `
+"<div data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
+</div>
+<div>
+<div data-focus-guard=\\"true\\" tabindex=\\"0\\" style=\\"width: 1px; height: 0px; padding: 0px; overflow: hidden; position: fixed; top: 1px; left: 1px;\\" data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
+</div>
+<div data-focus-lock-disabled=\\"false\\">
+<div aria-labelledby=\\"X\\" data-test-subj=\\"vmDetailFlyout\\" role=\\"dialog\\" class=\\"euiFlyout euiFlyout--medium euiFlyout--paddingLarge\\" tabindex=\\"-1\\" style=\\"max-width: 640px;\\">
+<button class=\\"euiButtonIcon euiButtonIcon--text euiButtonIcon--empty euiButtonIcon--xSmall euiFlyout__closeButton euiFlyout__closeButton--inside\\" type=\\"button\\" aria-label=\\"Close this dialog\\" data-test-subj=\\"euiFlyoutCloseButton\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiButtonIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+</button>
+<div class=\\"euiFlyoutHeader euiFlyoutHeader--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"vmDetailIcon\\" style=\\"border-color: #f97316;\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"26\\" height=\\"26\\" viewBox=\\"0 0 24 24\\" fill=\\"none\\" stroke=\\"currentColor\\" stroke-width=\\"1.5\\" stroke-linecap=\\"round\\" stroke-linejoin=\\"round\\" class=\\"lucide lucide-monitor \\">
+<rect width=\\"20\\" height=\\"14\\" x=\\"2\\" y=\\"3\\" rx=\\"2\\">
+</rect>
+<line x1=\\"8\\" x2=\\"16\\" y1=\\"21\\" y2=\\"21\\">
+</line>
+<line x1=\\"12\\" x2=\\"12\\" y1=\\"17\\" y2=\\"21\\">
+</line>
+</svg>
+</span>
+</div>
+<div class=\\"euiFlexItem\\">
+<h2 id=\\"X\\" class=\\"euiTitle euiTitle--small\\">wazuh-server</h2>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">host · wazuh </div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<span class=\\"euiToolTipAnchor\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P1 · OVSS 6.125\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P1 · OVSS 6.125</span>
+</span>
+</span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 6.125 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
+</div>
+</div>
+<div class=\\"euiFlyoutBody\\">
+<div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
+<div class=\\"euiFlyoutBody__overflowContent\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Protect this asset</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Mark this asset's importance (FIPS 199) to see the routes that could reach it on the Attack paths page.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<fieldset class=\\"euiButtonGroup euiButtonGroup--small euiButtonGroup--text\\" data-test-subj=\\"vmProtect\\">
+<legend class=\\"euiScreenReaderOnly\\">Importance</legend>
+<div class=\\"euiButtonGroup__buttons\\">
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-low\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Low\\" title=\\"Low\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"low\\" value=\\"\\">Low</span>
+</span>
+</label>
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-moderate\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"Moderate\\" title=\\"Moderate\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"moderate\\" value=\\"\\">Moderate</span>
+</span>
+</label>
+<label class=\\"euiButtonGroupButton euiButtonGroupButton--text euiButtonGroupButton--small\\" for=\\"X\\" data-test-subj=\\"vmProtect-high\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text euiButtonGroupButton__textShift\\" data-text=\\"High\\" title=\\"High\\">
+<input id=\\"X\\" class=\\"euiScreenReaderOnly\\" name=\\"X\\" type=\\"radio\\" data-test-subj=\\"high\\" value=\\"\\">High</span>
+</span>
+</label>
+</div>
+</fieldset>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Identity</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
+<dt class=\\"euiDescriptionList__title\\">Hostname</dt>
+<dd class=\\"euiDescriptionList__description\\">wazuh-server</dd>
+<dt class=\\"euiDescriptionList__title\\">IP</dt>
+<dd class=\\"euiDescriptionList__description\\">10.10.0.2</dd>
+<dt class=\\"euiDescriptionList__title\\">MAC</dt>
+<dd class=\\"euiDescriptionList__description\\">d4:be:d9:00:00:02</dd>
+<dt class=\\"euiDescriptionList__title\\">Manufacturer</dt>
+<dd class=\\"euiDescriptionList__description\\">Dell Inc.</dd>
+<dt class=\\"euiDescriptionList__title\\">Vendor</dt>
+<dd class=\\"euiDescriptionList__description\\">ubuntu</dd>
+<dt class=\\"euiDescriptionList__title\\">Model</dt>
+<dd class=\\"euiDescriptionList__description\\">Ubuntu</dd>
+<dt class=\\"euiDescriptionList__title\\">Firmware</dt>
+<dd class=\\"euiDescriptionList__description\\">22.04.4 LTS</dd>
+<dt class=\\"euiDescriptionList__title\\">Serial</dt>
+<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dt class=\\"euiDescriptionList__title\\">Role</dt>
+<dd class=\\"euiDescriptionList__description\\">host</dd>
+<dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
+<dd class=\\"euiDescriptionList__description\\">wazuh</dd>
+<dt class=\\"euiDescriptionList__title\\">Status</dt>
+<dd class=\\"euiDescriptionList__description\\">active</dd>
+<dt class=\\"euiDescriptionList__title\\">Liveness</dt>
+<dd class=\\"euiDescriptionList__description\\">
+<span data-test-subj=\\"vmLiveness\\">
+<div class=\\"euiHealth euiHealth--textSizeS\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--success\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<circle cx=\\"8\\" cy=\\"8\\" r=\\"4\\">
+</circle>
+</svg>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">Active</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>last seen 10/7/2026, 2:01:00 PM · via Wazuh agent check-in (the Wazuh manager)</p>
+</div>
+</div>
+</span>
+</dd>
+</dl>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Risk</h3>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\" data-test-subj=\\"vmOvss\\">
+<dt class=\\"euiDescriptionList__title\\">OVSS</dt>
+<dd class=\\"euiDescriptionList__description\\">P1 · OVSS 6.125</dd>
+<dt class=\\"euiDescriptionList__title\\">Exposure</dt>
+<dd class=\\"euiDescriptionList__description\\">Unknown placement (0.5)</dd>
+<dt class=\\"euiDescriptionList__title\\">Dependency</dt>
+<dd class=\\"euiDescriptionList__description\\">0</dd>
+<dt class=\\"euiDescriptionList__title\\">Importance</dt>
+<dd class=\\"euiDescriptionList__description\\">not marked</dd>
+<dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
+<dd class=\\"euiDescriptionList__description\\">1</dd>
+<dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
+<dd class=\\"euiDescriptionList__description\\">9.8</dd>
+</dl>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmTierCounts\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P0 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P0 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"P1 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P1 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"P2 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P2 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 1\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 1</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unrated 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Unrated 0</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveCounts\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical 2\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical 2</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"High 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">High 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Medium 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Medium 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Low 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Low 0</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"Unknown 0\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Unknown 0</span>
+</span>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<h3 class=\\"euiTitle euiTitle--xxsmall\\">Vulnerabilities</h3>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiNotificationBadge euiNotificationBadge--subdued\\">2</span>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2026-90000</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.8 (v3.1)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical · 9.8 (v3.1)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" title=\\"P1 · 6.125\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P1 · 6.125</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(255, 126, 98); color: rgb(0, 0, 0);\\" title=\\"In CISA's Known Exploited Vulnerabilities catalogue\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">KEV</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · scanner · v3.1</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>libsynth0 · 1.0-1ubuntu0.1</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.
+Not a real advisory.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--small\\">
+<strong class=\\"vmMono\\">CVE-2026-90002</strong>
+</div>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" title=\\"Critical · 9.1 (v3.1)\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">Critical · 9.1 (v3.1)</span>
+</span>
+</span>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterExtraSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap\\" data-test-subj=\\"vmCveOvss\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(59, 130, 246); color: rgb(0, 0, 0);\\" title=\\"P3 · 2.344\\">
+<span class=\\"euiBadge__content\\">
+<span class=\\"euiBadge__text\\">P3 · 2.344</span>
+</span>
+</span>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">EPSS 0% · CNA · v3.1<span class=\\"vmConflict\\" title=\\"The CNA score (7.5) differs from the scanner's (9.1) by 1.0 or more; OVSS uses the CNA score.\\" aria-label=\\"The CNA score (7.5) differs from the scanner's (9.1) by 1.0 or more; OVSS uses the CNA score.\\"> ≠</span>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>libsynth0 · 1.0-1ubuntu0.1</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall vmCveDesc\\">
+<p>Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.
+Not a real advisory.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -10879,7 +11246,7 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 <dt class=\\"euiDescriptionList__title\\">Scan time (from the file)</dt>
 <dd class=\\"euiDescriptionList__description\\">Invalid Date</dd>
 <dt class=\\"euiDescriptionList__title\\">Nodes</dt>
-<dd class=\\"euiDescriptionList__description\\">11</dd>
+<dd class=\\"euiDescriptionList__description\\">12</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
 <dt class=\\"euiDescriptionList__title\\">Connection security</dt>
@@ -10947,7 +11314,27 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">4 endpoints (from a file)</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">5 endpoints (from a file)</div>
+</td>
+</tr>
+<tr class=\\"euiTableRow\\">
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Stage</div>
+<div class=\\"euiTableCellContent\\">
+<span class=\\"euiTableCellContent__text\\">Wazuh server via OSV</span>
+</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 80px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Result</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">Ran</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 70px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Time</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">FROZEN s</div>
+</td>
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">3 packages, 2 CVEs, FROZEN s (cache hits 0)</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -11107,7 +11494,7 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">29 findings scored on 5 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -11379,7 +11766,7 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 <dt class=\\"euiDescriptionList__title\\">Scan time (from the file)</dt>
 <dd class=\\"euiDescriptionList__description\\">Invalid Date</dd>
 <dt class=\\"euiDescriptionList__title\\">Nodes</dt>
-<dd class=\\"euiDescriptionList__description\\">11</dd>
+<dd class=\\"euiDescriptionList__description\\">12</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
 <dt class=\\"euiDescriptionList__title\\">Connection security</dt>
@@ -11447,7 +11834,27 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">4 endpoints (from a file)</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">5 endpoints (from a file)</div>
+</td>
+</tr>
+<tr class=\\"euiTableRow\\">
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Stage</div>
+<div class=\\"euiTableCellContent\\">
+<span class=\\"euiTableCellContent__text\\">Wazuh server via OSV</span>
+</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 80px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Result</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">Ran</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 70px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Time</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">FROZEN s</div>
+</td>
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">3 packages, 2 CVEs, FROZEN s (cache hits 0)</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -11607,7 +12014,7 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">29 findings scored on 5 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -11869,7 +12276,7 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 <dt class=\\"euiDescriptionList__title\\">Scan time (from the file)</dt>
 <dd class=\\"euiDescriptionList__description\\">Invalid Date</dd>
 <dt class=\\"euiDescriptionList__title\\">Nodes</dt>
-<dd class=\\"euiDescriptionList__description\\">11</dd>
+<dd class=\\"euiDescriptionList__description\\">12</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
 <dt class=\\"euiDescriptionList__title\\">Connection security</dt>
@@ -11937,7 +12344,27 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">4 endpoints (from a file)</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">5 endpoints (from a file)</div>
+</td>
+</tr>
+<tr class=\\"euiTableRow\\">
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Stage</div>
+<div class=\\"euiTableCellContent\\">
+<span class=\\"euiTableCellContent__text\\">Wazuh server via OSV</span>
+</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 80px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Result</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">Ran</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 70px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Time</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">FROZEN s</div>
+</td>
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">3 packages, 2 CVEs, FROZEN s (cache hits 0)</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -12097,7 +12524,7 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">29 findings scored on 5 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -12354,7 +12781,7 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 <dt class=\\"euiDescriptionList__title\\">Scan time (from the file)</dt>
 <dd class=\\"euiDescriptionList__description\\">Invalid Date</dd>
 <dt class=\\"euiDescriptionList__title\\">Nodes</dt>
-<dd class=\\"euiDescriptionList__description\\">11</dd>
+<dd class=\\"euiDescriptionList__description\\">12</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
 <dt class=\\"euiDescriptionList__title\\">Connection security</dt>
@@ -12422,7 +12849,27 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">4 endpoints (from a file)</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">5 endpoints (from a file)</div>
+</td>
+</tr>
+<tr class=\\"euiTableRow\\">
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Stage</div>
+<div class=\\"euiTableCellContent\\">
+<span class=\\"euiTableCellContent__text\\">Wazuh server via OSV</span>
+</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 80px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Result</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">Ran</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 70px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Time</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">FROZEN s</div>
+</td>
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">3 packages, 2 CVEs, FROZEN s (cache hits 0)</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -12582,7 +13029,7 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">29 findings scored on 5 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -12858,7 +13305,7 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 <dt class=\\"euiDescriptionList__title\\">Scan time (from the file)</dt>
 <dd class=\\"euiDescriptionList__description\\">Invalid Date</dd>
 <dt class=\\"euiDescriptionList__title\\">Nodes</dt>
-<dd class=\\"euiDescriptionList__description\\">11</dd>
+<dd class=\\"euiDescriptionList__description\\">12</dd>
 <dt class=\\"euiDescriptionList__title\\">Links</dt>
 <dd class=\\"euiDescriptionList__description\\">6</dd>
 <dt class=\\"euiDescriptionList__title\\">Connection security</dt>
@@ -12926,7 +13373,27 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">4 endpoints (from a file)</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">5 endpoints (from a file)</div>
+</td>
+</tr>
+<tr class=\\"euiTableRow\\">
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Stage</div>
+<div class=\\"euiTableCellContent\\">
+<span class=\\"euiTableCellContent__text\\">Wazuh server via OSV</span>
+</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 80px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Result</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">Ran</div>
+</td>
+<td class=\\"euiTableRowCell\\" style=\\"width: 70px;\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Time</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">FROZEN s</div>
+</td>
+<td class=\\"euiTableRowCell\\">
+<div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">3 packages, 2 CVEs, FROZEN s (cache hits 0)</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -13086,7 +13553,7 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">29 findings scored on 5 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -13324,7 +13791,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap vmScreenOnly\\" data-test-subj=\\"vmReportResult\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--small\\">
-<strong data-test-subj=\\"vmReportResultText\\">Showing 9 assets, 24 findings</strong>
+<strong data-test-subj=\\"vmReportResultText\\">Showing 10 assets, 26 findings</strong>
 </div>
 </div>
 </div>
@@ -13348,7 +13815,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </tr>
 <tr>
 <th>Scope</th>
-<td>9 assets · 10.10.0.0/24, 172.20.10.0/24, 172.20.100.0/24, 172.20.20.0/24, 172.20.80.0/24, 172.20.99.0/24</td>
+<td>10 assets · 10.10.0.0/24, 172.20.10.0/24, 172.20.100.0/24, 172.20.20.0/24, 172.20.80.0/24, 172.20.99.0/24</td>
 </tr>
 <tr>
 <th>Tool</th>
@@ -13367,15 +13834,15 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"20.833333333333336\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"26.923076923076923\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"20.833333333333336\\" y=\\"0\\" width=\\"16.666666666666664\\" height=\\"10\\" fill=\\"#f97316\\">
+<rect class=\\"vmChartSeg\\" x=\\"26.923076923076923\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"37.5\\" y=\\"0\\" width=\\"45.83333333333333\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"42.30769230769231\\" y=\\"0\\" width=\\"42.30769230769231\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"83.33333333333333\\" y=\\"0\\" width=\\"12.5\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"84.61538461538461\\" y=\\"0\\" width=\\"11.538461538461538\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"95.83333333333333\\" y=\\"0\\" width=\\"4.166666666666666\\" height=\\"10\\" fill=\\"#ADB4BA\\">
+<rect class=\\"vmChartSeg\\" x=\\"96.15384615384615\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#ADB4BA\\">
 </rect>
 </svg>
 </div>
@@ -13383,7 +13850,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>5 critical</span>
+</span>7 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -13414,15 +13881,15 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <hr class=\\"euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginSmall\\">
 <div class=\\"vmStatBand\\">
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">9</div>
+<div class=\\"vmStat__value\\">10</div>
 <div class=\\"vmStat__label\\">Total assets</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">2 of 4</div>
+<div class=\\"vmStat__value\\">3 of 5</div>
 <div class=\\"vmStat__label\\">Hosts with an agent</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">14</div>
+<div class=\\"vmStat__value\\">16</div>
 <div class=\\"vmStat__label\\">Confirmed findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -13434,7 +13901,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"vmStat__label\\">P0 findings</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">2</div>
+<div class=\\"vmStat__value\\">3</div>
 <div class=\\"vmStat__label\\">P1 findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -13442,7 +13909,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"vmStat__label\\">P2 findings</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">16</div>
+<div class=\\"vmStat__value\\">17</div>
 <div class=\\"vmStat__label\\">P3 findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -13453,7 +13920,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <div class=\\"euiText euiText--small\\">
-<p>This assessment covers <strong>9</strong> assets. A Wazuh agent reports from <strong>2</strong> of <strong>4</strong> hosts, so findings on those hosts are confirmed; findings elsewhere are potential (matched by software version). <strong>3</strong> assets lie on an attack path.</p>
+<p>This assessment covers <strong>10</strong> assets. A Wazuh agent reports from <strong>3</strong> of <strong>5</strong> hosts, so findings on those hosts are confirmed; findings elsewhere are potential (matched by software version). <strong>3</strong> assets lie on an attack path.</p>
 </div>
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmOfflineHosts\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -13474,15 +13941,15 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"12.5\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"19.230769230769234\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"12.5\\" y=\\"0\\" width=\\"16.666666666666664\\" height=\\"10\\" fill=\\"#f97316\\">
+<rect class=\\"vmChartSeg\\" x=\\"19.230769230769234\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"29.166666666666664\\" y=\\"0\\" width=\\"16.666666666666664\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"34.61538461538462\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"45.83333333333333\\" y=\\"0\\" width=\\"8.333333333333332\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"50.00000000000001\\" y=\\"0\\" width=\\"7.6923076923076925\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"54.16666666666666\\" y=\\"0\\" width=\\"4.166666666666666\\" height=\\"10\\" fill=\\"#ADB4BA\\">
+<rect class=\\"vmChartSeg\\" x=\\"57.6923076923077\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#ADB4BA\\">
 </rect>
 </svg>
 </div>
@@ -13491,11 +13958,11 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"8.333333333333332\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"7.6923076923076925\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"8.333333333333332\\" y=\\"0\\" width=\\"29.166666666666668\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"7.6923076923076925\\" y=\\"0\\" width=\\"26.923076923076923\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"37.5\\" y=\\"0\\" width=\\"4.166666666666666\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"34.61538461538461\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
 </svg>
 </div>
@@ -13503,7 +13970,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>5 critical</span>
+</span>7 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -13535,7 +14002,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>3 critical</span>
+</span>5 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -13586,7 +14053,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
-</span>2 P1</span>
+</span>3 P1</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -13596,7 +14063,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(59, 130, 246);\\">
-</span>16 P3</span>
+</span>17 P3</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -13633,6 +14100,14 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"vmBarChart__row\\">
 <span class=\\"vmBarChart__name\\" title=\\"L2-Switch\\">L2-Switch</span>
+<svg class=\\"vmChart vmBarChart__track\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#f97316\\">
+</rect>
+</svg>
+<span class=\\"vmBarChart__value\\">2</span>
+</div>
+<div class=\\"vmBarChart__row\\">
+<span class=\\"vmBarChart__name\\" title=\\"wazuh-server\\">wazuh-server</span>
 <svg class=\\"vmChart vmBarChart__track\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
@@ -14369,6 +14844,109 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
+<h4 class=\\"euiTitle euiTitle--xsmall\\">wazuh-server</h4>
+<span class=\\"euiToolTipAnchor\\">
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
+</span>P1</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 6.125 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>host · 10.10.0.2 · Managed</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--xs\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
+<p>P1 · OVSS 6.125 · P0 0 · P1 1 · P2 0 · P3 1 · exposure Unknown placement (0.5) · dependency 0 · importance not marked</p>
+</div>
+<div class=\\"vmCountRow\\">
+<span class=\\"vmCountRow__label\\">Confirmed:</span>
+<span class=\\"vmCountChip\\">
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
+</span>2 critical</span>
+</span>
+</div>
+<div class=\\"euiSpacer euiSpacer--xs\\">
+</div>
+<div class=\\"vmCveTableWrap\\">
+<table class=\\"vmTable vmCveTable\\">
+<thead>
+<tr>
+<th>Severity</th>
+<th>Tier</th>
+<th>CVE</th>
+<th>CVSS</th>
+<th>KEV / EPSS</th>
+<th>Package</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
+</span>Critical</span>
+</td>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
+</span>P1 · 6.125</span>
+</td>
+<td>
+<a class=\\"euiLink euiLink--primary\\" href=\\"https://example.invalid/advisories/CVE-2026-90000\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">CVE-2026-90000<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiIcon-isLoading euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\" aria-hidden=\\"true\\">
+<path d=\\"M5.277 10.088c.02.014.04.03.057.047.582.55 1.134.812 1.666.812.586 0 1.84-.293 3.713-.88L9 6.212V2H7v4.212l-1.723 3.876Zm-.438.987L3.539 14h8.922l-1.32-2.969C9.096 11.677 7.733 12 7 12c-.74 0-1.463-.315-2.161-.925ZM6 2H5V1h6v1h-1v4l3.375 7.594A1 1 0 0 1 12.461 15H3.54a1 1 0 0 1-.914-1.406L6 6V2Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a>
+</td>
+<td>9.8 (v3.1)<span class=\\"vmCveSrc\\"> scanner · v3.1</span>
+</td>
+<td>KEV · EPSS 0%</td>
+<td>libsynth0</td>
+<td>Confirmed</td>
+</tr>
+<tr>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
+</span>Critical</span>
+</td>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(59, 130, 246);\\">
+</span>P3 · 2.344</span>
+</td>
+<td>
+<a class=\\"euiLink euiLink--primary\\" href=\\"https://example.invalid/advisories/CVE-2026-90002\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">CVE-2026-90002<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiIcon-isLoading euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\" aria-hidden=\\"true\\">
+<path d=\\"M5.277 10.088c.02.014.04.03.057.047.582.55 1.134.812 1.666.812.586 0 1.84-.293 3.713-.88L9 6.212V2H7v4.212l-1.723 3.876Zm-.438.987L3.539 14h8.922l-1.32-2.969C9.096 11.677 7.733 12 7 12c-.74 0-1.463-.315-2.161-.925ZM6 2H5V1h6v1h-1v4l3.375 7.594A1 1 0 0 1 12.461 15H3.54a1 1 0 0 1-.914-1.406L6 6V2Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a>
+</td>
+<td>9.1 (v3.1)<span class=\\"vmCveSrc\\"> CNA · v3.1</span>
+<span class=\\"vmConflict\\" title=\\"The CNA score (undefined) differs from the scanner's (undefined) by 1.0 or more; OVSS uses the CNA score.\\" aria-label=\\"The CNA score (undefined) differs from the scanner's (undefined) by 1.0 or more; OVSS uses the CNA score.\\"> ≠</span>
+</td>
+<td>EPSS 0%</td>
+<td>libsynth0</td>
+<td>Confirmed</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class=\\"vmAssetBlock\\">
+<div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">L2-Switch</h4>
 <span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
@@ -14594,7 +15172,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"euiSpacer euiSpacer--xs\\">
 </div>
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
-<p>Unassessed: cpe match returned 0 CVEs · exposure Internal (0.5) · dependency 0.2 · importance not marked</p>
+<p>Unassessed: cpe match returned 0 CVEs · exposure Internal (0.5) · dependency 0.182 · importance not marked</p>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -14721,6 +15299,14 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </div>
 <ol class=\\"vmRemediation\\">
 <li>Apply operating-system and package updates. 14 findings affect lib0 and lib1.</li>
+</ol>
+</div>
+<div class=\\"vmRemediationAsset\\">
+<div class=\\"euiText euiText--small\\">
+<strong>wazuh-server</strong>
+</div>
+<ol class=\\"vmRemediation\\">
+<li>Apply operating-system and package updates. 2 findings affect libsynth0.</li>
 </ol>
 </div>
 <div class=\\"vmRemediationAsset\\">
@@ -15019,7 +15605,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--directionRow euiFlexGroup--wrap vmScreenOnly\\" data-test-subj=\\"vmReportResult\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
 <div class=\\"euiText euiText--small\\">
-<strong data-test-subj=\\"vmReportResultText\\">Showing 10 assets, 28 findings</strong>
+<strong data-test-subj=\\"vmReportResultText\\">Showing 10 assets, 30 findings</strong>
 </div>
 </div>
 </div>
@@ -15043,7 +15629,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </tr>
 <tr>
 <th>Scope</th>
-<td>11 assets · 10.10.0.0/24, 172.20.10.0/24, 172.20.100.0/24, 172.20.20.0/24, 172.20.80.0/24, 172.20.99.0/24</td>
+<td>12 assets · 10.10.0.0/24, 172.20.10.0/24, 172.20.100.0/24, 172.20.20.0/24, 172.20.80.0/24, 172.20.99.0/24</td>
 </tr>
 <tr>
 <th>Tool</th>
@@ -15062,15 +15648,15 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"21.428571428571427\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"26.666666666666668\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"21.428571428571427\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#f97316\\">
+<rect class=\\"vmChartSeg\\" x=\\"26.666666666666668\\" y=\\"0\\" width=\\"13.333333333333334\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"35.71428571428571\\" y=\\"0\\" width=\\"50\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"40\\" y=\\"0\\" width=\\"46.666666666666664\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"85.71428571428571\\" y=\\"0\\" width=\\"10.714285714285714\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"86.66666666666666\\" y=\\"0\\" width=\\"10\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"96.42857142857142\\" y=\\"0\\" width=\\"3.571428571428571\\" height=\\"10\\" fill=\\"#ADB4BA\\">
+<rect class=\\"vmChartSeg\\" x=\\"96.66666666666666\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#ADB4BA\\">
 </rect>
 </svg>
 </div>
@@ -15078,7 +15664,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>6 critical</span>
+</span>8 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -15109,15 +15695,15 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <hr class=\\"euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginSmall\\">
 <div class=\\"vmStatBand\\">
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">11</div>
+<div class=\\"vmStat__value\\">12</div>
 <div class=\\"vmStat__label\\">Total assets</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">4 of 6</div>
+<div class=\\"vmStat__value\\">5 of 7</div>
 <div class=\\"vmStat__label\\">Hosts with an agent</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">18</div>
+<div class=\\"vmStat__value\\">20</div>
 <div class=\\"vmStat__label\\">Confirmed findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -15129,7 +15715,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmStat__label\\">P0 findings</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">3</div>
+<div class=\\"vmStat__value\\">4</div>
 <div class=\\"vmStat__label\\">P1 findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -15137,7 +15723,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmStat__label\\">P2 findings</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">18</div>
+<div class=\\"vmStat__value\\">19</div>
 <div class=\\"vmStat__label\\">P3 findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -15148,7 +15734,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 <div class=\\"euiText euiText--small\\">
-<p>This assessment covers <strong>11</strong> assets. A Wazuh agent reports from <strong>4</strong> of <strong>6</strong> hosts, so findings on those hosts are confirmed; findings elsewhere are potential (matched by software version). <strong>3</strong> assets lie on an attack path.</p>
+<p>This assessment covers <strong>12</strong> assets. A Wazuh agent reports from <strong>5</strong> of <strong>7</strong> hosts, so findings on those hosts are confirmed; findings elsewhere are potential (matched by software version). <strong>3</strong> assets lie on an attack path.</p>
 </div>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -15164,15 +15750,15 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"20\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"14.285714285714285\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#f97316\\">
+<rect class=\\"vmChartSeg\\" x=\\"20\\" y=\\"0\\" width=\\"13.333333333333334\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"28.57142857142857\\" y=\\"0\\" width=\\"25\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"33.333333333333336\\" y=\\"0\\" width=\\"23.333333333333332\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"53.57142857142857\\" y=\\"0\\" width=\\"7.142857142857142\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"56.66666666666667\\" y=\\"0\\" width=\\"6.666666666666667\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"60.71428571428571\\" y=\\"0\\" width=\\"3.571428571428571\\" height=\\"10\\" fill=\\"#ADB4BA\\">
+<rect class=\\"vmChartSeg\\" x=\\"63.333333333333336\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#ADB4BA\\">
 </rect>
 </svg>
 </div>
@@ -15181,11 +15767,11 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"7.142857142857142\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"6.666666666666667\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"7.142857142857142\\" y=\\"0\\" width=\\"25\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"6.666666666666667\\" y=\\"0\\" width=\\"23.333333333333332\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"32.14285714285714\\" y=\\"0\\" width=\\"3.571428571428571\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"30\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
 </svg>
 </div>
@@ -15193,7 +15779,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>6 critical</span>
+</span>8 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -15225,7 +15811,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>4 critical</span>
+</span>6 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -15276,7 +15862,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
-</span>3 P1</span>
+</span>4 P1</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -15286,7 +15872,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(59, 130, 246);\\">
-</span>18 P3</span>
+</span>19 P3</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -15331,6 +15917,14 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"vmBarChart__row\\">
 <span class=\\"vmBarChart__name\\" title=\\"L2-Switch\\">L2-Switch</span>
+<svg class=\\"vmChart vmBarChart__track\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#f97316\\">
+</rect>
+</svg>
+<span class=\\"vmBarChart__value\\">2</span>
+</div>
+<div class=\\"vmBarChart__row\\">
+<span class=\\"vmBarChart__name\\" title=\\"wazuh-server\\">wazuh-server</span>
 <svg class=\\"vmChart vmBarChart__track\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"14.285714285714285\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
@@ -16224,6 +16818,109 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
+<h4 class=\\"euiTitle euiTitle--xsmall\\">wazuh-server</h4>
+<span class=\\"euiToolTipAnchor\\">
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
+</span>P1</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 6.125 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
+</div>
+<div class=\\"euiText euiText--extraSmall\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>host · 10.10.0.2 · Managed</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--xs\\">
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
+<p>P1 · OVSS 6.125 · P0 0 · P1 1 · P2 0 · P3 1 · exposure Unknown placement (0.5) · dependency 0 · importance not marked</p>
+</div>
+<div class=\\"vmCountRow\\">
+<span class=\\"vmCountRow__label\\">Confirmed:</span>
+<span class=\\"vmCountChip\\">
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
+</span>2 critical</span>
+</span>
+</div>
+<div class=\\"euiSpacer euiSpacer--xs\\">
+</div>
+<div class=\\"vmCveTableWrap\\">
+<table class=\\"vmTable vmCveTable\\">
+<thead>
+<tr>
+<th>Severity</th>
+<th>Tier</th>
+<th>CVE</th>
+<th>CVSS</th>
+<th>KEV / EPSS</th>
+<th>Package</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
+</span>Critical</span>
+</td>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
+</span>P1 · 6.125</span>
+</td>
+<td>
+<a class=\\"euiLink euiLink--primary\\" href=\\"https://example.invalid/advisories/CVE-2026-90000\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">CVE-2026-90000<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
+<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a>
+</td>
+<td>9.8 (v3.1)<span class=\\"vmCveSrc\\"> scanner · v3.1</span>
+</td>
+<td>KEV · EPSS 0%</td>
+<td>libsynth0</td>
+<td>Confirmed</td>
+</tr>
+<tr>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
+</span>Critical</span>
+</td>
+<td>
+<span class=\\"vmChip\\">
+<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(59, 130, 246);\\">
+</span>P3 · 2.344</span>
+</td>
+<td>
+<a class=\\"euiLink euiLink--primary\\" href=\\"https://example.invalid/advisories/CVE-2026-90002\\" target=\\"_blank\\" rel=\\"noopener noreferrer\\">CVE-2026-90002<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--small euiLink__externalIcon\\" focusable=\\"false\\" role=\\"img\\" aria-label=\\"External link\\">
+<path d=\\"M13 8.5a.5.5 0 1 1 1 0V12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h3.5a.5.5 0 0 1 0 1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V8.5Zm-5.12.339a.5.5 0 1 1-.706-.707L13.305 2H10.5a.5.5 0 1 1 0-1H14a1 1 0 0 1 1 1v3.5a.5.5 0 1 1-1 0V2.72L7.88 8.838Z\\">
+</path>
+</svg>
+<span class=\\"euiScreenReaderOnly\\">(opens in a new tab or window)</span>
+</a>
+</td>
+<td>9.1 (v3.1)<span class=\\"vmCveSrc\\"> CNA · v3.1</span>
+<span class=\\"vmConflict\\" title=\\"The CNA score (undefined) differs from the scanner's (undefined) by 1.0 or more; OVSS uses the CNA score.\\" aria-label=\\"The CNA score (undefined) differs from the scanner's (undefined) by 1.0 or more; OVSS uses the CNA score.\\"> ≠</span>
+</td>
+<td>EPSS 0%</td>
+<td>libsynth0</td>
+<td>Confirmed</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class=\\"vmAssetBlock\\">
+<div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">L2-Switch</h4>
 <span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
@@ -16449,7 +17146,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"euiSpacer euiSpacer--xs\\">
 </div>
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
-<p>Unassessed: cpe match returned 0 CVEs · exposure Internal (0.5) · dependency 0.2 · importance not marked</p>
+<p>Unassessed: cpe match returned 0 CVEs · exposure Internal (0.5) · dependency 0.182 · importance not marked</p>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -16524,34 +17221,9 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 </div>
 </div>
-<div class=\\"vmAssetBlock\\">
-<div class=\\"vmAssetBlock__head\\">
-<h4 class=\\"euiTitle euiTitle--xsmall\\">kiosk-01</h4>
-<span class=\\"vmChip\\">
-<span class=\\"vmChip__dot\\" style=\\"background-color: rgb(173, 180, 186);\\">
-</span>Not assessed</span>
-</div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>host · 10.10.0.13 · Managed</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--xs\\">
-</div>
-<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
-<p>Unassessed: no findings returned · exposure Unknown placement (0.5) · dependency 0 · importance not marked</p>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p class=\\"vmNoCves\\">Unassessed: no findings returned.</p>
-</div>
-</div>
-<div class=\\"euiSpacer euiSpacer--xs\\">
-</div>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>and 1 more asset (raise Top N to include them).</p>
+<p>and 2 more assets (raise Top N to include them).</p>
 </div>
 </div>
 </section>
@@ -16589,6 +17261,14 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </div>
 <ol class=\\"vmRemediation\\">
 <li>Apply operating-system and package updates. 14 findings affect lib0 and lib1.</li>
+</ol>
+</div>
+<div class=\\"vmRemediationAsset\\">
+<div class=\\"euiText euiText--small\\">
+<strong>wazuh-server</strong>
+</div>
+<ol class=\\"vmRemediation\\">
+<li>Apply operating-system and package updates. 2 findings affect libsynth0.</li>
 </ol>
 </div>
 <div class=\\"vmRemediationAsset\\">
@@ -16664,16 +17344,6 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </a>
 </li>
 </ol>
-</div>
-<div class=\\"vmRemediationAsset\\">
-<div class=\\"euiText euiText--small\\">
-<strong>kiosk-01</strong>
-</div>
-<div class=\\"euiText euiText--extraSmall\\">
-<div class=\\"euiTextColor euiTextColor--subdued\\">
-<p>No actions to recommend from the data.</p>
-</div>
-</div>
 </div>
 </section>
 <div class=\\"vmPrintFooter\\">Vulnerability Assessment Report · an unknown date</div>

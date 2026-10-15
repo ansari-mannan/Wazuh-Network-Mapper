@@ -136,12 +136,16 @@ def _lab(tmp):
         json.dump({f"device:{L3_CID}": {"importance": "moderate"},
                    "endpoint:102": {"importance": "high"}}, f)
 
+    # the saved endpoints plus a synthetic Wazuh server matched with a fake OSV
+    from test_server_osv import FakeOsv, scored_with_server, server_inventory
+
     clock = FakeClock()
-    out = _run_pipeline(tmp, ["--scored", os.path.join(_FIXTURES, "offline_scored.json"),
+    out = _run_pipeline(tmp, ["--scored", scored_with_server(tmp),
                               "--network", network_path, "--targets", targets,
                               "--check-default-communities"],
                         nvd_transport=lab_nvd(clock), clock=clock,
-                        resolver=lambda ip: None, threat_transport=_threat())
+                        resolver=lambda ip: None, threat_transport=_threat(),
+                        server_inventory=server_inventory, osv_transport=FakeOsv())
     return {"lab.network.json": network, **{f"lab.{k}.json": v for k, v in out.items()}}
 
 

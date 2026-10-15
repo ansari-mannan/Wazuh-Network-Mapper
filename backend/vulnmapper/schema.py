@@ -248,6 +248,9 @@ class Node:
     # Why an endpoint is unscored, when known: "no_inventory" (the Wazuh indexer
     # holds no package inventory for it). Emitted only when set.
     unscored_reason: Optional[str] = None
+    # The Wazuh server's own package list matched with OSV (endpoints.osv):
+    # {status: ok|unavailable|skipped, reason, ecosystem, packages}. Emitted only when set.
+    osv: Optional[dict] = None
     # A Wi-Fi client: {ssid, access_point (node_id), radio}; None otherwise.
     wifi: Optional[dict] = None
     # The VLAN its switch learned it on (from the forwarding table); lets the
@@ -304,6 +307,8 @@ class Node:
                 out["is_wazuh_server"] = True
             if self.unscored_reason is not None:
                 out["unscored_reason"] = self.unscored_reason
+            if self.osv is not None:
+                out["osv"] = self.osv
             if self.wifi is not None:
                 out["wifi"] = self.wifi
             if self.vlan is not None:

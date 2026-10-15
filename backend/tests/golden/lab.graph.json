@@ -2073,7 +2073,7 @@
       "ovss_reason": "cpe match returned 0 CVEs",
       "exposure": 0.5,
       "exposure_flag": null,
-      "dependency": 0.2,
+      "dependency": 0.182,
       "importance": 0.0,
       "kev_count": 0
     },
@@ -2703,6 +2703,116 @@
       "dependency": 0.0,
       "importance": 0.0,
       "kev_count": 0
+    },
+    {
+      "node_id": "endpoint:000",
+      "kind": "endpoint",
+      "ip": "10.10.0.2",
+      "hostname": "wazuh-server",
+      "vendor": "ubuntu",
+      "model": "Ubuntu",
+      "firmware": "22.04.4 LTS",
+      "serial": null,
+      "mac": "d4:be:d9:00:00:02",
+      "discovery_method": "wazuh",
+      "status": "active",
+      "role": "host",
+      "risk_score": 6.125,
+      "max_cvss": 9.8,
+      "discovery_order": 11,
+      "parent_id": null,
+      "agent_id": "000",
+      "stale": false,
+      "top_cves": [
+        {
+          "cve": "CVE-2026-90000",
+          "cvss": 9.8,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "libsynth0",
+          "version": "1.0-1ubuntu0.1",
+          "description": "Synthetic fixture vulnerability CVE-2026-90000 in lib0: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90000",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": null,
+          "source": "osv",
+          "confidence": "potential",
+          "score": 6.125,
+          "tier": "P1",
+          "cvss_tool": 9.8,
+          "cvss_used": 9.8,
+          "cvss_src": "tool",
+          "cvss_ver": "3.1",
+          "kev": true,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "conflict": 0
+        },
+        {
+          "cve": "CVE-2026-90002",
+          "cvss": 9.1,
+          "cvss_version": "3.1",
+          "severity": "Critical",
+          "package": "libsynth0",
+          "version": "1.0-1ubuntu0.1",
+          "description": "Synthetic fixture vulnerability CVE-2026-90002 in lib2: crafted input can lead to memory corruption.\\r\\nNot a real advisory.",
+          "reference": "https://example.invalid/advisories/CVE-2026-90002",
+          "published_at": "2026-03-01T00:00:00Z",
+          "detected_at": null,
+          "source": "osv",
+          "confidence": "potential",
+          "score": 2.344,
+          "tier": "P3",
+          "cvss_tool": 9.1,
+          "cvss_used": 7.5,
+          "cvss_src": "CNA",
+          "cvss_ver": "3.1",
+          "kev": false,
+          "epss": 0.0,
+          "exposure": 0.5,
+          "dependency": 0.0,
+          "conflict": 1
+        }
+      ],
+      "cve_summary": {
+        "total": 2,
+        "critical": 2,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "unknown": 0,
+        "max_cvss": 9.8
+      },
+      "is_wazuh_server": true,
+      "osv": {
+        "status": "ok",
+        "reason": null,
+        "ecosystem": "Ubuntu:22.04:LTS",
+        "packages": 3
+      },
+      "unmanaged": false,
+      "mac_type": "global",
+      "mac_vendor": "Dell Inc.",
+      "reachable_cve": {
+        "status": "none_found",
+        "source": "findings"
+      },
+      "node_tier": "P1",
+      "ovss_hist": {
+        "P0": 0,
+        "P1": 1,
+        "P2": 0,
+        "P3": 1,
+        "Unrated": 0
+      },
+      "ovss_status": "assessed",
+      "ovss_reason": null,
+      "exposure": 0.5,
+      "exposure_flag": "exposure_unknown",
+      "dependency": 0.0,
+      "importance": 0.0,
+      "kev_count": 1
     }
   ],
   "edges": [
@@ -2782,16 +2892,17 @@
       "endpoint:101",
       "endpoint:102",
       "endpoint:103",
-      "endpoint:104"
+      "endpoint:104",
+      "endpoint:000"
     ],
     "counts": {
-      "nodes": 11,
-      "endpoints": 4,
+      "nodes": 12,
+      "endpoints": 5,
       "devices": 5,
       "fdb_discovered_hosts": 0,
       "lldp_edges": 4,
       "endpoint_edges": 2,
-      "unparented_endpoints": 4
+      "unparented_endpoints": 5
     },
     "confidence": {
       "wifi": 2
@@ -2819,6 +2930,11 @@
         "node_id": "endpoint:104",
         "hostname": "laptop-07",
         "reason": "mac_absent_from_all_fdb"
+      },
+      {
+        "node_id": "endpoint:000",
+        "hostname": "wazuh-server",
+        "reason": "mac_absent_from_all_fdb"
       }
     ],
     "unreachable_boundaries": [
@@ -2830,10 +2946,10 @@
       }
     ],
     "coverage": {
-      "hosts": 6,
-      "managed": 4,
+      "hosts": 7,
+      "managed": 5,
       "unmanaged": 2,
-      "managed_share": 0.667
+      "managed_share": 0.714
     },
     "name_lookup": {
       "asked": 2,
@@ -2853,10 +2969,10 @@
       "budget_s": 180.0
     },
     "cve_vectors": {
-      "assets": 11,
+      "assets": 12,
       "by_status": {
         "found": 1,
-        "none_found": 5
+        "none_found": 6
       },
       "looked_up": 17,
       "nvd_requests": 17,
@@ -2891,14 +3007,14 @@
     "ovss": {
       "findings_by_tier": {
         "P0": 2,
-        "P1": 3,
+        "P1": 4,
         "P2": 4,
-        "P3": 18,
+        "P3": 19,
         "Unrated": 1
       },
       "nodes_by_status": {
         "Unassessed": 7,
-        "assessed": 4
+        "assessed": 5
       },
       "cve_records": {
         "hits": 0,
@@ -2928,7 +3044,13 @@
         "name": "Wazuh endpoints",
         "status": "ran",
         "seconds": null,
-        "note": "4 endpoints (from a file)"
+        "note": "5 endpoints (from a file)"
+      },
+      {
+        "name": "Wazuh server via OSV",
+        "status": "ran",
+        "seconds": "FROZEN",
+        "note": "3 packages, 2 CVEs, FROZEN s (cache hits 0)"
       },
       {
         "name": "Network crawl",
@@ -2976,7 +3098,7 @@
         "name": "OVSS scoring",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s"
+        "note": "29 findings scored on 5 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s"
       },
       {
         "name": "Attack paths",
