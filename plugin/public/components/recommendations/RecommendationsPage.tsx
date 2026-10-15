@@ -22,6 +22,7 @@ import {
 } from '@elastic/eui';
 import { RecommendationStatus } from '../../../common';
 import { RISK_META, TIER_META } from '../../lib/risk';
+import { TierReasonLine, TierTip } from '../layout/TierReason';
 import { Severity } from '../../lib/report';
 import { useGraph } from '../../lib/graph';
 import { useVulnerabilities } from '../../lib/vulnerabilities';
@@ -72,12 +73,17 @@ function RecPanel({ rec, onStatus }: { rec: Recommendation; onStatus: (s: Recomm
   return (
     <EuiPanel paddingSize="m" hasBorder className={`vmRec ${muted ? 'vmRecMuted' : ''}`}>
       <div className="vmRec__head">
-        {rec.tier && <Chip color={TIER_META[rec.tier].color} label={`${rec.tier}${rec.ovss != null ? ` · OVSS ${rec.ovss}` : ''}`} />}
+        {rec.tier && (
+          <TierTip why={rec.reason}>
+            <Chip color={TIER_META[rec.tier].color} label={`${rec.tier}${rec.ovss != null ? ` · OVSS ${rec.ovss}` : ''}`} />
+          </TierTip>
+        )}
         {severityChip(rec.severity)}
         <EuiTitle size="xs"><h3 className="vmRec__title">{rec.title}</h3></EuiTitle>
         <EuiBadge color="hollow">{rec.affectedCount} asset{rec.affectedCount === 1 ? '' : 's'}</EuiBadge>
         {rec.reopened && <ReopenedBadge reopened={rec.reopened} />}
       </div>
+      <TierReasonLine why={rec.reason} />
       <EuiText size="s"><p>{rec.action}</p></EuiText>
       {rec.reference && (
         <EuiText size="xs">

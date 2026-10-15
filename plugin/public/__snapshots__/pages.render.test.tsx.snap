@@ -46,11 +46,18 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P1 · OVSS 4.594\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">P1 · OVSS 4.594</span>
 </span>
 </span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 4.594 · driven by CVE-2021-0001</p>
+</div>
+</div>
 </div>
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
@@ -2129,11 +2136,18 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P0 · OVSS 7.5\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">P0 · OVSS 7.5</span>
 </span>
 </span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P0 · 7.5 · driven by CVE-2006-4950 (CISA KEV)</p>
+</div>
+</div>
 </div>
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
@@ -5078,11 +5092,18 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(249, 115, 22); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P1 · OVSS 6.125\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">P1 · OVSS 6.125</span>
 </span>
 </span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 6.125 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
+</div>
 </div>
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
@@ -5778,11 +5799,18 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(220, 38, 38); color: rgb(255, 255, 255);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P0 · OVSS 8.575\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">P0 · OVSS 8.575</span>
 </span>
 </span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P0 · 8.575 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
+</div>
 </div>
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
@@ -7555,11 +7583,18 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P2 · OVSS 4.226\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">P2 · OVSS 4.226</span>
 </span>
 </span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P2 · 4.226 · driven by CVE-2021-0001</p>
+</div>
+</div>
 </div>
 <div class=\\"euiFlyoutBody\\">
 <div tabindex=\\"0\\" class=\\"euiFlyoutBody__overflow\\">
@@ -10206,11 +10241,18 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"euiBadge euiBadge--iconLeft\\" style=\\"background-color: rgb(234, 179, 8); color: rgb(0, 0, 0);\\" data-test-subj=\\"vmDetailRisk\\" title=\\"P2 · OVSS 2.817\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">P2 · OVSS 2.817</span>
 </span>
 </span>
+</span>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P2 · 2.817 · driven by CVE-2020-0001</p>
+</div>
+</div>
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmUnmanagedText\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
 <p>No Wazuh agent reports from this machine, so its software and vulnerabilities are not known. It answered the scan over SNMP; what it reported is shown below, and any CVEs are matched by software version only.</p>
@@ -13689,14 +13731,21 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">L3-Switch</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
 </span>P0</span>
+</span>
 <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"On an attack path\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">On an attack path</span>
 </span>
 </span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P0 · 7.5 · driven by CVE-2006-4950 (CISA KEV)</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -13969,9 +14018,16 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">web-01</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
 </span>P1</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 6.125 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -14290,9 +14346,16 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">L2-Switch</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
 </span>P1</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 4.594 · driven by CVE-2021-0001</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -15366,9 +15429,16 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">db-01</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
 </span>P0</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P0 · 8.575 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -15516,14 +15586,21 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">L3-Switch</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
 </span>P0</span>
+</span>
 <span class=\\"euiBadge euiBadge--hollow euiBadge--iconLeft\\" title=\\"On an attack path\\">
 <span class=\\"euiBadge__content\\">
 <span class=\\"euiBadge__text\\">On an attack path</span>
 </span>
 </span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P0 · 7.5 · driven by CVE-2006-4950 (CISA KEV)</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -15796,9 +15873,16 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">web-01</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
 </span>P1</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 6.125 · driven by CVE-2026-90000 (CISA KEV)</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">
@@ -16117,9 +16201,16 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmAssetBlock\\">
 <div class=\\"vmAssetBlock__head\\">
 <h4 class=\\"euiTitle euiTitle--xsmall\\">L2-Switch</h4>
+<span class=\\"euiToolTipAnchor\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(249, 115, 22);\\">
 </span>P1</span>
+</span>
+</div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmTierReason\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>P1 · 4.594 · driven by CVE-2021-0001</p>
+</div>
 </div>
 <div class=\\"euiText euiText--extraSmall\\">
 <div class=\\"euiTextColor euiTextColor--subdued\\">

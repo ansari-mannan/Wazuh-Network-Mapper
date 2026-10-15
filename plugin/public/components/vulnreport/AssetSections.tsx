@@ -5,7 +5,8 @@ import { EuiBadge, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { GraphNode } from '../../../common';
 import { AssetReport } from '../../lib/report';
 import { roleLabel } from '../../lib/roleLabel';
-import { exposureText, ovssLine } from '../../lib/ovssText';
+import { exposureText, ovssLine, tierReason } from '../../lib/ovssText';
+import { TierReasonLine, TierTip } from '../layout/TierReason';
 import { TIERS } from '../../lib/risk';
 import { ConfigFindings, CountsSplit, CveTable, riskChip } from './parts';
 
@@ -22,12 +23,17 @@ function assetMeta(r: AssetReport) {
 }
 
 function AssetHead({ report, title }: { report: AssetReport; title: React.ReactElement }) {
+  // the chip shows the tier unless a configuration finding outranks it
+  const why = report.level === report.node.node_tier ? tierReason(report.node.node_tier, report.cves) : null;
   return (
-    <div className="vmAssetBlock__head">
-      {title}
-      {riskChip(report.level)}
-      {report.onPath && <EuiBadge color="hollow">On an attack path</EuiBadge>}
-    </div>
+    <>
+      <div className="vmAssetBlock__head">
+        {title}
+        <TierTip why={why}>{riskChip(report.level)}</TierTip>
+        {report.onPath && <EuiBadge color="hollow">On an attack path</EuiBadge>}
+      </div>
+      <TierReasonLine why={why} />
+    </>
   );
 }
 

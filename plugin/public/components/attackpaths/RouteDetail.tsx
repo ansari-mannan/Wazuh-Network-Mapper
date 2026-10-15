@@ -17,6 +17,8 @@ import {
 import { AttackPathsMetadata, AttackRoute, AttackStep } from '../../../common';
 import { RISK_META } from '../../lib/risk';
 import { startKindLabel, stepText } from '../../lib/attackPaths';
+import { TierReason } from '../../lib/ovssText';
+import { TierReasonLine, TierTip } from '../layout/TierReason';
 
 // Context findings carry the publisher's own severity (null = advisory).
 function FindingBadges({ step }: { step: AttackStep }) {
@@ -36,7 +38,7 @@ function FindingBadges({ step }: { step: AttackStep }) {
   );
 }
 
-function TakeoverStep({ step, nameOf }: { step: AttackStep; nameOf: (id: string) => string }) {
+function TakeoverStep({ step, nameOf, why }: { step: AttackStep; nameOf: (id: string) => string; why: TierReason | null }) {
   const text = stepText(step, nameOf);
   return (
     <EuiPanel paddingSize="m" hasShadow={false} hasBorder data-test-subj="vmStepTakeover">
@@ -51,12 +53,15 @@ function TakeoverStep({ step, nameOf }: { step: AttackStep; nameOf: (id: string)
         </EuiFlexItem>
         {typeof step.destination_ovss === 'number' && (
           <EuiFlexItem grow={false}>
-            <EuiBadge color="hollow" data-test-subj="vmStepScore">
-              OVSS {step.destination_ovss} / 10
-            </EuiBadge>
+            <TierTip why={why}>
+              <EuiBadge color="hollow" data-test-subj="vmStepScore">
+                OVSS {step.destination_ovss} / 10
+              </EuiBadge>
+            </TierTip>
           </EuiFlexItem>
         )}
       </EuiFlexGroup>
+      <TierReasonLine why={why} />
       <EuiSpacer size="xs" />
       <EuiText size="s" color="subdued">
         <p>
@@ -77,11 +82,13 @@ function TakeoverStep({ step, nameOf }: { step: AttackStep; nameOf: (id: string)
 export function RouteDetail({
   route,
   nameOf,
+  reasonOf,
   metadata,
   onShowOnMap,
 }: {
   route: AttackRoute;
   nameOf: (id: string) => string;
+  reasonOf: (id: string) => TierReason | null; // why the node has its tier
   metadata: AttackPathsMetadata;
   onShowOnMap: () => void;
 }) {
@@ -106,7 +113,7 @@ export function RouteDetail({
               {stepText(step, nameOf).heading} — {stepText(step, nameOf).detail}
             </div>
           ) : (
-            <TakeoverStep step={step} nameOf={nameOf} />
+            <TakeoverStep step={step} nameOf={nameOf} why={reasonOf(step.to)} />
           )}
         </React.Fragment>
       ))}

@@ -30,6 +30,7 @@ import {
   targetState,
 } from '../../lib/attackPaths';
 import { RouteDetail } from './RouteDetail';
+import { tierReason } from '../../lib/ovssText';
 import { ProtectedAssets } from './ProtectedAssets';
 
 const keyOf = (r: AttackRoute) => `${r.target}|${r.start}`;
@@ -101,6 +102,10 @@ export function AttackPathsPage() {
     () => makeNameOf(graph, doc?.starting_points || []),
     [graph, doc]
   );
+  const reasonOf = useMemo(() => (id: string) => {
+    const node = graph?.nodes.find((n) => n.node_id === id);
+    return node ? tierReason(node.node_tier, node.top_cves) : null;
+  }, [graph]);
 
   // Dependants count per asset (correct in per_asset, blank on the target block).
   const dependants = useMemo(() => {
@@ -243,6 +248,7 @@ export function AttackPathsPage() {
           <RouteDetail
             route={selected}
             nameOf={nameOf}
+            reasonOf={reasonOf}
             metadata={doc.metadata}
             onShowOnMap={() => onShowOnMap(selected)}
           />

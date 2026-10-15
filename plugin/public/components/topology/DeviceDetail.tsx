@@ -22,12 +22,13 @@ import { hasDeviceFindings, unscoredReason } from '../../lib/deviceCveText';
 import { deviceHintText, manufacturerText, nameSourceText, unmanagedText } from '../../lib/hostText';
 import { NODE_LEVEL_META, nodeLevel } from '../../lib/risk';
 import { findingsBadge } from '../../lib/findingsBadge';
-import { ovssLine } from '../../lib/ovssText';
+import { ovssLine, tierReason } from '../../lib/ovssText';
 import { roleLabel } from '../../lib/roleLabel';
 import { DRAWER_WIDTH, drawerWidth } from '../../lib/faceplate';
 import { ConfigChecks } from './ConfigChecks';
 import { DevicePorts, TopologyPorts, fields, LivenessValue, OpenPorts, RiskSummary, Section, Vulnerabilities } from './DetailSections';
 import { iconForRole } from './icons';
+import { TierReasonLine, TierTip } from '../layout/TierReason';
 import { isOffline } from './nodeStyle';
 import { ProtectControl } from './ProtectControl';
 
@@ -109,6 +110,7 @@ export function DeviceDetail({
   const unmanaged = unmanagedText(node);
   const showCves = !isDevice || hasDeviceFindings(lookup);
   const reason = node.node_tier ? '' : unscoredReason(node);
+  const why = tierReason(node.node_tier, cves);
   const livenessRow: Rows = livenessOn ? [['Liveness', <LivenessValue value={nodeLiveness} />]] : [];
 
   return (
@@ -145,17 +147,20 @@ export function DeviceDetail({
           </EuiFlexItem>
         </EuiFlexGroup>
         <EuiSpacer size="s" />
-        <EuiBadge
-          color={node.node_tier ? NODE_LEVEL_META[node.node_tier].color : 'hollow'}
-          data-test-subj="vmDetailRisk"
-        >
-          {ovssLine(node)}
-        </EuiBadge>
+        <TierTip why={why}>
+          <EuiBadge
+            color={node.node_tier ? NODE_LEVEL_META[node.node_tier].color : 'hollow'}
+            data-test-subj="vmDetailRisk"
+          >
+            {ovssLine(node)}
+          </EuiBadge>
+        </TierTip>
         {lookup && lookup.stale && (
           <EuiBadge color="warning" data-test-subj="vmCveStale">
             stale
           </EuiBadge>
         )}
+        <TierReasonLine why={why} />
         {reason && (
           <EuiText size="xs" color="subdued" data-test-subj="vmUnscoredReason">
             <p>{reason}</p>

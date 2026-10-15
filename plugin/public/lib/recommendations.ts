@@ -11,6 +11,7 @@ import {
   VulnerabilitiesDoc,
 } from '../../common';
 import { tierRank } from './riskRule';
+import { tierReason, TierReason } from './ovssText';
 import {
   AssetReport,
   buildAssetReports,
@@ -34,6 +35,8 @@ export type Recommendation = {
   // affected assets; null for configuration and coverage items
   tier: Tier | null;
   ovss: number | null;
+  // why the item has its tier, over the affected assets' CVEs; null without one
+  reason: TierReason | null;
   source: RecommendationSource;
   reference: { title: string; url: string } | null;
   category: string | null; // DISA CAT I/II/III for a config finding
@@ -101,12 +104,13 @@ export function buildRecommendations(
 ): Recommendation[] {
   const reports = buildAssetReports(graph, vulns, attackPaths, offline);
   const recs = new Map<string, Recommendation>();
+  const cvesOf = new Map<string, AssetReport['cves']>(); // CVE items' findings, for the reason
 
   // Accumulate the affected asset into a recommendation, creating it on first
   // sight. A later asset never changes the item's text, only its severity
   // (kept worst) and its affected list.
   const add = (
-    base: Omit<Recommendation, 'affected' | 'affectedCount' | 'onPathCount' | 'findingCount' | 'status' | 'reopened'>,
+    base: Omit<Recommendation, 'affected' | 'affectedCount' | 'onPathCount' | 'findingCount' | 'status' | 'reopened' | 'reason'>,
     r: AssetReport,
     findings = 1
   ) => {
@@ -126,6 +130,7 @@ export function buildRecommendations(
         findingCount: findings,
         status: 'open',
         reopened: null,
+        reason: null,
       });
     }
   };
@@ -156,6 +161,7 @@ export function buildRecommendations(
     if (bucket) {
       const severity = r.cves.reduce<Severity | null>((w, c) => worseSeverity(w, c.severity), null);
       add({ ...bucket, severity, tier: r.node.node_tier ?? null, ovss: r.ovss, reference: null, category: null }, r, r.cves.length);
+      cvesOf.set(bucket.key, [...(cvesOf.get(bucket.key) || []), ...r.cves]);
     }
 
     // Coverage — unmanaged endpoints.
@@ -181,6 +187,7 @@ export function buildRecommendations(
   for (const rec of out) {
     rec.affectedCount = rec.affected.length;
     rec.onPathCount = rec.affected.filter((a) => a.onPath).length;
+    rec.reason = tierReason(rec.tier, cvesOf.get(rec.key));
     const saved = file?.statuses[rec.key];
     rec.reopened = reopening(saved, rec.affected.map((a) => a.id), rec.findingCount, graph.metadata.scan_time);
     rec.status = rec.reopened ? 'open' : saved?.status ?? 'open';
