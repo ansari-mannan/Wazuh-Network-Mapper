@@ -5323,6 +5323,13 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:00
 </div>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmCveSource\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Findings from the server's own package list (Wazuh doesn't index the manager), matched with OSV.dev; potential.</p>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingSmall euiPanel--borderRadiusMedium euiPanel--plain euiPanel--noShadow euiPanel--hasBorder\\">
 <div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--alignItemsCenter euiFlexGroup--justifyContentSpaceBetween euiFlexGroup--directionRow\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
@@ -13889,11 +13896,11 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"vmStat__label\\">Hosts with an agent</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">16</div>
+<div class=\\"vmStat__value\\">14</div>
 <div class=\\"vmStat__label\\">Confirmed findings</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">10</div>
+<div class=\\"vmStat__value\\">12</div>
 <div class=\\"vmStat__label\\">Potential findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -13941,15 +13948,15 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"19.230769230769234\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"11.538461538461538\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"19.230769230769234\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#f97316\\">
+<rect class=\\"vmChartSeg\\" x=\\"11.538461538461538\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"34.61538461538462\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"26.923076923076923\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"50.00000000000001\\" y=\\"0\\" width=\\"7.6923076923076925\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"42.30769230769231\\" y=\\"0\\" width=\\"7.6923076923076925\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"57.6923076923077\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#ADB4BA\\">
+<rect class=\\"vmChartSeg\\" x=\\"50\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#ADB4BA\\">
 </rect>
 </svg>
 </div>
@@ -13958,11 +13965,11 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"7.6923076923076925\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"15.384615384615385\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"7.6923076923076925\\" y=\\"0\\" width=\\"26.923076923076923\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"15.384615384615385\\" y=\\"0\\" width=\\"26.923076923076923\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"34.61538461538461\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"42.30769230769231\\" y=\\"0\\" width=\\"3.8461538461538463\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
 </svg>
 </div>
@@ -14002,7 +14009,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>5 critical</span>
+</span>3 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -14030,7 +14037,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>2 critical</span>
+</span>4 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -14866,8 +14873,13 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
 <p>P1 · OVSS 6.125 · P0 0 · P1 1 · P2 0 · P3 1 · exposure Unknown placement (0.5) · dependency 0 · importance not marked</p>
 </div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetSource\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Findings from the server's own package list (Wazuh doesn't index the manager), matched with OSV.dev; potential.</p>
+</div>
+</div>
 <div class=\\"vmCountRow\\">
-<span class=\\"vmCountRow__label\\">Confirmed:</span>
+<span class=\\"vmCountRow__label\\">Potential:</span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
@@ -14913,7 +14925,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </td>
 <td>KEV · EPSS 0%</td>
 <td>libsynth0</td>
-<td>Confirmed</td>
+<td>Potential</td>
 </tr>
 <tr>
 <td>
@@ -14939,7 +14951,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 </td>
 <td>EPSS 0%</td>
 <td>libsynth0</td>
-<td>Confirmed</td>
+<td>Potential</td>
 </tr>
 </tbody>
 </table>
@@ -15703,11 +15715,11 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"vmStat__label\\">Hosts with an agent</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">20</div>
+<div class=\\"vmStat__value\\">18</div>
 <div class=\\"vmStat__label\\">Confirmed findings</div>
 </div>
 <div class=\\"vmStat\\">
-<div class=\\"vmStat__value\\">10</div>
+<div class=\\"vmStat__value\\">12</div>
 <div class=\\"vmStat__label\\">Potential findings</div>
 </div>
 <div class=\\"vmStat\\">
@@ -15750,15 +15762,15 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"20\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"13.333333333333334\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"20\\" y=\\"0\\" width=\\"13.333333333333334\\" height=\\"10\\" fill=\\"#f97316\\">
+<rect class=\\"vmChartSeg\\" x=\\"13.333333333333334\\" y=\\"0\\" width=\\"13.333333333333334\\" height=\\"10\\" fill=\\"#f97316\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"33.333333333333336\\" y=\\"0\\" width=\\"23.333333333333332\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"26.666666666666668\\" y=\\"0\\" width=\\"23.333333333333332\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"56.66666666666667\\" y=\\"0\\" width=\\"6.666666666666667\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"50\\" y=\\"0\\" width=\\"6.666666666666667\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"63.333333333333336\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#ADB4BA\\">
+<rect class=\\"vmChartSeg\\" x=\\"56.666666666666664\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#ADB4BA\\">
 </rect>
 </svg>
 </div>
@@ -15767,11 +15779,11 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <svg class=\\"vmChart vmStackBar\\" viewBox=\\"0 0 100 10\\" preserveAspectRatio=\\"none\\" width=\\"100%\\" height=\\"12\\" role=\\"presentation\\">
 <rect class=\\"vmChartTrack\\" x=\\"0\\" y=\\"0\\" width=\\"100\\" height=\\"10\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"6.666666666666667\\" height=\\"10\\" fill=\\"#dc2626\\">
+<rect class=\\"vmChartSeg\\" x=\\"0\\" y=\\"0\\" width=\\"13.333333333333334\\" height=\\"10\\" fill=\\"#dc2626\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"6.666666666666667\\" y=\\"0\\" width=\\"23.333333333333332\\" height=\\"10\\" fill=\\"#eab308\\">
+<rect class=\\"vmChartSeg\\" x=\\"13.333333333333334\\" y=\\"0\\" width=\\"23.333333333333332\\" height=\\"10\\" fill=\\"#eab308\\">
 </rect>
-<rect class=\\"vmChartSeg\\" x=\\"30\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#22c55e\\">
+<rect class=\\"vmChartSeg\\" x=\\"36.666666666666664\\" y=\\"0\\" width=\\"3.3333333333333335\\" height=\\"10\\" fill=\\"#22c55e\\">
 </rect>
 </svg>
 </div>
@@ -15811,7 +15823,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>6 critical</span>
+</span>4 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -15839,7 +15851,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
-</span>2 critical</span>
+</span>4 critical</span>
 </span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
@@ -16840,8 +16852,13 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetOvss\\">
 <p>P1 · OVSS 6.125 · P0 0 · P1 1 · P2 0 · P3 1 · exposure Unknown placement (0.5) · dependency 0 · importance not marked</p>
 </div>
+<div class=\\"euiText euiText--extraSmall\\" data-test-subj=\\"vmAssetSource\\">
+<div class=\\"euiTextColor euiTextColor--subdued\\">
+<p>Findings from the server's own package list (Wazuh doesn't index the manager), matched with OSV.dev; potential.</p>
+</div>
+</div>
 <div class=\\"vmCountRow\\">
-<span class=\\"vmCountRow__label\\">Confirmed:</span>
+<span class=\\"vmCountRow__label\\">Potential:</span>
 <span class=\\"vmCountChip\\">
 <span class=\\"vmChip\\">
 <span class=\\"vmChip__dot\\" style=\\"background-color: rgb(220, 38, 38);\\">
@@ -16887,7 +16904,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </td>
 <td>KEV · EPSS 0%</td>
 <td>libsynth0</td>
-<td>Confirmed</td>
+<td>Potential</td>
 </tr>
 <tr>
 <td>
@@ -16913,7 +16930,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 </td>
 <td>EPSS 0%</td>
 <td>libsynth0</td>
-<td>Confirmed</td>
+<td>Potential</td>
 </tr>
 </tbody>
 </table>

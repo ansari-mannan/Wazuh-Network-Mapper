@@ -16,7 +16,7 @@ import {
 } from '@elastic/eui';
 import { CveLookup, CveSummary, CVE, DeviceNode, GraphEdge, GraphNode, NodeLiveness } from '../../../common';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
-import { potentialText, staleText } from '../../lib/deviceCveText';
+import { osvText, potentialText, staleText } from '../../lib/deviceCveText';
 import { conflictText, cvssSourceText, epssText, exposureText, ovssLine } from '../../lib/ovssText';
 import { RISK_META, riskLevel, RiskLevel, TIER_META, TIERS } from '../../lib/risk';
 import { portsText } from '../../lib/portText';
@@ -239,8 +239,17 @@ interface VulnerabilitiesProps {
 
 export function Vulnerabilities({ node, cves, total, unscored, lookup }: VulnerabilitiesProps) {
   const isDevice = node.kind === 'device';
+  const source = node.kind === 'endpoint' ? osvText(node) : '';
   return (
     <Section title="Vulnerabilities" count={total}>
+      {source && (
+        <>
+          <EuiText size="xs" color="subdued" data-test-subj="vmCveSource">
+            <p>{source}</p>
+          </EuiText>
+          <EuiSpacer size="s" />
+        </>
+      )}
       {lookup && (
         <>
           <EuiText size="xs" color="subdued" data-test-subj="vmCvePotential">

@@ -1,6 +1,6 @@
 // Plain words for a network device's CVE lookup (backend/vulnmapper/devicecves),
 // for the detail flyout.
-import { CveLookup } from '../../common';
+import { CveLookup, OsvMatch } from '../../common';
 
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -39,14 +39,25 @@ export function potentialText(l: CveLookup): string {
   return `Potential: matched by software version (${l.product}) against NVD on ${when}. ${NOT_CONFIRMED}`;
 }
 
+/** Where the Wazuh server's findings came from; empty for any other node. */
+export function osvText(node: { osv?: OsvMatch }): string {
+  return node.osv?.status === 'ok'
+    ? "Findings from the server's own package list (Wazuh doesn't index the manager), matched with OSV.dev; potential."
+    : '';
+}
+
 /** One sentence on why a device is Unscored; empty when it is scored. */
 export function unscoredReason(node: {
   kind: string;
   pollable?: boolean;
   cve_lookup?: CveLookup | null;
   unscored_reason?: string;
+  osv?: OsvMatch;
 }): string {
-  if (node.unscored_reason === 'no_inventory') return 'Wazuh has no software inventory for this host.';
+  if (node.unscored_reason === 'no_inventory') {
+    const osv = node.osv?.reason ? ` Its own package list was not matched with OSV.dev: ${node.osv.reason}.` : '';
+    return `Wazuh has no software inventory for this host.${osv}`;
+  }
   // a host has a lookup only when it answered SNMP (vulnmapper.hosts)
   if (node.kind !== 'device' && !node.cve_lookup) return '';
   const l = node.cve_lookup;

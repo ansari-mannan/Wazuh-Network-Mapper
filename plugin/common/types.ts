@@ -242,6 +242,13 @@ export type DeviceNode = GraphNodeBase & {
   config_summary?: ConfigSummary;
 };
 
+export type OsvMatch = {
+  status: 'ok' | 'unavailable' | 'skipped';
+  reason: string | null; // why it is not ok, e.g. "OSV unavailable"
+  ecosystem?: string; // "Ubuntu:22.04:LTS"
+  packages?: number;
+};
+
 export type EndpointNode = GraphNodeBase & {
   kind: "endpoint";
   agent_id: string | null;
@@ -254,6 +261,9 @@ export type EndpointNode = GraphNodeBase & {
   // Why it is unscored, when known: "no_inventory" (the Wazuh indexer holds no
   // package inventory for it, so its CVEs are unknown, not zero).
   unscored_reason?: string;
+  // The Wazuh server only: its own package list matched with OSV.dev, which
+  // Wazuh does not index for the manager (backend/vulnmapper/endpoints/osv.py).
+  osv?: OsvMatch;
   // A Wi-Fi client: the SSID, the access point (node_id) and the radio.
   wifi?: WifiInfo;
   // The VLAN its switch learned it on.
@@ -621,6 +631,7 @@ export type VulnFinding = OvssFinding & {
   package: string | null;
   version: string | null;
   detected_at: string | null;
+  source?: 'osv'; // the Wazuh server's own packages matched with OSV.dev: potential
 };
 
 // A host's entry. `kind` endpoint = a Wazuh agent (findings confirmed); kind

@@ -4,6 +4,7 @@ import React from 'react';
 import { EuiBadge, EuiSpacer, EuiText, EuiTitle } from '@elastic/eui';
 import { GraphNode } from '../../../common';
 import { AssetReport } from '../../lib/report';
+import { osvText } from '../../lib/deviceCveText';
 import { roleLabel } from '../../lib/roleLabel';
 import { exposureText, ovssLine, tierReason } from '../../lib/ovssText';
 import { TierReasonLine, TierTip } from '../layout/TierReason';
@@ -55,6 +56,9 @@ function AssetFindings({ report, cap, expandAll }: AssetProps) {
   return (
     <>
       <OvssLine node={report.node} tiers={report.tiers} />
+      {report.node.kind === 'endpoint' && osvText(report.node) && (
+        <EuiText size="xs" color="subdued" data-test-subj="vmAssetSource"><p>{osvText(report.node)}</p></EuiText>
+      )}
       <CountsSplit counts={report.counts} node={report.node} />
       <EuiSpacer size="xs" />
       <CveTable cves={report.cves} cap={cap} expandAll={expandAll} />

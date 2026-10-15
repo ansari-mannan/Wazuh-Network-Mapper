@@ -125,7 +125,7 @@ export function buildAssetReports(
         severity: severityBand(cat?.cvss ?? null, cat?.severity),
         description: cat?.description ?? null,
         reference: cat?.reference ?? null,
-        confidence,
+        confidence: f.source === 'osv' ? 'potential' : confidence,
         package: f.package,
         version: f.version,
       });

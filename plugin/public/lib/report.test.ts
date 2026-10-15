@@ -19,6 +19,9 @@ import {
   severityBand,
   ALL_FILTERS,
 } from './report';
+import { tierCounts } from './riskRule';
+import labGraph from '../../test/fixtures/lab.graph.json';
+import labVulns from '../../test/fixtures/lab.vulnerabilities.json';
 
 // --- fixtures ---------------------------------------------------------------
 
@@ -311,5 +314,20 @@ describe('offline hosts', () => {
 describe('addressRanges', () => {
   it('lists the distinct /24s seen', () => {
     expect(addressRanges(graph)).toEqual(['10.0.0.0/24', '10.0.1.0/24']);
+  });
+});
+
+describe('the Wazuh server matched with OSV.dev (lab fixture)', () => {
+  const graph = labGraph as unknown as GraphResponse;
+  it('counts its findings as potential and it as assessed', () => {
+    const server = buildAssetReports(graph, labVulns as unknown as VulnerabilitiesDoc, null).find(
+      (r) => r.id === 'endpoint:000'
+    )!;
+    expect(server.cves.map((c) => c.confidence)).toEqual(['potential', 'potential']);
+    expect(server.counts.confirmed.critical + server.counts.potential.critical).toBe(2);
+    expect(server.node.ovss_status).toBe('assessed');
+    const unassessed = graph.nodes.filter((n) => n.ovss_status === 'Unassessed').map((n) => n.node_id);
+    expect(unassessed).not.toContain('endpoint:000');
+    expect(tierCounts(graph.nodes).unassessed).toBe(unassessed.length);
   });
 });

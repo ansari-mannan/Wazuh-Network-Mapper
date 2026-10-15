@@ -1,5 +1,5 @@
 import { CveLookup } from '../../common';
-import { hasDeviceFindings, lookupDate, plural, potentialText, staleText, unscoredReason } from './deviceCveText';
+import { hasDeviceFindings, lookupDate, osvText, plural, potentialText, staleText, unscoredReason } from './deviceCveText';
 
 const base: CveLookup = {
   status: 'ok',
@@ -48,6 +48,13 @@ describe('unscoredReason', () => {
       'Wazuh has no software inventory for this host.'
     );
     expect(unscoredReason({ kind: 'endpoint' })).toBe('');
+  });
+
+  it('adds why the Wazuh server was not matched with OSV.dev', () => {
+    const osv = { status: 'unavailable' as const, reason: 'OSV unavailable' };
+    expect(unscoredReason({ kind: 'endpoint', unscored_reason: 'no_inventory', osv })).toBe(
+      'Wazuh has no software inventory for this host. Its own package list was not matched with OSV.dev: OSV unavailable.'
+    );
   });
 
   it('one sentence per status', () => {
@@ -110,5 +117,15 @@ describe('hasDeviceFindings and plural', () => {
     expect(plural(1, 'device')).toBe('1 device');
     expect(plural(0, 'endpoint')).toBe('0 endpoints');
     expect(plural(5, 'network device')).toBe('5 network devices');
+  });
+});
+
+describe('osvText', () => {
+  it('names the source only when OSV gave results', () => {
+    expect(osvText({ osv: { status: 'ok', reason: null } })).toBe(
+      "Findings from the server's own package list (Wazuh doesn't index the manager), matched with OSV.dev; potential."
+    );
+    expect(osvText({ osv: { status: 'unavailable', reason: 'OSV unavailable' } })).toBe('');
+    expect(osvText({})).toBe('');
   });
 });
