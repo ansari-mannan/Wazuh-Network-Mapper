@@ -301,15 +301,23 @@ into place only with it.
 
 ## Liveness (optional)
 
-A background check of whether the nodes already on the map still answer. Off
-by default; turn it on in `opensearch_dashboards.yml` (or the dev config):
+Two separate things, both off by default:
+
+- **Liveness**: quick up/down checks, every interval, of the nodes already on
+  the map; the map shows the result. It never scans the network for new
+  things and never writes the graph.
+- **Automatic rescan** (`autoRescan`): an optional full scan, started when a
+  liveness pass sees something appear that is not on the map. A node going
+  down is only shown as down; it does not start a scan.
+
+Turn them on in `opensearch_dashboards.yml` (or the dev config):
 
 ```yaml
 vulnmapper.liveness.enabled: true                  # default false
 vulnmapper.liveness.intervalSeconds: 60            # default 60, at least 10
 vulnmapper.liveness.missThreshold: 2               # default 2, at least 1
 vulnmapper.liveness.agentMaxAgeSeconds: 30         # default 30, at least 10
-vulnmapper.liveness.autoRescan: true               # default true
+vulnmapper.liveness.autoRescan: false              # default false: no automatic full scans
 vulnmapper.liveness.minRescanIntervalSeconds: 120  # default 120, at least 60
 # vulnmapper.liveness.path: /path/to/liveness.json # default: beside graphPath
 ```

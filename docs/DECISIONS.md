@@ -1,7 +1,17 @@
 # Design decisions
 
-Decisions on the review's Part D items, agreed with the team before they were
-changed.
+Decisions on review items, agreed with the team before they were changed.
+
+## Q3. Automatic rescan: off by default (was on)
+
+`vulnmapper.liveness.autoRescan` now defaults to false. Liveness itself is
+unchanged: with `vulnmapper.liveness.enabled` it still runs its quick up/down
+checks every interval and the map shows them. What is now opt-in is the full
+scan a liveness pass could start when it saw something appear that is not on
+the map (a port coming up with nothing linked, a new Wi-Fi client, a Wazuh
+agent missing from the graph). A full scan crawls every device, looks up
+NVD and cve.org and may run nmap, which is a lot to start unasked; an owner
+who wants the map to follow the network by itself sets `autoRescan: true`.
 
 ## D4. Liveness interval: default 60 s (was 10 s)
 

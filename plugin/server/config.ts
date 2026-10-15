@@ -35,13 +35,15 @@ import { ActiveChecks } from '../common';
 //   vulnmapper.seeds       IP addresses the network crawl starts from, each
 //                          passed as --seed (default none: the dashboard
 //                          server's default gateway and LLDP neighbours)
-//   vulnmapper.liveness.*  the background liveness check (off by default):
+//   vulnmapper.liveness.*  liveness: quick up/down checks of the nodes already
+//     on the map every interval, shown on the map (off by default):
 //     enabled, intervalSeconds (default 60, min 10), missThreshold (min 1),
 //     agentMaxAgeSeconds (oldest Wazuh agent check-in that counts, default
-//     30, min 10),
-//     autoRescan (start a scan when a pass sees something new) with
-//     minRescanIntervalSeconds (min 60), and path (default: liveness.json in
-//     the same folder as graphPath)
+//     30, min 10), and path (default: liveness.json in the same folder as
+//     graphPath).
+//     autoRescan (default false): also start a full scan when a liveness pass
+//     sees something appear that is not on the map, at most every
+//     minRescanIntervalSeconds (min 60)
 // backendDir and graphPath have no sensible default, so they are optional here
 // and the routes answer with a clear error until they are set.
 export const configSchema = schema.object({
@@ -67,7 +69,8 @@ export const configSchema = schema.object({
     intervalSeconds: schema.number({ defaultValue: 60, min: 10 }),
     missThreshold: schema.number({ defaultValue: 2, min: 1 }),
     agentMaxAgeSeconds: schema.number({ defaultValue: 30, min: 10 }),
-    autoRescan: schema.boolean({ defaultValue: true }),
+    // off: a full scan is a much heavier thing than the up/down check (docs/DECISIONS.md, Q3)
+    autoRescan: schema.boolean({ defaultValue: false }),
     minRescanIntervalSeconds: schema.number({ defaultValue: 120, min: 60 }),
     path: schema.maybe(schema.string()),
   }),

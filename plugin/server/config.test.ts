@@ -9,9 +9,10 @@ describe('liveness config', () => {
     expect(liveness.agentMaxAgeSeconds).toBe(30);
   });
 
-  it('rescans automatically by default, at most every 120 s', () => {
+  it('does not rescan automatically by default; when on, at most every 120 s', () => {
     const { liveness } = configSchema.validate({});
-    expect(liveness.autoRescan).toBe(true);
+    expect(liveness.autoRescan).toBe(false);
+    expect(configSchema.validate({ liveness: { autoRescan: true } }).liveness.autoRescan).toBe(true);
     expect(liveness.minRescanIntervalSeconds).toBe(120);
     expect(() => configSchema.validate({ liveness: { minRescanIntervalSeconds: 59 } })).toThrow();
     expect(configSchema.validate({ liveness: { minRescanIntervalSeconds: 60 } }).liveness.minRescanIntervalSeconds).toBe(60);
