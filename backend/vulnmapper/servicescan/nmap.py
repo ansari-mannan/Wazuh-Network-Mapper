@@ -18,15 +18,19 @@ from ..common import VulnmapperError
 log = logging.getLogger("vulnmapper.servicescan")
 
 # The only active part of the tool. One ``nmap -sV`` invocation (service/version
-# detection, nmap's default ports and timing) over a host-list file, with the
-# benign nbstat discovery script for a Windows host's NetBIOS name. No OS
-# detection, no vuln scripts, no aggressive options. The host list carries only
-# IP addresses; nmap's arguments carry no secret.
+# detection, nmap's default ports) over a host-list file, with the benign
+# nbstat discovery script for a Windows host's NetBIOS name. No OS detection,
+# no vuln scripts. For speed: -T4 timing, one retransmission per probe, a cap
+# per host and version intensity 5 of 9 (the probes likely to match; the rare
+# ones are left out). The host list carries only IP addresses; nmap's
+# arguments carry no secret.
 #
 # The XML parse and the service/product/version extraction follow
 # github.com/AhmadNaaem/hev-scan. ElementTree only; no dependency added.
 
 PER_HOST_TIMEOUT_S = 60.0
+# the speed options, also named in the stage note
+SPEED_ARGS = ("-T4", "--max-retries", "1", "--version-intensity", "5")
 # Service names that, on their own, name the kind of appliance answering.
 _SERVICE_HINTS = {
     "ipp": "printer", "printer": "printer", "jetdirect": "printer", "pdl-datastream": "printer",
@@ -60,7 +64,7 @@ class NmapRunner:
         try:
             with os.fdopen(fd, "w", encoding="ascii") as f:
                 f.write("\n".join(ips) + "\n")
-            args = [self.path, "-sV", "--script", "nbstat",
+            args = [self.path, "-sV", *SPEED_ARGS, "--script", "nbstat",
                     "--host-timeout", f"{int(per_host_timeout_s)}s", "-oX", "-", "-iL", listfile]
             try:
                 proc = subprocess.run(args, capture_output=True, text=True, timeout=budget_s)

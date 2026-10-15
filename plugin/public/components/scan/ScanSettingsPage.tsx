@@ -65,10 +65,12 @@ export function ScanSettingsPage() {
   const running = scan?.status === 'running';
   // a scan whose crawl polls no device keeps the previous map unless this is on
   const [replaceEmpty, setReplaceEmpty] = useState(false);
+  // nmap every host again rather than reusing what it found in the last 24 h
+  const [freshServiceScan, setFreshServiceScan] = useState(false);
   const seeds = scan?.seeds ?? [];
 
   const run = () => {
-    if (!running) start(community, { ...checks, replaceEmpty });
+    if (!running) start(community, { ...checks, replaceEmpty, freshServiceScan });
   };
 
   return (
@@ -134,6 +136,17 @@ export function ScanSettingsPage() {
                 />
               </EuiFormRow>
             ))}
+            {checks.nmapUnmanaged && (
+              <EuiFormRow helpText="Off: a host nmap answered for in the last 24 hours reuses that answer (nmap-cache.json beside the graph). On: every host is scanned again.">
+                <EuiSwitch
+                  label="Fresh service scan"
+                  checked={freshServiceScan}
+                  onChange={(e) => setFreshServiceScan(e.target.checked)}
+                  disabled={running}
+                  data-test-subj="vmFreshServiceScan"
+                />
+              </EuiFormRow>
+            )}
             {checks.nmapUnmanaged && scan?.nmapAvailable === false && (
               <EuiCallOut
                 size="s"

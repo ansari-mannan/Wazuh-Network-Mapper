@@ -6,7 +6,11 @@ stage and before the vectors, so its CVEs flow on to the attack paths.
 from __future__ import annotations
 
 import logging
+import os
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import timedelta
 from typing import TYPE_CHECKING, Optional
 
 from ..common import StageResult, plural
@@ -16,7 +20,7 @@ from ..devicecves.cache import Cache
 from ..devicecves.lookup import STATUS_OK, Lookup, lookup
 from ..devicecves.nvd import NvdClient
 from ..devicecves.stage import apply_result, device_entry
-from .nmap import NmapBudgetExceeded, NmapRunner, parse_nmap_xml
+from .nmap import PER_HOST_TIMEOUT_S, SPEED_ARGS, NmapBudgetExceeded, NmapRunner, parse_nmap_xml
 
 if TYPE_CHECKING:
     from ..pipeline import ScanContext
@@ -40,6 +44,13 @@ DEFAULT_HOSTS_CAP = 256
 DEFAULT_BUDGET_S = 300.0
 # Hosts per nmap run: a run cut off by the budget loses only its own batch.
 BATCH_SIZE = 16
+# nmap runs at once
+PARALLEL_BATCHES = 2
+# What nmap found on a host is reused for a day (nmap-cache.json beside the
+# graph), unless the scan asks for a fresh service scan. Only hosts that
+# answered are kept: a silent host is asked again next scan.
+CACHE_FILENAME = "nmap-cache.json"
+CACHE_FRESH = timedelta(hours=24)
 SOURCE = "nmap"
 _PORT_KEYS = ("port", "protocol", "service", "product", "version")
 
@@ -112,14 +123,21 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
     return apply_scans(scan_hosts(graph, cap=cap, budget_s=budget_s, runner=runner), client, cache)
 
 
+def nmap_cache(path: Optional[str], clock) -> Cache:
+    return Cache(path, clock, fresh_found=CACHE_FRESH, fresh_empty=CACHE_FRESH, label="nmap cache")
+
+
 def scan_hosts(graph: dict, *, cap: int = DEFAULT_HOSTS_CAP, budget_s: float = DEFAULT_BUDGET_S,
-               runner: Optional[NmapRunner] = None) -> tuple:
+               runner: Optional[NmapRunner] = None, cache: Optional[Cache] = None,
+               fresh: bool = False) -> tuple:
     """The nmap half of the stage: ``(targets, {ip: scan}, result so far)``.
-    Reads the graph and changes nothing, so it can run beside other stages."""
+    Reads the graph and changes nothing, so it can run beside other stages.
+    ``cache`` (nmap-cache.json) serves hosts nmap answered for in the last
+    day, unless ``fresh``; it is updated with what nmap answers now."""
     out = StageResult()
     targets, capped = question_targets(graph, cap)
     runner = runner if runner is not None else NmapRunner()
-    block = {"eligible": len(targets), "scanned": 0, "answered": 0, "named": 0,
+    block = {"eligible": len(targets), "scanned": 0, "cached": 0, "answered": 0, "named": 0,
              "with_cves": 0, "nmap_requests": 0, "cap_reached": capped, "budget_exceeded": False}
     if capped:
         log.warning("more than %d unmanaged hosts; only the first %d are service-scanned", cap, cap)
@@ -132,25 +150,53 @@ def scan_hosts(graph: dict, *, cap: int = DEFAULT_HOSTS_CAP, budget_s: float = D
         out.warnings.append({"type": "nmap_not_installed"})
         return [], {}, out
 
-    # In batches, each with the budget that is left, so the hosts of every
-    # batch that finished are kept when a later one runs out of time.
     scans: dict = {}
+    todo = []
+    for n in targets:
+        entry = None if fresh or cache is None else cache.get(n["ip"])
+        if entry and entry["fresh"] and entry["found"]:
+            scans[n["ip"]] = entry["data"]
+            block["cached"] += 1
+        else:
+            todo.append(n["ip"])
+
+    # In batches, PARALLEL_BATCHES at a time, each with the budget that is left
+    # when it starts, so the hosts of every batch that finished are kept when
+    # another runs out of time.
     started = time.monotonic()
-    for i in range(0, len(targets), BATCH_SIZE):
-        batch = [n["ip"] for n in targets[i:i + BATCH_SIZE]]
+    lock = threading.Lock()
+
+    def one(batch: list) -> dict:
         left = budget_s - (time.monotonic() - started)
-        try:
-            if left <= 0:
-                raise NmapBudgetExceeded()
+        if left <= 0:
+            raise NmapBudgetExceeded()
+        with lock:
             block["nmap_requests"] += 1
-            scans.update(parse_nmap_xml(runner.scan(batch, left)))
+        return parse_nmap_xml(runner.scan(batch, left))
+
+    batches = [todo[i:i + BATCH_SIZE] for i in range(0, len(todo), BATCH_SIZE)]
+    with ThreadPoolExecutor(max_workers=PARALLEL_BATCHES, thread_name_prefix="nmap") as pool:
+        futures = [pool.submit(one, batch) for batch in batches]
+    left_over = 0
+    for batch, future in zip(batches, futures):
+        try:
+            found = future.result()
         except NmapBudgetExceeded:
-            log.warning("nmap time budget (%.0f s) ran out; %d host(s) are left for the next scan",
-                        budget_s, len(targets) - i)
-            out.warnings.append({"type": "nmap_budget_exceeded", "budget_s": budget_s})
-            block["budget_exceeded"] = True
-            break
+            left_over += len(batch)
+            continue
         block["scanned"] += len(batch)
+        for ip in batch:            # in host order, whatever order nmap answered in
+            if ip in found:
+                scans[ip] = found[ip]
+                if cache is not None:
+                    cache.put(ip, found=True, data=found[ip])
+    if left_over:
+        log.warning("nmap time budget (%.0f s) ran out; %d host(s) are left for the next scan",
+                    budget_s, left_over)
+        out.warnings.append({"type": "nmap_budget_exceeded", "budget_s": budget_s})
+        block["budget_exceeded"] = True
+    if cache is not None:
+        cache.save()
     return targets, scans, out
 
 
@@ -177,10 +223,14 @@ def apply_scans(scanned: tuple, client: NvdClient, cache: Cache) -> StageResult:
 
 
 def nmap_hosts(scan: "ScanContext") -> tuple:
-    """:func:`scan_hosts` with the run's host cap, nmap budget and runner."""
+    """:func:`scan_hosts` with the run's host cap, nmap budget, runner and cache."""
     args = scan.args
+    folder = scan.cache_folder()
     return scan_hosts(scan.document, cap=args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
-                      budget_s=args.nmap_budget or DEFAULT_BUDGET_S, runner=scan.nmap_runner)
+                      budget_s=args.nmap_budget or DEFAULT_BUDGET_S, runner=scan.nmap_runner,
+                      cache=nmap_cache(os.path.join(folder, CACHE_FILENAME) if folder else None,
+                                       scan.clock),
+                      fresh=args.fresh_service_scan)
 
 
 def run_service_scan(scan: "ScanContext", scanned: Optional[tuple] = None) -> StageResult:
@@ -195,7 +245,8 @@ def run_service_scan(scan: "ScanContext", scanned: Optional[tuple] = None) -> St
     not_installed = any(w["type"] == "nmap_not_installed" for w in result.warnings)
     result.ran = not not_installed
     result.note = ("nmap not installed" if not_installed else
-                   f"{plural(block['scanned'], 'host')} scanned, {block['answered']} answered, "
-                   f"{block['with_cves']} with CVEs")
+                   f"{plural(block['scanned'], 'host')} scanned, {block['cached']} from the "
+                   f"cache, {block['answered']} answered, {block['with_cves']} with CVEs; "
+                   f"nmap {' '.join(SPEED_ARGS)} --host-timeout {int(PER_HOST_TIMEOUT_S)}s")
     scan.add_findings(result)
     return result

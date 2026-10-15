@@ -10772,6 +10772,30 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 <div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Actively connects to and probes the discovered unmanaged hosts (nmap -sV: open ports and service versions, then NVD for potential CVEs). Never managed hosts or network devices. nmap must be installed on the dashboard server.</div>
 </div>
 </div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiSwitch euiSwitch--primary\\">
+<button id=\\"X\\" aria-checked=\\"false\\" class=\\"euiSwitch__button\\" role=\\"switch\\" type=\\"button\\" aria-labelledby=\\"X\\" data-test-subj=\\"vmFreshServiceScan\\" aria-describedby=\\"X\\">
+<span class=\\"euiSwitch__body\\">
+<span class=\\"euiSwitch__thumb\\">
+</span>
+<span class=\\"euiSwitch__track\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M7.293 8 3.146 3.854a.5.5 0 1 1 .708-.708L8 7.293l4.146-4.147a.5.5 0 0 1 .708.708L8.707 8l4.147 4.146a.5.5 0 0 1-.708.708L8 8.707l-4.146 4.147a.5.5 0 0 1-.708-.708L7.293 8Z\\">
+</path>
+</svg>
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiSwitch__icon euiSwitch__icon--checked\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path fill-rule=\\"evenodd\\" d=\\"M6.5 12a.502.502 0 0 1-.354-.146l-4-4a.502.502 0 0 1 .708-.708L6.5 10.793l6.646-6.647a.502.502 0 0 1 .708.708l-7 7A.502.502 0 0 1 6.5 12\\">
+</path>
+</svg>
+</span>
+</span>
+</button>
+<span class=\\"euiSwitch__label\\" id=\\"X\\">Fresh service scan</span>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Off: a host nmap answered for in the last 24 hours reuses that answer (nmap-cache.json beside the graph). On: every host is scanned again.</div>
+</div>
+</div>
 <div class=\\"euiCallOut euiCallOut--warning euiCallOut--small\\" data-test-subj=\\"vmNmapMissing\\">
 <div class=\\"euiCallOutHeader\\">
 <svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon--inherit euiCallOutHeader__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">

@@ -233,6 +233,10 @@ def build_parser() -> argparse.ArgumentParser:
                              "detect their open ports and service versions, then look those up in "
                              "NVD for potential CVEs. This actively connects to and probes those "
                              "hosts; never managed hosts or network devices. Off by default.")
+    parser.add_argument("--fresh-service-scan", action="store_true",
+                        help="nmap every eligible host again, even one it answered for in the "
+                             "last 24 hours (default: reuse that answer from nmap-cache.json "
+                             "beside the graph).")
     parser.add_argument("--nmap-hosts-cap", type=int, default=None, metavar="N",
                         help="most unmanaged hosts to service-scan per run (default 256); the rest "
                              "are left for the next scan.")

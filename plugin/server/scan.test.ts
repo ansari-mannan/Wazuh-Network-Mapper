@@ -38,6 +38,9 @@ describe('scanArgs', () => {
       scanArgs(OUT, { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(2 + BASE.length)
     ).toEqual(['--check-management-ports', '--probe-unmanaged-snmp']);
     expect(scanArgs(OUT, { checks: { nmapUnmanaged: true } })).toContain('--nmap-unmanaged');
+    expect(scanArgs(OUT, { checks: { nmapUnmanaged: true } })).not.toContain('--fresh-service-scan');
+    expect(scanArgs(OUT, { checks: { nmapUnmanaged: true }, freshServiceScan: true })).toContain('--fresh-service-scan');
+    expect(scanArgs(OUT, { freshServiceScan: true })).not.toContain('--fresh-service-scan'); // no nmap, no flag
     expect(scanArgs(OUT, { deviceCves: false, checks: { checkDefaultCommunities: false } })).toEqual([
       '-m',
       'vulnmapper',

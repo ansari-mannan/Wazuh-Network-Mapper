@@ -33,6 +33,8 @@ Thumbs.db
 data/targets.json
 # NVD answers kept between scans (devicecves)
 data/nvd-cache.json
+# what nmap found per host, reused for 24 h (servicescan)
+data/nmap-cache.json
 # the scan schedule (plugin: the choice and the last scheduled run)
 data/schedule.json
 # scan history: copies of each scan's files (MACs, serials) and their index

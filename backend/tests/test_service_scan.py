@@ -215,15 +215,12 @@ class TestStage(unittest.TestCase):
         self.assertEqual(node["cve_lookup"]["cpe"], f"{SSH_CPE}, {HTTPD_CPE}")
         self.assertEqual(node["cve_lookup"]["total"], 3)
 
-    def test_a_batch_over_budget_keeps_the_batches_before_it(self):
+    def test_a_batch_over_budget_keeps_the_batches_that_finished(self):
         nodes = [endpoint(f"ep:{i}", ip=f"10.0.{i}.5") for i in range(3)]
 
         class SecondTimesOut(FakeRunner):
-            calls = 0
-
             def scan(self, ips, budget_s, per_host_timeout_s=60.0):
-                self.calls += 1
-                if self.calls == 2:
+                if "10.0.2.5" in ips:                    # the second batch
                     raise NmapBudgetExceeded()
                 return nmaprun(*(host_xml(ip, SSH_SERVICE_PORT) for ip in ips))
 
@@ -246,6 +243,59 @@ class TestStage(unittest.TestCase):
         self.assertEqual(result.block["named"], 1)
 
 
+class TestSpeed(unittest.TestCase):
+    """nmap-cache.json and the batches run side by side."""
+
+    def setUp(self):
+        self.clock = FakeClock()
+        self.dir = tempfile.mkdtemp()
+        self.path = os.path.join(self.dir, stagemod.CACHE_FILENAME)
+        self.g = graph(endpoint("ep:a", ip="10.0.0.5"), endpoint("ep:b", ip="10.0.0.6"))
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.dir)
+
+    def scan(self, **kw):
+        runner = FakeRunner(nmaprun(host_xml("10.0.0.5", SSH_SERVICE_PORT)))   # .6 is silent
+        _, scans, out = stagemod.scan_hosts(self.g, runner=runner,
+                                            cache=stagemod.nmap_cache(self.path, self.clock), **kw)
+        return runner.seen, sorted(scans), out.block["cached"]
+
+    def test_cache_hit_miss_expiry_and_fresh(self):
+        self.assertEqual(self.scan(), (["10.0.0.5", "10.0.0.6"], ["10.0.0.5"], 0))    # miss
+        # hit: only the host that did not answer is asked again
+        self.assertEqual(self.scan(), (["10.0.0.6"], ["10.0.0.5"], 1))
+        self.assertEqual(self.scan(fresh=True), (["10.0.0.5", "10.0.0.6"], ["10.0.0.5"], 0))
+        self.clock.advance(seconds=23 * 3600)
+        self.assertEqual(self.scan()[2], 1)
+        self.clock.advance(seconds=2 * 3600)                   # 25 h after the fresh scan
+        self.assertEqual(self.scan(), (["10.0.0.5", "10.0.0.6"], ["10.0.0.5"], 0))   # expired
+
+    def test_at_most_two_nmap_runs_at_once(self):
+        import threading
+        import time
+
+        nodes = [endpoint(f"ep:{i}", ip=f"10.0.{i}.5") for i in range(10)]
+        lock, now, peak, batches = threading.Lock(), [0], [0], []
+
+        class Slow(FakeRunner):
+            def scan(self, ips, budget_s, per_host_timeout_s=60.0):
+                with lock:
+                    now[0] += 1
+                    peak[0] = max(peak[0], now[0])
+                    batches.append(list(ips))
+                time.sleep(0.05)
+                with lock:
+                    now[0] -= 1
+                return nmaprun(*(host_xml(ip) for ip in ips))
+
+        with unittest.mock.patch.object(stagemod, "BATCH_SIZE", 2):
+            _, scans, out = stagemod.scan_hosts(graph(*nodes), runner=Slow())
+        self.assertEqual((peak[0], len(batches), len(scans)), (2, 5, 10))
+        self.assertEqual(out.block["nmap_requests"], 5)
+
+
 class TestNoSecretInNmapArgs(unittest.TestCase):
     """The host list holds IPs only, and no secret reaches nmap's argv."""
 
@@ -266,6 +316,10 @@ class TestNoSecretInNmapArgs(unittest.TestCase):
         with mock.patch.object(nmapmod.subprocess, "run", fake_run):
             NmapRunner(nmap="/usr/bin/nmap").scan(["10.0.0.5", "10.0.0.6"], budget_s=300.0)
         self.assertEqual(captured["list"].split(), ["10.0.0.5", "10.0.0.6"])
+        argv = captured["args"]
+        self.assertEqual(argv[:7], ["/usr/bin/nmap", "-sV", "-T4", "--max-retries", "1",
+                                    "--version-intensity", "5"])
+        self.assertEqual(argv[argv.index("--host-timeout") + 1], "60s")
         for secret in ("public", "private", "NVD_API_KEY", "password"):
             self.assertNotIn(secret, " ".join(captured["args"]))
 

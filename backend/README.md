@@ -721,10 +721,11 @@ succeeds).
 `unmanaged: true` and have a known IP, taken from the graph the pipeline just
 built — never a managed host, never a network device, never an address the
 scan did not already see. `nmap -sV` runs (service/version detection,
-nmap's default port set and timing) over a host-list file of up to 16 hosts
-each, plus the benign
-`nbstat` discovery script for a Windows host's NetBIOS name. No OS detection,
-no vuln scripts, no aggressive options. The host list carries IP addresses
+nmap's default port set) over a host-list file of up to 16 hosts each, two
+such runs at a time, plus the benign
+`nbstat` discovery script for a Windows host's NetBIOS name. For speed it
+passes `-T4 --max-retries 1 --host-timeout 60s --version-intensity 5`
+(named in the stage note). No OS detection, no vuln scripts. The host list carries IP addresses
 only, in a temp file nmap reads and that is removed afterwards; nmap's
 arguments carry no secret.
 
@@ -733,6 +734,13 @@ arguments carry no secret.
 are left for the next run (`nmap_cap_reached`, `nmap_budget_exceeded`); the
 hosts of every batch that finished before the budget ran out are kept. A
 per-host timeout bounds each host.
+
+**Cache.** What nmap found on a host that answered is kept in
+`nmap-cache.json` beside the graph for 24 hours, keyed by IP, and a scan in
+that time reuses it instead of scanning the host again (`metadata.nmap.cached`
+counts them). A host that did not answer is always asked again.
+`--fresh-service-scan` (the scan form's "Fresh service scan") ignores the
+cache and scans every eligible host.
 
 **What a host that answered gets.** Its `open_ports` (port, protocol and, where
 nmap detected them, service, product and version) — recorded even when no CVE

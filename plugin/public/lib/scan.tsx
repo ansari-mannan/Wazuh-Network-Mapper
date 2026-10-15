@@ -17,8 +17,11 @@ interface ScanContextValue {
   scan: ScanState | null;
   /** start a scan; the community is sent once with this request only. replaceEmpty swaps
    * the map in even when the crawl polled no device. */
-  start: (community: string, checks?: Partial<ActiveChecks> & { replaceEmpty?: boolean }) => Promise<void>;
+  start: (community: string, checks?: ScanChoices) => Promise<void>;
 }
+
+// The scan form's switches: the active checks, and two that change only how the scan is kept or reused.
+type ScanChoices = Partial<ActiveChecks> & { replaceEmpty?: boolean; freshServiceScan?: boolean };
 
 const ScanContext = createContext<ScanContextValue | null>(null);
 
@@ -69,7 +72,7 @@ export function ScanProvider({ children }: { children: ReactNode }) {
   }, [running, fetchStatus]);
 
   const start = useCallback(
-    async (community: string, checks: Partial<ActiveChecks> & { replaceEmpty?: boolean } = {}) => {
+    async (community: string, checks: ScanChoices = {}) => {
       try {
         const body = { ...(community ? { community } : {}), ...checks };
         setScan(await http.post<ScanState>('/api/vulnmapper/scan', { body: JSON.stringify(body) }));

@@ -256,6 +256,7 @@ export function defineRoutes(
             probeUnmanagedSnmp: schema.maybe(schema.boolean()),
             nmapUnmanaged: schema.maybe(schema.boolean()),
             replaceEmpty: schema.maybe(schema.boolean()),
+            freshServiceScan: schema.maybe(schema.boolean()),
           })
         ),
       },
@@ -280,6 +281,7 @@ export function defineRoutes(
         seeds: config.seeds,
         timeoutSeconds: config.scanTimeoutSeconds,
         replaceEmpty: request.body?.replaceEmpty ?? false,
+        freshServiceScan: request.body?.freshServiceScan ?? false,
         livenessFile: config.liveness.enabled ? livenessPath(config) : null,
         logger,
       });

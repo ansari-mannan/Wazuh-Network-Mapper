@@ -67,6 +67,8 @@ interface ScanOptions {
   seeds?: string[];
   // swap the new map in even when its crawl polled no device
   replaceEmpty?: boolean;
+  // nmap every host again instead of reusing a day-old answer (nmap-cache.json)
+  freshServiceScan?: boolean;
   // the optional active checks that are on (see CHECK_FLAGS)
   checks?: Partial<ActiveChecks>;
   trigger?: ScanTrigger;
@@ -131,7 +133,8 @@ export function scanArgs(
     deviceCves = true,
     checks = {},
     seeds = [],
-  }: { deviceCves?: boolean; checks?: Partial<ActiveChecks>; seeds?: string[] }
+    freshServiceScan = false,
+  }: { deviceCves?: boolean; checks?: Partial<ActiveChecks>; seeds?: string[]; freshServiceScan?: boolean }
 ): string[] {
   const args = ['-m', 'vulnmapper', '--vulns-out', out.vulns, '--paths-out', out.paths, '--targets', out.targets];
   // score with the CVE records in hand within 5 s; the rest arrive after the files (see startScan)
@@ -144,6 +147,7 @@ export function scanArgs(
   for (const key of Object.keys(CHECK_FLAGS) as Array<keyof ActiveChecks>) {
     if (checks[key]) args.push(CHECK_FLAGS[key]);
   }
+  if (checks.nmapUnmanaged && freshServiceScan) args.push('--fresh-service-scan');
   return args;
 }
 
@@ -215,6 +219,7 @@ export function startScan({
   checks = {},
   seeds = [],
   replaceEmpty = false,
+  freshServiceScan = false,
   timeoutSeconds = 1800,
   trigger = 'manual',
   onDone,
@@ -258,7 +263,7 @@ export function startScan({
   // scanner exits, so it still holds the previous graph.
   const args = scanArgs(
     { vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath), previous: graphPath },
-    { deviceCves, checks, seeds }
+    { deviceCves, checks, seeds, freshServiceScan }
   );
   logger.info(`scan started: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
   const child = spawn(pythonBin, args, { cwd: backendDir, env });
