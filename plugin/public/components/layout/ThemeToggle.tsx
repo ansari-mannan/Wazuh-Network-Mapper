@@ -1,11 +1,17 @@
 // Sun/moon button in every page header: flips the dashboard's own dark mode
 // setting and reloads, since the compiled stylesheet is picked at page load.
+// OpenSearch Dashboards 2.19 keeps no per-browser or per-user theme (the
+// setting is global, and its own "Appearance" menu, which also writes it, is
+// not even registered), so the label says the change reaches every user.
 import React from 'react';
 import { EuiButtonIcon, EuiToolTip } from '@elastic/eui';
 import { CoreStart } from '../../../../../src/core/public';
 import { useServices } from '../../lib/services';
 
 const SETTING = 'theme:darkMode';
+
+// a save is on its way and the page is about to reload: further clicks wait for it
+let switching = false;
 
 // OUI 1.x has a moon icon but no sun.
 function SunIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -28,6 +34,8 @@ export async function toggleDarkMode(
   notifications: CoreStart['notifications'],
   reload: () => void = () => window.location.reload()
 ) {
+  if (switching) return; // one save, one reload
+  switching = true;
   let saved = false;
   try {
     saved = await uiSettings.set(SETTING, !uiSettings.get(SETTING));
@@ -35,6 +43,7 @@ export async function toggleDarkMode(
     saved = false;
   }
   if (saved) return reload();
+  switching = false;
   notifications.toasts.addWarning({
     title: 'Could not change the theme',
     text:
@@ -46,9 +55,9 @@ export async function toggleDarkMode(
 export function ThemeToggle() {
   const { uiSettings, notifications } = useServices();
   const dark = Boolean(uiSettings.get(SETTING));
-  const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+  const label = dark ? 'Switch to light mode for everyone' : 'Switch to dark mode for everyone';
   return (
-    <EuiToolTip content={label}>
+    <EuiToolTip content={`${label}: the theme is one setting for all users of this dashboard.`}>
       <EuiButtonIcon
         iconType={dark ? SunIcon : 'moon'}
         aria-label={label}
