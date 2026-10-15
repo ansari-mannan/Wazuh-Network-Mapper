@@ -31,6 +31,13 @@ describe('nextRun', () => {
     expect(nextRun({ frequency: '12h', dailyHour: 0 }, at(13))).toEqual(at(0, 0, 14));
   });
 
+  it('runs every 15 or 30 minutes on the local quarter or half hours', () => {
+    expect(nextRun({ frequency: '15m', dailyHour: 0 }, at(10, 30))).toEqual(at(10, 45)); // strictly after now
+    expect(nextRun({ frequency: '15m', dailyHour: 0 }, at(10, 52))).toEqual(at(11));
+    expect(nextRun({ frequency: '30m', dailyHour: 0 }, at(10, 29))).toEqual(at(10, 30));
+    expect(nextRun({ frequency: '30m', dailyHour: 0 }, at(23, 45))).toEqual(at(0, 0, 14));
+  });
+
   it('runs daily at the chosen hour, today or tomorrow', () => {
     expect(nextRun({ frequency: 'daily', dailyHour: 22 }, at(10))).toEqual(at(22));
     expect(nextRun({ frequency: 'daily', dailyHour: 2 }, at(10))).toEqual(at(2, 0, 14));
@@ -108,10 +115,39 @@ describe('createScheduler', () => {
     await s.set({ frequency: '1h', dailyHour: 0 });
     jest.advanceTimersByTime(30 * 60 * 1000);
     expect(s.get().lastRun?.status).toBe('skipped');
-    expect(logger.info).toHaveBeenCalledWith(expect.stringMatching(/skipped: a scan was already running/));
+    expect(logger.info).toHaveBeenCalledWith(expect.stringMatching(/skipped: previous scan still running/));
+    expect(s.get().lastRun?.message).toBe('previous scan still running');
     expect(s.get().nextRun).toBe(at(12).toISOString());
     jest.advanceTimersByTime(60 * 60 * 1000);
     expect(startScan).toHaveBeenCalledTimes(2);
+    s.stop();
+  });
+
+  it('fires every 15 minutes', async () => {
+    const startScan = jest.fn(() => true);
+    const s = make(startScan);
+    await s.set({ frequency: '15m', dailyHour: 0 });
+    expect(s.get().nextRun).toBe(at(10, 45).toISOString());
+    jest.advanceTimersByTime(15 * 60 * 1000);
+    expect(startScan).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(15 * 60 * 1000);
+    expect(startScan).toHaveBeenCalledTimes(2);
+    s.stop();
+  });
+
+  it('skips a 15-minute slot during a running scan without queueing it; the next one runs', async () => {
+    let running = true; // a manual scan started before the slot
+    const startScan = jest.fn(() => !running);
+    const s = make(startScan);
+    await s.set({ frequency: '15m', dailyHour: 0 });
+    jest.advanceTimersByTime(15 * 60 * 1000); // 10:45, still running
+    expect(s.get().lastRun).toMatchObject({ at: at(10, 45).toISOString(), status: 'skipped', message: 'previous scan still running' });
+    running = false; // it finishes at 10:50: nothing starts then
+    jest.advanceTimersByTime(5 * 60 * 1000);
+    expect(startScan).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(10 * 60 * 1000); // 11:00
+    expect(startScan).toHaveBeenCalledTimes(2);
+    expect(startScan).toHaveLastReturnedWith(true);
     s.stop();
   });
 

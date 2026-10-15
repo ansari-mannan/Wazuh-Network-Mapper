@@ -394,8 +394,9 @@ export type ScanState = {
 };
 
 // Scheduled scans (schedule.json beside the graph; GET/POST /api/vulnmapper/schedule).
-// Every N hours runs on the server's local hours divisible by N; daily at dailyHour:00.
-export type ScheduleFrequency = 'off' | '1h' | '3h' | '6h' | '12h' | 'daily';
+// Every N minutes or hours runs on the server's local minutes or hours
+// divisible by N; daily at dailyHour:00.
+export type ScheduleFrequency = 'off' | '15m' | '30m' | '1h' | '3h' | '6h' | '12h' | 'daily';
 
 export type ScheduledRun = {
   at: string; // ISO time the slot fired

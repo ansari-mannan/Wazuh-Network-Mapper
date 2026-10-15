@@ -8,13 +8,16 @@ import { schema } from '@osd/config-schema';
 import { ScheduleFile, ScheduleFrequency, ScheduledRun, ScheduleResponse } from '../common';
 import { writeFileAtomic } from './fsutil';
 
-export const FREQUENCIES: ScheduleFrequency[] = ['off', '1h', '3h', '6h', '12h', 'daily'];
+export const FREQUENCIES: ScheduleFrequency[] = ['off', '15m', '30m', '1h', '3h', '6h', '12h', 'daily'];
+const EVERY_MINUTES: Partial<Record<ScheduleFrequency, number>> = { '15m': 15, '30m': 30 };
 const EVERY_HOURS: Partial<Record<ScheduleFrequency, number>> = { '1h': 1, '3h': 3, '6h': 6, '12h': 12 };
 
 // POST /api/vulnmapper/schedule's body (the literals are FREQUENCIES).
 export const scheduleBody = schema.object({
   frequency: schema.oneOf([
     schema.literal('off'),
+    schema.literal('15m'),
+    schema.literal('30m'),
     schema.literal('1h'),
     schema.literal('3h'),
     schema.literal('6h'),
@@ -55,12 +58,19 @@ export function parseSchedule(text: string | null): ScheduleFile {
 
 /**
  * The first due time strictly after `now`, in the server's local time: every
- * N hours runs on the local hours divisible by N (00:00, 03:00, ... for 3h),
- * so the slots do not drift across restarts; daily runs at dailyHour:00.
+ * N minutes or hours runs on the local minutes or hours divisible by N
+ * (:00, :15, ... for 15m; 00:00, 03:00, ... for 3h), so the slots do not drift
+ * across restarts; daily runs at dailyHour:00.
  */
 export function nextRun({ frequency, dailyHour }: Pick<ScheduleFile, 'frequency' | 'dailyHour'>, now: Date): Date | null {
   if (frequency === 'off') return null;
   const t = new Date(now);
+  const minutes = EVERY_MINUTES[frequency];
+  if (minutes) {
+    t.setSeconds(0, 0);
+    t.setMinutes(t.getMinutes() - (t.getMinutes() % minutes) + minutes);
+    return t;
+  }
   t.setMinutes(0, 0, 0);
   const every = EVERY_HOURS[frequency];
   for (let i = 0; i < 49; i++) {
@@ -79,6 +89,8 @@ export function hasEnvCredential(env: NodeJS.ProcessEnv): boolean {
 export const NO_CREDENTIAL =
   'No SNMP credential is set in the dashboard server environment (SNMP_COMMUNITIES, SNMP_COMMUNITY ' +
   'or SNMP_V3_USER). Scheduled scans use only that, never one typed into the scan form.';
+
+export const SKIPPED_RUNNING = 'previous scan still running';
 
 export interface SchedulerDeps {
   file: string;
@@ -132,8 +144,9 @@ export function createScheduler(deps: SchedulerDeps) {
         record(ok ? 'completed' : 'failed', message, at);
       })
     ) {
-      deps.logger.info(`scheduled scan for ${slot.toISOString()} skipped: a scan was already running`);
-      record('skipped', 'A scan was already running, so this slot was skipped.', at);
+      // never queued: the slot is dropped and the next one tries again
+      deps.logger.info(`scheduled scan for ${slot.toISOString()} skipped: previous scan still running`);
+      record('skipped', SKIPPED_RUNNING, at);
     } else {
       deps.logger.info(`scheduled scan started (slot ${slot.toISOString()})`);
     }
