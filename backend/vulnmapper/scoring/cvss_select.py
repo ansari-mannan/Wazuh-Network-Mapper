@@ -25,6 +25,7 @@ import json
 import logging
 import re
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 from typing import Callable, Optional
@@ -117,6 +118,7 @@ class CveRecords:
         self._lock = threading.Lock()
         self.stats = {"hits": 0, "fetched": 0, "not_found": 0, "expired_used": 0,
                       "unanswered": 0, "requests": 0}
+        self.load_s = 0.0               # wall time of load(), for the stage note
 
     def _remaining(self) -> float:
         return self.budget_s - (self._clock.monotonic() - self._started)
@@ -152,6 +154,7 @@ class CveRecords:
     def load(self, cve_ids: list) -> dict:
         """``{CVE id: trimmed record or None}``. ``cve_ids`` in the order to fetch
         (most important first); a CVE with no record is left out."""
+        started = time.monotonic()
         out, todo, expired = {}, [], {}
         for cve_id in dict.fromkeys(cve_ids):
             entry = self.cache.get(cve_id)
@@ -186,6 +189,7 @@ class CveRecords:
                  "used, %d left to the tool score (%d request(s))", s["hits"], s["fetched"],
                  s["not_found"], s["expired_used"], "y" if s["expired_used"] == 1 else "ies",
                  s["unanswered"], s["requests"])
+        self.load_s = time.monotonic() - started
         return out
 
 

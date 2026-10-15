@@ -11,6 +11,7 @@ it writes. Reads the threat feeds and CVE records (cached); writes
 from __future__ import annotations
 
 import os
+import time
 from collections import Counter
 from typing import TYPE_CHECKING, Optional
 
@@ -129,7 +130,9 @@ def score(graph: dict, vulns: dict, targets: Optional[dict], folder: Optional[st
     records = CveRecords(records_cache(os.path.join(folder, RECORDS_FILENAME) if folder else None,
                                        clock), clock, transport)
     engine = AttackPathEngine(graph, targets, vulns)
+    t0 = time.monotonic()
     block = score_graph(graph, vulns, targets, engine, threat, records)
+    scoring_s = time.monotonic() - t0 - records.load_s
     graph.setdefault("metadata", {})["threat_feeds"] = threat.block
 
     out = StageResult(block=block)
@@ -139,7 +142,9 @@ def score(graph: dict, vulns: dict, targets: Optional[dict], folder: Optional[st
     scored = sum(v for k, v in block["findings_by_tier"].items() if k != UNRATED)
     out.note = (f"{plural(scored, 'finding')} scored on "
                 f"{plural(block['nodes_by_status'].get('assessed', 0), 'asset')}; "
-                f"KEV {threat.block['kev']}, EPSS {threat.block['epss']}")
+                f"KEV {threat.block['kev']}, EPSS {threat.block['epss']}; "
+                f"records fetch {records.load_s:.1f} s, {records.stats['fetched']} fetched, "
+                f"{records.stats['hits']} cached; scoring {scoring_s:.1f} s")
     return engine, out
 
 

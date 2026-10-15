@@ -16,6 +16,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -55,6 +56,8 @@ def normalise(doc: dict) -> dict:
     for stage in meta.get("stages") or []:
         if stage.get("seconds") is not None:
             stage["seconds"] = FROZEN
+        if stage.get("note"):           # sub-timings such as "records fetch 0.3 s"
+            stage["note"] = re.sub(r"\b\d+\.\d s\b", f"{FROZEN} s", stage["note"])
     return doc
 
 

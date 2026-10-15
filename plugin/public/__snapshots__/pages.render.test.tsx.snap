@@ -11083,7 +11083,7 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -11583,7 +11583,7 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -12073,7 +12073,7 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -12558,7 +12558,7 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">
@@ -13062,7 +13062,7 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 </td>
 <td class=\\"euiTableRowCell\\">
 <div class=\\"euiTableRowCell__mobileHeader euiTableRowCell--hideForDesktop\\">Note</div>
-<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh</div>
+<div class=\\"euiTableCellContent euiTableCellContent--overflowingContent\\">27 findings scored on 4 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 2 fetched, 0 cached; scoring FROZEN s</div>
 </td>
 </tr>
 <tr class=\\"euiTableRow\\">

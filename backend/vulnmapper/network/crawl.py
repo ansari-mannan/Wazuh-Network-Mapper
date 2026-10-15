@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from typing import Optional
 
 from .config import DEFAULT_CONCURRENCY, DEFAULT_MAX_NODES, Config
@@ -85,6 +86,8 @@ class Crawler:
         self._cdp_links: list[tuple[str, Neighbor]] = []
         # Platform strings CDP neighbours reported, by the address they gave.
         self._platform_by_ip: dict[str, str] = {}
+        # seconds each polled device took, by its name (else address), for the stage note
+        self.poll_seconds: dict[str, float] = {}
 
     # ---- queueing (callers hold the lock) ---------------------------------
 
@@ -169,10 +172,17 @@ class Crawler:
 
     async def _process(self, ip: str, expected_cid: Optional[str], via: str = "lldp") -> None:
         """Poll one device, record it and queue its neighbours."""
+        started = time.monotonic()
         polled = await self._identify(ip, expected_cid, via)
         if polled is None:
             return
         chassis_id, info, own_macs = polled
+        try:
+            await self._poll(ip, chassis_id, info, own_macs)
+        finally:
+            self.poll_seconds[info.get("hostname") or ip] = round(time.monotonic() - started, 1)
+
+    async def _poll(self, ip: str, chassis_id: str, info: dict, own_macs: list) -> None:
 
         neighbors = await self._walk_neighbors(ip)
         cdp = [nb for nb in await self._walk_cdp(ip) if not _same_neighbor(nb, neighbors)]
@@ -547,6 +557,7 @@ async def run(cfg: Config) -> dict:
     await crawler.seed(seeds)
     devices, links = await crawler.run()
     document = build_document(devices, links, pollable_only=cfg.pollable_only)
+    document["poll_seconds"] = crawler.poll_seconds
     if not any(d.pollable for d in devices):
         _log_runner.error("no device answered SNMP from seeds %s", ", ".join(seeds))
         return _empty("no device answered", document)

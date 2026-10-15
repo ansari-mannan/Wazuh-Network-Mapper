@@ -52,21 +52,41 @@ class TestPipelineCarriesIt(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp)
 
-    def test_warning_and_stage_note(self):
+    def run_network(self, doc):
         network = os.path.join(self.tmp, "network.json")
         with open(network, "w", encoding="utf-8") as f:
-            json.dump({"nodes": [], "edges": [],
-                       "warnings": [{"type": "crawl_empty", "reason": "no seed"}]}, f)
+            json.dump(doc, f)
         graph = os.path.join(self.tmp, "graph.json")
         argv = ["--scored", os.path.join(FIXTURES, "offline_scored.json"), "--network", network,
                 "--no-device-cves", "--no-cve-vectors", "--no-name-lookup", "-o", graph]
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(Pipeline().run(argv), 0)
         with open(graph, encoding="utf-8") as f:
-            metadata = json.load(f)["metadata"]
+            return json.load(f)["metadata"]
+
+    def test_warning_and_stage_note(self):
+        metadata = self.run_network({"nodes": [], "edges": [],
+                                     "warnings": [{"type": "crawl_empty", "reason": "no seed"}]})
         self.assertIn({"type": "crawl_empty", "reason": "no seed"}, metadata["warnings"])
         stage = next(s for s in metadata["stages"] if s["name"] == "Network crawl")
         self.assertIn("(no seed)", stage["note"])
+
+    def test_slowest_polls_in_the_note(self):
+        polls = {f"sw{i}": float(i) for i in range(1, 8)}
+        metadata = self.run_network({"nodes": [], "edges": [], "poll_seconds": polls})
+        stage = next(s for s in metadata["stages"] if s["name"] == "Network crawl")
+        self.assertTrue(stage["note"].endswith(
+            "; slowest polls: sw7 7.0 s, sw6 6.0 s, sw5 5.0 s, sw4 4.0 s, sw3 3.0 s"), stage["note"])
+
+    def test_live_crawl_times_each_device(self):
+        from test_cdp import lab
+
+        with mock.patch.object(crawl, "discover_seeds", lambda explicit: ["172.20.20.254"]), \
+                mock.patch.object(crawl, "SnmpClient", lambda *a, **k: lab()):
+            doc = crawl.crawl_document(Config(credentials=CRED, seeds=[]))
+        polled = [n.get("hostname") or n["ip"] for n in doc["nodes"] if n.get("pollable")]
+        self.assertEqual(sorted(doc["poll_seconds"]), sorted(polled))
+        self.assertTrue(all(s >= 0 for s in doc["poll_seconds"].values()))
 
 
 if __name__ == "__main__":

@@ -1383,7 +1383,7 @@
         "name": "OVSS scoring",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "4 findings scored on 2 assets; KEV fresh, EPSS fresh"
+        "note": "4 findings scored on 2 assets; KEV fresh, EPSS fresh; records fetch FROZEN s, 1 fetched, 0 cached; scoring FROZEN s"
       },
       {
         "name": "Attack paths",
