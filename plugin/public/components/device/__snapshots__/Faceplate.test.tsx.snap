@@ -2,7 +2,7 @@
 
 exports[`Faceplate 8-port switch: two rows of four, no uplink block 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 235.46000000000004 110\\" width=\\"100%\\" style=\\"max-width: 294.32500000000005px;\\" role=\\"group\\" aria-label=\\"sw8 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -273,7 +273,7 @@ exports[`Faceplate 8-port switch: two rows of four, no uplink block 1`] = `
 
 exports[`Faceplate 24+2 Cisco switch: rack panel, states, route ring, inferred-free, logical folded 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 438 110\\" width=\\"100%\\" style=\\"max-width: 547.5px;\\" role=\\"group\\" aria-label=\\"sw24 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -1109,7 +1109,7 @@ exports[`Faceplate 24+2 Cisco switch: rack panel, states, route ring, inferred-f
 
 exports[`Faceplate 48+2 switch: the full strip with every detail, and Expand opens it larger in a modal 1`] = `
 "<div data-aria-hidden=\\"true\\" aria-hidden=\\"true\\">
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"100%\\" style=\\"max-width: 967.5px;\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -2653,7 +2653,7 @@ exports[`Faceplate 48+2 switch: the full strip with every detail, and Expand ope
 </div>
 <div class=\\"euiModalBody\\">
 <div class=\\"euiModalBody__overflow\\">
-<div class=\\"vmFp vmFpScroll\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp vmFpScroll\\" style=\\"--vm-route: #BD271E;\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"1238\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
 <defs>
 <linearGradient id=\\"X\\" x1=\\"0\\" y1=\\"0\\" x2=\\"0\\" y2=\\"1\\">
@@ -4142,7 +4142,7 @@ exports[`Faceplate 48+2 switch: the full strip with every detail, and Expand ope
 
 exports[`Faceplate FortiGate 200D: MGMT/HA, INTERNAL on two rows, DMZ, and WAN rightmost behind a divider 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 486.12 110\\" width=\\"100%\\" style=\\"max-width: 607.65px;\\" role=\\"group\\" aria-label=\\"fw200 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -4851,7 +4851,7 @@ exports[`Faceplate FortiGate 200D: MGMT/HA, INTERNAL on two rows, DMZ, and WAN r
 
 exports[`Faceplate FortiGate: desktop box, INTERNAL/DMZ/WAN groups, dashed inferred wan1 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 356.5 77\\" width=\\"100%\\" style=\\"max-width: 445.625px;\\" role=\\"group\\" aria-label=\\"fw front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -5259,7 +5259,7 @@ exports[`Faceplate FortiGate: desktop box, INTERNAL/DMZ/WAN groups, dashed infer
 
 exports[`Faceplate access point: puck with the radios as antenna LEDs showing their client counts 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 252.42 77\\" width=\\"100%\\" style=\\"max-width: 315.525px;\\" role=\\"group\\" aria-label=\\"ap front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -5439,7 +5439,7 @@ exports[`Faceplate access point: puck with the radios as antenna LEDs showing th
 
 exports[`Faceplate firewall with only port_status: desktop layout, WAN far right, virtual interfaces folded 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 401.12 77\\" width=\\"100%\\" style=\\"max-width: 501.4px;\\" role=\\"group\\" aria-label=\\"fwold front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -5879,7 +5879,7 @@ exports[`Faceplate firewall with only port_status: desktop layout, WAN far right
 
 exports[`Faceplate in a measured card Cisco 2960-48TT in 560 px: one strip with full detail, ports >= 22 px, scrolling, Expand 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip vmFpStrip--scroll\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"774\\" style=\\"\\" role=\\"group\\" aria-label=\\"sw48 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -7410,7 +7410,7 @@ exports[`Faceplate in a measured card Cisco 2960-48TT in 560 px: one strip with 
 
 exports[`Faceplate in a measured card HP 1920-48G (1-52) in 560 px: one strip with full detail, ports >= 22 px, scrolling, Expand 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip vmFpStrip--scroll\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 826 110\\" width=\\"826\\" style=\\"\\" role=\\"group\\" aria-label=\\"hp1920 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -9035,7 +9035,7 @@ exports[`Faceplate in a measured card HP 1920-48G (1-52) in 560 px: one strip wi
 
 exports[`Faceplate in a measured card a card too narrow for one row splits the groups onto two rows, WAN still far right 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--desktop\\" viewBox=\\"0 0 401.52 110\\" width=\\"402\\" style=\\"\\" role=\\"group\\" aria-label=\\"edge-fw front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -9450,7 +9450,7 @@ exports[`Faceplate in a measured card a card too narrow for one row splits the g
 
 exports[`Faceplate unknown device with only port_status: a plain panel, PWR off when SNMP did not answer 1`] = `
 "<div>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--generic\\" viewBox=\\"0 0 130.34 77\\" width=\\"100%\\" style=\\"max-width: 162.925px;\\" role=\\"group\\" aria-label=\\"unknown front panel\\" data-test-subj=\\"vmFaceplate\\">

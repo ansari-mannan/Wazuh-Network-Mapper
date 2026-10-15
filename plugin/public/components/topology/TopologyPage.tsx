@@ -22,7 +22,8 @@ import { useGraph } from '../../lib/graph';
 import { useLiveness } from '../../lib/liveness';
 import { useServices } from '../../lib/services';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
-import { TopologyView, TopologyViewHandle } from './TopologyView';
+import { ROUTE_DASH, TopologyView, TopologyViewHandle } from './TopologyView';
+import { graphColors } from '../../lib/theme';
 import { DeviceDetail } from './DeviceDetail';
 import { MapLegend } from './MapLegend';
 import { hiddenKeyOf, offlineHosts, visibleSelection } from './inactive';
@@ -199,7 +200,11 @@ export function TopologyPage() {
       {routeKey && (
         <>
           <EuiText size="xs" color="subdued" data-test-subj="vmRouteLegend">
-            <p>Numbered ring = on this route; arrows show the direction of travel; risk colour is unchanged.</p>
+            <p>
+              <svg width={44} height={12} aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 4 }}>
+                <line x1={2} y1={6} x2={42} y2={6} stroke={graphColors.route} strokeWidth={4} strokeDasharray={ROUTE_DASH} />
+              </svg>
+              Attack route. Numbered ring = on this route; arrows show the direction of travel; risk colour is unchanged.</p>
           </EuiText>
           <div style={{ height: 8 }} />
         </>

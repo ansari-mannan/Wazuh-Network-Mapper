@@ -82,7 +82,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 <span class=\\"euiButtonEmpty__text\\">Show as list</span>
 </span>
 </button>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"100%\\" style=\\"max-width: 967.5px;\\" role=\\"group\\" aria-label=\\"L2-Switch front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -2172,7 +2172,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <span class=\\"euiButtonEmpty__text\\">Show as list</span>
 </span>
 </button>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 438 110\\" width=\\"100%\\" style=\\"max-width: 547.5px;\\" role=\\"group\\" aria-label=\\"L3-Switch front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -4225,7 +4225,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <span class=\\"euiButtonEmpty__text\\">Show as list</span>
 </span>
 </button>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--puck\\" viewBox=\\"0 0 333.06 77\\" width=\\"100%\\" style=\\"max-width: 416.325px;\\" role=\\"group\\" aria-label=\\"CYFOR-AP1 front panel\\" data-test-subj=\\"vmFaceplate\\">
@@ -7619,7 +7619,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <span class=\\"euiButtonEmpty__text\\">Show as list</span>
 </span>
 </button>
-<div class=\\"vmFp\\" style=\\"--vm-route: #7c3aed;\\">
+<div class=\\"vmFp\\" style=\\"--vm-route: #BD271E;\\">
 <div class=\\"vmFpStripWrap\\">
 <div class=\\"vmFpStrip\\" data-test-subj=\\"vmFaceplateStrip\\">
 <svg class=\\"vmFaceplate vmFaceplate--rack\\" viewBox=\\"0 0 774 110\\" width=\\"100%\\" style=\\"max-width: 967.5px;\\" role=\\"group\\" aria-label=\\"L2-Switch front panel\\" data-test-subj=\\"vmFaceplate\\">

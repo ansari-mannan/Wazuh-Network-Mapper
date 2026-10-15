@@ -21,8 +21,9 @@ const LIGHT = {
     edgeWifi: '#0d9488',
     edgeInferred: '#f59e0b',
     labelInferred: '#b45309',
-    // the route on "Show on map": a colour no risk band uses
-    route: '#7c3aed',
+    // the attack route (map, faceplate, selected route card): OUI's danger red.
+    // P0 is also red, so the route is told apart by its glow and moving dashes.
+    route: '#BD271E',
     // the step number written on the route colour
     routeText: '#ffffff',
   },
@@ -39,7 +40,7 @@ const DARK: typeof LIGHT = {
     edgeWifi: '#2dd4bf',
     edgeInferred: '#f59e0b',
     labelInferred: '#fbbf24',
-    route: '#a78bfa',
+    route: '#FF6666',
     routeText: '#1d1e24',
   },
   tierText: { P0: '#f87171', P1: '#fb923c', P2: '#facc15', P3: '#60a5fa' },

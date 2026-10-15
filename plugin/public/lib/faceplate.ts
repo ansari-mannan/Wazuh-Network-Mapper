@@ -537,7 +537,7 @@ export function speedText(mbps: number | null | undefined): string {
   return mbps >= 1000 ? `${mbps / 1000} Gb/s` : `${mbps} Mb/s`;
 }
 
-/** A hover/focus tooltip: a bold title, plain lines, and the route line in violet. */
+/** A hover/focus tooltip: a bold title, plain lines, and the route line in the route colour. */
 export interface TipContent {
   title: string;
   lines: string[];

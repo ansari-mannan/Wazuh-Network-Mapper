@@ -77,14 +77,23 @@
 
   // Showing one route (Attack paths "Show on map"). Every node off it fades
   // back. A node on it gets an outer ring, a step number and, at either end, a
-  // Start or Target tag, all in a colour no risk band uses (lib/theme.ts
-  // graphColors.route, set on .canvas as --vm-route), so its risk border keeps
-  // its meaning.
+  // Start or Target tag, all in the route colour (lib/theme.ts
+  // graphColors.route, set on .canvas as --vm-route). That is a red like P0's,
+  // so the route also glows and its links march; P0 stays a flat badge.
+  .react-flow__edge.vmRouteEdge .react-flow__edge-path {
+    filter: drop-shadow(0 0 3px var(--vm-route));
+    animation: vmRouteMarch 0.8s linear infinite;
+  }
+  .react-flow__edge.vmRouteEdge--reverse .react-flow__edge-path { animation-direction: reverse; }
+  @media (prefers-reduced-motion: reduce) {
+    .react-flow__edge.vmRouteEdge .react-flow__edge-path { animation: none; }
+  }
   .react-flow__node.vmDim {
     opacity: 0.18;
   }
   .react-flow__node.vmOnRoute .node {
-    box-shadow: 0 0 0 3px $euiColorEmptyShade, 0 0 0 6px var(--vm-route), var(--vm-shadow);
+    box-shadow: 0 0 0 3px $euiColorEmptyShade, 0 0 0 6px var(--vm-route), 0 0 14px 6px var(--vm-route),
+      var(--vm-shadow);
   }
   .node__step {
     position: absolute; top: 50%; left: -13px;
@@ -183,4 +192,9 @@
   .euiDescriptionList__description {
     max-width: 75ch;
   }
+}
+
+// one dash + gap of TopologyView ROUTE_DASH per cycle, in the travel direction
+@keyframes vmRouteMarch {
+  to { stroke-dashoffset: -16; }
 }

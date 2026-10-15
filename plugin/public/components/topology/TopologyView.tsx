@@ -95,6 +95,7 @@ type EdgeStyle = CSSProperties & { stroke: string };
 
 // a Wi-Fi link stays dashed, on a route too
 const WIFI_DASH = '5 5';
+export const ROUTE_DASH = '10 6';
 
 // Edge visual style by relationship type + placement confidence (Issue 6).
 export function edgeStyle(e: Pick<LayoutEdge, 'inferred' | 'type' | 'confidence'> & { label?: string }): EdgeStyle {
@@ -177,18 +178,21 @@ interface TopologyViewProps {
   routeKey?: string;
 }
 
-// A link the route travels along: in the route colour, with the arrowhead at
+// A link the route travels along: thicker, in the route colour, with marching
+// dashes and a glow (topology.scss .vmRouteEdge), and the arrowhead at
 // the end the route goes to. The link keeps the direction it is drawn in (from
 // the upper node to the lower), so going "up" puts the arrow at its start.
 function routeEdge(e: Edge, arrow: 'start' | 'end'): Edge {
   const marker = { type: MarkerType.ArrowClosed, color: graphColors.route, width: 18, height: 18 };
   return {
     ...e,
+    // the dashes march the way the route goes, so backwards on a link drawn the other way
+    className: arrow === 'start' ? 'vmRouteEdge vmRouteEdge--reverse' : 'vmRouteEdge',
     style: {
       ...e.style,
       stroke: graphColors.route,
-      strokeWidth: 3,
-      strokeDasharray: e.type === 'wifi' ? WIFI_DASH : undefined,
+      strokeWidth: 4,
+      strokeDasharray: e.type === 'wifi' ? WIFI_DASH : ROUTE_DASH,
       opacity: 1,
     },
     markerEnd: arrow === 'end' ? marker : undefined,

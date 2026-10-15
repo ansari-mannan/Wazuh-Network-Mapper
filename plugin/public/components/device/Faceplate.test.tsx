@@ -9,6 +9,7 @@ import { act } from 'react-dom/test-utils';
 import { DeviceNode } from '../../../common';
 import { Faceplate } from './Faceplate';
 import { faceplateOf } from '../../lib/faceplate';
+import { graphColors } from '../../lib/theme';
 import {
   accessPoint,
   fortigate,
@@ -70,6 +71,8 @@ describe('Faceplate', () => {
     // the route enters by Fa1/0/1 (from the firewall) and leaves by Fa1/0/15 (to the host)
     const ringed = Array.from(el.querySelectorAll('.vmFpRoute')).map((r) => r.parentElement!.getAttribute('data-port'));
     expect(ringed).toEqual(['FastEthernet1/0/1', 'FastEthernet1/0/15']);
+    // the ring's stroke is var(--vm-route), the route token
+    expect((el.querySelector('.vmFpRoute')!.closest('.vmFp') as HTMLElement).style.getPropertyValue('--vm-route')).toBe(graphColors.route);
     const fa1 = socket(el, 'FastEthernet1/0/1');
     expect(box()).toBeNull();
     hover(fa1);

@@ -23,7 +23,7 @@ jest.mock('react-flow-renderer', () => {
         const Custom = e.type === 'wifi' ? edgeTypes.wifi : null;
         const ends = { sourceX: 0, sourceY: 0, targetX: 100, targetY: 100 + i };
         return (
-          <g key={e.id} data-edge={`${e.source}->${e.target}`} data-type={e.type || 'default'}>
+          <g key={e.id} className={e.className} data-edge={`${e.source}->${e.target}`} data-type={e.type || 'default'}>
             {Custom ? (
               <Custom id={e.id} {...ends} data={e.data} style={e.style} markerEnd={e.markerEnd && 'url(#end)'}
                 markerStart={e.markerStart && 'url(#start)'}
@@ -41,6 +41,7 @@ jest.mock('react-flow-renderer', () => {
 
 import { TopologyView } from './TopologyView';
 import { MapLegend } from './MapLegend';
+import { graphColors } from '../../lib/theme';
 
 // a switch and an access point, a wired host on the switch and a laptop on the AP's 2.4 GHz radio
 const ids = ['device:sw24', 'device:ap', 'endpoint:101', 'host:wifi1'];
@@ -111,7 +112,11 @@ describe('map: wired and wireless clients', () => {
     );
     const path = edgeOf('host:wifi1', 'device:ap').querySelector('path.react-flow__edge-path') as SVGElement;
     expect(path.style.strokeDasharray).toBe('5 5');
-    expect(path.style.strokeWidth).toBe('3');
+    expect(path.style.strokeWidth).toBe('4');
+    // the route token draws the link, its arrow and (as --vm-route) the node rings
+    expect(path.style.stroke).toBe(graphColors.route);
+    expect(edgeOf('host:wifi1', 'device:ap').getAttribute('class')).toContain('vmRouteEdge');
+    expect((root.querySelector('.canvas') as HTMLElement).style.getPropertyValue('--vm-route')).toBe(graphColors.route);
     // the arrow points the way the route travels, at whichever end that is drawn
     expect([path.getAttribute('marker-end'), path.getAttribute('marker-start')]).toContain(
       edgeOf('host:wifi1', 'device:ap').getAttribute('data-edge') === 'host:wifi1->device:ap' ? 'url(#end)' : 'url(#start)'

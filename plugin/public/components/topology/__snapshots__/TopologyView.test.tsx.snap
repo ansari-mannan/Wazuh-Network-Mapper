@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`map: wired and wireless clients draws the wireless link dashed with a Wi-Fi mark and tooltip, the wired one plainly 1`] = `
-"<div class=\\"canvas\\" style=\\"--vm-route: #7c3aed; --vm-route-text: #ffffff;\\">
+"<div class=\\"canvas\\" style=\\"--vm-route: #BD271E; --vm-route-text: #ffffff;\\">
 <svg>
 <g data-edge=\\"device:sw24->device:ap\\" data-type=\\"ports\\">
 <path style=\\"stroke: #475569; stroke-width: 2;\\">

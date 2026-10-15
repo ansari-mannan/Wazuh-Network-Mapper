@@ -4,9 +4,12 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { ROUTE_LINE, TipContent } from '../../lib/faceplate';
+import { paletteFor } from '../../lib/theme';
 
 const OFFSET = 14;
 const MARGIN = 8;
+// the tip is dark on either theme, so its route line takes the dark route colour
+const TIP_ROUTE = paletteFor(true).graph.route;
 
 function HoverTip({ content, x, y }: { content: TipContent; x: number; y: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -27,7 +30,7 @@ function HoverTip({ content, x, y }: { content: TipContent; x: number; y: number
       {content.lines.map((line, i) => (
         <div key={i}>{line}</div>
       ))}
-      {content.route && <div className="vmTip__route">{ROUTE_LINE}</div>}
+      {content.route && <div className="vmTip__route" style={{ color: TIP_ROUTE }}>{ROUTE_LINE}</div>}
     </div>,
     document.body
   );
@@ -38,6 +41,7 @@ function HoverTip({ content, x, y }: { content: TipContent; x: number; y: number
  * handlers (hover and keyboard focus show it; leave, blur and Escape hide
  * it), and `tip` is the box to render, or null.
  */
+
 export function useHoverTip() {
   const [shown, setShown] = useState<{ content: TipContent; x: number; y: number } | null>(null);
   const hide = () => setShown(null);
