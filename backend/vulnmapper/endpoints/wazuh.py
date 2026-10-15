@@ -234,14 +234,30 @@ class WazuhSource:
 
     def _agents(self, select: str) -> list[dict]:
         """Every agent from ``/agents`` (the ``select``ed fields), page by page."""
+        return self._paged(self._get, "/agents", select)
+
+    def _paged(self, get, path: str, select: str) -> list[dict]:
+        """Every item of a Manager API list (the ``select``ed fields), page by page."""
         rows: list = []
         for _ in range(self.AGENT_MAX_PAGES):
-            page = self._get("/agents", params={"select": select, "limit": self.AGENT_PAGE,
-                                                "offset": len(rows)})
+            page = get(path, params={"select": select, "limit": self.AGENT_PAGE,
+                                     "offset": len(rows)})
             rows.extend(page)
             if len(page) < self.AGENT_PAGE:
                 break
         return rows
+
+    def server_inventory(self) -> tuple:
+        """``(os, packages)`` of the Wazuh server (agent 000) from syscollector:
+        the raw /os items and every package's name, version, architecture and
+        format. Wazuh indexes neither for the manager, so the OSV step
+        (vulnmapper.endpoints.osv) matches these itself. Raises on failure."""
+        if self._token is None:
+            self._authenticate()
+        base = f"/syscollector/{SERVER_AGENT_ID}"
+        return (self._get_inventory(f"{base}/os"),
+                self._paged(self._get_inventory, f"{base}/packages",
+                            "name,version,architecture,format"))
 
     def agent_status(self) -> list[dict]:
         """``id``, ``status`` and ``lastKeepAlive`` of every agent. Read-only.
