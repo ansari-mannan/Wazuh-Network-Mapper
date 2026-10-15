@@ -75,6 +75,18 @@ above, so the outputs equal a one-after-another run. A stage's seconds run
 from when its work started. The vector stage waits for the device CVEs and
 nmap; every NVD request still goes through the one rate-limited client.
 
+### Crawl speed
+
+Up to 32 devices are polled at once, each by one worker that asks it one
+thing at a time. A device's neighbours are queued as soon as its LLDP and CDP
+tables and its access point check are read, so the next device along the
+chain is polled while this one's forwarding, ARP, port and configuration
+tables are read. Walks are GETBULKs of 25 rows; a GETBULK that fails (no
+answer, tooBig, an agent error) is asked again a row at a time and the walk
+goes on that way. A walk follows each answer from the last OID returned, so
+Comware's out-of-order forwarding table is read whole. The crawl's stage note
+lists the slowest device polls.
+
 ### Device identity
 
 Every polled device has the standard inventory table (ENTITY-MIB

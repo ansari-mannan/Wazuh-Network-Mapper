@@ -208,7 +208,10 @@ class SnmpClient:
         """GETBULK-walk an OID subtree using an explicit auth object.
 
         ``max_rows`` stops the walk once that many rows are in hand (the first
-        page of a large table, e.g. the inventory table's leading rows).
+        page of a large table, e.g. the inventory table's leading rows). A
+        request that fails (no answer, tooBig, an agent error) is asked again
+        once a row at a time, and the walk goes on a row at a time: some
+        agents cannot build, or drop, a large GETBULK response.
         """
         transport = await self._transport(ip)
 
@@ -226,6 +229,10 @@ class SnmpClient:
                 max_repetitions,
                 ObjectType(ObjectIdentity(next_oid)),
             )
+            if (error_indication or error_status) and max_repetitions > 1:
+                log.debug("GETBULK of %s failed at %s; going on a row at a time", ip, next_oid)
+                max_repetitions = 1
+                continue
             if error_indication or error_status or not var_binds:
                 break
 

@@ -183,7 +183,10 @@ class Crawler:
             self.poll_seconds[info.get("hostname") or ip] = round(time.monotonic() - started, 1)
 
     async def _poll(self, ip: str, chassis_id: str, info: dict, own_macs: list) -> None:
-
+        # One request at a time to this device. Its neighbours are queued once
+        # its access point check is done (which reads what earlier devices'
+        # CDP tables said about it) and before the long table reads, so the
+        # next device along the chain is polled while this one is read.
         neighbors = await self._walk_neighbors(ip)
         cdp = [nb for nb in await self._walk_cdp(ip) if not _same_neighbor(nb, neighbors)]
         log.info("%s (%s): %d LLDP neighbor(s), %d more over CDP",
@@ -191,15 +194,15 @@ class Crawler:
         neighbor_ports, uplink_ports = _port_roles(neighbors, cdp)
 
         access_point = await self._check_access_point(ip, chassis_id, info)
-        await self._read_tables(ip, chassis_id, access_point, neighbor_ports, uplink_ports,
-                                own_macs)
-        if self._checklist:
-            await self._read_config(ip, chassis_id, info)
-
         for nb in neighbors:
             await self._handle_neighbor(chassis_id, nb)
         for nb in cdp:
             await self._handle_cdp_neighbor(chassis_id, nb)
+
+        await self._read_tables(ip, chassis_id, access_point, neighbor_ports, uplink_ports,
+                                own_macs)
+        if self._checklist:
+            await self._read_config(ip, chassis_id, info)
 
     async def _identify(self, ip: str, expected_cid: Optional[str], via: str):
         """``(chassis_id, identity, own MACs)`` for a device polled here for the
