@@ -10,8 +10,17 @@
     transform: translateY(-1px);
   }
 }
-.vmRouteTile--selected {
-  box-shadow: 0 0 0 2px rgba($euiColorPrimary, 0.55);
+/* the card whose route is shown: the route colour (--vm-route, set from
+ * graphColors.route on the list) as outline, left bar and a light tint */
+.euiPanel.vmRouteTile--selected {
+  border-color: var(--vm-route);
+  border-left-width: 2px;
+  box-shadow: 0 0 0 1px var(--vm-route);
+  background-image: linear-gradient(var(--vm-route-tint), var(--vm-route-tint));
+}
+.vmRouteTile:focus-visible {
+  outline: 2px solid $euiFocusRingColor;
+  outline-offset: 2px;
 }
 
 /* the down connector between takeover steps */

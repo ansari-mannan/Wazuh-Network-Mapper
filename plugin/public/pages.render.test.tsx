@@ -32,6 +32,7 @@ jest.mock('./lib/liveness', () => {
 import { VulnerabilityReportPage } from './components/vulnreport/VulnerabilityReportPage';
 import { DeviceDetail } from './components/topology/DeviceDetail';
 import { ScanSettingsPage } from './components/scan/ScanSettingsPage';
+import { AttackPathsPage } from './components/attackpaths/AttackPathsPage';
 import { ON_PATH_HELP } from './components/vulnreport/ReportControls';
 import { DRAWER_PAD, DRAWER_WIDTH, drawerWidth } from './lib/faceplate';
 import { accessPoint, fortigate, smallGraph, switch24, switch48, switchHp1920 } from './lib/faceplate.fixtures';
@@ -287,5 +288,60 @@ describe('vulnerability report: staged filters', () => {
     expect(disabled.disabled).toBe(true);
     // the help is the tooltip on the disabled switch
     expect(disabled.closest('.euiToolTipAnchor')).not.toBeNull();
+  });
+});
+
+describe('attack paths: the selected route card', () => {
+  let root: HTMLDivElement;
+  // three routes to one target; a copy of route #2 from another start is #3
+  const [r1, r2] = labPaths.targets[1].routes;
+  const three = { ...r2, rank: 3, start: 'host:00:00:00:00:00:03', likelihood: r2.likelihood - 0.1 };
+  const doc = { ...labPaths, targets: [{ ...labPaths.targets[1], routes: [r1, r2, three] }] };
+
+  beforeEach(() => {
+    load(labGraph);
+    data.paths = { doc, loading: false, error: null, reload: async () => {} };
+    root = document.createElement('div');
+    document.body.appendChild(root);
+    act(() => {
+      ReactDOM.render(<AttackPathsPage />, root);
+    });
+  });
+  afterEach(() => {
+    act(() => {
+      ReactDOM.unmountComponentAtNode(root);
+    });
+    document.body.innerHTML = '';
+  });
+
+  const cards = () => Array.from(root.querySelectorAll<HTMLElement>('[data-test-subj="vmRouteTile"]'));
+  // the rank of each selected card
+  const selected = () =>
+    cards()
+      .filter((c) => c.getAttribute('aria-selected') === 'true')
+      .map((c) => /#(\d+)/.exec(c.textContent!)![1]);
+
+  it('marks only the clicked card selected, and arrow keys move it', () => {
+    expect(selected()).toEqual(['1']);
+    act(() => {
+      Simulate.click(cards()[2]);
+    });
+    expect(selected()).toEqual(['3']);
+    const card = cards()[2];
+    expect(card.getAttribute('aria-current')).toBe('true');
+    expect(card.textContent).toContain('Selected');
+    expect(cards().filter((c) => c.textContent!.includes('Selected'))).toHaveLength(1);
+
+    const key = (k: string) =>
+      act(() => {
+        Simulate.keyDown(root.querySelector('.vmRouteTile--selected')!, { key: k });
+      });
+    key('ArrowUp');
+    expect(selected()).toEqual(['2']);
+    key('ArrowUp');
+    key('ArrowUp');
+    expect(selected()).toEqual(['1']);
+    key('ArrowDown');
+    expect(selected()).toEqual(['2']);
   });
 });

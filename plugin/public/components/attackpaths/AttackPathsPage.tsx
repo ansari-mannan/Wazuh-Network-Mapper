@@ -1,6 +1,6 @@
 // The attack paths page: for each protected asset, the most likely routes to
 // it from attack_paths.json, ranked, with the detail of the one selected.
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   EuiBadge,
   EuiCallOut,
@@ -32,6 +32,7 @@ import {
 import { RouteDetail } from './RouteDetail';
 import { tierReason } from '../../lib/ovssText';
 import { ProtectedAssets } from './ProtectedAssets';
+import { graphColors } from '../../lib/theme';
 
 const keyOf = (r: AttackRoute) => `${r.target}|${r.start}`;
 
@@ -65,11 +66,20 @@ function RouteTile({
       onClick={onSelect}
       className={`vmRouteTile ${selected ? 'vmRouteTile--selected' : ''}`}
       data-test-subj="vmRouteTile"
+      role="option"
+      aria-selected={selected}
+      aria-current={selected || undefined}
+      tabIndex={selected ? 0 : -1}
     >
       <EuiFlexGroup gutterSize="s" alignItems="baseline" responsive={false}>
         <EuiFlexItem grow={false}>
           <EuiBadge color="hollow">#{route.rank}</EuiBadge>
         </EuiFlexItem>
+        {selected && (
+          <EuiFlexItem grow={false}>
+            <EuiBadge color={graphColors.route}>Selected</EuiBadge>
+          </EuiFlexItem>
+        )}
         <EuiFlexItem>
           <EuiText size="s">
             <strong>{nameOf(route.target)}</strong>
@@ -97,6 +107,7 @@ export function AttackPathsPage() {
   const { graph } = useGraph();
   const { history } = useServices();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const nameOf = useMemo(
     () => makeNameOf(graph, doc?.starting_points || []),
@@ -131,6 +142,23 @@ export function AttackPathsPage() {
       setSelectedKey(keyOf(allRoutes[0]));
     }
   }, [allRoutes, selectedKey]);
+
+  // Keep the selected card in view, and keep focus on it while the list has focus.
+  useEffect(() => {
+    const card = listRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!card) return;
+    card.scrollIntoView?.({ block: 'nearest' });
+    if (listRef.current?.contains(document.activeElement)) card.focus();
+  }, [selectedKey]);
+
+  // Up/down arrows move the selection through the ranked list.
+  const onListKey = (e: React.KeyboardEvent) => {
+    const step = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0;
+    if (!step || !allRoutes.length) return;
+    e.preventDefault();
+    const i = allRoutes.findIndex((r) => keyOf(r) === selectedKey);
+    setSelectedKey(keyOf(allRoutes[Math.min(allRoutes.length - 1, Math.max(0, i + step))]));
+  };
 
   if (loading && !doc) return <EuiLoadingSpinner size="xl" />;
   if (error) return <EuiCallOut color="danger" iconType="alert" title={error} />;
@@ -195,7 +223,13 @@ export function AttackPathsPage() {
     )}
     <EuiSpacer size="l" />
     <EuiFlexGroup className="vmAttackPaths" gutterSize="l" alignItems="flexStart">
-      <EuiFlexItem grow={2} data-test-subj="vmRouteList">
+      <EuiFlexItem
+        grow={2}
+        data-test-subj="vmRouteList"
+        onKeyDown={onListKey}
+        style={{ '--vm-route': graphColors.route, '--vm-route-tint': `${graphColors.route}14` } as React.CSSProperties}
+      >
+        <div ref={listRef}>
         {groups.map(({ target, routes }) => {
           const meta = IMPORTANCE_META[target.importance];
           const tState = targetState(target);
@@ -226,7 +260,8 @@ export function AttackPathsPage() {
                   <p>No route found — nothing in the current graph reaches this asset.</p>
                 </EuiText>
               ) : (
-                routes.map((route) => (
+                <div role="listbox" aria-label={`Routes to ${target.label || nameOf(target.id)}`}>
+                {routes.map((route) => (
                   <React.Fragment key={keyOf(route)}>
                     <RouteTile
                       route={route}
@@ -236,12 +271,14 @@ export function AttackPathsPage() {
                     />
                     <EuiSpacer size="s" />
                   </React.Fragment>
-                ))
+                ))}
+                </div>
               )}
               <EuiSpacer size="l" />
             </React.Fragment>
           );
         })}
+        </div>
       </EuiFlexItem>
       <EuiFlexItem grow={3}>
         {selected ? (
