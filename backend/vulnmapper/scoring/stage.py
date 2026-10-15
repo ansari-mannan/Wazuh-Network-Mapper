@@ -33,9 +33,12 @@ RECORDS_WAIT_S = 5.0
 
 
 def ovss_order(row: dict) -> tuple:
-    """Highest OVSS first (Unrated last), then highest CVSS, then CVE id."""
-    score, cvss = row.get("score"), row.get("cvss")
-    return (score is None, -(score or 0), cvss is None, -(cvss or 0), row.get("cve") or "")
+    """Highest tier first (P0 > P1 > P2 > P3 > Unrated), then highest OVSS,
+    then CVE id: the CVE that sets the node's tier is always first, even a
+    low-scoring KEV CVE that is P0 on the egress device."""
+    score, tier = row.get("score"), row.get("tier")
+    return (TIERS.index(tier) if tier in TIERS else len(TIERS),
+            score is None, -(score or 0), row.get("cve") or "")
 
 
 # A top_cves row as the CVE stages write it (endpoints.parse_hit), in key order.
@@ -44,8 +47,8 @@ _TEXT_KEYS = ("description", "reference", "published_at")
 
 
 def top_cves(current: list, findings: Optional[list], per_cve: dict, catalogue: dict) -> list:
-    """The node's TOP_CVES rows by OVSS, then CVSS, so the CVE that sets the
-    node's score is always listed. With the full findings, a CVE not yet among
+    """The node's TOP_CVES rows by tier, then OVSS (:func:`ovss_order`), so the
+    CVEs that set the node's tier and score are always listed. With the full findings, a CVE not yet among
     the rows is built from its first finding and the catalogue, in the row
     shape the CVE stages use; without them, the rows are only reordered."""
     if findings is None:

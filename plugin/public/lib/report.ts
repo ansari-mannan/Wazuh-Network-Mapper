@@ -130,8 +130,8 @@ export function buildAssetReports(
         version: f.version,
       });
     }
-    // Worst-first: by OVSS, then CVSS (nulls last), then CVE id, as the
-    // graph's top_cves; the CVE that sets the asset's score comes first.
+    // Worst-first: by OVSS, then CVSS (nulls last), then CVE id; the CVE that
+    // sets the asset's score comes first. (The graph's top_cves go by tier first.)
     cves.sort(
       (a, b) =>
         (b.score ?? -1) - (a.score ?? -1) ||

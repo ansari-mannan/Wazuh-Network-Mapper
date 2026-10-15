@@ -508,14 +508,32 @@ class TestTopCves(unittest.TestCase):
                                                    "reference", "published_at", "detected_at"])
         self.assertEqual((self.rows[0]["attack_vector"], self.rows[0]["kev"]), ("NETWORK", True))
 
-    def test_then_by_cvss(self):
+    def test_then_by_score(self):
         rest = self.rows[1:]
-        self.assertEqual([r["cvss"] for r in rest], sorted((r["cvss"] for r in rest), reverse=True))
+        self.assertEqual([r["score"] for r in rest], sorted((r["score"] for r in rest), reverse=True))
 
     def test_without_findings_rows_are_only_reordered(self):
-        rows = [{"cve": "A", "score": 1.0, "cvss": 9.8}, {"cve": "B", "score": 4.0, "cvss": 5.0},
-                {"cve": "C", "score": None, "cvss": None}]
-        self.assertEqual([r["cve"] for r in stage.top_cves(rows, None, {}, {})], ["B", "A", "C"])
+        rows = [{"cve": "A", "score": 1.0, "cvss": 9.8, "tier": "P3"},
+                {"cve": "B", "score": 4.0, "cvss": 5.0, "tier": "P3"},
+                {"cve": "C", "score": None, "cvss": None, "tier": "Unrated"},
+                {"cve": "D", "score": 4.0, "cvss": 5.0, "tier": "P3"}]
+        self.assertEqual([r["cve"] for r in stage.top_cves(rows, None, {}, {})],
+                         ["B", "D", "A", "C"])
+
+    def test_the_tier_setting_cve_is_first_even_with_a_lower_score(self):
+        # on the egress device a KEV CVE is P0 whatever its score; ten CVEs
+        # score higher, none of them P0
+        per_cve = {c: finding(e["cvss"], cve=c, kev=c == "CVE-KEV", exposure=ovss.EXPOSURE_EGRESS)
+                   for c, e in self.catalogue.items()}
+        per_cve["CVE-KEV"] = finding(2.0, cve="CVE-KEV", kev=True, exposure=ovss.EXPOSURE_EGRESS)
+        kev = per_cve["CVE-KEV"]
+        self.assertEqual(kev["tier"], "P0")
+        higher = [r for c, r in per_cve.items() if c != "CVE-KEV" and r["score"] > kev["score"]]
+        self.assertGreaterEqual(len(higher), 10)
+        self.assertNotIn("P0", {r["tier"] for r in higher})
+        rows = stage.top_cves([], self.findings, per_cve, self.catalogue)
+        self.assertEqual(rows[0]["cve"], "CVE-KEV")
+        self.assertEqual(len(rows), 10)
 
 
 # --- for the tests that compare a pipeline run with output frozen before OVSS ---

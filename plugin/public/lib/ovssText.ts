@@ -35,8 +35,8 @@ export function tierRule(f: ScoredFinding): string {
  * Why a node has its tier, from its findings (highest score first or not):
  * "P0 · 8.575 · driven by CVE-… (CISA KEV)", or when the highest score and the
  * tier come from different CVEs, "Highest score 8.575 (CVE-…); tier P0 from
- * CVE-… (CISA KEV)". null when no listed finding carries the tier (top_cves
- * holds the 10 highest scores, so a low-scoring tier-setter can be missing).
+ * CVE-… (CISA KEV)". null when no listed finding carries the tier (a graph
+ * made before top_cves was ordered by tier may not list a low-scoring setter).
  */
 export function tierReason(tier: Tier | null | undefined, findings: ScoredFinding[] | undefined): TierReason | null {
   const scored = (findings || []).filter((f) => typeof f.score === 'number');
