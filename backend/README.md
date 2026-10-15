@@ -81,11 +81,15 @@ Up to 32 devices are polled at once, each by one worker that asks it one
 thing at a time. A device's neighbours are queued as soon as its LLDP and CDP
 tables and its access point check are read, so the next device along the
 chain is polled while this one's forwarding, ARP, port and configuration
-tables are read. Walks are GETBULKs of 25 rows; a GETBULK that fails (no
-answer, tooBig, an agent error) is asked again a row at a time and the walk
-goes on that way. A walk follows each answer from the last OID returned, so
-Comware's out-of-order forwarding table is read whole. The crawl's stage note
-lists the slowest device polls.
+tables are read. Walks are GETBULKs of 25 rows. The port table's six columns
+(ifOperStatus, ifName, ifAdminStatus, ifType, ifHighSpeed, ifAlias) are
+walked together, every column in each request, as `snmpbulkwalk` does with
+several OIDs. When a GETBULK to a device fails (no answer, tooBig, an agent
+error), that device is read with GETNEXT, a row at a time, for the rest of the
+crawl instead of failing again. Each column follows the last OID it returned,
+so Comware's out-of-order forwarding table is read whole. The crawl's stage
+note lists every device's poll time, slowest first, and marks the devices
+that were read a row at a time.
 
 ### Device identity
 

@@ -18,6 +18,7 @@ from pysnmp.hlapi.v3arch.asyncio import (
     UsmUserData,
     bulk_cmd,
     get_cmd,
+    next_cmd,
     usmAesCfb128Protocol,
     usmAesCfb192Protocol,
     usmAesCfb256Protocol,
@@ -141,6 +142,8 @@ class SnmpClient:
         self._engine = SnmpEngine()
         # Per-IP: the credential that worked, so vendor follow-up GETs reuse it.
         self._resolved: dict[str, Credential] = {}
+        # Devices whose GETBULK failed once: walked with GETNEXT from then on.
+        self._bulk_failed: set[str] = set()
 
     async def _transport(self, ip: str):
         # Built per call because the target address differs per device; the
@@ -205,56 +208,72 @@ class SnmpClient:
         self, auth, ip: str, base_oid: str, *, max_repetitions: int = 25,
         max_rows: Optional[int] = None,
     ) -> list[tuple[str, Optional[str]]]:
-        """GETBULK-walk an OID subtree using an explicit auth object.
+        """GETBULK-walk one OID subtree using an explicit auth object (see
+        :meth:`_walk_columns`)."""
+        rows = await self._walk_columns(auth, ip, [base_oid], max_repetitions=max_repetitions,
+                                        max_rows=max_rows)
+        return rows[base_oid]
 
-        ``max_rows`` stops the walk once that many rows are in hand (the first
-        page of a large table, e.g. the inventory table's leading rows). A
-        request that fails (no answer, tooBig, an agent error) is asked again
-        once a row at a time, and the walk goes on a row at a time: some
-        agents cannot build, or drop, a large GETBULK response.
+    async def _walk_columns(
+        self, auth, ip: str, bases: list[str], *, max_repetitions: int = 25,
+        max_rows: Optional[int] = None,
+    ) -> dict[str, list[tuple[str, Optional[str]]]]:
+        """Walk several OID subtrees together, every column in each request (as
+        ``snmpbulkwalk`` with several OIDs does): ``{base: [(oid, value), ...]}``.
+
+        Each column goes on from the last OID it returned, not from the highest
+        OID seen, so a table an agent returns out of order (Comware's
+        dot1qTpFdbPort, sorted by MAC) is read whole; an OID returned twice
+        ends its column. ``max_rows`` stops a column once that many rows are in
+        hand (the first page of a large table, e.g. the inventory table's).
+
+        A GETBULK that fails (no answer, tooBig, an agent error) marks the
+        device: this walk and every later one to it go on with GETNEXT, a row
+        at a time, instead of failing again.
         """
         transport = await self._transport(ip)
-
-        prefix = base_oid.rstrip(".") + "."
-        rows: list[tuple[str, Optional[str]]] = []
-        next_oid = base_oid
-
-        while True:
-            error_indication, error_status, _idx, var_binds = await bulk_cmd(
-                self._engine,
-                auth,
-                transport,
-                self._context,
-                0,
-                max_repetitions,
-                ObjectType(ObjectIdentity(next_oid)),
-            )
-            if (error_indication or error_status) and max_repetitions > 1:
-                log.debug("GETBULK of %s failed at %s; going on a row at a time", ip, next_oid)
-                max_repetitions = 1
-                continue
+        rows: dict[str, list] = {b: [] for b in bases}
+        next_oid = dict(zip(bases, bases))
+        seen: dict[str, set] = {b: set() for b in bases}
+        active = list(dict.fromkeys(bases))
+        while active:
+            objects = [ObjectType(ObjectIdentity(next_oid[b])) for b in active]
+            if ip not in self._bulk_failed:
+                error_indication, error_status, _idx, var_binds = await bulk_cmd(
+                    self._engine, auth, transport, self._context, 0, max_repetitions, *objects)
+                if error_indication or error_status:
+                    log.info("GETBULK to %s failed; reading it a row at a time from now on", ip)
+                    self._bulk_failed.add(ip)
+                    continue
+            else:
+                error_indication, error_status, _idx, var_binds = await next_cmd(
+                    self._engine, auth, transport, self._context, *objects,
+                    ignoreNonIncreasingOid=True)
             if error_indication or error_status or not var_binds:
                 break
 
-            ended = False
-            for oid, value in var_binds:
+            # the answer holds the columns in request order, repetition after repetition
+            done: set = set()
+            for k, (oid, value) in enumerate(var_binds):
+                base = active[k % len(active)]
+                if base in done:
+                    continue
                 oid_str = str(oid)
-                if not oid_str.startswith(prefix):
-                    ended = True
-                    break
-                if value.__class__.__name__ == "EndOfMibView":
-                    ended = True
-                    break
-                rows.append((oid_str, _render_value(value)))
-                next_oid = oid_str
-                if max_rows is not None and len(rows) >= max_rows:
-                    ended = True
-                    break
-
-            if ended:
-                break
-
+                if (not oid_str.startswith(base.rstrip(".") + ".")
+                        or value.__class__.__name__ == "EndOfMibView" or oid_str in seen[base]):
+                    done.add(base)
+                    continue
+                seen[base].add(oid_str)
+                rows[base].append((oid_str, _render_value(value)))
+                next_oid[base] = oid_str
+                if max_rows is not None and len(rows[base]) >= max_rows:
+                    done.add(base)
+            active = [b for b in active if b not in done]
         return rows
+
+    def used_fallback(self, ip: str) -> bool:
+        """Whether GETBULK failed on ``ip``, so its walks go a row at a time."""
+        return ip in self._bulk_failed
 
     async def walk(
         self, ip: str, base_oid: str, *, max_repetitions: int = 25,
@@ -272,6 +291,14 @@ class SnmpClient:
         auth = self._auth_by_cred[id(cred)]
         return await self._walk_with_auth(auth, ip, base_oid, max_repetitions=max_repetitions,
                                           max_rows=max_rows)
+
+    async def walk_columns(self, ip: str, bases: list[str]) -> dict[str, list[tuple[str, Optional[str]]]]:
+        """:meth:`walk` of several columns of one table in one request
+        sequence; ``{base: rows}``, every base present."""
+        cred = self._resolved.get(ip)
+        if cred is None:
+            return {b: [] for b in bases}
+        return await self._walk_columns(self._auth_by_cred[id(cred)], ip, list(bases))
 
     async def walk_vlan_context(
         self, ip: str, base_oid: str, vlan: int, *, max_repetitions: int = 25

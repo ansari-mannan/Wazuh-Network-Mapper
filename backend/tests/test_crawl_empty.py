@@ -71,12 +71,14 @@ class TestPipelineCarriesIt(unittest.TestCase):
         stage = next(s for s in metadata["stages"] if s["name"] == "Network crawl")
         self.assertIn("(no seed)", stage["note"])
 
-    def test_slowest_polls_in_the_note(self):
+    def test_every_poll_in_the_note_with_its_fallback(self):
         polls = {f"sw{i}": float(i) for i in range(1, 8)}
-        metadata = self.run_network({"nodes": [], "edges": [], "poll_seconds": polls})
+        metadata = self.run_network({"nodes": [], "edges": [], "poll_seconds": polls,
+                                     "bulk_fallback": ["sw2"]})
         stage = next(s for s in metadata["stages"] if s["name"] == "Network crawl")
         self.assertTrue(stage["note"].endswith(
-            "; slowest polls: sw7 7.0 s, sw6 6.0 s, sw5 5.0 s, sw4 4.0 s, sw3 3.0 s"), stage["note"])
+            "; slowest polls: sw7 7.0 s, sw6 6.0 s, sw5 5.0 s, sw4 4.0 s, sw3 3.0 s, "
+            "sw2 2.0 s (GETBULK failed, row at a time), sw1 1.0 s"), stage["note"])
 
     def test_live_crawl_times_each_device(self):
         from test_cdp import lab
@@ -87,6 +89,7 @@ class TestPipelineCarriesIt(unittest.TestCase):
         polled = [n.get("hostname") or n["ip"] for n in doc["nodes"] if n.get("pollable")]
         self.assertEqual(sorted(doc["poll_seconds"]), sorted(polled))
         self.assertTrue(all(s >= 0 for s in doc["poll_seconds"].values()))
+        self.assertEqual(doc["bulk_fallback"], [])
 
 
 if __name__ == "__main__":

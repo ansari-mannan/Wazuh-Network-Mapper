@@ -335,14 +335,17 @@ def _read_network(scan: ScanContext) -> None:
     devices = sum(1 for n in scan.network_doc.get("nodes") or [] if n.get("pollable"))
     empty = next((w for w in scan.network_doc.get("warnings") or []
                   if w.get("type") == CRAWL_EMPTY), None)
-    # the slowest few device polls of a live crawl, e.g. "core 6.2 s, sw1 4.1 s"
+    # each device poll of a live crawl, slowest first, e.g. "core 6.2 s, sw1 4.1 s
+    # (GETBULK failed, row at a time)"
     polls = sorted((scan.network_doc.get("poll_seconds") or {}).items(), key=lambda kv: -kv[1])
+    fallback = set(scan.network_doc.get("bulk_fallback") or [])
     scan.record("Network crawl", scan.timing["network_crawl_s"],
                 "off" if args.no_network else
                 plural(devices, "device") + " polled" + (" (from a file)" if args.network else "")
                 + (f" ({empty['reason']})" if empty else "")
-                + ("; slowest polls: " + ", ".join(f"{name} {s:.1f} s" for name, s in polls[:5])
-                   if polls else ""),
+                + ("; slowest polls: " + ", ".join(
+                    f"{name} {s:.1f} s" + (" (GETBULK failed, row at a time)" if name in fallback else "")
+                    for name, s in polls) if polls else ""),
                 ran=not args.no_network)
 
 

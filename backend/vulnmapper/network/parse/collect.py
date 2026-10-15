@@ -232,15 +232,13 @@ async def collect_ports(client, ip: str) -> tuple[dict, list]:
     """``(port_status, ports)``: the ``collect_port_status`` map and, from the
     same walks plus ifAdminStatus, ifType, ifHighSpeed and ifAlias, the
     per-interface list ``build_ports`` makes. Read-only, best-effort."""
-    oper_rows = await client.walk(ip, IFOPERSTATUS_BASE)
-    ifname_rows = await client.walk(ip, IFNAME_BASE)
+    # the six interface columns in one request sequence, not six walks
+    cols = await client.walk_columns(ip, [IFOPERSTATUS_BASE, IFNAME_BASE, IFADMINSTATUS_BASE,
+                                          IFTYPE_BASE, IFHIGHSPEED_BASE, IFALIAS_BASE])
+    oper_rows, ifname_rows = cols[IFOPERSTATUS_BASE], cols[IFNAME_BASE]
     ifdescr_rows = await client.walk(ip, IFDESCR_BASE) if not ifname_rows else []
     status = build_port_status(oper_rows, ifname_rows, ifdescr_rows)
-    ports = build_ports(oper_rows,
-                        await client.walk(ip, IFADMINSTATUS_BASE),
-                        await client.walk(ip, IFTYPE_BASE),
-                        await client.walk(ip, IFHIGHSPEED_BASE),
-                        await client.walk(ip, IFALIAS_BASE),
-                        ifname_rows, ifdescr_rows)
+    ports = build_ports(oper_rows, cols[IFADMINSTATUS_BASE], cols[IFTYPE_BASE],
+                        cols[IFHIGHSPEED_BASE], cols[IFALIAS_BASE], ifname_rows, ifdescr_rows)
     _log_fdb.info("%s: port_status has %d port(s)", ip, len(status))
     return status, ports

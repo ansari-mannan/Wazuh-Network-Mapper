@@ -86,8 +86,10 @@ class Crawler:
         self._cdp_links: list[tuple[str, Neighbor]] = []
         # Platform strings CDP neighbours reported, by the address they gave.
         self._platform_by_ip: dict[str, str] = {}
-        # seconds each polled device took, by its name (else address), for the stage note
+        # seconds each polled device took, by its name (else address), and the
+        # devices whose GETBULK failed (read a row at a time), for the stage note
         self.poll_seconds: dict[str, float] = {}
+        self.bulk_fallback: list[str] = []
 
     # ---- queueing (callers hold the lock) ---------------------------------
 
@@ -180,7 +182,10 @@ class Crawler:
         try:
             await self._poll(ip, chassis_id, info, own_macs)
         finally:
-            self.poll_seconds[info.get("hostname") or ip] = round(time.monotonic() - started, 1)
+            name = info.get("hostname") or ip
+            self.poll_seconds[name] = round(time.monotonic() - started, 1)
+            if self._client.used_fallback(ip):
+                self.bulk_fallback.append(name)
 
     async def _poll(self, ip: str, chassis_id: str, info: dict, own_macs: list) -> None:
         # One request at a time to this device. Its neighbours are queued once
@@ -561,6 +566,7 @@ async def run(cfg: Config) -> dict:
     devices, links = await crawler.run()
     document = build_document(devices, links, pollable_only=cfg.pollable_only)
     document["poll_seconds"] = crawler.poll_seconds
+    document["bulk_fallback"] = sorted(crawler.bulk_fallback)
     if not any(d.pollable for d in devices):
         _log_runner.error("no device answered SNMP from seeds %s", ", ".join(seeds))
         return _empty("no device answered", document)

@@ -92,6 +92,14 @@ class FakeSnmpClient:
         rows = self._walk(self.devices.get(ip) or [], base_oid)
         return rows if max_rows is None else rows[:max_rows]
 
+    async def walk_columns(self, ip, bases):
+        self.calls.append(("walk_columns", ip, tuple(bases)))
+        rows = self.devices.get(ip) or []
+        return {b: self._walk(rows, b) for b in bases}
+
+    def used_fallback(self, ip):
+        return False
+
     async def walk_vlan_context(self, ip, base_oid, vlan, **_kw):
         self.calls.append(("walk_vlan", ip, base_oid, vlan))
         if ip not in self.v2c:
