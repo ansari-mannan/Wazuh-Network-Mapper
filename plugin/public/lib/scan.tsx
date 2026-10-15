@@ -25,6 +25,22 @@ type ScanChoices = Partial<ActiveChecks> & { replaceEmpty?: boolean; freshServic
 
 const ScanContext = createContext<ScanContextValue | null>(null);
 
+/**
+ * The toast for a scan that just ended, or null. A failure always gets one; a
+ * success only when someone pressed Run scan: an automatic or scheduled one is
+ * quiet, and the page refreshes by itself.
+ */
+export function scanEndToast(
+  scan: ScanState,
+  nvdLine: (apiKey: ScanState['nvdKey']) => string | undefined = nvdToastLine
+): { kind: 'success' | 'danger'; title: string; text?: string } | null {
+  if (scan.status === 'failed') {
+    return { kind: 'danger', title: 'Scan failed; the previous graph is still shown', text: scan.message || undefined };
+  }
+  if (scan.trigger === 'automatic' || scan.trigger === 'scheduled') return null;
+  return { kind: 'success', title: 'Scan completed; graph updated', text: nvdLine(scan.nvdKey) };
+}
+
 export function ScanProvider({ children }: { children: ReactNode }) {
   const { http, notifications } = useServices();
   const { reload } = useGraph();
@@ -44,15 +60,10 @@ export function ScanProvider({ children }: { children: ReactNode }) {
     const before = previous.current;
     previous.current = scan;
     if (!before || before.status !== 'running' || !scan || scan.status === 'running') return;
-    if (scan.status === 'failed') {
-      notifications.toasts.addDanger({
-        title: 'Scan failed; the previous graph is still shown',
-        text: scan.message || undefined,
-      });
-    } else {
-      notifications.toasts.addSuccess({ title: 'Scan completed; graph updated', text: nvdToastLine(scan.nvdKey) });
-      reload();
-    }
+    const toast = scanEndToast(scan);
+    if (toast?.kind === 'danger') notifications.toasts.addDanger({ title: toast.title, text: toast.text });
+    if (toast?.kind === 'success') notifications.toasts.addSuccess({ title: toast.title, text: toast.text });
+    if (scan.status !== 'failed') reload();
   }, [scan, notifications, reload]);
 
   useEffect(() => {
