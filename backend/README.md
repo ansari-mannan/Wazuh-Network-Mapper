@@ -68,7 +68,12 @@ is listed in `metadata.unparented_endpoints` with its reason.
 "skipped"), seconds, note}`, the note a short outcome such as "nmap not
 installed" or "5 devices tested, 0 answered the default community". As each
 stage starts the scanner logs `stage: <label>` on stderr, which the dashboard
-shows while a scan runs.
+shows while a scan runs. The reverse DNS lookups and nmap itself run beside
+the device CVE stage (they read what earlier stages left and write nothing it
+reads); their lines are recorded, and nmap's findings applied, in the order
+above, so the outputs equal a one-after-another run. A stage's seconds run
+from when its work started. The vector stage waits for the device CVEs and
+nmap; every NVD request still goes through the one rate-limited client.
 
 ### Device identity
 

@@ -26,10 +26,12 @@ class TestStageFailure(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp)
 
-    def scan(self) -> dict:
+    def scan(self, extra=(), names=False) -> dict:
         argv = ["--scored", os.path.join(FIXTURES, "offline_scored.json"),
                 "--network", os.path.join(FIXTURES, "offline_network.json"),
-                "--no-device-cves", "--no-cve-vectors", "--no-name-lookup", "-o", self.graph]
+                "--no-device-cves", "--no-cve-vectors", "-o", self.graph, *extra]
+        if not names:
+            argv.append("--no-name-lookup")
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(Pipeline().run(argv), 0)
         with open(self.graph, encoding="utf-8") as f:
@@ -47,6 +49,18 @@ class TestStageFailure(unittest.TestCase):
         self.assertEqual(self.stage(graph, "Configuration checks")["status"], "failed")
         self.assertEqual(self.stage(graph, "Attack paths")["status"], "ran")
         self.assertTrue(os.path.exists(self.paths))
+
+    def test_stages_run_side_by_side_fail_the_same_way(self):
+        argv = ["--nmap-unmanaged"]
+        with mock.patch.object(pipeline.hosts, "run_name_lookup", side_effect=KeyError("dns")), \
+                mock.patch.object(pipeline, "nmap_hosts", side_effect=OSError("nmap")), \
+                self.assertLogs("vulnmapper.pipeline", "ERROR"):
+            graph = self.scan(argv, names=True)
+        warnings = graph["metadata"]["warnings"]
+        self.assertIn({"type": "stage_failed", "stage": "Reverse DNS names", "error": "KeyError"}, warnings)
+        self.assertIn({"type": "stage_failed", "stage": "nmap service scan", "error": "OSError"}, warnings)
+        self.assertEqual([self.stage(graph, n)["status"] for n in ("Reverse DNS names", "nmap service scan")],
+                         ["failed", "failed"])
 
     def test_ovss_failing_skips_the_attack_paths(self):
         with mock.patch.object(pipeline, "run_ovss", side_effect=ValueError("boom")), \

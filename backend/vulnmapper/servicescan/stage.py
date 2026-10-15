@@ -109,6 +109,13 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
               cap: int = DEFAULT_HOSTS_CAP, budget_s: float = DEFAULT_BUDGET_S,
               runner: Optional[NmapRunner] = None) -> StageResult:
     """Service-scan the eligible unmanaged hosts and update them in place."""
+    return apply_scans(scan_hosts(graph, cap=cap, budget_s=budget_s, runner=runner), client, cache)
+
+
+def scan_hosts(graph: dict, *, cap: int = DEFAULT_HOSTS_CAP, budget_s: float = DEFAULT_BUDGET_S,
+               runner: Optional[NmapRunner] = None) -> tuple:
+    """The nmap half of the stage: ``(targets, {ip: scan}, result so far)``.
+    Reads the graph and changes nothing, so it can run beside other stages."""
     out = StageResult()
     targets, capped = question_targets(graph, cap)
     runner = runner if runner is not None else NmapRunner()
@@ -117,14 +124,13 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
     if capped:
         log.warning("more than %d unmanaged hosts; only the first %d are service-scanned", cap, cap)
         out.warnings.append({"type": "nmap_cap_reached", "cap": cap})
+    out.block = block
     if not targets:
-        out.block = block
-        return out
+        return targets, {}, out
     if not runner.available:
         log.warning("nmap is not installed; the service scan was skipped")
         out.warnings.append({"type": "nmap_not_installed"})
-        out.block = block
-        return out
+        return [], {}, out
 
     # In batches, each with the budget that is left, so the hosts of every
     # batch that finished are kept when a later one runs out of time.
@@ -145,7 +151,14 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
             block["budget_exceeded"] = True
             break
         block["scanned"] += len(batch)
+    return targets, scans, out
 
+
+def apply_scans(scanned: tuple, client: NvdClient, cache: Cache) -> StageResult:
+    """The other half: record what :func:`scan_hosts` found on the hosts, and
+    look their service versions up in NVD."""
+    targets, scans, out = scanned
+    block = out.block
     for node in targets:
         scan = scans.get(node["ip"])
         if scan is None:
@@ -158,21 +171,25 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache, *,
         if node.get("cve_lookup", {}).get("status") == STATUS_OK and node.get("cve_summary"):
             block["with_cves"] += 1
     cache.save()
-    out.block = block
     log.info("service scan: %d eligible, %d scanned, %d answered, %d with CVEs, %d NVD request(s)",
              block["eligible"], block["scanned"], block["answered"], block["with_cves"], client.requests)
     return out
 
 
-def run_service_scan(scan: "ScanContext") -> StageResult:
-    """The pipeline's service scan, within the run's host cap and nmap budget.
-    It counts as skipped when nmap is not installed."""
+def nmap_hosts(scan: "ScanContext") -> tuple:
+    """:func:`scan_hosts` with the run's host cap, nmap budget and runner."""
     args = scan.args
+    return scan_hosts(scan.document, cap=args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
+                      budget_s=args.nmap_budget or DEFAULT_BUDGET_S, runner=scan.nmap_runner)
+
+
+def run_service_scan(scan: "ScanContext", scanned: Optional[tuple] = None) -> StageResult:
+    """The pipeline's service scan, within the run's host cap and nmap budget;
+    ``scanned`` is :func:`nmap_hosts`' answer when nmap already ran.
+    It counts as skipped when nmap is not installed."""
     client, cache = scan.nvd()
     before = cache.tally()
-    result = run_stage(scan.document, client, cache,
-                       cap=args.nmap_hosts_cap or DEFAULT_HOSTS_CAP,
-                       budget_s=args.nmap_budget or DEFAULT_BUDGET_S, runner=scan.nmap_runner)
+    result = apply_scans(scanned or nmap_hosts(scan), client, cache)
     scan.nvd_tally("service scan", before)
     block = result.block
     not_installed = any(w["type"] == "nmap_not_installed" for w in result.warnings)

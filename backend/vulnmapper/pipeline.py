@@ -15,6 +15,7 @@ import logging
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from typing import Callable, Optional
 
@@ -26,9 +27,13 @@ from .devicecves.stage import run_device_cves
 from .devicecves.vectors import run_cve_vectors
 from .network.document import CRAWL_EMPTY
 from .scoring.stage import run_ovss
-from .servicescan.stage import run_service_scan
+from .servicescan.stage import nmap_hosts, run_service_scan
 
 log = logging.getLogger("vulnmapper.pipeline")
+
+# Independent stages run side by side (False: one after another, as the
+# equality test compares).
+CONCURRENT = True
 
 
 class ScanContext:
@@ -354,30 +359,41 @@ def _previous_graph(path: Optional[str]) -> Optional[dict]:
     return doc if isinstance(doc, dict) else None
 
 
+def _attempt(scan: ScanContext, name: str, run: Callable[[ScanContext], StageResult],
+             label: str, started: Optional[float] = None) -> tuple:
+    """Run one optional stage: ``(result, None, seconds)``, or ``(None, error,
+    seconds)`` when it crashed. ``started``: when its work began, if earlier."""
+    t0 = _begin(label)
+    try:
+        return run(scan), None, time.monotonic() - (started or t0)
+    except Exception as exc:            # an optional stage never fails the scan
+        log.exception("%s failed; the scan goes on without it", name)
+        return None, exc, time.monotonic() - (started or t0)
+
+
 def _run_stage(scan: ScanContext, name: str, run: Callable[[ScanContext], StageResult], *,
                skip: Optional[str], label: str, timing: str,
-               metadata: Optional[str] = None) -> None:
+               metadata: Optional[str] = None, outcome=None,
+               started: Optional[float] = None) -> None:
     """Run one optional stage, or record why it did not run.
 
     ``skip`` is that reason ("off" for a stage the options turned off), None to
     run it. Its block goes in ``metadata.<metadata>`` and its warnings join the
     graph's; its time and note make its line in ``metadata.stages``.
+    ``outcome``: the Future of an :func:`_attempt` already started beside other
+    stages; it is recorded here, in the stage's place.
     """
     if skip is not None:
         scan.record(name, None, skip, ran=False)
         return
-    t0 = _begin(label)
-    try:
-        result = run(scan)
-    except Exception as exc:            # an optional stage never fails the scan
-        scan.timing[timing] = time.monotonic() - t0
-        log.exception("%s failed; the scan goes on without it", name)
+    result, exc, scan.timing[timing] = (outcome.result() if outcome is not None
+                                        else _attempt(scan, name, run, label, started))
+    if exc is not None:
         error = type(exc).__name__
         scan.document["metadata"]["warnings"].append(
             {"type": "stage_failed", "stage": name, "error": error})
         scan.record(name, scan.timing[timing], f"failed ({error})", failed=True)
         return
-    scan.timing[timing] = time.monotonic() - t0
     if metadata is not None:
         scan.document["metadata"][metadata] = result.block
     scan.document["metadata"]["warnings"].extend(result.warnings)
@@ -425,21 +441,34 @@ class Pipeline:
                    skip=_off_unless(args.probe_unmanaged_snmp),
                    label="Asking unmanaged hosts over SNMP",
                    timing="snmp_question_s", metadata="snmp_question")
-        _run_stage(scan, "Reverse DNS names", hosts.run_name_lookup,
-                   skip=_off_unless(not args.no_name_lookup),
-                   label="Looking up host names",
-                   timing="name_lookup_s", metadata="name_lookup")
-        _run_stage(scan, "Device CVEs (NVD)", run_device_cves,
-                   skip=_off_unless(not args.no_device_cves),
-                   label="Looking up device CVEs in NVD",
-                   timing="device_cves_s", metadata="device_cves")
-        scan.prefetch_records()
-        # The service scan runs before the vector stage, so its CVEs flow
-        # through it (vector fields, reachable_cve) and on to the attack paths.
-        _run_stage(scan, "nmap service scan", run_service_scan,
-                   skip=_off_unless(args.nmap_unmanaged),
-                   label="Service-scanning unmanaged hosts with nmap",
-                   timing="nmap_s", metadata="nmap")
+        # Reverse DNS (host names) and nmap itself run beside the device CVE
+        # stage: each reads what the earlier stages left and writes nothing
+        # another reads. Results are recorded, and nmap's applied, in the
+        # sequential order, so the outputs are the same either way.
+        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="stage") as pool:
+            def early(fn, *fn_args):
+                return pool.submit(fn, *fn_args) if CONCURRENT else None
+
+            names_label = "Looking up host names"
+            names = (early(_attempt, scan, "Reverse DNS names", hosts.run_name_lookup, names_label)
+                     if not args.no_name_lookup else None)
+            nmap_started = time.monotonic()
+            nmap = early(nmap_hosts, scan) if args.nmap_unmanaged else None
+            _run_stage(scan, "Reverse DNS names", hosts.run_name_lookup,
+                       skip=_off_unless(not args.no_name_lookup), label=names_label,
+                       timing="name_lookup_s", metadata="name_lookup", outcome=names)
+            _run_stage(scan, "Device CVEs (NVD)", run_device_cves,
+                       skip=_off_unless(not args.no_device_cves),
+                       label="Looking up device CVEs in NVD",
+                       timing="device_cves_s", metadata="device_cves")
+            scan.prefetch_records()
+            # The service scan runs before the vector stage, so its CVEs flow
+            # through it (vector fields, reachable_cve) and on to the attack paths.
+            _run_stage(scan, "nmap service scan",
+                       lambda s: run_service_scan(s, nmap.result() if nmap else None),
+                       skip=_off_unless(args.nmap_unmanaged),
+                       label="Service-scanning unmanaged hosts with nmap",
+                       timing="nmap_s", metadata="nmap", started=nmap_started if nmap else None)
         scan.prefetch_records()
         _run_stage(scan, "CVE vectors (NVD)", run_cve_vectors,
                    skip=_off_unless(not args.no_cve_vectors),
