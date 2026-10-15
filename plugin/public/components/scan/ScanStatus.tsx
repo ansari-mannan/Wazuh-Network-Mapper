@@ -45,6 +45,14 @@ export function ScanStatus({ scan }: { scan: ScanState | null }) {
         <p>
           {scan.message} Finished {formatTime(scan.finishedAt)}.
         </p>
+        {scan.refining && (
+          <EuiFlexGroup gutterSize="s" alignItems="center" responsive={false} data-test-subj="vmScanRefining">
+            <EuiFlexItem grow={false}>
+              <EuiLoadingSpinner size="s" />
+            </EuiFlexItem>
+            <EuiFlexItem>Scores refining… CVE records from cve.org are still arriving; the scores update by themselves.</EuiFlexItem>
+          </EuiFlexGroup>
+        )}
       </EuiCallOut>
     );
   }

@@ -12,7 +12,7 @@ import {
 import { VulnmapperConfig } from './config';
 import { VulnmapperPluginSetup, VulnmapperPluginStart } from './types';
 import { defineRoutes } from './routes';
-import { startLiveness, stopLiveness } from './liveness';
+import { livenessPath, startLiveness, stopLiveness } from './liveness';
 import { createScheduler, hasEnvCredential, Scheduler, scheduleFilePath } from './schedule';
 import { startScan } from './scan';
 
@@ -39,14 +39,16 @@ export class VulnmapperPlugin implements Plugin<VulnmapperPluginSetup, Vulnmappe
       .create<VulnmapperConfig>()
       .pipe(first())
       .toPromise();
-    const { backendDir, graphPath, pythonBin, deviceCves, seeds, scanTimeoutSeconds } = this.config;
+    const config = this.config;
+    const { backendDir, graphPath, pythonBin, deviceCves, seeds, scanTimeoutSeconds } = config;
     if (backendDir && graphPath) {
       const logger = this.logger;
       this.scheduler = createScheduler({
         file: scheduleFilePath(graphPath),
         // no community argument: the scanner reads the server environment
         startScan: (onDone) =>
-          startScan({ pythonBin, backendDir, graphPath, deviceCves, seeds, timeoutSeconds: scanTimeoutSeconds, checks: NO_ACTIVE_CHECKS, trigger: 'scheduled', onDone, logger }),
+          startScan({ pythonBin, backendDir, graphPath, deviceCves, seeds, timeoutSeconds: scanTimeoutSeconds, checks: NO_ACTIVE_CHECKS, trigger: 'scheduled', onDone, logger,
+            livenessFile: config.liveness.enabled ? livenessPath(config) : null }),
         hasCredential: () => hasEnvCredential(process.env),
         logger,
       });

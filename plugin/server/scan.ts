@@ -1,11 +1,11 @@
 // Running a scan: spawns `python -m vulnmapper` with the configured options,
 // follows its stage lines on stderr, and swaps in the new files only on success.
-import { spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import { accessSync, constants, promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { ActiveChecks, ScanState, ScanTrigger } from '../common';
-import { attackPathsFilePath, targetsFilePath, vulnerabilitiesFilePath } from './targets';
+import { attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 import { archiveScan } from './history';
 import { writeFileAtomic } from './fsutil';
 
@@ -17,6 +17,8 @@ let lastCommunity: string | undefined;
 // The last scan's choice of active checks, so an automatic rescan does not
 // silently change them.
 let lastChecks: Partial<ActiveChecks> | undefined;
+// A finished scan's scanner while it still fetches CVE records (refining).
+let refiner: ChildProcess | null = null;
 
 export function getScan(): ScanState {
   return scan;
@@ -70,6 +72,10 @@ interface ScanOptions {
   trigger?: ScanTrigger;
   /** called once the scan ends: ok false for a failed scan */
   onDone?: (ok: boolean, message: string) => void;
+  // liveness.json when liveness is on, for the rescore below
+  livenessFile?: string | null;
+  /** the offline rescore, run (under runExclusive) when CVE records arrived after the scan */
+  rescore?: () => Promise<void>;
   logger: Logger;
 }
 
@@ -85,6 +91,15 @@ export function failureMessage(stderr: string, code: number | null, community?: 
 
 // The scanner announces each stage on stderr as "... vulnmapper.pipeline: stage: <label>".
 const STAGE_LINE = /vulnmapper\.pipeline: stage: (.+)$/;
+
+// After the outputs, the scanner goes on fetching CVE records and ends with this line.
+const REFINED_LINE = /CVE records after the scan: (\d+) new/;
+
+/** How many CVE records arrived after the scan scored, from its stderr; 0 if none. Pure. */
+export function refinedRecords(stderr: string): number {
+  const m = REFINED_LINE.exec(stderr);
+  return m ? Number(m[1]) : 0;
+}
 
 /** The last stage announced in these complete stderr lines, or null. */
 export function latestStage(lines: string): string | null {
@@ -119,6 +134,8 @@ export function scanArgs(
   }: { deviceCves?: boolean; checks?: Partial<ActiveChecks>; seeds?: string[] }
 ): string[] {
   const args = ['-m', 'vulnmapper', '--vulns-out', out.vulns, '--paths-out', out.paths, '--targets', out.targets];
+  // score with the CVE records in hand within 5 s; the rest arrive after the files (see startScan)
+  args.push('--records-in-background');
   // the graph this scan replaces, for which ports lost their link; missing is fine
   if (out.previous) args.push('--previous-graph', out.previous);
   // addresses are not secrets; the = form keeps a value from reading as a flag
@@ -182,6 +199,12 @@ function finish(status: ScanState['status'], message: string) {
  * attack_paths.json (computed from targets.json beside the graph) is handled
  * the same way. A scan whose three files were all saved is then archived in
  * the scan history (history.ts); a failed one is not.
+ *
+ * The scanner ends stdout once every file is written, then goes on fetching
+ * CVE records (--records-in-background). The scan completes at that point
+ * and the state shows refining until the scanner exits; if records arrived,
+ * rescore runs under runExclusive first. A new scan stops a scanner that is
+ * still refining (its cache writes are atomic).
  */
 export function startScan({
   pythonBin,
@@ -196,8 +219,11 @@ export function startScan({
   trigger = 'manual',
   onDone,
   logger,
+  livenessFile = null,
+  rescore = () => recomputeAttackPaths({ pythonBin, backendDir, graphPath, livenessFile, rescore: true, logger }),
 }: ScanOptions) {
   if (scan.status === 'running' || exclusiveTask) return false;
+  refiner?.kill('SIGTERM');
   scan = { status: 'running', trigger, message: null, stage: null, startedAt: new Date().toISOString(), finishedAt: null };
   onScanDone = onDone;
   // A scan started without one falls back to the environment; keep the last
@@ -239,6 +265,9 @@ export function startScan({
   const chunks: Buffer[] = [];
   let stderr = '';
   let partial = ''; // a stderr line not yet ended
+  let completion: Promise<void> | null = null; // saving a graph that arrived
+  let saved = false; // that graph replaced the old one
+  let exited = false;
   child.stdout.on('data', (d: Buffer) => chunks.push(d));
   child.stderr.on('data', (d: Buffer) => {
     const text = d.toString();
@@ -270,12 +299,28 @@ export function startScan({
     end('failed', `failed to start ${pythonBin}: ${e.message}`, true);
   });
 
+  // Every file is written when stdout ends; the scanner may still be fetching
+  // CVE records. Nothing on stdout: wait for the exit, which says why.
+  child.stdout.on('end', () => {
+    if (ended || timedOut || !chunks.length) return;
+    completion = complete();
+  });
+
   child.on('close', async (code: number | null) => {
+    exited = true;
     stopTimers();
+    if (completion) {
+      await completion;
+      return refined(code);
+    }
     if (ended) return; // spawn error already recorded
     if (timedOut) return end('failed', `scan timed out after ${timeoutSeconds} s`, true);
+    end('failed', failureMessage(stderr, code, community), true);
+  });
+
+  // The graph is on stdout: validate it, swap the files in, archive.
+  async function complete() {
     const out = Buffer.concat(chunks);
-    if (code !== 0 || !out.length) return end('failed', failureMessage(stderr, code, community), true);
     let doc: unknown;
     try {
       doc = JSON.parse(out.toString()); // validate before replacing the good file
@@ -314,10 +359,33 @@ export function startScan({
     await archiveScan(graphPath, trigger).catch((e) =>
       logger.warn(`scan completed, but it could not be added to the scan history: ${(e as Error).message}`)
     );
-    scan = { ...scan, nvdKey: nvdKeyOf(doc) };
+    // still running: fetching CVE records (set before end(), which reports it)
+    saved = true;
+    if (!exited) refiner = child;
+    scan = { ...scan, nvdKey: nvdKeyOf(doc), refining: !exited };
     await end('idle', 'Scan completed; graph updated.', false);
     logger.info('scan completed; graph updated');
-  });
+  }
+
+  // The scanner exited after its files were saved: rescore with the CVE
+  // records that came late, then the scores are final.
+  async function refined(code: number | null) {
+    if (refiner === child) refiner = null;
+    // a kept old map (or a stopped scanner) is not rescored
+    const late = saved && code === 0 ? refinedRecords(stderr) : 0;
+    if (late && rescore) {
+      const run = runExclusive(rescore);
+      if (run) {
+        await run.then(
+          () => logger.info(`rescored with ${late} CVE record(s) that arrived after the scan`),
+          (e) => logger.warn(`the rescore after the scan failed: ${(e as Error).message}`)
+        );
+      } else {
+        logger.info('a scan or another update is running; the CVE records that arrived late are used by the next scoring');
+      }
+    }
+    if (scan.refining) scan = { ...scan, refining: false };
+  }
 
   return true;
 }

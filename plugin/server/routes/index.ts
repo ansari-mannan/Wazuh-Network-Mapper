@@ -280,6 +280,7 @@ export function defineRoutes(
         seeds: config.seeds,
         timeoutSeconds: config.scanTimeoutSeconds,
         replaceEmpty: request.body?.replaceEmpty ?? false,
+        livenessFile: config.liveness.enabled ? livenessPath(config) : null,
         logger,
       });
       if (!started) {

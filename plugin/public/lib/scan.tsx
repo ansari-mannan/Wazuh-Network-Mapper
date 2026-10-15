@@ -58,7 +58,8 @@ export function ScanProvider({ children }: { children: ReactNode }) {
 
   // Fast while a scan runs; slowly while idle (tab visible), so a scan this
   // browser did not start shows its progress, its toast and the new graph.
-  const running = scan?.status === 'running';
+  // refining: the scores change once more after the scan (FileWatcher re-reads the files)
+  const running = scan?.status === 'running' || Boolean(scan?.refining);
   useEffect(() => {
     const poll = () => {
       if (running || !document.hidden) fetchStatus();

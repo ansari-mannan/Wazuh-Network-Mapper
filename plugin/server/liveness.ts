@@ -122,6 +122,7 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
         timeoutSeconds: config.scanTimeoutSeconds,
         checks: getLastChecks() ?? configuredChecks(config),
         trigger: 'automatic',
+        livenessFile: livenessPath(config),
         logger }),
     logger,
   });

@@ -9,6 +9,7 @@ stage_failed warning) and the scan goes on without it.
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import logging
 import os
@@ -241,6 +242,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--paths-out", metavar="PATH",
                         help="write the exposure paths to PATH (default: attack_paths.json "
                              "beside -o; skipped when the graph goes to stdout).")
+    parser.add_argument("--records-in-background", action="store_true",
+                        help="score with the CVE records fetched within 5 s of the OVSS stage, "
+                             "write the outputs (closing stdout), then let the rest of the "
+                             "fetch finish and log how many new records came (the dashboard "
+                             "then rescores). Default: wait for the fetch.")
     parser.add_argument("--no-name-lookup", action="store_true",
                         help="do not ask the system resolver for the reverse DNS name of "
                              "hosts that have an address and no name.")
@@ -463,10 +469,17 @@ class Pipeline:
         metadata["stages"] = scan.stages
 
         self._log_summary(scan.document)
-        self.emit(scan.document, args.output)
+        # vulnerabilities.json first: a reader of stdout may take the end of it
+        # as "every output is written" (--records-in-background)
         self._write_vulnerabilities(scan)
+        self.emit(scan.document, args.output)
+        if args.records_in_background and not args.output:
+            _close_stdout()
         if scan._records is not None:
-            scan.records().finish()
+            new = scan.records().finish()
+            if args.records_in_background:
+                # the dashboard reads this line to decide whether to rescore
+                log.info("CVE records after the scan: %d new", new)
         return 0
 
     @staticmethod
@@ -511,6 +524,18 @@ class Pipeline:
         else:
             log.info("graph went to stdout and --vulns-out was not given; "
                      "not writing %s", vulnfile.FILENAME)
+
+
+def _close_stdout() -> None:
+    """End stdout (the reader sees EOF) while the process goes on; fd 1 then
+    points at the null device, so a stray write cannot fail."""
+    sys.stdout.flush()
+    try:
+        null = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(null, sys.stdout.fileno())
+        os.close(null)
+    except (OSError, ValueError, AttributeError, io.UnsupportedOperation):
+        pass                            # not a real file (a test's buffer)
 
 
 def run(argv: Optional[list[str]] = None) -> int:

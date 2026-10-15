@@ -9,6 +9,7 @@ import {
   latestStage,
   nvdKeyOf,
   onPath,
+  refinedRecords,
   runExclusive,
   scanArgs,
   shouldReplaceGraph,
@@ -17,11 +18,12 @@ import {
 } from './scan';
 
 const OUT = { vulns: '/tmp/v.json', paths: '/tmp/p.json', targets: '/data/targets.json' };
-const FILES = ['--vulns-out', '/tmp/v.json', '--paths-out', '/tmp/p.json', '--targets', '/data/targets.json'];
+// the arguments every scan gets
+const BASE = ['--vulns-out', '/tmp/v.json', '--paths-out', '/tmp/p.json', '--targets', '/data/targets.json', '--records-in-background'];
 
 describe('scanArgs', () => {
   it('runs every stage and no probe by default', () => {
-    expect(scanArgs(OUT, {})).toEqual(['-m', 'vulnmapper', ...FILES]);
+    expect(scanArgs(OUT, {})).toEqual(['-m', 'vulnmapper', ...BASE]);
   });
 
   it('writes attack paths from the targets beside the graph', () => {
@@ -33,13 +35,13 @@ describe('scanArgs', () => {
   it('passes the scan form’s choices as flags', () => {
     expect(scanArgs(OUT, { checks: { checkDefaultCommunities: true } })).toContain('--check-default-communities');
     expect(
-      scanArgs(OUT, { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(2 + FILES.length)
+      scanArgs(OUT, { checks: { checkManagementPorts: true, probeUnmanagedSnmp: true } }).slice(2 + BASE.length)
     ).toEqual(['--check-management-ports', '--probe-unmanaged-snmp']);
     expect(scanArgs(OUT, { checks: { nmapUnmanaged: true } })).toContain('--nmap-unmanaged');
     expect(scanArgs(OUT, { deviceCves: false, checks: { checkDefaultCommunities: false } })).toEqual([
       '-m',
       'vulnmapper',
-      ...FILES,
+      ...BASE,
       '--no-device-cves',
     ]);
   });
@@ -47,7 +49,7 @@ describe('scanArgs', () => {
 
 describe('previous graph', () => {
   it('passes the graph being replaced as --previous-graph', () => {
-    expect(scanArgs({ ...OUT, previous: '/data/graph.json' }, {}).slice(2 + FILES.length)).toEqual([
+    expect(scanArgs({ ...OUT, previous: '/data/graph.json' }, {}).slice(2 + BASE.length)).toEqual([
       '--previous-graph',
       '/data/graph.json',
     ]);
@@ -56,7 +58,7 @@ describe('previous graph', () => {
 
 describe('seeds', () => {
   it('passes each configured seed as --seed=IP', () => {
-    expect(scanArgs(OUT, { seeds: ['10.0.0.1', '10.0.0.2'] }).slice(2 + FILES.length)).toEqual([
+    expect(scanArgs(OUT, { seeds: ['10.0.0.1', '10.0.0.2'] }).slice(2 + BASE.length)).toEqual([
       '--seed=10.0.0.1',
       '--seed=10.0.0.2',
     ]);
@@ -192,6 +194,60 @@ describe('scan history', () => {
     expect(await ended).toEqual([true, 'Scan completed; graph updated.']);
     expect(statusWhenArchived).toEqual(['running']);
     spy.mockRestore();
+  });
+});
+
+describe('refinedRecords', () => {
+  it('reads the count of CVE records that arrived after the scan', () => {
+    expect(refinedRecords('a\n2026 INFO vulnmapper.pipeline: CVE records after the scan: 3 new\n')).toBe(3);
+    expect(refinedRecords('CVE records after the scan: 0 new')).toBe(0);
+    expect(refinedRecords('no such line')).toBe(0);
+  });
+});
+
+describe('refining after the scan', () => {
+  // "-m vulnmapper --vulns-out V ...": write V, print a graph, end stdout, then
+  // keep fetching for a moment and report what came late
+  const fake = (dir: string, late: number) => {
+    const scanner = path.join(dir, `late${late}.sh`);
+    writeFileSync(
+      scanner,
+      '#!/bin/sh\necho "{}" > "$4"\necho \'{"nodes": [], "edges": [], "metadata": {}}\'\nexec 1>&-\nsleep 0.3\n' +
+        `echo "x INFO vulnmapper.pipeline: CVE records after the scan: ${late} new" >&2\n`,
+      { mode: 0o755 }
+    );
+    return scanner;
+  };
+
+  async function run(late: number) {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-refine-'));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const spy = jest.spyOn(history, 'archiveScan').mockResolvedValue({} as any);
+    let finishRescore: () => void = () => undefined;
+    const rescored = new Promise<void>((r) => (finishRescore = r));
+    const rescore = jest.fn(async () => {
+      expect(getScan().refining).toBe(true); // still refining while it runs
+      finishRescore();
+    });
+    const ended = new Promise<boolean>((resolve) => {
+      startScan({ pythonBin: fake(dir, late), backendDir: dir, graphPath: path.join(dir, 'graph.json'), onDone: (ok) => resolve(ok), rescore, logger });
+    });
+    expect(await ended).toBe(true);
+    // the scan is complete (lock free) while the scanner still runs
+    expect(getScan()).toMatchObject({ status: 'idle', refining: true });
+    expect(existsSync(path.join(dir, 'graph.json'))).toBe(true);
+    if (late) await rescored;
+    while (getScan().refining) await new Promise((r) => setTimeout(r, 20));
+    spy.mockRestore();
+    return rescore;
+  }
+
+  it('rescores once the late CVE records are in, then stops refining', async () => {
+    expect(await run(2)).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not rescore when nothing came late', async () => {
+    expect(await run(0)).not.toHaveBeenCalled();
   });
 });
 

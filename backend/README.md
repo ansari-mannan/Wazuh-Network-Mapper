@@ -531,8 +531,13 @@ per CVE to the CVE Services API (`https://cveawg.mitre.org/api/cve/<id>`),
 eight at a time within a 60-second budget per scan, worst scanner score first.
 The fetch starts in the background as soon as the scan knows CVEs (after the
 Wazuh stage, again after the device CVEs and the service scan), so it overlaps
-the crawl and nmap; the budget runs from that first request. The OVSS stage
-waits for it.
+the crawl and nmap; the budget runs from that first request. A command-line
+scan waits for it at the OVSS stage. With `--records-in-background` (what the
+dashboard passes) the OVSS stage waits at most 5 s and scores with what is in
+hand; the outputs are written and stdout closed, the fetch finishes within
+its budget, and the scanner logs `CVE records after the scan: N new` before it
+exits. The dashboard then runs `python -m vulnmapper.scoring.rescore` (under
+the scan lock) when N is above 0, and shows "Scores refining…" until it ends.
 They are cached in `cve-records.json` beside `nvd-cache.json`, trimmed to their
 scores: a record for 30 days, a CVE the API does not know for 1 day. A request
 that gets no answer, or a rate limit, stops all requests for that scan with no

@@ -28,6 +28,8 @@ if TYPE_CHECKING:
     from ..pipeline import ScanContext
 
 WARNING = "threat_feeds_unavailable"
+# --records-in-background: the longest the stage waits for cve.org
+RECORDS_WAIT_S = 5.0
 
 
 def ovss_order(row: dict) -> tuple:
@@ -171,6 +173,7 @@ def run_ovss(scan: "ScanContext") -> StageResult:
     warnings: list = []
     targets = load_targets(scan.targets_path, warnings)
     scan.engine, result = score(scan.document, vulns, targets, scan.cache_folder(), scan.clock,
-                                scan.threat_transport, records=scan.records())
+                                scan.threat_transport, records=scan.records(),
+                                wait_s=RECORDS_WAIT_S if scan.args.records_in_background else None)
     result.warnings.extend(warnings)
     return result

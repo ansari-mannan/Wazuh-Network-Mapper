@@ -391,6 +391,9 @@ export type ScanState = {
   // After a completed scan: whether its NVD lookups used an API key (null: no
   // device-CVE stage). Only the scanner's boolean; the key itself is never read.
   nvdKey?: boolean | null;
+  // After a completed scan: CVE records are still arriving, and the scores are
+  // rescored with them once they have (the files then change on disk).
+  refining?: boolean;
 };
 
 // Scheduled scans (schedule.json beside the graph; GET/POST /api/vulnmapper/schedule).
