@@ -65,17 +65,22 @@ def top_cves(current: list, findings: Optional[list], per_cve: dict, catalogue: 
     return sorted(rows, key=ovss_order)[:TOP_CVES]
 
 
+def fetch_order(ids, catalogue: dict) -> list:
+    """CVE ids worst tool score first: the order their records are fetched in."""
+    return sorted(set(ids), key=lambda c: (-((catalogue.get(c) or {}).get("cvss") or 0), c))
+
+
 def score_graph(graph: dict, vulns: dict, targets: Optional[dict], engine: "AttackPathEngine",
-                threat: Threat, records: CveRecords) -> dict:
+                threat: Threat, records: CveRecords, wait_s: Optional[float] = None) -> dict:
     """Score ``vulns``' findings and ``graph``'s nodes in place; returns the
-    ``metadata.ovss`` block."""
+    ``metadata.ovss`` block. ``wait_s``: see :meth:`CveRecords.load`."""
     hosts, catalogue = vulns.get("hosts") or {}, vulns.get("cves") or {}
     targets = targets or {}
-    ids = sorted({f["cve"] for h in hosts.values() for f in h.get("findings") or []
-                  if f.get("cve")} | {r["cve"] for n in graph["nodes"]
-                                      for r in n.get("top_cves") or [] if r.get("cve")},
-                 key=lambda c: (-((catalogue.get(c) or {}).get("cvss") or 0), c))  # worst first
-    recs = records.load(ids)
+    ids = fetch_order({f["cve"] for h in hosts.values() for f in h.get("findings") or []
+                       if f.get("cve")} | {r["cve"] for n in graph["nodes"]
+                                           for r in n.get("top_cves") or [] if r.get("cve")},
+                      catalogue)
+    recs = records.load(ids, wait_s)
     # a VLAN is routed when some router has an up layer-3 interface in it and another
     routed = set().union(*(v for v in engine.routers.values() if len(v) >= 2))
     dependants = engine.dependants()
@@ -118,20 +123,27 @@ def score_graph(graph: dict, vulns: dict, targets: Optional[dict], engine: "Atta
             "cve_records": {k: v for k, v in records.stats.items() if k != "requests"}}
 
 
+def cve_records(folder: Optional[str], clock, transport=None) -> CveRecords:
+    """The CVE records cached in ``folder`` (none: in memory only)."""
+    return CveRecords(records_cache(os.path.join(folder, RECORDS_FILENAME) if folder else None,
+                                    clock), clock, transport)
+
+
 def score(graph: dict, vulns: dict, targets: Optional[dict], folder: Optional[str], clock,
-          transport=None) -> tuple:
-    """Load the feeds and records (cached in ``folder``), build the attack path
-    engine and score ``graph`` and ``vulns`` in place. Returns ``(engine, result)``;
-    the result's block is ``metadata.ovss``, and the graph gains
+          transport=None, records: Optional[CveRecords] = None,
+          wait_s: Optional[float] = None) -> tuple:
+    """Load the feeds and records (cached in ``folder``; ``records`` when the
+    scan already started fetching them), build the attack path engine and
+    score ``graph`` and ``vulns`` in place. Returns ``(engine, result)``; the
+    result's block is ``metadata.ovss``, and the graph gains
     ``metadata.threat_feeds``."""
     from ..attackpaths import AttackPathEngine
 
     threat = load_threat(folder, clock, transport)
-    records = CveRecords(records_cache(os.path.join(folder, RECORDS_FILENAME) if folder else None,
-                                       clock), clock, transport)
+    records = records or cve_records(folder, clock, transport)
     engine = AttackPathEngine(graph, targets, vulns)
     t0 = time.monotonic()
-    block = score_graph(graph, vulns, targets, engine, threat, records)
+    block = score_graph(graph, vulns, targets, engine, threat, records, wait_s)
     scoring_s = time.monotonic() - t0 - records.load_s
     graph.setdefault("metadata", {})["threat_feeds"] = threat.block
 
@@ -158,7 +170,7 @@ def run_ovss(scan: "ScanContext") -> StageResult:
     vulns = scan.vulnerabilities(None)
     warnings: list = []
     targets = load_targets(scan.targets_path, warnings)
-    scan.engine, result = score(scan.document, vulns, targets,
-                                scan.cache_folder(), scan.clock, scan.threat_transport)
+    scan.engine, result = score(scan.document, vulns, targets, scan.cache_folder(), scan.clock,
+                                scan.threat_transport, records=scan.records())
     result.warnings.extend(warnings)
     return result

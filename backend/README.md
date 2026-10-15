@@ -528,7 +528,11 @@ this copy if it cannot.
 
 **CVE records.** CNA and ADP scores come from CVE JSON 5 records, one request
 per CVE to the CVE Services API (`https://cveawg.mitre.org/api/cve/<id>`),
-four at a time within a 60-second budget per scan, worst scanner score first.
+eight at a time within a 60-second budget per scan, worst scanner score first.
+The fetch starts in the background as soon as the scan knows CVEs (after the
+Wazuh stage, again after the device CVEs and the service scan), so it overlaps
+the crawl and nmap; the budget runs from that first request. The OVSS stage
+waits for it.
 They are cached in `cve-records.json` beside `nvd-cache.json`, trimmed to their
 scores: a record for 30 days, a CVE the API does not know for 1 day. A request
 that gets no answer, or a rate limit, stops all requests for that scan with no

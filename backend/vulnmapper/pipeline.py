@@ -49,6 +49,7 @@ class ScanContext:
         self.threat_transport = threat_transport
         # built by the OVSS stage, used again by the attack path stage
         self.engine = None
+        self._records = None
 
         self.endpoints: list[dict] = []
         self.network_doc: dict = {"nodes": [], "edges": []}
@@ -111,6 +112,23 @@ class ScanContext:
                                    budget_s=self.args.nvd_budget or DEFAULT_BUDGET_S),
                          Cache(self.nvd_cache_path(), self.clock))
         return self._nvd
+
+    def records(self):
+        """The scan's CVE records (cve-records.json), made on first use."""
+        if self._records is None:
+            from .scoring.stage import cve_records
+
+            self._records = cve_records(self.cache_folder(), self.clock, self.threat_transport)
+        return self._records
+
+    def prefetch_records(self) -> None:
+        """Start fetching the records of every CVE known so far, in the background."""
+        from .scoring.stage import fetch_order
+
+        ids = set(self.cves or {}) | {r["cve"] for e in self.endpoints
+                                      for r in e.get("top_cves") or [] if r.get("cve")}
+        if ids:
+            self.records().prefetch(fetch_order(ids, self.cves or {}))
 
     def nvd_tally(self, stage: str, before: tuple) -> tuple:
         """Log and return the cache's ``(hits, misses, expired)`` since ``before``."""
@@ -389,6 +407,7 @@ class Pipeline:
         scan.timing["started_at"] = datetime.now(timezone.utc).isoformat()
 
         _read_endpoints(scan)
+        scan.prefetch_records()             # cve.org overlaps the crawl and the stages below
         _read_network(scan)
         t0 = time.monotonic()
         scan.document = assemble(scan.endpoints, scan.network_doc,
@@ -408,12 +427,14 @@ class Pipeline:
                    skip=_off_unless(not args.no_device_cves),
                    label="Looking up device CVEs in NVD",
                    timing="device_cves_s", metadata="device_cves")
+        scan.prefetch_records()
         # The service scan runs before the vector stage, so its CVEs flow
         # through it (vector fields, reachable_cve) and on to the attack paths.
         _run_stage(scan, "nmap service scan", run_service_scan,
                    skip=_off_unless(args.nmap_unmanaged),
                    label="Service-scanning unmanaged hosts with nmap",
                    timing="nmap_s", metadata="nmap")
+        scan.prefetch_records()
         _run_stage(scan, "CVE vectors (NVD)", run_cve_vectors,
                    skip=_off_unless(not args.no_cve_vectors),
                    label="Looking up CVE vectors in NVD",
@@ -444,6 +465,8 @@ class Pipeline:
         self._log_summary(scan.document)
         self.emit(scan.document, args.output)
         self._write_vulnerabilities(scan)
+        if scan._records is not None:
+            scan.records().finish()
         return 0
 
     @staticmethod

@@ -12,7 +12,8 @@ CNA and ADP scores come from CVE JSON 5 records, one per CVE, from the CVE
 Services API. Records are cached in ``cve-records.json`` beside
 nvd-cache.json, trimmed to their scored blocks: a record for 30 days, a CVE
 the API does not know for 1 day. Each scan fetches the CVEs it has no fresh
-entry for, worst tool score first, a few at a time and within a time budget.
+entry for, worst tool score first, a few at a time and within a time budget,
+in the background from the moment the scan knows them (see CveRecords).
 A request that gets no answer (timeout, connection error) or a rate limit
 stops all fetching for the scan, with no retry; whatever was not fetched uses
 its expired entry if there is one, else the tool score. Other CVEs fill in on
@@ -26,7 +27,7 @@ import logging
 import re
 import threading
 import time
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait as wait_futures
 from datetime import timedelta
 from typing import Callable, Optional
 
@@ -41,7 +42,7 @@ FILENAME = "cve-records.json"
 FRESH_FOUND = timedelta(days=30)
 FRESH_MISSING = timedelta(days=1)
 BUDGET_S = 60.0
-CONCURRENCY = 4
+CONCURRENCY = 8
 REQUEST_TIMEOUT_S = 10.0
 
 SRC_CNA, SRC_ADP, SRC_TOOL = "CNA", "ADP", "tool"
@@ -104,7 +105,15 @@ def conflict(cvss_src, cvss_used, cvss_ver, tool_score, tool_version) -> int:
 
 
 class CveRecords:
-    """The trimmed CVE records of one scan, from the cache and cve.org."""
+    """The trimmed CVE records of one scan, from the cache and cve.org.
+
+    A scan starts fetching (:meth:`prefetch`) as soon as it knows CVEs, in a
+    background pool, so cve.org overlaps the crawl and nmap; the time budget
+    runs from that first fetch. Each answer goes into the cache as it arrives.
+    :meth:`load` scores with what is in hand, waiting at most ``wait_s`` (None:
+    until every fetch ends, as a command-line scan does), and :meth:`finish`
+    lets the rest end within the budget and saves the cache.
+    """
 
     def __init__(self, cache: Cache, clock, transport: Optional[Callable] = None,
                  budget_s: float = BUDGET_S, concurrency: int = CONCURRENCY) -> None:
@@ -113,15 +122,21 @@ class CveRecords:
         self._transport = transport or feeds.http_get
         self.budget_s = budget_s
         self.concurrency = concurrency
-        self._started = clock.monotonic()
+        self._started: Optional[float] = None       # the first fetch
+        self._pool: Optional[ThreadPoolExecutor] = None
+        self._pending: dict = {}      # CVE id -> Future of its fetch's state
+        self._expired: dict = {}      # CVE id -> its expired entry, when it had one
+        self._used: set = set()       # fetches whose answer load() scored with
         self._stop = threading.Event()        # no answer or rate limited: ask no more
-        self._lock = threading.Lock()
+        self._lock = threading.Lock()         # the cache and the stats
         self.stats = {"hits": 0, "fetched": 0, "not_found": 0, "expired_used": 0,
                       "unanswered": 0, "requests": 0}
         self.load_s = 0.0               # wall time of load(), for the stage note
 
     def _remaining(self) -> float:
-        return self.budget_s - (self._clock.monotonic() - self._started)
+        # real time, not the clock's: the fetches run beside stages that may
+        # wait on a (test's fake) clock
+        return self.budget_s - (time.monotonic() - self._started)
 
     def _fetch(self, cve_id: str):
         """``("found", trimmed)``, ``("missing", None)`` or ``("unanswered", None)``."""
@@ -151,39 +166,66 @@ class CveRecords:
         except (ValueError, AttributeError, TypeError):
             return "unanswered", None
 
-    def load(self, cve_ids: list) -> dict:
+    def _fetch_and_keep(self, cve_id: str) -> str:
+        state, record = self._fetch(cve_id)
+        if state != "unanswered":
+            with self._lock:
+                self.cache.put(cve_id, found=state == "found", data=record)
+        return state
+
+    def prefetch(self, cve_ids) -> None:
+        """Start fetching, in the background and in this order, every CVE of
+        ``cve_ids`` with no fresh cache entry that is not being fetched yet."""
+        with self._lock:
+            for cve_id in dict.fromkeys(cve_ids):
+                if cve_id in self._pending:
+                    continue
+                entry = self.cache.get(cve_id)
+                if entry and entry["fresh"]:
+                    continue
+                if entry:
+                    self._expired[cve_id] = entry
+                if self._pool is None:
+                    self._started = time.monotonic()
+                    self._pool = ThreadPoolExecutor(max_workers=self.concurrency,
+                                                    thread_name_prefix="cve-records")
+                self._pending[cve_id] = self._pool.submit(self._fetch_and_keep, cve_id)
+
+    def wait(self, timeout: Optional[float] = None) -> bool:
+        """Wait for the fetches started so far; whether they all ended."""
+        return not wait_futures(list(self._pending.values()), timeout).not_done
+
+    def load(self, cve_ids: list, wait_s: Optional[float] = None) -> dict:
         """``{CVE id: trimmed record or None}``. ``cve_ids`` in the order to fetch
-        (most important first); a CVE with no record is left out."""
+        (most important first); a CVE with no record is left out. A fetch still
+        running after ``wait_s`` counts as unanswered here."""
         started = time.monotonic()
-        out, todo, expired = {}, [], {}
+        self.prefetch(cve_ids)
+        self.wait(wait_s)
+        out = {}
         for cve_id in dict.fromkeys(cve_ids):
-            entry = self.cache.get(cve_id)
-            if entry and entry["fresh"]:
+            future = self._pending.get(cve_id)
+            state = future.result() if future is not None and future.done() else None
+            if future is None:
+                entry = self.cache.get(cve_id)
                 self.stats["hits"] += 1
-                if entry["found"]:
+                if entry and entry["found"]:
                     out[cve_id] = entry["data"]
                 continue
-            if entry:
-                expired[cve_id] = entry
-            todo.append(cve_id)
-        if todo:
-            with ThreadPoolExecutor(max_workers=self.concurrency) as pool:
-                answers = list(pool.map(self._fetch, todo))
-            for cve_id, (state, record) in zip(todo, answers):
-                if state == "found":
-                    self.stats["fetched"] += 1
-                    self.cache.put(cve_id, found=True, data=record)
-                    out[cve_id] = record
-                elif state == "missing":
-                    self.stats["not_found"] += 1
-                    self.cache.put(cve_id, found=False, data=None)
-                elif cve_id in expired:
-                    self.stats["expired_used"] += 1
-                    if expired[cve_id]["found"]:
-                        out[cve_id] = expired[cve_id]["data"]
-                else:
-                    self.stats["unanswered"] += 1
-        self.cache.save()
+            if state is not None:
+                self._used.add(cve_id)
+            if state == "found":
+                self.stats["fetched"] += 1
+                out[cve_id] = self.cache.get(cve_id)["data"]
+            elif state == "missing":
+                self.stats["not_found"] += 1
+            elif cve_id in self._expired:
+                self.stats["expired_used"] += 1
+                if self._expired[cve_id]["found"]:
+                    out[cve_id] = self._expired[cve_id]["data"]
+            else:
+                self.stats["unanswered"] += 1
+        self.save()
         s = self.stats
         log.info("CVE records: %d cache hit(s), %d fetched, %d not found, %d expired entr%s "
                  "used, %d left to the tool score (%d request(s))", s["hits"], s["fetched"],
@@ -191,6 +233,20 @@ class CveRecords:
                  s["unanswered"], s["requests"])
         self.load_s = time.monotonic() - started
         return out
+
+    def save(self) -> None:
+        with self._lock:
+            self.cache.save()
+
+    def finish(self) -> int:
+        """Let every fetch end (within the budget), save the cache and return
+        how many answers came after :meth:`load` scored: a rescore would use them."""
+        if self._pool is None:
+            return 0
+        self._pool.shutdown(wait=True)
+        self.save()
+        return sum(1 for cve_id, future in self._pending.items()
+                   if cve_id not in self._used and future.result() != "unanswered")
 
 
 def records_cache(path: Optional[str], clock) -> Cache:
