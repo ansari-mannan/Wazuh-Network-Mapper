@@ -5,7 +5,7 @@ import React, { createContext, ReactNode, useCallback, useContext, useEffect, us
 import { ActiveChecks, ScanState } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
-import { nvdToastText } from './nvdText';
+import { nvdToastLine } from './nvdText';
 
 const POLL_MS = 1500;
 const IDLE_POLL_MS = 15000; // only while the tab is visible
@@ -50,7 +50,7 @@ export function ScanProvider({ children }: { children: ReactNode }) {
         text: scan.message || undefined,
       });
     } else {
-      notifications.toasts.addSuccess({ title: 'Scan completed; graph updated', text: nvdToastText(scan.nvdKey) });
+      notifications.toasts.addSuccess({ title: 'Scan completed; graph updated', text: nvdToastLine(scan.nvdKey) });
       reload();
     }
   }, [scan, notifications, reload]);
