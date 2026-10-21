@@ -251,6 +251,16 @@ export function stepText(step: AttackStep, nameOf: (id: string) => string): Step
   };
 }
 
+/**
+ * Spare entry ports in a map label, compact past `shown` ports
+ * ("Fa1/0/7, Fa1/0/8 +3 · VLAN 20"), and in full for its tooltip.
+ */
+export function entryPortsText(ports: string[], vlan: number, shown = 2): { short: string; full: string } {
+  const more = ports.length > shown ? ` +${ports.length - shown}` : '';
+  const head = ports.length ? `${ports.slice(0, shown).join(', ')}${more}` : 'spare ports';
+  return { short: `${head} · VLAN ${vlan}`, full: `${ports.length ? ports.join(', ') : 'spare ports'} · VLAN ${vlan}` };
+}
+
 /** The starting-point kind in words, for "Assumes <start> is already compromised". */
 export function startKindLabel(kind: AttackStartKind): string {
   switch (kind) {

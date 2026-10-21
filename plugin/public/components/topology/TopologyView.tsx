@@ -10,7 +10,6 @@ import ReactFlow, {
   EdgeProps,
   EdgeText,
   MarkerType,
-  Node,
   NodeChange,
   ReactFlowInstance,
   XYPosition,
@@ -18,17 +17,15 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
-import { highlightClass, routeArrows, routeMarks } from './highlight';
+import { highlightClass, RouteEntry, routeArrows, routeMarks } from './highlight';
 import { CustomNode, SpareStartNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
 import { isWireless, wirelessText } from '../../lib/wireless';
 import { useHoverTip } from '../layout/HoverTip';
+import { entryPortsText } from '../../lib/attackPaths';
 
 const nodeTypes = { device: CustomNode, spareStart: SpareStartNode };
-
-// Where the virtual spare-port start sits, from the switch that holds the ports.
-const SPARE_START_OFFSET = { x: -200, y: -110 };
 
 // How far along a device-to-device link its two port labels sit, from each end.
 const PORT_LABEL_T = 0.22;
@@ -93,7 +90,41 @@ function WifiEdge(props: EdgeProps<{ tooltip: string }>) {
   );
 }
 
-const edgeTypes = { ports: PortsEdge, wifi: WifiEdge };
+// half of .node's 184 px width (topology.scss)
+const NODE_HALF_W = 92;
+
+// A route from a switch's own spare ports to that switch: a loop that leaves
+// its right side and comes back in, labelled with the ports (in full on hover).
+function LoopEdge({ sourceX, sourceY, targetY, style, markerEnd, data }: EdgeProps<{ short: string; full: string }>) {
+  const x = sourceX + NODE_HALF_W;
+  const y = (sourceY + targetY) / 2;
+  const { tip, bind } = useHoverTip();
+  const text = `Entry: ${data?.full || ''}`;
+  return (
+    <g className="vmLoopEdge" tabIndex={0} role="img" aria-label={text} {...bind({ title: text, lines: [] })}>
+      {tip}
+      <path
+        className="react-flow__edge-path"
+        d={`M ${x} ${y - 14} C ${x + 80} ${y - 70}, ${x + 80} ${y + 70}, ${x} ${y + 14}`}
+        style={style}
+        markerEnd={markerEnd}
+        fill="none"
+      />
+      <EdgeText
+        x={x + 62}
+        y={y}
+        label={data?.short}
+        labelStyle={{ fontSize: 10, fill: graphColors.route, fontWeight: 600 }}
+        labelShowBg
+        labelBgStyle={{ fill: themeVars.euiColorEmptyShade, fillOpacity: 0.9 }}
+        labelBgPadding={[3, 2]}
+        labelBgBorderRadius={2}
+      />
+    </g>
+  );
+}
+
+const edgeTypes = { ports: PortsEdge, wifi: WifiEdge, loop: LoopEdge };
 
 type EdgeStyle = CSSProperties & { stroke: string };
 
@@ -181,11 +212,11 @@ interface TopologyViewProps {
    */
   routeKey?: string;
   /**
-   * Set when the route starts at spare switch ports ("9 spare ports · VLAN 20"):
-   * the walk's first id is then no graph node but a virtual start marker, drawn
-   * beside the next node (the switch) only while the route is shown.
+   * Set when the route starts at spare switch ports: on the switch it enters
+   * (the walk's first node), a loop back into it when that switch is the
+   * target, else an entry chip under its Start tag. Display only.
    */
-  startLabel?: string;
+  entry?: RouteEntry;
 }
 
 // A link the route travels along: thicker, in the route colour, with marching
@@ -223,7 +254,7 @@ function withoutHidden(graph: GraphResponse, hiddenKey: string): GraphResponse {
 
 export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
   (
-    { graph, onSelect, selectedId, hiddenKey = '', highlightKey = '', passKey = '', routeKey = '', startLabel = '' },
+    { graph, onSelect, selectedId, hiddenKey = '', highlightKey = '', passKey = '', routeKey = '', entry },
     ref
   ) => {
     const highlight = useMemo(
@@ -290,17 +321,12 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
 
       return { layoutNodes: rfNodes, edges: rfEdges };
     }, [graph, hiddenKey]);
-    // The spare-port start marker and its link to the switch: display only, so
-    // never part of the layout, the counts or the moved positions.
-    const spareEdge = useMemo<Edge | null>(
-      () =>
-        startLabel && walk.length > 1 && !layoutNodes.some((n) => n.id === walk[0])
-          ? { id: `vmSpareStart->${walk[1]}`, source: walk[0], target: walk[1], style: {} }
-          : null,
-      [startLabel, walk, layoutNodes]
-    );
-    const drawnEdges = useMemo(() => (spareEdge ? [...edges, spareEdge] : edges), [edges, spareEdge]);
-    const arrows = useMemo(() => (walk.length ? routeArrows(walk, drawnEdges) : null), [walk, drawnEdges]);
+    const arrows = useMemo(() => (walk.length ? routeArrows(walk, edges) : null), [walk, edges]);
+    // The spare ports a route enters by, on its first switch: display only, so
+    // never part of the layout or the counts.
+    const entryAt = entry && walk[0] === entry.switch ? entry.switch : null;
+    const entryText = useMemo(() => entry && entryPortsText(entry.ports, entry.vlan), [entry]);
+    const loop = entryAt && walk.length === 1;
 
     const moved = useMemo(() => {
       let m = movedPositions.get(graph);
@@ -345,35 +371,28 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
     // travel order, its links pointing the way it travels; every node off it
     // fades.
     const lit = (id: string) => highlight!.has(id) || passThrough.has(id);
-    const displayNodes: Node[] = nodes.map((n) => {
+    const displayNodes = nodes.map((n) => {
       const sel = n.id === selectedId;
       const className = highlightClass(n.id, highlight, passThrough, marks);
       const route = (highlight && marks?.get(n.id)) || undefined;
-      return n.selected === sel && (n.className || '') === className && n.data.route === route
+      const chip = (highlight && !loop && n.id === entryAt && entryText) || undefined;
+      return n.selected === sel && (n.className || '') === className && n.data.route === route && n.data.entry === chip
         ? n
-        : { ...n, selected: sel, className, data: { ...n.data, route } };
+        : { ...n, selected: sel, className, data: { ...n.data, route, entry: chip } };
     });
-    const anchor = spareEdge && nodes.find((n) => n.id === spareEdge.target);
-    if (highlight && anchor) {
-      displayNodes.push({
-        id: spareEdge!.source,
-        type: 'spareStart',
-        position: { x: anchor.position.x + SPARE_START_OFFSET.x, y: anchor.position.y + SPARE_START_OFFSET.y },
-        data: { label: startLabel, route: marks?.get(spareEdge!.source) },
-        className: 'vmOnRoute',
-        draggable: false,
-        selectable: false,
-      });
-    }
+    const loopEdges: Edge[] =
+      highlight && loop
+        ? [routeEdge({ id: 'vmEntryLoop', source: entryAt!, target: entryAt!, type: 'loop', data: entryText }, 'end')]
+        : [];
     const displayEdges = !highlight
       ? edges
-      : (anchor ? drawnEdges : edges).map((e) => {
+      : edges.map((e) => {
           const arrow = arrows?.get(e.id);
           if (arrow) return routeEdge(e, arrow);
           // a link off the route fades; an old link without the walk lights
           // every edge between two lit nodes instead
           return !arrows && lit(e.source) && lit(e.target) ? e : { ...e, style: { ...e.style, opacity: 0.12 } };
-        });
+        }).concat(loopEdges);
 
     return (
       <div
@@ -386,7 +405,7 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           onNodesChange={handleNodesChange}
-          onNodeClick={(_, n) => n.type !== 'spareStart' && onSelect(n.id)}
+          onNodeClick={(_, n) => onSelect(n.id)}
           onPaneClick={() => onSelect(null)}
           onInit={(rf) => {
             instance.current = rf;

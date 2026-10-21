@@ -3,10 +3,18 @@
 // its links an arrowhead pointing the way the route travels. Every node off the
 // route fades, devices and hosts alike.
 
-/** A node's place on the route: its step number (1 = start) and end tag. */
+/** A node's place on the route: its step number (1 = start) and end tag
+ *  ('both' when the route starts at the target itself, e.g. its spare ports). */
 export interface RouteMark {
   step: number;
-  end?: 'start' | 'target';
+  end?: 'start' | 'target' | 'both';
+}
+
+/** Where a route from spare switch ports enters: the switch, its ports and their VLAN. */
+export interface RouteEntry {
+  switch: string;
+  vlan: number;
+  ports: string[];
 }
 
 /**
@@ -17,9 +25,9 @@ export function routeMarks(walk: string[]): Map<string, RouteMark> {
   const marks = new Map<string, RouteMark>();
   for (const id of walk) if (!marks.has(id)) marks.set(id, { step: marks.size + 1 });
   if (walk.length) {
-    marks.get(walk[0])!.end = 'start';
-    const last = marks.get(walk[walk.length - 1])!;
-    if (walk.length > 1 && walk[walk.length - 1] !== walk[0]) last.end = 'target';
+    const last = walk[walk.length - 1];
+    marks.get(walk[0])!.end = last === walk[0] ? 'both' : 'start';
+    if (last !== walk[0]) marks.get(last)!.end = 'target';
   }
   return marks;
 }

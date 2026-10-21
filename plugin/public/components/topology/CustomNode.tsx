@@ -16,8 +16,11 @@ import { useLiveness } from '../../lib/liveness';
 
 // A React Flow node whose `data` payload is a real graph node, plus its place
 // on the route being shown (Attack paths "Show on map").
-export type TopologyNodeData = GraphNode & { route?: RouteMark };
+// `entry`: the spare ports a route enters this switch by (compact, and in full).
+export type TopologyNodeData = GraphNode & { route?: RouteMark; entry?: { short: string; full: string } };
 export type TopologyFlowNode = Node<TopologyNodeData>;
+
+const END_TEXT = { start: 'Start', target: 'Target', both: 'Start · Target' };
 
 // A node's step number and Start/Target tag on the route being shown.
 function RouteTags({ route }: { route?: RouteMark }) {
@@ -29,7 +32,7 @@ function RouteTags({ route }: { route?: RouteMark }) {
         </span>
       )}
       {route?.end && (
-        <span className={`node__end node__end--${route.end}`}>{route.end === 'start' ? 'Start' : 'Target'}</span>
+        <span className={`node__end node__end--${route.end}`}>{END_TEXT[route.end]}</span>
       )}
     </>
   );
@@ -100,6 +103,11 @@ export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
         <Handle type="source" position={Position.Bottom} className="handle" />
       </div>
       <RouteTags route={data.route} />
+      {data.entry && (
+        <span className="node__entry" title={data.entry.full} data-test-subj="vmEntryChip">
+          Entry: {data.entry.short}
+        </span>
+      )}
       {data.unmanaged && (
         <span className="node__badge" title="No Wazuh agent reports from this machine">
           Unmanaged

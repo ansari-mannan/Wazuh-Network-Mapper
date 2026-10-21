@@ -23,6 +23,7 @@ import { useLiveness } from '../../lib/liveness';
 import { useServices } from '../../lib/services';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
 import { ROUTE_DASH, TopologyView, TopologyViewHandle } from './TopologyView';
+import { RouteEntry } from './highlight';
 import { graphColors } from '../../lib/theme';
 import { DeviceDetail } from './DeviceDetail';
 import { MapLegend } from './MapLegend';
@@ -120,7 +121,16 @@ export function TopologyPage() {
   const highlightKey = params.get('highlight') || '';
   const passKey = params.get('pass') || '';
   const routeKey = params.get('route') || '';
-  const startLabel = params.get('start') || '';
+  // a route from spare switch ports: the switch it enters by, and those ports
+  const entryId = params.get('entry');
+  const entry = useMemo<RouteEntry | undefined>(
+    () =>
+      entryId
+        ? { switch: entryId, vlan: Number(params.get('vlan')), ports: (params.get('ports') || '').split(',').filter(Boolean) }
+        : undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location.search]
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hideInactive, setHideInactive] = useState(true);
   const view = useRef<TopologyViewHandle>(null);
@@ -226,7 +236,7 @@ export function TopologyPage() {
                   highlightKey={highlightKey}
                   passKey={passKey}
                   routeKey={routeKey}
-                  startLabel={startLabel}
+                  entry={entry}
                 />
               </EuiPanel>
             </EuiFlexItem>

@@ -355,6 +355,8 @@ describe('attack paths: spare-port starts', () => {
   const L2 = 'device:00:17:95:be:b2:00';
   const onL3 = `start:spare-ports:${L3}:20`;
   const onL2 = `start:spare-ports:${L2}:10`;
+  const l3Ports = Array.from({ length: 9 }, (_, i) => `Fa1/0/${i + 7}`);
+  const l2Ports = Array.from({ length: 10 }, (_, i) => `Fa0/${i + 9}`);
   const telnet = (from: string, to: string) =>
     ({ kind: 'misconfiguration', from, to, value: 0.2, check: 'mgmt-telnet-enabled', title: 'Telnet enabled' }) as const;
   const route = (start: string, steps: any[], rank: number) => ({
@@ -363,8 +365,8 @@ describe('attack paths: spare-port starts', () => {
   const doc = {
     ...labPaths,
     starting_points: [
-      { id: onL3, kind: 'spare_ports', switch: L3, switch_label: 'L3-Switch', vlans: [20], listed_ports: 9 },
-      { id: onL2, kind: 'spare_ports', switch: L2, switch_label: 'L2-Switch', vlans: [10], listed_ports: 10 },
+      { id: onL3, kind: 'spare_ports', switch: L3, switch_label: 'L3-Switch', vlans: [20], listed_ports: 9, ports: l3Ports },
+      { id: onL2, kind: 'spare_ports', switch: L2, switch_label: 'L2-Switch', vlans: [10], listed_ports: 10, ports: l2Ports },
     ],
     targets: [{ ...labPaths.targets[1], routes: [route(onL3, [telnet(onL3, L3)], 1), route(onL2, [telnet(onL2, L2), telnet(L2, L3)], 2)] }],
   };
@@ -410,17 +412,17 @@ describe('attack paths: spare-port starts', () => {
   };
   const firstStep = () => root.querySelector('[data-test-subj="vmRouteDetail"] .euiPanel')!.textContent;
 
-  it('one hop: the map walks marker -> target, the marker labelled with the ports', () => {
+  it('one hop: the map walks the target alone, entered by its own spare ports', () => {
     const q = showOnMap(0);
-    expect(q.get('route')).toBe(`${onL3},${L3}`);
-    expect(q.get('start')).toBe('9 spare ports · VLAN 20');
+    expect(q.get('route')).toBe(L3);
+    expect([q.get('entry'), q.get('vlan'), q.get('ports')]).toEqual([L3, '20', l3Ports.join(',')]);
     expect(firstStep()).toBe('Plug into a spare port in VLAN 20 on L3-Switch');
   });
 
-  it('two hops: the map walks marker -> L2 -> L3', () => {
+  it('two hops: the map walks L2 -> L3, entered by the spare ports on L2', () => {
     const q = showOnMap(1);
-    expect(q.get('route')).toBe(`${onL2},${L2},${L3}`);
-    expect(q.get('start')).toBe('10 spare ports · VLAN 10');
+    expect(q.get('route')).toBe(`${L2},${L3}`);
+    expect([q.get('entry'), q.get('vlan'), q.get('ports')]).toEqual([L2, '10', l2Ports.join(',')]);
     expect(firstStep()).toBe('Plug into a spare port in VLAN 10 on L2-Switch');
   });
 });

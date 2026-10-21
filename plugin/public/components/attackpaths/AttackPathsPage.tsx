@@ -204,7 +204,7 @@ export function AttackPathsPage() {
     const full = new Set<string>([route.start, route.target]);
     for (const s of route.steps) if (s.kind !== 'transit') full.add(s.to);
     // A spare-ports start is not a graph node: the route leaves from its switch,
-    // and the map draws the start as a virtual marker beside it (`start`).
+    // and the map marks the ports it enters by (`entry`, `vlan`, `ports`).
     const spare = doc.starting_points.find((p) => p.id === route.start && p.kind === 'spare_ports');
     const walk = routeWalk(route);
     if (spare?.switch) walk[0] = spare.switch;
@@ -213,9 +213,12 @@ export function AttackPathsPage() {
     const pass = [...lit].filter((id) => !full.has(id));
     // the same path in travel order: the map numbers it and points its arrows
     const ordered = physicalPathWalk(walk, graph?.edges || [], graph?.nodes || []);
-    if (spare?.switch) ordered.unshift(route.start);
     const q = new URLSearchParams({ highlight: [...full].join(','), pass: pass.join(','), route: ordered.join(',') });
-    if (spare?.switch) q.set('start', `${spare.listed_ports ?? spare.ports?.length ?? 0} spare ports · VLAN ${spare.vlans[0]}`);
+    if (spare?.switch) {
+      q.set('entry', spare.switch);
+      q.set('vlan', String(spare.vlans[0]));
+      q.set('ports', (spare.ports || []).join(','));
+    }
     history.push(`/topology?${q.toString()}`);
   };
 

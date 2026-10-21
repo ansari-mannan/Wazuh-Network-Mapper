@@ -114,6 +114,13 @@
     border: 1px solid var(--vm-route);
     pointer-events: none;
   }
+  // the spare ports a route enters its first switch by, under the Start tag
+  .node__entry {
+    position: absolute; bottom: -32px; left: 10px; max-width: 220px;
+    padding: 0 7px; border-radius: 9px;
+    font-size: 11px; line-height: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--vm-route); background: $euiColorEmptyShade; border: 1px dashed var(--vm-route);
+  }
   // the virtual start of a spare-port route: smaller, outlined in the route colour
   .vmSpareStart .node { width: 150px; padding: 8px 10px; border: 2px dashed var(--vm-route); }
 

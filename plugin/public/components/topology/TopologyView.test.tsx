@@ -15,6 +15,8 @@ import labGraph from '../../../test/fixtures/lab.graph.json';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const v8 = require('v8');
 (global as any).structuredClone ??= (value: unknown) => v8.deserialize(v8.serialize(value));
+// nor SVG layout, which an edge label measures itself with
+(SVGElement.prototype as any).getBBox ??= () => ({ x: 0, y: 0, width: 0, height: 0 });
 
 jest.mock('react-flow-renderer', () => {
   const actual = jest.requireActual('react-flow-renderer');
@@ -22,11 +24,11 @@ jest.mock('react-flow-renderer', () => {
     <svg>
       {nodes.map((n: any) => (
         <g key={n.id} data-node={n.id} data-type={n.type} data-step={n.data.route?.step} data-end={n.data.route?.end}
-          data-label={n.type === 'spareStart' ? n.data.label : undefined}
+          data-entry={n.data.entry?.short}
         />
       ))}
       {edges.map((e: any, i: number) => {
-        const Custom = e.type === 'wifi' ? edgeTypes.wifi : null;
+        const Custom = e.type === 'wifi' || e.type === 'loop' ? edgeTypes[e.type] : null;
         const ends = { sourceX: 0, sourceY: 0, targetX: 100, targetY: 100 + i };
         return (
           <g key={e.id} className={e.className} data-edge={`${e.source}->${e.target}`} data-type={e.type || 'default'}>
@@ -46,6 +48,7 @@ jest.mock('react-flow-renderer', () => {
 });
 
 import { ROUTE_DASH, TopologyView } from './TopologyView';
+import { RouteEntry } from './highlight';
 import { MapLegend } from './MapLegend';
 import { graphColors } from '../../lib/theme';
 
@@ -142,45 +145,49 @@ describe('map: a route from spare switch ports', () => {
   const L3 = 'device:00:23:ac:e5:74:00';
   const L2 = 'device:00:17:95:be:b2:00';
   const lab = labGraph as unknown as GraphResponse;
-  const show = (walk: string[], startLabel: string) =>
+  const ports = ['Fa1/0/7', 'Fa1/0/8', 'Fa1/0/9', 'Fa1/0/10', 'Fa1/0/11'];
+  const show = (walk: string[], entry: RouteEntry) =>
     render(
       <TopologyView graph={lab} onSelect={() => {}} selectedId={null}
-        highlightKey={walk.join(',')} routeKey={walk.join(',')} startLabel={startLabel}
+        highlightKey={walk.join(',')} routeKey={walk.join(',')} entry={entry}
       />
     );
   const node = (id: string) => root.querySelector(`[data-node="${id}"]`)!;
-  const marker = () => root.querySelector('[data-type="spareStart"]');
   const tags = (id: string) => [node(id).getAttribute('data-step'), node(id).getAttribute('data-end')];
+  const real = () => root.querySelectorAll('[data-node]').length;
 
-  it('one hop: the marker is the start, the switch it sits on is the target', () => {
-    const start = `start:spare-ports:${L3}:20`;
-    show([start, L3], '9 spare ports · VLAN 20');
-    expect(marker()!.getAttribute('data-label')).toBe('9 spare ports · VLAN 20');
-    expect(tags(start)).toEqual(['1', 'start']);
+  it('one hop: a loop from the switch back into itself, labelled with its ports, tagged Start · Target', () => {
+    show([L3], { switch: L3, vlan: 20, ports });
+    const loop = edgeOf(L3, L3);
+    expect(loop.getAttribute('data-type')).toBe('loop');
+    expect(loop.getAttribute('class')).toContain('vmRouteEdge');
+    const path = loop.querySelector('path.react-flow__edge-path') as SVGElement;
+    expect(path.style.stroke).toBe(graphColors.route);
+    expect(path.style.strokeDasharray).toBe(ROUTE_DASH);
+    expect(path.getAttribute('marker-end')).toBe('url(#end)');
+    // compact label, the full list in the tooltip
+    expect(loop.textContent).toBe('Fa1/0/7, Fa1/0/8 +3 · VLAN 20');
+    expect(loop.querySelector('.vmLoopEdge')!.getAttribute('aria-label')).toBe(
+      'Entry: Fa1/0/7, Fa1/0/8, Fa1/0/9, Fa1/0/10, Fa1/0/11 · VLAN 20'
+    );
+    expect(tags(L3)).toEqual(['1', 'both']);
+    expect(node(L3).getAttribute('data-entry')).toBeNull();
+    expect(real()).toBe(lab.nodes.length);
+  });
+
+  it('two hops: the Start tag and an entry chip on the first switch, no loop', () => {
+    show([L2, L3], { switch: L2, vlan: 10, ports: ['Fa0/9', 'Fa0/10', 'Fa0/11'] });
+    expect(tags(L2)).toEqual(['1', 'start']);
     expect(tags(L3)).toEqual(['2', 'target']);
-    expect(root.querySelectorAll('[data-end="start"]')).toHaveLength(1);
-    // joined to the switch by a route-coloured dashed link pointing at it
-    const link = root.querySelector(`[data-edge="${start}->${L3}"]`)!;
-    expect(link.getAttribute('class')).toContain('vmRouteEdge');
-    expect((link.querySelector('path') as SVGElement).style.strokeDasharray).toBe(ROUTE_DASH);
+    expect(node(L2).getAttribute('data-entry')).toBe('Fa0/9, Fa0/10 +1 · VLAN 10');
+    expect(root.querySelector('[data-type="loop"]')).toBeNull();
+    expect(real()).toBe(lab.nodes.length);
   });
 
-  it('two hops: marker, then the L2 switch, then the L3 target', () => {
-    const start = `start:spare-ports:${L2}:10`;
-    show([start, L2, L3], '10 spare ports · VLAN 10');
-    expect(tags(start)).toEqual(['1', 'start']);
-    expect(tags(L2)).toEqual(['2', null]);
-    expect(tags(L3)).toEqual(['3', 'target']);
-    expect(root.querySelector(`[data-edge="${start}->${L2}"]`)).not.toBeNull();
-  });
-
-  it('the marker is no graph node: the real nodes are the same with or without it', () => {
-    const real = () => root.querySelectorAll('[data-type="device"]').length;
-    render(<TopologyView graph={lab} onSelect={() => {}} selectedId={null} />);
+  it('nothing of the entry shows without the highlight', () => {
+    render(<TopologyView graph={lab} onSelect={() => {}} selectedId={null} entry={{ switch: L3, vlan: 20, ports }} />);
+    expect(root.querySelector('[data-type="loop"]')).toBeNull();
+    expect(root.querySelector('[data-entry]')).toBeNull();
     expect(real()).toBe(lab.nodes.length);
-    expect(marker()).toBeNull();
-    show([`start:spare-ports:${L3}:20`, L3], '9 spare ports · VLAN 20');
-    expect(real()).toBe(lab.nodes.length);
-    expect(marker()).not.toBeNull();
   });
 });

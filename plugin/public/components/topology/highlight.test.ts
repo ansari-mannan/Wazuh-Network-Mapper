@@ -34,6 +34,10 @@ describe('routeMarks', () => {
     ]);
   });
 
+  it('tags a route that starts at its own target (its spare ports) Start · Target', () => {
+    expect(routeMarks(['device:l3'])).toEqual(new Map([['device:l3', { step: 1, end: 'both' }]]));
+  });
+
   it('keeps the first number for a node the route crosses twice', () => {
     const marks = routeMarks(['host:a', 'device:sw', 'host:b', 'device:sw', 'host:c']);
     expect(marks.get('device:sw')!.step).toBe(2);

@@ -1,6 +1,7 @@
 import { AttackPathsDoc, AttackRoute, AttackStep, AttackTarget, GraphNode } from '../../common';
 import {
   compareRoutes,
+  entryPortsText,
   IMPORTANCE_RANK,
   likelihoodLabel,
   likelihoodText,
@@ -215,5 +216,19 @@ describe('physicalPathWalk', () => {
   it('crosses the same nodes as physicalPathNodeIds', () => {
     const walk = ['hostA', 'hostB'];
     expect(new Set(physicalPathWalk(walk, edges))).toEqual(new Set(physicalPathNodeIds(walk, edges)));
+  });
+});
+
+describe('entryPortsText', () => {
+  it('shows two ports and +N, the full list for the tooltip', () => {
+    expect(entryPortsText(['Fa1/0/7', 'Fa1/0/8', 'Fa1/0/9', 'Fa1/0/10', 'Fa1/0/11'], 20)).toEqual({
+      short: 'Fa1/0/7, Fa1/0/8 +3 · VLAN 20',
+      full: 'Fa1/0/7, Fa1/0/8, Fa1/0/9, Fa1/0/10, Fa1/0/11 · VLAN 20',
+    });
+  });
+
+  it('adds no +N when every port fits, and names no port when none is listed', () => {
+    expect(entryPortsText(['Fa0/9', 'Fa0/10'], 10).short).toBe('Fa0/9, Fa0/10 · VLAN 10');
+    expect(entryPortsText([], 10).short).toBe('spare ports · VLAN 10');
   });
 });
