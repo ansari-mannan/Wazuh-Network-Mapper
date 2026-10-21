@@ -39,3 +39,34 @@ Python 3.12, `backend/requirements.txt` plus pytest, then `pytest` and
 `python -m unittest discover -s tests` (the two runners the project uses).
 It needs no secret and the tests never reach the network. The plugin's Jest
 suite needs an OpenSearch Dashboards checkout and is not run in CI.
+
+## D7. The Wazuh Overview card comes from our plugin, not a patch to Wazuh's
+
+Wazuh's Overview page builds its module cards from a list compiled into
+Wazuh's own plugin. Changing that list would mean patching Wazuh's bundle,
+which every Wazuh upgrade overwrites and which we would have to rebuild for
+each version. Instead our plugin's browser side (`public/wazuhCard.ts`)
+watches the page while Wazuh's `wz-home` app is open, finds the section by the
+name in its header, copies one of Wazuh's cards there (so it looks the same),
+puts our icon and text in it and appends it after Wazuh's cards. If Wazuh
+re-renders the section the card is put back; if the section or a card to copy
+is not there within 10 s it gives up with one console.debug line and the page
+is left as Wazuh drew it. The cost: it depends on Wazuh 4.14's markup (an
+OuiCard per section, the name in its beta badge); a Wazuh release that
+changes it silently loses the card, which the menu entry (Security) and the
+home-page card still cover. The section is a setting,
+`vulnmapper.wazuhCard.section`.
+
+## D8. File layout on the Wazuh server
+
+The scanner and its venv go in `/opt/vulnmapper` (root-owned; the service
+user only reads it), everything the scanner writes (graph, caches, history,
+schedule) in `/var/lib/vulnmapper` (owned by `wazuh-dashboard`, 750), and the
+credentials in `/etc/vulnmapper/vulnmapper.env` (root:wazuh-dashboard, 640).
+The dashboard gets the credentials through a systemd drop-in
+(`EnvironmentFile=`) rather than `opensearch_dashboards.yml`, which holds
+only our non-secret settings in a marked block, so the yml can be shared or
+backed up without leaking anything and the uninstall can remove exactly what
+the install added. Nothing is under a home folder, because the dashboard runs
+as a system user.
+

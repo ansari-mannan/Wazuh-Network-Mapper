@@ -87,6 +87,52 @@ none is set. Times are the server's local time. The history is kept in
 serial numbers, so keep it out of version control (`.gitignore` covers
 `data/history/` and `data/schedule.json`).
 
+## Install into Wazuh
+
+For the lab's Wazuh dashboard 4.14.8 (OpenSearch Dashboards 2.19.6, HTTPS on
+443, security plugin on). On the development machine, build and send the zip:
+
+```
+OSD_VERSION=2.19.6 ./scripts/send-plugin.sh
+```
+
+On the Wazuh server, from this repository:
+
+```
+sudo scripts/install-wazuh.sh --env-from ~/.vulnmapper.env ~/vulnmapper-2.19.6.zip
+```
+
+It refuses a zip built for another dashboard version, puts the scanner in
+`/opt/vulnmapper`, the data in `/var/lib/vulnmapper` (`--import-data DIR`
+copies an existing data folder in), the credentials in
+`/etc/vulnmapper/vulnmapper.env` (given to the dashboard by a systemd drop-in,
+never written to `opensearch_dashboards.yml`), adds a marked
+`# BEGIN vulnmapper` block to that file (backed up first), installs the plugin
+and restarts the dashboard. If the dashboard does not answer within 5 minutes
+everything is undone and the journal's last lines are printed. Re-running it
+upgrades in place and keeps the data and the credentials. `--dry-run` prints
+what it would do.
+
+Without `--env-from`, the credentials file starts as a copy of
+`backend/.env.example`; fill it in (plain `KEY=value` lines) and restart:
+
+```
+sudoedit /etc/vulnmapper/vulnmapper.env
+sudo systemctl restart wazuh-dashboard
+```
+
+Open it from the "Network Topology Mapper" card on Wazuh's Overview page (in
+THREAT INTELLIGENCE), from the menu under Security, or at
+`https://<server>/app/vulnmapper`. To move the card, re-run the install with
+`--section "ENDPOINT SECURITY"` (or `"SECURITY OPERATIONS"`, `"CLOUD
+SECURITY"`), or edit `vulnmapper.wazuhCard.section` in the block and restart;
+`vulnmapper.wazuhCard.enabled: false` hides it.
+
+To remove it: `sudo scripts/uninstall-wazuh.sh` takes out the plugin, the block
+and the drop-in and keeps `/var/lib/vulnmapper` and `/etc/vulnmapper`;
+`--purge` removes those too. `scripts/test-wazuh-install.sh` checks both
+scripts against a fake server, without root.
+
 ## Documentation
 
 [docs/CODE_TOUR.md](docs/CODE_TOUR.md) maps each part of the system to its
