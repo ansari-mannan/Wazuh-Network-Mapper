@@ -369,6 +369,11 @@ class TestRateLimit(Base):
         self.assertEqual(client.requests, 2)
         self.assertLessEqual(sum(self.clock.sleeps), 20.0)
 
+    def test_each_request_times_out_after_30_s(self):
+        fake = self.nvd()
+        self.run_lookup(fake)
+        self.assertEqual([c["timeout"] for c in fake.calls], [30.0, 30.0])
+
     def test_budget_counts_time_spent_waiting_for_nvd(self):
         # each answer takes 15 s: the second page would start past the budget
         fake = self.nvd(latency=15.0, page=3)
@@ -403,13 +408,16 @@ class TestCache(Base):
         self.assertEqual(client.requests, 2)
         self.assertEqual(result.fetched_at, self.clock.now().isoformat())
 
-    def test_empty_answer_expires_after_1_day(self):
+    def test_empty_answer_is_cached_like_a_hit(self):
         self.run_lookup(self.nvd(cves={IOS_CPE: []}))
-        self.clock.advance(seconds=12 * 3600)
-        self.assertEqual(self.run_lookup(self.nvd(cves={IOS_CPE: []}))[1].requests, 0)
-        self.clock.advance(seconds=13 * 3600)
-        # the dictionary hit is still fresh; only the empty CVE answer is asked again
-        self.assertEqual(self.run_lookup(self.nvd(cves={IOS_CPE: []}))[1].requests, 1)
+        cache = Cache(self.path, self.clock)
+        self.clock.advance(days=6)
+        result, client = self.run_lookup(self.nvd(cves={IOS_CPE: []}), cache=cache)
+        self.assertEqual((result.status, result.rows, client.requests), ("ok", [], 0))
+        self.assertEqual((cache.hits, cache.empty, cache.misses), (2, 1, 0))
+        self.clock.advance(days=1, seconds=1)
+        # the dictionary hit and the empty answer both expire after 7 days
+        self.assertEqual(self.run_lookup(self.nvd(cves={IOS_CPE: []}))[1].requests, 2)
 
     def test_malformed_query_is_cached_like_an_empty_answer(self):
         # the dictionary lists the CPE, but NVD calls the CVE query malformed
@@ -431,6 +439,39 @@ class TestCache(Base):
     def test_not_listed_is_asked_again_after_a_day(self):
         self.run_lookup(self.nvd(dictionary={}))
         self.clock.advance(days=1, seconds=1)
+        self.assertEqual(self.run_lookup(self.nvd())[0].status, "ok")
+
+    def test_a_failure_is_not_asked_again_for_an_hour(self):
+        for failure in ("down", 503, 429):
+            with self.subTest(failure=failure):
+                self.clock = FakeClock()
+                if os.path.exists(self.path):
+                    os.unlink(self.path)
+                self.run_lookup(self.nvd(script=[failure] * 3))
+                failed_at = self.clock.now()               # after the retries' back-off
+                cache = Cache(self.path, self.clock)
+                fake = self.nvd()
+                result, _ = self.run_lookup(fake, cache=cache)       # the scan right after
+                self.assertEqual((result.status, result.reason, fake.calls),
+                                 ("unavailable", "unreachable", []))
+                self.assertEqual((cache.failed, cache.misses), (1, 0))
+                self.assertEqual(cache.retry_after, failed_at + timedelta(hours=1))
+                self.clock.advance(seconds=3600)
+                result, client = self.run_lookup(self.nvd())          # an hour on: asked again
+                self.assertEqual((result.status, client.requests), ("ok", 2))
+                with open(self.path) as f:
+                    self.assertNotIn("failures", json.load(f))         # the answer clears it
+
+    def test_a_failure_with_an_expired_entry_serves_it_stale_for_the_hour(self):
+        self.run_lookup(self.nvd())
+        self.clock.advance(days=30)
+        self.run_lookup(self.nvd(script=["down"]))
+        fake = self.nvd()
+        result, _ = self.run_lookup(fake)
+        self.assertEqual((result.status, result.stale, fake.calls), ("ok", True, []))
+
+    def test_budget_exceeded_is_not_a_failure(self):
+        self.run_lookup(self.nvd(script=[403, 403]), budget=20.0)
         self.assertEqual(self.run_lookup(self.nvd())[0].status, "ok")
 
     def test_stale_entry_used_when_nvd_is_down(self):
@@ -504,12 +545,13 @@ class TestLookupById(Base):
         again = lookup_cve("CVE-2006-4950", self.client(warm), Cache(self.path, self.clock))
         self.assertEqual((again, warm.calls), (rec, []))
 
-    def test_unknown_id_is_none_and_cached_for_a_day(self):
+    def test_unknown_id_is_none_and_cached_like_a_hit(self):
         cache = Cache(self.path, self.clock)
         fake = self.nvd()
         self.assertIsNone(lookup_cve("CVE-2099-0001", self.client(fake), cache))
+        self.clock.advance(days=6)
         self.assertIsNone(lookup_cve("CVE-2099-0001", self.client(fake), cache))
-        self.assertEqual(len(fake.calls), 1)
+        self.assertEqual((len(fake.calls), cache.empty), (1, 1))
         self.clock.advance(days=1)
         lookup_cve("CVE-2099-0001", self.client(fake), cache)
         self.assertEqual(len(fake.calls), 2)

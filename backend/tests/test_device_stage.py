@@ -11,6 +11,7 @@ import os
 import shutil
 import tempfile
 import unittest
+from datetime import timedelta
 
 from test_cdp import AP_CID, L2_CID, L3_CID, crawl, lab
 from test_nvd import IOS_CPE, FakeClock, FakeNvd, ios_cves, listed, metric, record, saved
@@ -272,7 +273,19 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(graph["metadata"]["device_cves"]["nvd_requests"], 0)
         notes = {st["name"]: st["note"] for st in graph["metadata"]["stages"]}
         for name in ("Device CVEs (NVD)", "CVE vectors (NVD)"):
-            self.assertRegex(notes[name], r", 0 NVD requests; cache \d+ hits?, 0 misses$")
+            self.assertRegex(notes[name], r", 0 NVD requests; cache \d+ hits? \(\d+ empty\), 0 misses$")
+        # the AP's CPE answer was empty, and is cached like a hit
+        self.assertIn("7 hits (1 empty)", notes["Device CVEs (NVD)"])
+
+    def test_a_scan_right_after_a_failure_does_not_ask_again(self):
+        self.run_pipeline(fake=lab_nvd(self.clock, script=["down"]))
+        retry = (self.clock.now() + timedelta(hours=1)).astimezone()
+        warm = lab_nvd(self.clock)
+        graph = self.run_pipeline(fake=warm)
+        self.assertEqual(warm.calls, [])
+        note = {st["name"]: st["note"] for st in graph["metadata"]["stages"]}["Device CVEs (NVD)"]
+        self.assertTrue(note.endswith(f"; cache 0 hits (0 empty), 0 misses; "
+                                      f"4 failed (retry after {retry:%H:%M})"), note)
 
     def test_each_nvd_stage_logs_its_cache_hits_and_misses(self):
         self.run_pipeline()

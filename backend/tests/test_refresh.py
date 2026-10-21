@@ -90,7 +90,7 @@ class TestRefresh(unittest.TestCase):
         self.refresh(fake=lab_nvd(self.clock, script=["down"] * 50))
         self.assertIn("nvd_unreachable",
                       [w["type"] for w in self.load("graph.json")["metadata"]["warnings"]])
-        self.clock.advance(seconds=60)
+        self.clock.advance(seconds=3601)          # past the hour a failure is held off
         self.refresh()
         types = [w["type"] for w in self.load("graph.json")["metadata"]["warnings"]]
         self.assertNotIn("nvd_unreachable", types)

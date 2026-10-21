@@ -344,7 +344,7 @@ class TestRefresh(unittest.TestCase):
         self.refresh(by_id_nvd(self.clock, script=["down"] * 50))
         types = [w["type"] for w in self.load("graph.json")["metadata"]["warnings"]]
         self.assertIn("cve_vectors_unverified", types)
-        self.clock.advance(seconds=60)
+        self.clock.advance(seconds=3601)          # past the hour a failure is held off
         self.refresh()
         types = [w["type"] for w in self.load("graph.json")["metadata"]["warnings"]]
         self.assertEqual(types, ["duplicate_ip"])

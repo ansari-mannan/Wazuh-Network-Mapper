@@ -1360,7 +1360,7 @@
         "name": "Device CVEs (NVD)",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "4 devices looked up, 2 NVD requests; cache 2 hits, 2 misses"
+        "note": "4 devices looked up, 2 NVD requests; cache 2 hits (0 empty), 2 misses"
       },
       {
         "name": "nmap service scan",
@@ -1372,7 +1372,7 @@
         "name": "CVE vectors (NVD)",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "0 CVEs looked up, 0 NVD requests; cache 0 hits, 0 misses"
+        "note": "0 CVEs looked up, 0 NVD requests; cache 0 hits (0 empty), 0 misses"
       },
       {
         "name": "Configuration checks",

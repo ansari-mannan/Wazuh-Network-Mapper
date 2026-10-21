@@ -59,12 +59,15 @@ class Unanswered(VulnmapperError):
 def _answer(cache: Cache, key: str, fetch, found_of, result: Lookup) -> dict:
     """A fresh cache entry, else NVD's answer (cached), else an expired entry.
     Raises :class:`NvdInvalidQuery` for a query NVD called malformed, now or
-    when it was cached."""
+    when it was cached. A query NVD failed on within the hour is not asked."""
     result.queries.append(key)
     entry = cache.get(key)
     if entry is not None and entry["fresh"]:
         cache.hits += 1
+        cache.empty += entry["data"] in ([], None)
         return _valid(entry)
+    if cache.failed_recently(key):
+        return _stale_or_unanswered(entry, result, "unreachable")
     if entry is None:
         cache.misses += 1
     else:
@@ -72,15 +75,27 @@ def _answer(cache: Cache, key: str, fetch, found_of, result: Lookup) -> dict:
     result.from_cache = False
     try:
         data = fetch()
-    except (NvdUnavailable, NvdBudgetExceeded) as e:
-        if entry is not None:            # an old answer beats no answer
-            result.stale = True
-            return _valid(entry)
-        raise Unanswered("budget" if isinstance(e, NvdBudgetExceeded) else "unreachable")
+    except NvdUnavailable:
+        cache.put_failure(key)
+        return _stale_or_unanswered(entry, result, "unreachable")
+    except NvdBudgetExceeded:
+        return _stale_or_unanswered(entry, result, "budget")
     except NvdInvalidQuery:
         cache.put(key, found=False, data=INVALID_QUERY)
         raise
     return cache.put(key, found=found_of(data), data=data)
+
+
+def _stale_or_unanswered(entry: Optional[dict], result: Lookup, reason: str) -> dict:
+    if entry is None:
+        raise Unanswered(reason)
+    result.stale = True                  # an old answer beats no answer
+    return _valid(entry)
+
+
+def _answered(data) -> bool:
+    """A CVE query's answer, empty or not, is kept as long as one with CVEs."""
+    return True
 
 
 def _valid(entry: dict) -> dict:
@@ -108,14 +123,14 @@ def lookup(ident: dict, client: NvdClient, cache: Cache) -> Lookup:
                 return result
             answer = _answer(cache, f"cves:{cpe}",
                              lambda: [trim_cve(c) for c in client.cves_for_cpe(cpe, IS_VULNERABLE)],
-                             bool, result)
+                             _answered, result)
             cves = answer["data"]
         else:
             kw = ident["keyword"]
             answer = _answer(cache, f"keyword:{kw['query']}",
                              lambda: [trim_cve(c, keep_configurations=True)
                                       for c in client.cves_for_keyword(kw["query"])],
-                             bool, result)
+                             _answered, result)
             cves = [c for c in answer["data"] if keyword_accepts(
                 c, vendors=kw["vendors"], line=kw["line"], version=kw["version"])]
     except Unanswered as e:
@@ -141,6 +156,6 @@ def lookup_cve(cve_id: str, client: NvdClient, cache: Cache) -> Optional[dict]:
         return trim_cve(cve) if cve else None
 
     try:
-        return _answer(cache, f"cve:{cve_id}", fetch, bool, Lookup(status=STATUS_OK))["data"]
+        return _answer(cache, f"cve:{cve_id}", fetch, _answered, Lookup(status=STATUS_OK))["data"]
     except NvdInvalidQuery:              # an id NVD calls malformed is no CVE it knows
         return None

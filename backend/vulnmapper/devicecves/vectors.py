@@ -184,7 +184,7 @@ def run_cve_vectors(scan: "ScanContext") -> StageResult:
                                     devices=scan.device_entries)["hosts"]
     result = run_stage(scan.document, hosts, scan.cves, client, cache)
     result.note = nvd_note(result.block, f"{plural(result.block['looked_up'], 'CVE')} looked up",
-                           scan.nvd_tally("CVE vectors", before))
+                           scan.nvd_tally("CVE vectors", before), cache.retry_after)
     return result
 
 

@@ -140,11 +140,12 @@ class ScanContext:
             self.records().prefetch(fetch_order(ids, self.cves or {}))
 
     def nvd_tally(self, stage: str, before: tuple) -> tuple:
-        """Log and return the cache's ``(hits, misses, expired)`` since ``before``."""
-        hits, misses, expired = (a - b for a, b in zip(self.nvd()[1].tally(), before))
-        log.info("NVD cache, %s: %d hit(s), %d miss(es) (%d not cached, %d expired)",
-                 stage, hits, misses + expired, misses, expired)
-        return hits, misses, expired
+        """Log and return the cache's tally (:meth:`Cache.tally`) since ``before``."""
+        tally = tuple(a - b for a, b in zip(self.nvd()[1].tally(), before))
+        hits, misses, expired, empty, failed = tally
+        log.info("NVD cache, %s: %d hit(s) (%d empty), %d miss(es) (%d not cached, %d expired), "
+                 "%d failed", stage, hits, empty, misses + expired, misses, expired, failed)
+        return tally
 
     def add_findings(self, result: StageResult) -> None:
         """A CVE stage's rows join the catalogue, its entries vulnerabilities.json."""

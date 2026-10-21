@@ -149,13 +149,21 @@ def run_device_cves(scan: "ScanContext") -> StageResult:
     before = cache.tally()
     result = run_stage(scan.document, client, cache)
     result.note = nvd_note(result.block, f"{plural(result.block['looked_up'], 'device')} looked up",
-                           scan.nvd_tally("device CVEs", before))
+                           scan.nvd_tally("device CVEs", before), cache.retry_after)
     scan.add_findings(result)
     return result
 
 
-def nvd_note(block: dict, asked: str, cache: tuple) -> str:
-    """A stage note such as "9 devices looked up, 2 NVD requests; cache 7 hits, 2 misses"."""
-    hits, misses, expired = cache
-    return (f"{asked}, {plural(block.get('nvd_requests', 0), 'NVD request')}; cache "
-            f"{plural(hits, 'hit')}, {misses + expired} miss{'' if misses + expired == 1 else 'es'}")
+def nvd_note(block: dict, asked: str, cache: tuple, retry_after=None) -> str:
+    """A stage note such as "9 devices looked up, 2 NVD requests; cache 7 hits
+    (1 empty), 2 misses", then "; 2 failed (retry after 14:05)" if any failed
+    (``retry_after``: :attr:`Cache.retry_after`, shown in local time)."""
+    hits, misses, expired, empty, failed = cache
+    note = (f"{asked}, {plural(block.get('nvd_requests', 0), 'NVD request')}; cache "
+            f"{plural(hits, 'hit')} ({empty} empty), "
+            f"{misses + expired} miss{'' if misses + expired == 1 else 'es'}")
+    if failed:
+        note += f"; {failed} failed"
+        if retry_after is not None:
+            note += f" (retry after {retry_after.astimezone():%H:%M})"
+    return note

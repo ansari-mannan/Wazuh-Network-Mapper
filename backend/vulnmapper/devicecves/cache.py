@@ -20,8 +20,12 @@ log = logging.getLogger("vulnmapper.devicecves")
 # on the same software share one entry. With a warm cache a scan makes no NVD
 # request at all.
 #
-#   * A successful answer with CVEs (or a CPE the dictionary lists) is fresh
-#     for 7 days; an empty or inconclusive one for 1 day.
+#   * A CVE query NVD answered is fresh for 7 days, with CVEs or without (an
+#     empty answer is cached like a hit, so it is not asked again every scan);
+#     so is a CPE the dictionary lists. One it does not list is fresh for 1 day.
+#   * A query NVD failed to answer (no answer, a timeout, 5xx, 403/429) is not
+#     asked again for :data:`RETRY_FAILED`, so the scan right after does not
+#     wait on it again; an expired entry, if any, serves meanwhile.
 #   * When NVD cannot be reached, an expired entry is used anyway and the
 #     result is marked stale: a device never loses its CVEs because NVD had a
 #     bad day.
@@ -38,6 +42,7 @@ FILENAME = "nvd-cache.json"
 FORMAT = 1
 FRESH_FOUND = timedelta(days=7)
 FRESH_EMPTY = timedelta(days=1)
+RETRY_FAILED = timedelta(hours=1)
 INVALID_QUERY = {"invalid_query": True}    # the cached answer to a malformed query
 
 
@@ -76,10 +81,13 @@ class Cache:
         self._fresh = {True: fresh_found, False: fresh_empty}
         self.label = label
         self.entries: dict = {}
+        self.failures: dict = {}           # key -> when NVD last failed on it
         self.corrupt = False
         self.dirty = False
-        # lookups served fresh / not cached at all / cached but expired
-        self.hits = self.misses = self.expired = 0
+        # lookups served fresh (of them, empty answers) / not cached at all /
+        # cached but expired / failed, now or within RETRY_FAILED
+        self.hits = self.empty = self.misses = self.expired = self.failed = 0
+        self.retry_after: Optional[datetime] = None    # the latest failure's retry time
         if path and os.path.exists(path):
             try:
                 with open(path, encoding="utf-8") as f:
@@ -88,15 +96,39 @@ class Cache:
                     raise ValueError("not a cache document")
                 self.entries = {k: v for k, v in doc["entries"].items()
                                 if isinstance(v, dict) and _parse_time(v.get("fetched_at"))}
+                failures = doc.get("failures")
+                self.failures = {k: v for k, v in failures.items() if self._failed_until(v)} \
+                    if isinstance(failures, dict) else {}
             except (OSError, ValueError) as e:
                 log.warning("%s %s is unreadable (%s); starting a new one", label, path, e)
                 self.corrupt = True
-                self.entries = {}
+                self.entries, self.failures = {}, {}
         log.info("%s %s: %d entries", label, path or "(in memory)", len(self.entries))
 
     def tally(self) -> tuple:
-        """``(hits, misses, expired)`` so far, for a stage's before/after log line."""
-        return self.hits, self.misses, self.expired
+        """``(hits, misses, expired, empty, failed)`` so far, for a stage's before/after note."""
+        return self.hits, self.misses, self.expired, self.empty, self.failed
+
+    def _failed_until(self, text) -> Optional[datetime]:
+        t = _parse_time(text) if isinstance(text, str) else None
+        return t + RETRY_FAILED if t and self._clock.now() < t + RETRY_FAILED else None
+
+    def failed_recently(self, key: str) -> bool:
+        """Whether NVD failed on ``key`` within RETRY_FAILED (counted as failed if so)."""
+        until = self._failed_until(self.failures.get(key))
+        if until is not None:
+            self._count_failure(until)
+        return until is not None
+
+    def put_failure(self, key: str) -> None:
+        now = self._clock.now()
+        self.failures[key] = now.isoformat()
+        self.dirty = True
+        self._count_failure(now + RETRY_FAILED)
+
+    def _count_failure(self, until: datetime) -> None:
+        self.failed += 1
+        self.retry_after = max(self.retry_after or until, until)
 
     def get(self, key: str) -> Optional[dict]:
         """The entry with ``fresh`` and ``fetched_at`` filled in, or None."""
@@ -110,11 +142,15 @@ class Cache:
     def put(self, key: str, *, found: bool, data) -> dict:
         entry = {"fetched_at": self._clock.now().isoformat(), "found": found, "data": data}
         self.entries[key] = entry
+        self.failures.pop(key, None)
         self.dirty = True
         return {**entry, "fresh": True}
 
     def save(self) -> None:
         if not self.path or not self.dirty:
             return
-        write_json_atomic(self.path, {"format": FORMAT, "entries": self.entries})
+        doc = {"format": FORMAT, "entries": self.entries}
+        if self.failures:
+            doc["failures"] = self.failures
+        write_json_atomic(self.path, doc)
         self.dirty = False
