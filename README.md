@@ -46,8 +46,9 @@ scripts/   start the dashboard with the plugin, build and install the plugin
 
 ## Running it
 
-Requirements: Python 3.10 or later; OpenSearch Dashboards 2.19.3 (the Wazuh
-dashboard 4.14 is built on it) and Node.js 18.19.0 for the plugin.
+Requirements: Python 3.10 or later; OpenSearch Dashboards 2.19.3 for
+development (the Wazuh dashboard 4.14.8 is built on 2.19.6) and Node.js
+18.19.0 for the plugin.
 
 Scanner, from `backend/`:
 
@@ -67,6 +68,14 @@ checkout of OpenSearch Dashboards, or a packaged one on a server) and loads
 `~/.vulnmapper.env`. The plugin is then at http://localhost:5601/app/vulnmapper.
 See `plugin/README.md` for the development setup, the plugin's settings and
 building the zip.
+
+The zip only installs into the exact dashboard version it was built for.
+`scripts/send-plugin.sh` builds for 2.19.3 by default; for the Wazuh dashboard
+4.14.8 build `vulnmapper-2.19.6.zip` with:
+
+```
+OSD_VERSION=2.19.6 ./scripts/send-plugin.sh
+```
 
 Scheduled scans and the scan history are on the plugin's Scan settings page.
 A schedule is kept in `schedule.json` beside the graph and survives dashboard
