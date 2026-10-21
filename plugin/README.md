@@ -60,6 +60,8 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 | `vulnmapper.nmapUnmanaged` | where the switch "Service-scan unmanaged hosts with nmap" starts (default `false`); on, the scan runs with `--nmap-unmanaged`, which actively probes the discovered unmanaged hosts (nmap must be installed) |
 | `vulnmapper.scanTimeoutSeconds` | a scan still running after this many seconds is stopped (SIGTERM, then SIGKILL 10 s later) and fails with "scan timed out", keeping the previous files (default `1800`, at least `60`) |
 | `vulnmapper.seeds` | IP addresses the network crawl starts from, each passed as `--seed` (default none: the dashboard server's default gateway and LLDP neighbours, which is often wrong in a container or on a separate management network); shown on the Scan settings page |
+| `vulnmapper.wazuhCard.enabled` | add a card for this plugin to the Wazuh Overview page (default `true`) |
+| `vulnmapper.wazuhCard.section` | the Overview section the card goes in, by its header (default `THREAT INTELLIGENCE`; also e.g. `ENDPOINT SECURITY`, `SECURITY OPERATIONS`, `CLOUD SECURITY`) |
 | `vulnmapper.reportOrg` | the organisation/owner name shown on the vulnerability report's cover (default `Network Vulnerability Assessment`) |
 
 `backendDir` and `graphPath` have no default; until they are set, the API

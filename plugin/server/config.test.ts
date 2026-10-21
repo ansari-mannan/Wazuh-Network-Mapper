@@ -61,3 +61,11 @@ describe('device CVE config', () => {
     expect(configSchema.validate({ deviceCves: false }).deviceCves).toBe(false);
   });
 });
+
+describe('Wazuh Overview card config', () => {
+  it('is on, in THREAT INTELLIGENCE, unless the owner changes it', () => {
+    expect(configSchema.validate({}).wazuhCard).toEqual({ enabled: true, section: 'THREAT INTELLIGENCE' });
+    expect(configSchema.validate({ wazuhCard: { section: 'ENDPOINT SECURITY' } }).wazuhCard.section).toBe('ENDPOINT SECURITY');
+    expect(() => configSchema.validate({ wazuhCard: { section: '' } })).toThrow();
+  });
+});

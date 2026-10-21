@@ -5,6 +5,7 @@ import { VulnmapperPlugin } from './plugin';
 
 export const config: PluginConfigDescriptor<VulnmapperConfig> = {
   schema: configSchema,
+  exposeToBrowser: { wazuhCard: true },
 };
 
 export function plugin(initializerContext: PluginInitializerContext) {

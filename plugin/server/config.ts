@@ -44,6 +44,11 @@ import { ActiveChecks } from '../common';
 //     autoRescan (default false): also start a full scan when a liveness pass
 //     sees something appear that is not on the map, at most every
 //     minRescanIntervalSeconds (min 60)
+//   vulnmapper.wazuhCard.*  the card for this plugin on the Wazuh Overview
+//     page: enabled (default true) and section, the header of the Overview
+//     section it is added to (default "THREAT INTELLIGENCE"; also e.g.
+//     "ENDPOINT SECURITY", "SECURITY OPERATIONS"; case does not matter).
+//     Both reach the browser (index.ts, exposeToBrowser).
 // backendDir and graphPath have no sensible default, so they are optional here
 // and the routes answer with a clear error until they are set.
 export const configSchema = schema.object({
@@ -73,6 +78,10 @@ export const configSchema = schema.object({
     autoRescan: schema.boolean({ defaultValue: false }),
     minRescanIntervalSeconds: schema.number({ defaultValue: 120, min: 60 }),
     path: schema.maybe(schema.string()),
+  }),
+  wazuhCard: schema.object({
+    enabled: schema.boolean({ defaultValue: true }),
+    section: schema.string({ defaultValue: 'THREAT INTELLIGENCE', minLength: 1 }),
   }),
 });
 
