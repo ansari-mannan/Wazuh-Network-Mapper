@@ -354,7 +354,8 @@ class AttackPathEngine:
                 by_vlan.setdefault(p["vlan"], []).append(p["port"])
             for vlan, ports in sorted(by_vlan.items()):
                 starts.append({"id": f"start:spare-ports:{nid}:{vlan}", "kind": "spare_ports",
-                               "switch": nid, "vlans": [vlan], "ports": ports,
+                               "switch": nid, "switch_label": self._label(nid),
+                               "vlans": [vlan], "ports": ports,
                                "listed_ports": len(ports), "spare_ports_on_switch": ev.get("total"),
                                "list_truncated": truncated, "membership": {vlan}})
         return starts
@@ -396,13 +397,14 @@ class AttackPathEngine:
             "likelihood": round(likelihood, 6),
             "highest_ovss": max([s for s in scores if s is not None], default=0.0),
             "crosses_router": any(s["kind"] == "transit" for s in steps),
-            "narrative": self._narrative(start, steps),
+            "narrative": self._narrative(start, steps, target),
         }
 
-    def _narrative(self, start: dict, steps: list) -> str:
+    def _narrative(self, start: dict, steps: list, target: str) -> str:
         if start["kind"] == "spare_ports":
             opening = (f"From {start['listed_ports']} spare port(s) in VLAN {start['vlans'][0]} "
-                       f"on {self._label(start['switch'])}")
+                       f"on {start['switch_label']}"
+                       + (" (on the target itself)" if start["switch"] == target else ""))
         elif start["kind"] == "unmanaged_host":
             opening = f"From {self._label(start['id'])} (unmanaged, state unknown)"
         else:

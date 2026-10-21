@@ -27,6 +27,7 @@ import {
   physicalPathWalk,
   routeNodeIds,
   routeWalk,
+  spareStartText,
   targetState,
 } from '../../lib/attackPaths';
 import { RouteDetail } from './RouteDetail';
@@ -39,23 +40,25 @@ const keyOf = (r: AttackRoute) => `${r.target}|${r.start}`;
 // A readable name for a node id, or for a spare-ports start (not a graph node).
 function makeNameOf(graph: GraphResponse | null, starts: AttackStartingPoint[]) {
   const spare = new Map(starts.filter((s) => s.kind === 'spare_ports').map((s) => [s.id, s]));
-  return (id: string) => {
+  const nameOf = (id: string): string => {
     const node = graph?.nodes.find((n) => n.node_id === id);
     if (node) return node.hostname || node.ip || id;
     const sp = spare.get(id);
-    if (sp) return `${sp.listed_ports ?? sp.ports?.length ?? 0} spare port(s) in VLAN ${sp.vlans[0]}`;
-    return id;
+    return sp ? spareStartText(sp, nameOf) : id;
   };
+  return nameOf;
 }
 
 function RouteTile({
   route,
   nameOf,
+  startName,
   selected,
   onSelect,
 }: {
   route: AttackRoute;
   nameOf: (id: string) => string;
+  startName: string;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -87,7 +90,7 @@ function RouteTile({
         </EuiFlexItem>
       </EuiFlexGroup>
       <EuiText size="xs" color="subdued">
-        <p>from {nameOf(route.start)}</p>
+        <p>from {startName}</p>
       </EuiText>
       <EuiSpacer size="xs" />
       <EuiFlexGroup gutterSize="s" responsive={false} wrap alignItems="center">
@@ -113,6 +116,11 @@ export function AttackPathsPage() {
     () => makeNameOf(graph, doc?.starting_points || []),
     [graph, doc]
   );
+  // A route's start in words; spare ports also say when they sit on the target.
+  const startName = (route: AttackRoute) => {
+    const sp = doc?.starting_points.find((p) => p.id === route.start && p.kind === 'spare_ports');
+    return sp ? spareStartText(sp, nameOf, route.target) : nameOf(route.start);
+  };
   const reasonOf = useMemo(() => (id: string) => {
     const node = graph?.nodes.find((n) => n.node_id === id);
     return node ? tierReason(node.node_tier, node.top_cves) : null;
@@ -266,6 +274,7 @@ export function AttackPathsPage() {
                     <RouteTile
                       route={route}
                       nameOf={nameOf}
+                      startName={startName(route)}
                       selected={keyOf(route) === selectedKey}
                       onSelect={() => setSelectedKey(keyOf(route))}
                     />
@@ -285,6 +294,7 @@ export function AttackPathsPage() {
           <RouteDetail
             route={selected}
             nameOf={nameOf}
+            startName={startName(selected)}
             reasonOf={reasonOf}
             metadata={doc.metadata}
             onShowOnMap={() => onShowOnMap(selected)}

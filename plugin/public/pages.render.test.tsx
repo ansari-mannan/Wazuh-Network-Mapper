@@ -345,3 +345,51 @@ describe('attack paths: the selected route card', () => {
     expect(selected()).toEqual(['2']);
   });
 });
+
+describe('attack paths: spare-port starts', () => {
+  // the lab's L3-Switch protected, reached from its own spare ports (one hop)
+  // and from spare ports on L2-Switch (two hops)
+  const L3 = 'device:00:23:ac:e5:74:00';
+  const L2 = 'device:00:17:95:be:b2:00';
+  const onL3 = `start:spare-ports:${L3}:20`;
+  const onL2 = `start:spare-ports:${L2}:10`;
+  const telnet = (from: string, to: string) =>
+    ({ kind: 'misconfiguration', from, to, value: 0.2, check: 'mgmt-telnet-enabled', title: 'Telnet enabled' }) as const;
+  const route = (start: string, steps: any[], rank: number) => ({
+    ...labPaths.targets[1].routes[0], target: L3, start, start_kind: 'spare_ports', steps, rank, likelihood: 0.2 / rank,
+  });
+  const doc = {
+    ...labPaths,
+    starting_points: [
+      { id: onL3, kind: 'spare_ports', switch: L3, switch_label: 'L3-Switch', vlans: [20], listed_ports: 9 },
+      { id: onL2, kind: 'spare_ports', switch: L2, switch_label: 'L2-Switch', vlans: [10], listed_ports: 10 },
+    ],
+    targets: [{ ...labPaths.targets[1], routes: [route(onL3, [telnet(onL3, L3)], 1), route(onL2, [telnet(onL2, L2), telnet(L2, L3)], 2)] }],
+  };
+  let root: HTMLDivElement;
+  beforeEach(() => {
+    load(labGraph);
+    data.paths = { doc, loading: false, error: null, reload: async () => {} };
+    root = document.createElement('div');
+    document.body.appendChild(root);
+    act(() => {
+      ReactDOM.render(<AttackPathsPage />, root);
+    });
+  });
+  afterEach(() => {
+    act(() => {
+      ReactDOM.unmountComponentAtNode(root);
+    });
+    document.body.innerHTML = '';
+  });
+  const cards = () => Array.from(root.querySelectorAll<HTMLElement>('[data-test-subj="vmRouteTile"]'));
+
+  it('cards name the switch that holds the ports, and say when it is the target', () => {
+    expect(cards()[0].textContent).toContain('from 9 spare port(s) in VLAN 20 on L3-Switch (on the target itself)');
+    expect(cards()[1].textContent).toContain('from 10 spare port(s) in VLAN 10 on L2-Switch');
+    expect(cards()[1].textContent).not.toContain('on the target itself');
+    expect(root.querySelector('[data-test-subj="vmRouteDetail"]')!.textContent).toContain(
+      'Assumes 9 spare port(s) in VLAN 20 on L3-Switch (on the target itself)'
+    );
+  });
+});

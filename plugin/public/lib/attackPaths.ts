@@ -2,6 +2,7 @@
 import {
   AttackPathsDoc,
   AttackRoute,
+  AttackStartingPoint,
   AttackStartKind,
   AttackStep,
   AttackTarget,
@@ -262,4 +263,15 @@ export function startKindLabel(kind: AttackStartKind): string {
     default:
       return kind;
   }
+}
+
+/**
+ * A spare-ports start in words: "9 spare port(s) in VLAN 20 on L3-Switch",
+ * plus "(on the target itself)" when `target` is the switch that holds them.
+ */
+export function spareStartText(sp: AttackStartingPoint, nameOf: (id: string) => string, target?: string): string {
+  const base = `${sp.listed_ports ?? sp.ports?.length ?? 0} spare port(s) in VLAN ${sp.vlans[0]}`;
+  if (!sp.switch) return base;
+  const self = sp.switch === target ? ' (on the target itself)' : '';
+  return `${base} on ${sp.switch_label || nameOf(sp.switch)}${self}`;
 }

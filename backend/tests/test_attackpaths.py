@@ -175,6 +175,19 @@ class TestRoutesAndStarts(unittest.TestCase):
         # endpoint:001 is both a start and this target: no self-route
         self.assertTrue(all(r["start"] != "endpoint:001" for r in doc["targets"][0]["routes"]))
 
+    def test_spare_start_names_the_switch_that_holds_the_ports(self):
+        l2 = dev("device:l2", "switch", [10], findings=[finding(
+            "spare-ports-in-used-vlan", evidence={"ports": [{"port": "Fa1", "vlan": 10}], "total": 1})])
+        l2["hostname"] = "L2-Switch"
+        l3 = dev("device:l3", "l3-switch", [10], findings=[finding("mgmt-telnet-enabled")], risk=8.0)
+        l3["hostname"] = "L3-Switch"
+        doc = run([l2, l3], {"device:l3": {"importance": "high"}})
+        start = next(s for s in doc["starting_points"] if s["kind"] == "spare_ports")
+        self.assertEqual((start["switch"], start["switch_label"]), ("device:l2", "L2-Switch"))
+        route = doc["targets"][0]["routes"][0]
+        self.assertEqual(route["start"], start["id"])
+        self.assertTrue(route["narrative"].startswith("From 1 spare port(s) in VLAN 10 on L2-Switch, take"))
+
     def test_offline_agents_are_listed_not_used_as_starts(self):
         gone = host("endpoint:002", 10, cves=[cve("C", 9.0)], agent="002")
         gone["status"] = "disconnected"
@@ -239,6 +252,10 @@ class TestRoutesAndStarts(unittest.TestCase):
         spare = next(r for r in doc["targets"][0]["routes"] if r["start_kind"] == "spare_ports")
         self.assertEqual(spare["steps"][0]["kind"], "misconfiguration")
         self.assertEqual(spare["steps"][0]["value"], 0.2)     # telnet exposure HIGH
+        start = next(s for s in doc["starting_points"] if s["id"] == spare["start"])
+        self.assertEqual((start["switch"], start["switch_label"]), ("device:sw", "device:sw"))
+        self.assertTrue(spare["narrative"].startswith(
+            "From 1 spare port(s) in VLAN 10 on device:sw (on the target itself),"))
 
         # a weakness step across a router carries a preceding transit step (value 1)
         routed = [

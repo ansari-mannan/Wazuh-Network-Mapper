@@ -82,12 +82,14 @@ function TakeoverStep({ step, nameOf, why }: { step: AttackStep; nameOf: (id: st
 export function RouteDetail({
   route,
   nameOf,
+  startName,
   reasonOf,
   metadata,
   onShowOnMap,
 }: {
   route: AttackRoute;
   nameOf: (id: string) => string;
+  startName: string; // the start in words (spare ports: their switch, and if it is the target)
   reasonOf: (id: string) => TierReason | null; // why the node has its tier
   metadata: AttackPathsMetadata;
   onShowOnMap: () => void;
@@ -96,7 +98,7 @@ export function RouteDetail({
     <EuiPanel paddingSize="l" hasBorder data-test-subj="vmRouteDetail">
       <EuiText size="s">
         <p>
-          Assumes <strong>{nameOf(route.start)}</strong> ({startKindLabel(route.start_kind)}) is already compromised.
+          Assumes <strong>{startName}</strong> ({startKindLabel(route.start_kind)}) is already compromised.
         </p>
       </EuiText>
       <EuiSpacer size="m" />

@@ -565,7 +565,8 @@ export type AttackStartingPoint = {
   id: string;
   kind: AttackStartKind;
   vlans: number[];
-  switch?: string;
+  switch?: string; // spare ports: the node id of the switch that holds them
+  switch_label?: string; // ...and its name
   ports?: string[];
   listed_ports?: number;
   spare_ports_on_switch?: number;
