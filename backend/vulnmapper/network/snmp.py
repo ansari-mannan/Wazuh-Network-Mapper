@@ -31,6 +31,7 @@ from pysnmp.hlapi.v3arch.asyncio import (
     usmNoAuthProtocol,
     usmNoPrivProtocol,
 )
+from pysnmp.proto import errind
 
 from .model import Credential
 
@@ -227,9 +228,11 @@ class SnmpClient:
         ends its column. ``max_rows`` stops a column once that many rows are in
         hand (the first page of a large table, e.g. the inventory table's).
 
-        A GETBULK that fails (no answer, tooBig, an agent error) marks the
-        device: this walk and every later one to it go on with GETNEXT, a row
-        at a time, instead of failing again.
+        A GETBULK that fails (no answer, tooBig, genErr, noSuchName, any agent
+        error) marks the device: this walk and every later one to it go on with
+        GETNEXT, a row at a time, instead of failing again. A non-increasing
+        OID in the answer is no failure: it is Comware's MAC-sorted table, read
+        whole by the column logic above, so the device keeps GETBULK.
         """
         transport = await self._transport(ip)
         rows: dict[str, list] = {b: [] for b in bases}
@@ -241,8 +244,11 @@ class SnmpClient:
             if ip not in self._bulk_failed:
                 error_indication, error_status, _idx, var_binds = await bulk_cmd(
                     self._engine, auth, transport, self._context, 0, max_repetitions, *objects)
+                if isinstance(error_indication, errind.OidNotIncreasing):
+                    error_indication = None
                 if error_indication or error_status:
-                    log.info("GETBULK to %s failed; reading it a row at a time from now on", ip)
+                    log.info("GETBULK to %s failed (%s); reading it a row at a time from now on",
+                             ip, error_indication or error_status)
                     self._bulk_failed.add(ip)
                     continue
             else:

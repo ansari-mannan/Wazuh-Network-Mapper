@@ -1,14 +1,18 @@
 """The crawl polls several devices at once but asks each one thing at a time;
 the interface columns are walked together; a device whose GETBULK fails is
-read a row at a time (GETNEXT) from then on."""
+read a row at a time (GETNEXT) from then on, but not one whose answer only has
+a non-increasing OID (Comware's forwarding table)."""
 
 import offline  # noqa: F401  (no test reaches the internet)
 import asyncio
+import os
 import unittest
 from collections import Counter
 from unittest import mock
 
+from pysnmp.proto import errind
 from test_cdp import crawl, lab
+from test_comware import _load_rows
 from test_golden import normalise
 from vulnmapper.network import snmp
 from vulnmapper.network.model import Credential
@@ -58,12 +62,15 @@ class Agent:
     """A fake SNMP agent behind bulk_cmd / next_cmd (pysnmp's object wrappers
     patched out, so OIDs are plain strings). Each column is served in the
     agent's own order, which need not be increasing (as Comware's FDB is);
-    ``rejects_bulk`` answers every GETBULK with an error."""
+    ``rejects_bulk`` answers every GETBULK with that error (an error indication,
+    or ``(error status, index)``). ``flags_order`` reports a GETBULK answer
+    whose OIDs do not increase the way a pysnmp that checks it does: the
+    answer, with OidNotIncreasing."""
 
     END = "9.9.9.9"
 
-    def __init__(self, columns, rejects_bulk=False):
-        self.columns, self.rejects_bulk = columns, rejects_bulk
+    def __init__(self, columns, rejects_bulk=None, flags_order=False):
+        self.columns, self.rejects_bulk, self.flags_order = columns, rejects_bulk, flags_order
         self.bulk, self.next = [], []          # the OIDs of each request
 
     def successor(self, oid):
@@ -84,13 +91,25 @@ class Agent:
 
     async def bulk_cmd(self, engine, auth, transport, context, non_rep, max_rep, *oids):
         self.bulk.append(list(oids))
+        if isinstance(self.rejects_bulk, tuple):
+            return None, *self.rejects_bulk, []
         if self.rejects_bulk:
-            return "requestTimedOut", 0, 0, []
-        return None, 0, 0, self.answer(oids, max_rep)
+            return self.rejects_bulk, 0, 0, []
+        answer = self.answer(oids, max_rep)
+        seq = [list(oids)] + [[str(o) for o, _ in answer[i:i + len(oids)]]
+                              for i in range(0, len(answer), len(oids))]
+        increasing = all(_key(b) > _key(a) for prev, cur in zip(seq, seq[1:])
+                         for a, b in zip(prev, cur) if b != self.END)
+        return (None if increasing or not self.flags_order else errind.oidNotIncreasing), \
+            0, 0, answer
 
     async def next_cmd(self, engine, auth, transport, context, *oids, **options):
         self.next.append(list(oids))
         return None, 0, 0, self.answer(oids, 1)
+
+
+def _key(oid):
+    return tuple(int(p) for p in oid.split("."))
 
 
 class Oid(str):
@@ -156,14 +175,14 @@ class TestMultiColumnWalk(unittest.TestCase):
     def test_out_of_order_rows_are_read_whole(self):
         base = "1.3.6.1.2.1.17.7.1.2.2.1.2"
         rows = [(f"{base}.1.0.9", "3"), (f"{base}.1.0.2", "1"), (f"{base}.1.0.5", "2")]  # by MAC
-        for rejects in (False, True):
+        for rejects in (None, "requestTimedOut"):
             agent = Agent({base: rows}, rejects_bulk=rejects)
             self.assertEqual(run(agent, client_for(agent).walk("10.0.0.1", base)), rows)
 
 
 class TestBulkFallback(unittest.TestCase):
     def test_a_device_that_rejects_getbulk_is_read_a_row_at_a_time_from_then_on(self):
-        agent = Agent(COLUMNS, rejects_bulk=True)
+        agent = Agent(COLUMNS, rejects_bulk="requestTimedOut")
         client = client_for(agent)
 
         async def two_walks():
@@ -176,6 +195,42 @@ class TestBulkFallback(unittest.TestCase):
         self.assertEqual(len(agent.bulk), 1)                # never asked with GETBULK again
         self.assertEqual(agent.next[-1], [f"{IF}.7.3", f"{IF}.3.3"])   # GETNEXT, both columns
         self.assertTrue(client.used_fallback("10.0.0.1"))
+
+
+class TestComwareBulk(unittest.TestCase):
+    """The HP 1920's forwarding table, from the saved capture, in its own
+    (MAC-sorted, non-increasing) order."""
+
+    FDB = "1.3.6.1.2.1.17.7.1.2.2.1.2"
+
+    def setUp(self):
+        fixture = os.path.join(os.path.dirname(__file__), "fixtures", "comware_hp1920_cyfor.snmp")
+        self.rows = [r for r in _load_rows(fixture) if r[0].startswith(self.FDB + ".")]
+        self.assertGreater(len(self.rows), 6)
+
+    def walk(self, agent, max_repetitions=4):
+        client = client_for(agent)
+        rows = run(agent, client.walk("10.0.0.1", self.FDB, max_repetitions=max_repetitions))
+        return rows, client
+
+    def test_non_increasing_oids_keep_getbulk_and_the_rows(self):
+        row_at_a_time, _ = self.walk(Agent({self.FDB: self.rows}, rejects_bulk="requestTimedOut"))
+        agent = Agent({self.FDB: self.rows}, flags_order=True)
+        rows, client = self.walk(agent)
+        self.assertEqual(rows, row_at_a_time)                  # the output is unchanged
+        self.assertEqual(rows, self.rows)                      # the whole table
+        self.assertFalse(client.used_fallback("10.0.0.1"))     # GETBULK kept
+        self.assertEqual(agent.next, [])
+        self.assertGreater(len(agent.bulk), 1)
+
+    def test_a_real_error_still_falls_back(self):
+        for error in ("requestTimedOut", (1, 0), (5, 0), (2, 1)):   # timeout, tooBig, genErr, noSuchName
+            with self.subTest(error=error):
+                agent = Agent({self.FDB: self.rows}, rejects_bulk=error)
+                rows, client = self.walk(agent)
+                self.assertEqual(rows, self.rows)
+                self.assertTrue(client.used_fallback("10.0.0.1"))
+                self.assertEqual(len(agent.bulk), 1)
 
 
 if __name__ == "__main__":
