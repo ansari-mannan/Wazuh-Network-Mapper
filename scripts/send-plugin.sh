@@ -8,4 +8,5 @@ set -e
 cd ~/dev/OpenSearch-Dashboards/plugins/vulnmapper
 yarn build --opensearch-dashboards-version "$OSD_VERSION"
 scp "build/vulnmapper-$OSD_VERSION.zip" "$SERVER":~/
-echo "Sent. Now run scripts/update-plugin.sh on the server."
+echo "Sent. On the server run scripts/update-plugin.sh (plain dashboard in ~/osd),"
+echo "or for the Wazuh dashboard: sudo scripts/install-wazuh.sh ~/vulnmapper-$OSD_VERSION.zip"
