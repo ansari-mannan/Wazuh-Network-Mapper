@@ -203,15 +203,19 @@ export function AttackPathsPage() {
   const onShowOnMap = (route: AttackRoute) => {
     const full = new Set<string>([route.start, route.target]);
     for (const s of route.steps) if (s.kind !== 'transit') full.add(s.to);
-    // A spare-ports start is not a graph node: the route leaves from its switch.
+    // A spare-ports start is not a graph node: the route leaves from its switch,
+    // and the map draws the start as a virtual marker beside it (`start`).
     const spare = doc.starting_points.find((p) => p.id === route.start && p.kind === 'spare_ports');
-    const walk = routeWalk(route).map((id) => (id === route.start && spare?.switch ? spare.switch : id));
+    const walk = routeWalk(route);
+    if (spare?.switch) walk[0] = spare.switch;
     const physical = physicalPathNodeIds(walk, graph?.edges || [], graph?.nodes || []);
     const lit = new Set([...physical, ...routeNodeIds(route)]);
     const pass = [...lit].filter((id) => !full.has(id));
     // the same path in travel order: the map numbers it and points its arrows
     const ordered = physicalPathWalk(walk, graph?.edges || [], graph?.nodes || []);
+    if (spare?.switch) ordered.unshift(route.start);
     const q = new URLSearchParams({ highlight: [...full].join(','), pass: pass.join(','), route: ordered.join(',') });
+    if (spare?.switch) q.set('start', `${spare.listed_ports ?? spare.ports?.length ?? 0} spare ports · VLAN ${spare.vlans[0]}`);
     history.push(`/topology?${q.toString()}`);
   };
 
@@ -295,6 +299,7 @@ export function AttackPathsPage() {
             route={selected}
             nameOf={nameOf}
             startName={startName(selected)}
+            spare={doc.starting_points.find((p) => p.id === selected.start && p.kind === 'spare_ports')}
             reasonOf={reasonOf}
             metadata={doc.metadata}
             onShowOnMap={() => onShowOnMap(selected)}

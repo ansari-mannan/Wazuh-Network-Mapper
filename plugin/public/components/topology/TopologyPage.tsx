@@ -120,6 +120,7 @@ export function TopologyPage() {
   const highlightKey = params.get('highlight') || '';
   const passKey = params.get('pass') || '';
   const routeKey = params.get('route') || '';
+  const startLabel = params.get('start') || '';
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hideInactive, setHideInactive] = useState(true);
   const view = useRef<TopologyViewHandle>(null);
@@ -225,6 +226,7 @@ export function TopologyPage() {
                   highlightKey={highlightKey}
                   passKey={passKey}
                   routeKey={routeKey}
+                  startLabel={startLabel}
                 />
               </EuiPanel>
             </EuiFlexItem>

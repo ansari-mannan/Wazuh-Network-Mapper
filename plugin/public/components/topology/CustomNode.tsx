@@ -3,6 +3,7 @@
 import React from 'react';
 import { EuiBadge } from '@elastic/eui';
 import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';
+import { Cable } from 'lucide-react';
 import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
 import { borderForLevel, isOffline, statusDot } from './nodeStyle';
@@ -17,6 +18,38 @@ import { useLiveness } from '../../lib/liveness';
 // on the route being shown (Attack paths "Show on map").
 export type TopologyNodeData = GraphNode & { route?: RouteMark };
 export type TopologyFlowNode = Node<TopologyNodeData>;
+
+// A node's step number and Start/Target tag on the route being shown.
+function RouteTags({ route }: { route?: RouteMark }) {
+  return (
+    <>
+      {route && (
+        <span className="node__step" title={`Step ${route.step} of the route`}>
+          {route.step}
+        </span>
+      )}
+      {route?.end && (
+        <span className={`node__end node__end--${route.end}`}>{route.end === 'start' ? 'Start' : 'Target'}</span>
+      )}
+    </>
+  );
+}
+
+// The virtual start of a route from spare switch ports: not a graph node, drawn
+// beside the switch that holds the ports only while that route is shown.
+export type SpareStartData = { label: string; route?: RouteMark };
+export function SpareStartNode({ data }: NodeProps<SpareStartData>) {
+  return (
+    <div className="nodeWrap vmSpareStart" data-test-subj="vmSpareStart">
+      <div className="node" title={data.label}>
+        <Cable className="node__icon" size={20} strokeWidth={1.5} />
+        <div className="node__label">{data.label}</div>
+        <Handle type="source" position={Position.Right} className="handle" />
+      </div>
+      <RouteTags route={data.route} />
+    </div>
+  );
+}
 
 // One graph node. Two INDEPENDENT visual channels:
 //   * the corner dot  -> LIVENESS (statusDot): green up / grey unconfirmed / red down
@@ -66,16 +99,7 @@ export function CustomNode({ data }: NodeProps<TopologyNodeData>) {
         )}
         <Handle type="source" position={Position.Bottom} className="handle" />
       </div>
-      {data.route && (
-        <span className="node__step" title={`Step ${data.route.step} of the route`}>
-          {data.route.step}
-        </span>
-      )}
-      {data.route?.end && (
-        <span className={`node__end node__end--${data.route.end}`}>
-          {data.route.end === 'start' ? 'Start' : 'Target'}
-        </span>
-      )}
+      <RouteTags route={data.route} />
       {data.unmanaged && (
         <span className="node__badge" title="No Wazuh agent reports from this machine">
           Unmanaged

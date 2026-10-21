@@ -19,7 +19,9 @@ jest.mock('./lib/graph', () => ({ useGraph: () => data.graph }));
 jest.mock('./lib/vulnerabilities', () => ({ useVulnerabilities: () => data.vulns }));
 jest.mock('./lib/attackPathsData', () => ({ useAttackPaths: () => data.paths }));
 // the schedule and history panels fetch on mount; leave them loading
-jest.mock('./lib/services', () => ({ useServices: () => ({ http: { get: () => new Promise(() => undefined) } }) }));
+jest.mock('./lib/services', () => ({
+  useServices: () => ({ http: { get: () => new Promise(() => undefined) }, history: data.history }),
+}));
 jest.mock('./lib/scan', () => ({ useScan: () => data.scan }));
 jest.mock('./lib/liveness', () => {
   const { offlineHosts } = jest.requireActual('./components/topology/inactive');
@@ -367,9 +369,12 @@ describe('attack paths: spare-port starts', () => {
     targets: [{ ...labPaths.targets[1], routes: [route(onL3, [telnet(onL3, L3)], 1), route(onL2, [telnet(onL2, L2), telnet(L2, L3)], 2)] }],
   };
   let root: HTMLDivElement;
+  let pushed: string[];
   beforeEach(() => {
     load(labGraph);
     data.paths = { doc, loading: false, error: null, reload: async () => {} };
+    pushed = [];
+    data.history = { push: (url: string) => pushed.push(url) };
     root = document.createElement('div');
     document.body.appendChild(root);
     act(() => {
@@ -391,5 +396,31 @@ describe('attack paths: spare-port starts', () => {
     expect(root.querySelector('[data-test-subj="vmRouteDetail"]')!.textContent).toContain(
       'Assumes 9 spare port(s) in VLAN 20 on L3-Switch (on the target itself)'
     );
+  });
+
+  // the map URL "Show on map" opens, and step 1 of the selected route's cards
+  const showOnMap = (card: number) => {
+    act(() => {
+      Simulate.click(cards()[card]);
+    });
+    act(() => {
+      Simulate.click(root.querySelector('[data-test-subj="vmShowOnMap"]')!);
+    });
+    return new URLSearchParams(pushed[0].split('?')[1]);
+  };
+  const firstStep = () => root.querySelector('[data-test-subj="vmRouteDetail"] .euiPanel')!.textContent;
+
+  it('one hop: the map walks marker -> target, the marker labelled with the ports', () => {
+    const q = showOnMap(0);
+    expect(q.get('route')).toBe(`${onL3},${L3}`);
+    expect(q.get('start')).toBe('9 spare ports · VLAN 20');
+    expect(firstStep()).toBe('Plug into a spare port in VLAN 20 on L3-Switch');
+  });
+
+  it('two hops: the map walks marker -> L2 -> L3', () => {
+    const q = showOnMap(1);
+    expect(q.get('route')).toBe(`${onL2},${L2},${L3}`);
+    expect(q.get('start')).toBe('10 spare ports · VLAN 10');
+    expect(firstStep()).toBe('Plug into a spare port in VLAN 10 on L2-Switch');
   });
 });

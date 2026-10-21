@@ -114,6 +114,8 @@
     border: 1px solid var(--vm-route);
     pointer-events: none;
   }
+  // the virtual start of a spare-port route: smaller, outlined in the route colour
+  .vmSpareStart .node { width: 150px; padding: 8px 10px; border: 2px dashed var(--vm-route); }
 
   // worst configuration-finding severity, so a device with no CVE score but a
   // finding (e.g. open telnet) is not read as clean. The badge (lib/risk colour)

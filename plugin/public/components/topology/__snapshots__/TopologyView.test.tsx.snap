@@ -3,6 +3,14 @@
 exports[`map: wired and wireless clients draws the wireless link dashed with a Wi-Fi mark and tooltip, the wired one plainly 1`] = `
 "<div class=\\"canvas\\" style=\\"--vm-route: #BD271E; --vm-route-text: #ffffff;\\">
 <svg>
+<g data-node=\\"device:sw24\\" data-type=\\"device\\">
+</g>
+<g data-node=\\"device:ap\\" data-type=\\"device\\">
+</g>
+<g data-node=\\"endpoint:101\\" data-type=\\"device\\">
+</g>
+<g data-node=\\"host:wifi1\\" data-type=\\"device\\">
+</g>
 <g data-edge=\\"device:sw24->device:ap\\" data-type=\\"ports\\">
 <path style=\\"stroke: #475569; stroke-width: 2;\\">
 </path>

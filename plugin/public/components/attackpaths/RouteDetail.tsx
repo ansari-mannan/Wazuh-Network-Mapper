@@ -14,7 +14,7 @@ import {
   EuiText,
   EuiTitle,
 } from '@elastic/eui';
-import { AttackPathsMetadata, AttackRoute, AttackStep } from '../../../common';
+import { AttackPathsMetadata, AttackRoute, AttackStartingPoint, AttackStep } from '../../../common';
 import { RISK_META } from '../../lib/risk';
 import { startKindLabel, stepText } from '../../lib/attackPaths';
 import { TierReason } from '../../lib/ovssText';
@@ -83,6 +83,7 @@ export function RouteDetail({
   route,
   nameOf,
   startName,
+  spare,
   reasonOf,
   metadata,
   onShowOnMap,
@@ -90,6 +91,7 @@ export function RouteDetail({
   route: AttackRoute;
   nameOf: (id: string) => string;
   startName: string; // the start in words (spare ports: their switch, and if it is the target)
+  spare?: AttackStartingPoint; // the route's start when it is spare switch ports
   reasonOf: (id: string) => TierReason | null; // why the node has its tier
   metadata: AttackPathsMetadata;
   onShowOnMap: () => void;
@@ -103,9 +105,19 @@ export function RouteDetail({
       </EuiText>
       <EuiSpacer size="m" />
 
+      {spare && (
+        <EuiPanel paddingSize="m" hasShadow={false} hasBorder data-test-subj="vmStepSpare">
+          <EuiTitle size="xxs">
+            <h4>
+              Plug into a spare port in VLAN {spare.vlans[0]}
+              {spare.switch && ` on ${spare.switch_label || nameOf(spare.switch)}`}
+            </h4>
+          </EuiTitle>
+        </EuiPanel>
+      )}
       {route.steps.map((step, i) => (
         <React.Fragment key={i}>
-          {i > 0 && (
+          {(i > 0 || spare) && (
             <div className="vmChainConnector" aria-hidden>
               <EuiIcon type="sortDown" size="m" />
             </div>
