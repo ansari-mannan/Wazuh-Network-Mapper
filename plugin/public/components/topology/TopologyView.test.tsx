@@ -47,7 +47,7 @@ jest.mock('react-flow-renderer', () => {
   return { __esModule: true, ...actual, default: ReactFlowStub };
 });
 
-import { ROUTE_DASH, TopologyView } from './TopologyView';
+import { LOOP_REACH, NODE_HALF_W, ROUTE_DASH, TopologyView } from './TopologyView';
 import { RouteEntry } from './highlight';
 import { MapLegend } from './MapLegend';
 import { graphColors } from '../../lib/theme';
@@ -174,6 +174,24 @@ describe('map: a route from spare switch ports', () => {
     expect(tags(L3)).toEqual([1, 'both']);
     expect(chips()).toEqual([]);
     expect(real()).toBe(lab.nodes.length);
+  });
+
+  it('one hop: the loop label is a pill clear of the node and the loop', () => {
+    show([L3], { switch: L3, vlan: 20, ports });
+    // the stub hands the loop sourceX 0, sourceY 0 (bottom handle) and targetY 100 (top handle)
+    const nodeBox = { left: -NODE_HALF_W, right: NODE_HALF_W, top: 0, bottom: 100 };
+    const pill = edgeOf(L3, L3).querySelector('.vmLoopLabel rect')!;
+    const n = (a: string) => Number(pill.getAttribute(a));
+    const box = { left: n('x'), right: n('x') + n('width'), top: n('y'), bottom: n('y') + n('height') };
+    const intersects = (a: typeof box, b: typeof box) =>
+      a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    expect(intersects(box, nodeBox)).toBe(false);
+    expect(box.left).toBeGreaterThan(NODE_HALF_W + LOOP_REACH); // past the loop's outer edge
+    expect(n('width')).toBeGreaterThan(0);
+    // surface fill, thin route-coloured border; the full list stays in the tooltip
+    expect(pill.getAttribute('stroke')).toBe(graphColors.route);
+    expect(pill.getAttribute('stroke-width')).toBe('1');
+    expect(edgeOf(L3, L3).querySelector('.vmLoopLabel text')!.getAttribute('x')).toBe(String(box.left + 6));
   });
 
   it('two hops: the Start tag and an entry chip on the first switch, no loop', () => {

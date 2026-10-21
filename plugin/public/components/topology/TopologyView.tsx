@@ -1,7 +1,7 @@
 // Renders the dagre-positioned graph with distinct edge styles for lldp,
 // endpoint_link (by confidence) and inferred links. Nodes are draggable, and
 // every link is drawn from the upper node to the lower one (see orientForDrawing).
-import React, { CSSProperties, forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import React, { CSSProperties, forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   BezierEdge,
@@ -91,35 +91,54 @@ function WifiEdge(props: EdgeProps<{ tooltip: string }>) {
 }
 
 // half of .node's 184 px width (topology.scss)
-const NODE_HALF_W = 92;
+export const NODE_HALF_W = 92;
+
+// The loop's reach beyond the node's side (the curve's control points sit at
+// twice that), and the gap between it and its label.
+export const LOOP_REACH = 60;
+const LOOP_LABEL_GAP = 8;
+const PILL_PAD = { x: 6, h: 18 };
 
 // A route from a switch's own spare ports to that switch: a loop that leaves
-// its right side and comes back in, labelled with the ports (in full on hover).
+// its right side and comes back in. Its label is a pill whose left edge sits
+// past the loop's outer edge, so it only grows away from the node; the full
+// port list is in the tooltip.
 function LoopEdge({ sourceX, sourceY, targetY, style, markerEnd, data }: EdgeProps<{ short: string; full: string }>) {
   const x = sourceX + NODE_HALF_W;
   const y = (sourceY + targetY) / 2;
   const { tip, bind } = useHoverTip();
+  const label = useRef<SVGTextElement>(null);
+  const [textW, setTextW] = useState(0);
+  useLayoutEffect(() => setTextW(label.current?.getBBox?.().width || 0), [data?.short]);
+  // before measuring (and where SVG is not laid out): about 6 px a character at 10 px
+  const w = (textW || (data?.short || '').length * 6) + 2 * PILL_PAD.x;
+  const left = x + LOOP_REACH + LOOP_LABEL_GAP;
   const text = `Entry: ${data?.full || ''}`;
   return (
     <g className="vmLoopEdge" tabIndex={0} role="img" aria-label={text} {...bind({ title: text, lines: [] })}>
       {tip}
       <path
         className="react-flow__edge-path"
-        d={`M ${x} ${y - 14} C ${x + 80} ${y - 70}, ${x + 80} ${y + 70}, ${x} ${y + 14}`}
+        d={`M ${x} ${y - 14} C ${x + LOOP_REACH * (4 / 3)} ${y - 70}, ${x + LOOP_REACH * (4 / 3)} ${y + 70}, ${x} ${y + 14}`}
         style={style}
         markerEnd={markerEnd}
         fill="none"
       />
-      <EdgeText
-        x={x + 62}
-        y={y}
-        label={data?.short}
-        labelStyle={{ fontSize: 10, fill: graphColors.route, fontWeight: 600 }}
-        labelShowBg
-        labelBgStyle={{ fill: themeVars.euiColorEmptyShade, fillOpacity: 0.9 }}
-        labelBgPadding={[3, 2]}
-        labelBgBorderRadius={2}
-      />
+      <g className="vmLoopLabel">
+        <rect
+          x={left}
+          y={y - PILL_PAD.h / 2}
+          width={w}
+          height={PILL_PAD.h}
+          rx={PILL_PAD.h / 2}
+          fill={themeVars.euiColorEmptyShade}
+          stroke={graphColors.route}
+          strokeWidth={1}
+        />
+        <text ref={label} x={left + PILL_PAD.x} y={y} dominantBaseline="central" fontSize={10} fontWeight={600} fill={graphColors.route}>
+          {data?.short}
+        </text>
+      </g>
     </g>
   );
 }
