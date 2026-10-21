@@ -567,7 +567,7 @@ export type AttackStartingPoint = {
   vlans: number[];
   switch?: string; // spare ports: the node id of the switch that holds them
   switch_label?: string; // ...and its name
-  ports?: string[];
+  ports?: string[]; // spare ports: their ifNames in this VLAN (the checklist caps the list)
   listed_ports?: number;
   spare_ports_on_switch?: number;
   list_truncated?: boolean;

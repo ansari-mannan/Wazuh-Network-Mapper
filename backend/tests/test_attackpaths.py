@@ -188,6 +188,18 @@ class TestRoutesAndStarts(unittest.TestCase):
         self.assertEqual(route["start"], start["id"])
         self.assertTrue(route["narrative"].startswith("From 1 spare port(s) in VLAN 10 on L2-Switch, take"))
 
+    def test_spare_starts_list_their_ports_per_vlan(self):
+        ports = [{"port": "Fa1/0/7", "vlan": 20}, {"port": "Fa0/9", "vlan": 10},
+                 {"port": "Fa1/0/8", "vlan": 20}]
+        sw = dev("device:sw", "l3-switch", [10, 20], findings=[finding(
+            "spare-ports-in-used-vlan", evidence={"ports": ports, "total": 5})])
+        doc = run([sw], {"device:sw": {"importance": "high"}})
+        starts = {s["vlans"][0]: s for s in doc["starting_points"]}
+        self.assertEqual(starts[20]["ports"], ["Fa1/0/7", "Fa1/0/8"])
+        self.assertEqual(starts[10]["ports"], ["Fa0/9"])
+        self.assertEqual((starts[20]["listed_ports"], starts[20]["spare_ports_on_switch"],
+                          starts[20]["list_truncated"]), (2, 5, True))
+
     def test_offline_agents_are_listed_not_used_as_starts(self):
         gone = host("endpoint:002", 10, cves=[cve("C", 9.0)], agent="002")
         gone["status"] = "disconnected"
