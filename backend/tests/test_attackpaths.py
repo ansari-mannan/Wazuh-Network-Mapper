@@ -478,6 +478,7 @@ class TestPipeline(unittest.TestCase):
             frozen = json.load(f)
         out = self.run_pipeline("--no-attack-paths")
         self.assertFalse(os.path.exists(os.path.join(self.tmp, ap.FILENAME)))
+        out["graph"]["metadata"]["timing"].pop("alongside_device_cves_s")   # added after it
         out["graph"]["metadata"]["timing"] = {k: None for k in out["graph"]["metadata"]["timing"]}
         del out["graph"]["metadata"]["stages"]
         for key in ("scan_time", "network_scan_time"):

@@ -3034,6 +3034,7 @@
       "started_at": "FROZEN",
       "finished_at": "FROZEN",
       "name_lookup_s": "FROZEN",
+      "alongside_device_cves_s": "FROZEN",
       "cve_vectors_s": "FROZEN",
       "checklist_s": "FROZEN",
       "ovss_s": "FROZEN",
@@ -3068,7 +3069,7 @@
         "name": "Reverse DNS names",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "2 hosts asked, 0 named"
+        "note": "2 hosts asked, 0 named (ran alongside Device CVEs)"
       },
       {
         "name": "Device CVEs (NVD)",

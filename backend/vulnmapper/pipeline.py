@@ -389,34 +389,47 @@ def _previous_graph(path: Optional[str]) -> Optional[dict]:
 
 
 def _attempt(scan: ScanContext, name: str, run: Callable[[ScanContext], StageResult],
-             label: str, started: Optional[float] = None) -> tuple:
+             label: str, own_s: Optional[Callable[[], Optional[float]]] = None) -> tuple:
     """Run one optional stage: ``(result, None, seconds)``, or ``(None, error,
-    seconds)`` when it crashed. ``started``: when its work began, if earlier."""
+    seconds)`` when it crashed. ``own_s``: the stage's own work time, when part
+    of it ran earlier beside other stages (None: the time measured here)."""
     t0 = _begin(label)
+
+    def seconds() -> float:
+        own = own_s() if own_s else None
+        return time.monotonic() - t0 if own is None else own
     try:
-        return run(scan), None, time.monotonic() - (started or t0)
+        return run(scan), None, seconds()
     except Exception as exc:            # an optional stage never fails the scan
         log.exception("%s failed; the scan goes on without it", name)
-        return None, exc, time.monotonic() - (started or t0)
+        return None, exc, seconds()
+
+
+def _timed(fn: Callable, *args) -> tuple:
+    """``(fn(*args), seconds it took)``."""
+    t0 = time.monotonic()
+    return fn(*args), time.monotonic() - t0
 
 
 def _run_stage(scan: ScanContext, name: str, run: Callable[[ScanContext], StageResult], *,
                skip: Optional[str], label: str, timing: str,
                metadata: Optional[str] = None, outcome=None,
-               started: Optional[float] = None) -> None:
+               own_s: Optional[Callable[[], Optional[float]]] = None,
+               alongside: Optional[str] = None) -> None:
     """Run one optional stage, or record why it did not run.
 
     ``skip`` is that reason ("off" for a stage the options turned off), None to
     run it. Its block goes in ``metadata.<metadata>`` and its warnings join the
     graph's; its time and note make its line in ``metadata.stages``.
     ``outcome``: the Future of an :func:`_attempt` already started beside other
-    stages; it is recorded here, in the stage's place.
+    stages; it is recorded here, in the stage's place. ``own_s``: as for
+    :func:`_attempt`. ``alongside``: the stage it ran beside, for its note.
     """
     if skip is not None:
         scan.record(name, None, skip, ran=False)
         return
     result, exc, scan.timing[timing] = (outcome.result() if outcome is not None
-                                        else _attempt(scan, name, run, label, started))
+                                        else _attempt(scan, name, run, label, own_s))
     if exc is not None:
         error = type(exc).__name__
         scan.document["metadata"]["warnings"].append(
@@ -426,7 +439,10 @@ def _run_stage(scan: ScanContext, name: str, run: Callable[[ScanContext], StageR
     if metadata is not None:
         scan.document["metadata"][metadata] = result.block
     scan.document["metadata"]["warnings"].extend(result.warnings)
-    scan.record(name, scan.timing[timing], result.note, ran=result.ran)
+    note = result.note
+    if alongside:
+        note = f"{note or ''} (ran alongside {alongside})".lstrip()
+    scan.record(name, scan.timing[timing], note, ran=result.ran)
 
 
 def _off_unless(enabled: bool) -> Optional[str]:
@@ -478,7 +494,12 @@ class Pipeline:
         # Reverse DNS (host names) and nmap itself run beside the device CVE
         # stage: each reads what the earlier stages left and writes nothing
         # another reads. Results are recorded, and nmap's applied, in the
-        # sequential order, so the outputs are the same either way.
+        # sequential order, so the outputs are the same either way. Each
+        # stage's time is its own work; the group's wall-clock time is
+        # timing.alongside_device_cves_s.
+        group_t0 = time.monotonic()
+        device_cves = "Device CVEs (NVD)"
+        beside = None if args.no_device_cves else "Device CVEs"
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="stage") as pool:
             def early(fn, *fn_args):
                 return pool.submit(fn, *fn_args) if CONCURRENT else None
@@ -486,23 +507,34 @@ class Pipeline:
             names_label = "Looking up host names"
             names = (early(_attempt, scan, "Reverse DNS names", hosts.run_name_lookup, names_label)
                      if not args.no_name_lookup else None)
-            nmap_started = time.monotonic()
-            nmap = early(nmap_hosts, scan) if args.nmap_unmanaged else None
+            nmap = early(_timed, nmap_hosts, scan) if args.nmap_unmanaged else None
             _run_stage(scan, "Reverse DNS names", hosts.run_name_lookup,
                        skip=_off_unless(not args.no_name_lookup), label=names_label,
-                       timing="name_lookup_s", metadata="name_lookup", outcome=names)
-            _run_stage(scan, "Device CVEs (NVD)", run_device_cves,
+                       timing="name_lookup_s", metadata="name_lookup", outcome=names,
+                       alongside=beside if names else None)
+            _run_stage(scan, device_cves, run_device_cves,
                        skip=_off_unless(not args.no_device_cves),
                        label="Looking up device CVEs in NVD",
                        timing="device_cves_s", metadata="device_cves")
             scan.prefetch_records()
             # The service scan runs before the vector stage, so its CVEs flow
             # through it (vector fields, reachable_cve) and on to the attack paths.
-            _run_stage(scan, "nmap service scan",
-                       lambda s: run_service_scan(s, nmap.result() if nmap else None),
+            nmap_s: dict = {}
+
+            def service_scan(s: ScanContext) -> StageResult:
+                # nmap's own time beside the device CVEs, then applying what it found
+                scanned, nmap_s["scan"] = nmap.result()
+                t0 = time.monotonic()
+                result = run_service_scan(s, scanned)
+                nmap_s["total"] = nmap_s["scan"] + time.monotonic() - t0
+                return result
+
+            _run_stage(scan, "nmap service scan", service_scan if nmap else run_service_scan,
                        skip=_off_unless(args.nmap_unmanaged),
                        label="Service-scanning unmanaged hosts with nmap",
-                       timing="nmap_s", metadata="nmap", started=nmap_started if nmap else None)
+                       timing="nmap_s", metadata="nmap", own_s=lambda: nmap_s.get("total"),
+                       alongside=beside if nmap else None)
+        scan.timing["alongside_device_cves_s"] = time.monotonic() - group_t0
         scan.prefetch_records()
         _run_stage(scan, "CVE vectors (NVD)", run_cve_vectors,
                    skip=_off_unless(not args.no_cve_vectors),

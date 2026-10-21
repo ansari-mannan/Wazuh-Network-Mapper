@@ -1326,6 +1326,7 @@
       "snmp_question_s": "FROZEN",
       "name_lookup_s": "FROZEN",
       "nmap_s": "FROZEN",
+      "alongside_device_cves_s": "FROZEN",
       "cve_vectors_s": "FROZEN",
       "checklist_s": "FROZEN",
       "ovss_s": "FROZEN",
@@ -1354,7 +1355,7 @@
         "name": "Reverse DNS names",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "1 host asked, 0 named"
+        "note": "1 host asked, 0 named (ran alongside Device CVEs)"
       },
       {
         "name": "Device CVEs (NVD)",
@@ -1366,7 +1367,7 @@
         "name": "nmap service scan",
         "status": "ran",
         "seconds": "FROZEN",
-        "note": "2 hosts scanned, 0 from the cache, 2 answered, 1 with CVEs; nmap -T4 --max-retries 1 --version-intensity 5 --host-timeout 60s"
+        "note": "2 hosts scanned, 0 from the cache, 2 answered, 1 with CVEs; nmap -T4 --max-retries 1 --version-intensity 5 --host-timeout 60s (ran alongside Device CVEs)"
       },
       {
         "name": "CVE vectors (NVD)",
