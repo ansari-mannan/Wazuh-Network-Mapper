@@ -113,6 +113,14 @@ export function RouteDetail({
               {spare.switch && ` on ${spare.switch_label || nameOf(spare.switch)}`}
             </h4>
           </EuiTitle>
+          {(spare.ports || []).length > 0 && (
+            <EuiText size="s" color="subdued">
+              <p>
+                Ports: <span className="vmMono">{spare.ports!.join(', ')}</span>
+                {spare.list_truncated && ' (the list is cut short)'}
+              </p>
+            </EuiText>
+          )}
         </EuiPanel>
       )}
       {route.steps.map((step, i) => (

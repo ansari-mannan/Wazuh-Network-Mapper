@@ -416,7 +416,7 @@ describe('attack paths: spare-port starts', () => {
     const q = showOnMap(0);
     expect(q.get('route')).toBe(L3);
     expect([q.get('entry'), q.get('vlan'), q.get('ports')]).toEqual([L3, '20', l3Ports.join(',')]);
-    expect(firstStep()).toBe('Plug into a spare port in VLAN 20 on L3-Switch');
+    expect(firstStep()).toBe(`Plug into a spare port in VLAN 20 on L3-SwitchPorts: ${l3Ports.join(', ')}`);
   });
 
   it('the switch drawer opens on its front panel with the entry ports ringed', () => {
@@ -435,6 +435,6 @@ describe('attack paths: spare-port starts', () => {
     const q = showOnMap(1);
     expect(q.get('route')).toBe(`${L2},${L3}`);
     expect([q.get('entry'), q.get('vlan'), q.get('ports')]).toEqual([L2, '10', l2Ports.join(',')]);
-    expect(firstStep()).toBe('Plug into a spare port in VLAN 10 on L2-Switch');
+    expect(firstStep()).toBe(`Plug into a spare port in VLAN 10 on L2-SwitchPorts: ${l2Ports.join(', ')}`);
   });
 });

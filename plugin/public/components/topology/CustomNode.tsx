@@ -3,7 +3,6 @@
 import React from 'react';
 import { EuiBadge } from '@elastic/eui';
 import { Handle, Position, Node, NodeProps } from 'react-flow-renderer';
-import { Cable } from 'lucide-react';
 import { GraphNode } from '../../../common';
 import { iconForRole } from './icons';
 import { borderForLevel, isOffline, statusDot } from './nodeStyle';
@@ -35,22 +34,6 @@ function RouteTags({ route }: { route?: RouteMark }) {
         <span className={`node__end node__end--${route.end}`}>{END_TEXT[route.end]}</span>
       )}
     </>
-  );
-}
-
-// The virtual start of a route from spare switch ports: not a graph node, drawn
-// beside the switch that holds the ports only while that route is shown.
-export type SpareStartData = { label: string; route?: RouteMark };
-export function SpareStartNode({ data }: NodeProps<SpareStartData>) {
-  return (
-    <div className="nodeWrap vmSpareStart" data-test-subj="vmSpareStart">
-      <div className="node" title={data.label}>
-        <Cable className="node__icon" size={20} strokeWidth={1.5} />
-        <div className="node__label">{data.label}</div>
-        <Handle type="source" position={Position.Right} className="handle" />
-      </div>
-      <RouteTags route={data.route} />
-    </div>
   );
 }
 

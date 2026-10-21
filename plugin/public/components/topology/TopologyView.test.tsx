@@ -18,15 +18,14 @@ const v8 = require('v8');
 // nor SVG layout, which an edge label measures itself with
 (SVGElement.prototype as any).getBBox ??= () => ({ x: 0, y: 0, width: 0, height: 0 });
 
+// the nodes the stub was last given (it draws only the edges)
+const mockNodes: any[] = [];
 jest.mock('react-flow-renderer', () => {
   const actual = jest.requireActual('react-flow-renderer');
-  const ReactFlowStub = ({ nodes, edges, edgeTypes }: any) => (
+  const ReactFlowStub = ({ nodes, edges, edgeTypes }: any) => {
+    mockNodes.splice(0, mockNodes.length, ...nodes);
+    return (
     <svg>
-      {nodes.map((n: any) => (
-        <g key={n.id} data-node={n.id} data-type={n.type} data-step={n.data.route?.step} data-end={n.data.route?.end}
-          data-entry={n.data.entry?.short}
-        />
-      ))}
       {edges.map((e: any, i: number) => {
         const Custom = e.type === 'wifi' || e.type === 'loop' ? edgeTypes[e.type] : null;
         const ends = { sourceX: 0, sourceY: 0, targetX: 100, targetY: 100 + i };
@@ -43,7 +42,8 @@ jest.mock('react-flow-renderer', () => {
         );
       })}
     </svg>
-  );
+    );
+  };
   return { __esModule: true, ...actual, default: ReactFlowStub };
 });
 
@@ -152,9 +152,10 @@ describe('map: a route from spare switch ports', () => {
         highlightKey={walk.join(',')} routeKey={walk.join(',')} entry={entry}
       />
     );
-  const node = (id: string) => root.querySelector(`[data-node="${id}"]`)!;
-  const tags = (id: string) => [node(id).getAttribute('data-step'), node(id).getAttribute('data-end')];
-  const real = () => root.querySelectorAll('[data-node]').length;
+  const node = (id: string) => mockNodes.find((n) => n.id === id)!;
+  const tags = (id: string) => [node(id).data.route?.step, node(id).data.route?.end];
+  const chips = () => mockNodes.filter((n) => n.data.entry);
+  const real = () => mockNodes.length;
 
   it('one hop: a loop from the switch back into itself, labelled with its ports, tagged Start · Target', () => {
     show([L3], { switch: L3, vlan: 20, ports });
@@ -170,16 +171,18 @@ describe('map: a route from spare switch ports', () => {
     expect(loop.querySelector('.vmLoopEdge')!.getAttribute('aria-label')).toBe(
       'Entry: Fa1/0/7, Fa1/0/8, Fa1/0/9, Fa1/0/10, Fa1/0/11 · VLAN 20'
     );
-    expect(tags(L3)).toEqual(['1', 'both']);
-    expect(node(L3).getAttribute('data-entry')).toBeNull();
+    expect(tags(L3)).toEqual([1, 'both']);
+    expect(chips()).toEqual([]);
     expect(real()).toBe(lab.nodes.length);
   });
 
   it('two hops: the Start tag and an entry chip on the first switch, no loop', () => {
     show([L2, L3], { switch: L2, vlan: 10, ports: ['Fa0/9', 'Fa0/10', 'Fa0/11'] });
-    expect(tags(L2)).toEqual(['1', 'start']);
-    expect(tags(L3)).toEqual(['2', 'target']);
-    expect(node(L2).getAttribute('data-entry')).toBe('Fa0/9, Fa0/10 +1 · VLAN 10');
+    expect(tags(L2)).toEqual([1, 'start']);
+    expect(tags(L3)).toEqual([2, 'target']);
+    expect(chips().map((n) => [n.id, n.data.entry.short, n.data.entry.full])).toEqual([
+      [L2, 'Fa0/9, Fa0/10 +1 · VLAN 10', 'Fa0/9, Fa0/10, Fa0/11 · VLAN 10'],
+    ]);
     expect(root.querySelector('[data-type="loop"]')).toBeNull();
     expect(real()).toBe(lab.nodes.length);
   });
@@ -187,7 +190,7 @@ describe('map: a route from spare switch ports', () => {
   it('nothing of the entry shows without the highlight', () => {
     render(<TopologyView graph={lab} onSelect={() => {}} selectedId={null} entry={{ switch: L3, vlan: 20, ports }} />);
     expect(root.querySelector('[data-type="loop"]')).toBeNull();
-    expect(root.querySelector('[data-entry]')).toBeNull();
+    expect(chips()).toEqual([]);
     expect(real()).toBe(lab.nodes.length);
   });
 });

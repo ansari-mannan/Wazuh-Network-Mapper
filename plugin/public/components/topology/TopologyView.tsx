@@ -18,14 +18,14 @@ import ReactFlow, {
 import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
 import { highlightClass, RouteEntry, routeArrows, routeMarks } from './highlight';
-import { CustomNode, SpareStartNode, TopologyFlowNode } from './CustomNode';
+import { CustomNode, TopologyFlowNode } from './CustomNode';
 import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
 import { isWireless, wirelessText } from '../../lib/wireless';
 import { useHoverTip } from '../layout/HoverTip';
 import { entryPortsText } from '../../lib/attackPaths';
 
-const nodeTypes = { device: CustomNode, spareStart: SpareStartNode };
+const nodeTypes = { device: CustomNode };
 
 // How far along a device-to-device link its two port labels sit, from each end.
 const PORT_LABEL_T = 0.22;
