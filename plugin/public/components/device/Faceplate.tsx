@@ -38,12 +38,16 @@ import {
 import { graphColors } from '../../lib/theme';
 import { radioClients } from '../../lib/wireless';
 import { useHoverTip } from '../layout/HoverTip';
+import { RouteEntry } from '../topology/highlight';
 
 interface PanelProps {
   node: DeviceNode;
   fp: Layout;
   byPort: Map<string, Neighbour[]>;
   routeKeys: Set<string>;
+  /** the spare ports a highlighted route enters this device by, and their VLAN */
+  entryKeys?: Set<string>;
+  entryVlan?: number;
   /** an access point's clients per radio, from its wireless links */
   clients: Map<string, number>;
   compact?: boolean;
@@ -53,13 +57,14 @@ interface PanelProps {
 const onRouteOf = (port: DevicePort, routeKeys: Set<string>) =>
   routeKeys.has(portKey(port.name)) || (!!port.alias && routeKeys.has(portKey(port.alias)));
 
-function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: Omit<PanelProps, 'fp'> & { p: PlacedPort }) {
+function Socket({ p, node, byPort, routeKeys, entryKeys, entryVlan, clients, compact, onSelectNode }: Omit<PanelProps, 'fp'> & { p: PlacedPort }) {
   const { port, kind, x, y } = p;
   const neighbours = neighboursOf(port, byPort);
   const inferred = isInferred(port, node);
-  const onRoute = onRouteOf(port, routeKeys);
+  const entry = !!entryKeys && onRouteOf(port, entryKeys);
+  const onRoute = entry || onRouteOf(port, routeKeys);
   const count = kind === 'radio' ? clients.get(port.name) ?? 0 : undefined;
-  const content = portTooltip(port, neighbours, { inferred, onRoute, clients: count });
+  const content = portTooltip(port, neighbours, { inferred, onRoute, clients: count, entryVlan: entry ? entryVlan : undefined });
   const { tip, bind } = useHoverTip();
   const events = bind(content);
   const target = onSelectNode && neighbours[0]?.nodeId;
@@ -142,7 +147,7 @@ function Socket({ p, node, byPort, routeKeys, clients, compact, onSelectNode }: 
 }
 
 /** The panel itself: chassis, vendor text (plain, no logo), captions and sockets. */
-export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, onSelectNode, width }: PanelProps & { width?: number }) {
+export function FaceplatePanel({ node, fp, byPort, routeKeys, entryKeys, entryVlan, clients, compact, onSelectNode, width }: PanelProps & { width?: number }) {
   const { chassis, height: H, width: W, furniture: f } = fp;
   const rx = chassis === 'puck' ? H / 2 : chassis === 'desktop' ? 10 : chassis === 'rack' ? 3 : 4;
   // the decoration is left off the compact panel; the Expand modal has it
@@ -223,6 +228,8 @@ export function FaceplatePanel({ node, fp, byPort, routeKeys, clients, compact, 
           node={node}
           byPort={byPort}
           routeKeys={routeKeys}
+          entryKeys={entryKeys}
+          entryVlan={entryVlan}
           clients={clients}
           compact={compact}
           onSelectNode={onSelectNode}
@@ -332,12 +339,15 @@ export function Faceplate({
   node,
   edges,
   route = [],
+  entry,
   onSelectNode,
 }: {
   node: DeviceNode;
   edges: GraphEdge[];
   /** the highlighted route's walk, start to target (empty when none is shown) */
   route?: string[];
+  /** the spare ports that route enters by, ringed when they are on this device */
+  entry?: RouteEntry;
   /** select another node on the map (a port's neighbour) */
   onSelectNode?: (nodeId: string) => void;
 }) {
@@ -347,7 +357,11 @@ export function Faceplate({
   const byPort = useMemo(() => portNeighbours(node.node_id, edges), [node.node_id, edges]);
   const routeKeys = useMemo(() => routePortKeys(node.node_id, route, byPort), [node.node_id, route, byPort]);
   const clients = useMemo(() => radioClients(node.node_id, edges), [node.node_id, edges]);
-  const panel = { node, fp, byPort, routeKeys, clients, onSelectNode };
+  const entryKeys = useMemo(
+    () => (entry?.switch === node.node_id ? new Set(entry.ports.map(portKey)) : undefined),
+    [entry, node.node_id]
+  );
+  const panel = { node, fp, byPort, routeKeys, entryKeys, entryVlan: entry?.vlan, clients, onSelectNode };
   const full = useMemo(() => faceplateOf(node), [node]); // the Expand modal's, at full size
   // a big rack switch can always be opened larger, whether or not its strip scrolls
   const expandable = compact || (fp.chassis === 'rack' && fp.ports.length > COMPACT_ABOVE);

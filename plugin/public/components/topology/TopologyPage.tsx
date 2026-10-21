@@ -255,6 +255,7 @@ export function TopologyPage() {
           node={selected}
           onClose={() => setSelectedId(null)}
           route={routeKey ? routeKey.split(',') : undefined}
+          entry={entry}
           onSelect={setSelectedId}
         />
       )}

@@ -419,6 +419,18 @@ describe('attack paths: spare-port starts', () => {
     expect(firstStep()).toBe('Plug into a spare port in VLAN 20 on L3-Switch');
   });
 
+  it('the switch drawer opens on its front panel with the entry ports ringed', () => {
+    const l3 = labGraph.nodes.find((n: any) => n.node_id === L3) as any;
+    const entry = { switch: L3, vlan: 20, ports: ['Fa1/0/2', 'Fa1/0/3'] };
+    act(() => {
+      ReactDOM.render(<DeviceDetail node={l3} onClose={() => {}} route={[L3]} entry={entry} />, root);
+    });
+    const flyout = document.querySelector('[data-test-subj="vmDetailFlyout"]')!;
+    expect(flyout.querySelector('h3')!.textContent).toBe('Ports');
+    const ringed = Array.from(flyout.querySelectorAll('.vmFpRoute')).map((r) => r.parentElement!.getAttribute('data-port'));
+    expect(ringed).toEqual(['FastEthernet1/0/2', 'FastEthernet1/0/3']);
+  });
+
   it('two hops: the map walks L2 -> L3, entered by the spare ports on L2', () => {
     const q = showOnMap(1);
     expect(q.get('route')).toBe(`${L2},${L3}`);

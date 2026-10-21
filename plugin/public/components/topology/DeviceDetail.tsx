@@ -31,6 +31,7 @@ import { iconForRole } from './icons';
 import { TierReasonLine, TierTip } from '../layout/TierReason';
 import { isOffline } from './nodeStyle';
 import { ProtectControl } from './ProtectControl';
+import { RouteEntry } from './highlight';
 
 type Rows = Array<[string, ReactNode]>;
 
@@ -74,12 +75,15 @@ export function DeviceDetail({
   node,
   onClose,
   route,
+  entry,
   onSelect,
 }: {
   node: GraphNode;
   onClose: () => void;
   /** the highlighted route's walk, for the ports it uses */
   route?: string[];
+  /** the spare ports that route enters by */
+  entry?: RouteEntry;
   /** select another node on the map */
   onSelect?: (nodeId: string) => void;
 }) {
@@ -176,7 +180,7 @@ export function DeviceDetail({
         {/* a device's front panel comes first, straight under the header */}
         {node.kind === 'device' && (
           <>
-            <DevicePorts node={node} edges={graph?.edges} route={route} onSelectNode={onSelect} />
+            <DevicePorts node={node} edges={graph?.edges} route={route} entry={entry} onSelectNode={onSelect} />
             <EuiSpacer size="m" />
           </>
         )}

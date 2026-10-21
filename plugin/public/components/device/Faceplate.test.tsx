@@ -410,3 +410,24 @@ describe('Faceplate', () => {
     });
   });
 });
+
+describe('Faceplate: the spare ports a route enters by', () => {
+  const ringed = (el: ParentNode) =>
+    Array.from(el.querySelectorAll('.vmFpRoute')).map((r) => r.parentElement!.getAttribute('data-port'));
+  // the route's ports come as ifNames, the panel's as full names
+  const entry = { switch: 'device:sw24', vlan: 20, ports: ['Fa1/0/5', 'Fa1/0/3'] };
+
+  it('rings exactly those ports while the route is shown, and says why', () => {
+    const el = render(switch24, { route: ['device:sw24'], entry });
+    expect(ringed(el)).toEqual(['FastEthernet1/0/3', 'FastEthernet1/0/5']);
+    hover(socket(el, 'FastEthernet1/0/5'));
+    expect(tipLines()).toContain('Entry point: spare port in VLAN 20 on this route');
+    expect(box()!.querySelector('.vmTip__route')).not.toBeNull();
+  });
+
+  it('rings none once the route is cleared, or on another device', () => {
+    expect(ringed(render(switch24, { route: ['device:sw24'], entry }))).toHaveLength(2);
+    expect(ringed(render(switch24))).toEqual([]);
+    expect(ringed(render(switch24, { route: ['device:other'], entry: { ...entry, switch: 'device:other' } }))).toEqual([]);
+  });
+});

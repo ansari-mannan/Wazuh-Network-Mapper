@@ -559,7 +559,7 @@ export function tipText(tip: TipContent): string {
 export function portTooltip(
   port: DevicePort,
   neighbours: Neighbour[],
-  flags: { inferred?: boolean; onRoute?: boolean; clients?: number } = {}
+  flags: { inferred?: boolean; onRoute?: boolean; clients?: number; entryVlan?: number } = {}
 ): TipContent {
   const lines = [STATE_TEXT[port.state]];
   if (flags.clients !== undefined) lines.push(`${flags.clients} Wi-Fi client${flags.clients === 1 ? '' : 's'}`);
@@ -568,6 +568,7 @@ export function portTooltip(
   if (speed) lines.push(`Speed: ${speed}`);
   if (neighbours.length) lines.push(`Neighbour: ${neighbours.map((n) => n.text).join(', ')}`);
   if (flags.inferred) lines.push('Known from the neighbour’s side of the link');
+  if (flags.entryVlan !== undefined) lines.push(`Entry point: spare port in VLAN ${flags.entryVlan} on this route`);
   return { title: port.name, lines, route: Boolean(flags.onRoute) };
 }
 

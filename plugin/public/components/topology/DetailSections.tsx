@@ -21,6 +21,7 @@ import { conflictText, cvssSourceText, epssText, exposureText, ovssLine } from '
 import { RISK_META, riskLevel, RiskLevel, TIER_META, TIERS } from '../../lib/risk';
 import { portsText } from '../../lib/portText';
 import { Faceplate } from '../device/Faceplate';
+import { RouteEntry } from './highlight';
 
 const EMPTY = '—';
 
@@ -325,11 +326,13 @@ export function DevicePorts({
   node,
   edges = [],
   route,
+  entry,
   onSelectNode,
 }: {
   node: DeviceNode;
   edges?: GraphEdge[];
   route?: string[];
+  entry?: RouteEntry;
   onSelectNode?: (nodeId: string) => void;
 }) {
   const [asList, setAsList] = useState(false);
@@ -349,7 +352,7 @@ export function DevicePorts({
         </EuiButtonEmpty>
       )}
       {hasPanel && !asList ? (
-        <Faceplate node={node} edges={edges} route={route} onSelectNode={onSelectNode} />
+        <Faceplate node={node} edges={edges} route={route} entry={entry} onSelectNode={onSelectNode} />
       ) : ports.length === 0 ? (
         <EuiText size="s" color="subdued">
           <p>No port status reported.</p>
