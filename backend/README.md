@@ -547,6 +547,20 @@ the repository's `data/`. A refreshed or imported feed counts as fetched now:
 fresh for a day, then the scan tries to download it again and falls back to
 this copy if it cannot.
 
+Inside the Wazuh dashboard (`scripts/install-wazuh.sh`) the scanner runs as the
+`wazuh-dashboard` user with the credentials from `/etc/vulnmapper/vulnmapper.env`,
+and the graph, every cache (`nvd-cache.json`, `cve-records.json`, `kev.json`,
+the EPSS file, `osv-cache.json`, `nmap-cache.json`) and the history are in
+`/var/lib/vulnmapper`. Refresh the feeds there as that user:
+
+```
+sudo -u wazuh-dashboard /opt/vulnmapper/venv/bin/python -m vulnmapper.scoring.feeds --refresh --cache-dir /var/lib/vulnmapper
+```
+
+Liveness needs no extra rights: it runs the system `ping` binary, which on
+Ubuntu may send ICMP unprivileged (its `cap_net_raw` capability, or the
+`net.ipv4.ping_group_range` sysctl).
+
 **CVE records.** CNA and ADP scores come from CVE JSON 5 records, one request
 per CVE to the CVE Services API (`https://cveawg.mitre.org/api/cve/<id>`),
 eight at a time within a 60-second budget per scan, worst scanner score first.
