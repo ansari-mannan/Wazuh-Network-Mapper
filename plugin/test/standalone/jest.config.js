@@ -8,6 +8,9 @@
 // release, and one stand-in; see osd/README.md).
 const path = require('path');
 
+// as ../jest.config.js: the page snapshots' clock times are in Pakistan time
+process.env.TZ = 'Asia/Karachi';
+
 const here = __dirname;
 const osd = (file) => path.join(here, 'osd', file);
 
