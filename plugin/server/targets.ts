@@ -5,6 +5,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { Logger } from '../../../src/core/server';
 import { FileTimes, Importance } from '../common';
+import { withNvdKey } from './nvdKey';
 
 export function targetsFilePath(graphPath: string): string {
   return path.join(path.dirname(path.resolve(graphPath)), 'targets.json');
@@ -135,7 +136,7 @@ export function recomputeAttackPaths({
   return new Promise((resolve, reject) => {
     const args = recomputeArgs(graphPath, livenessFile, rescore);
     logger.info(`${rescore ? 'rescore' : 'attack-paths recompute'}: ${pythonBin} ${args.join(' ')} (cwd ${backendDir})`);
-    const child = spawn(pythonBin, args, { cwd: backendDir });
+    const child = spawn(pythonBin, args, { cwd: backendDir, env: withNvdKey(graphPath) });
     let stderr = '';
     child.stderr.on('data', (d: Buffer) => {
       stderr += d.toString();

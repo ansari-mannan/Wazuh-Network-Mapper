@@ -2,6 +2,9 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import * as history from './history';
+import { saveNvdKey } from './nvdKey';
+
+const NVD_KEY = '01234567-89ab-cdef-0123-456789abcdef';
 import {
   appendTail,
   failureMessage,
@@ -208,7 +211,7 @@ describe('the community typed in the form', () => {
     const scanner = path.join(dir, 'scan.sh');
     writeFileSync(
       scanner,
-      '#!/bin/sh\necho "${VULNMAPPER_SNMP_COMMUNITY:-none}" >> "$(dirname "$0")/seen"\necho "{}" > "$4"\n' +
+      '#!/bin/sh\necho "${VULNMAPPER_SNMP_COMMUNITY:-none} ${NVD_API_KEY:-nokey} $*" >> "$(dirname "$0")/seen"\necho "{}" > "$4"\n' +
         'echo \'{"nodes": [], "edges": [], "metadata": {"warnings": [{"type": "crawl_empty", "reason": "no device answered"}]}}\'\n',
       { mode: 0o755 }
     );
@@ -228,8 +231,11 @@ describe('the community typed in the form', () => {
     expect(message).toMatch(/^No device answered the community you entered or the server's SNMP settings/);
     expect(message).not.toContain('typed-secret');
     expect(logger.info.mock.calls.join(' ')).not.toContain('typed-secret');
+    await saveNvdKey(graphPath, NVD_KEY); // the saved NVD key reaches the scanner's environment, not argv
     await run({ ...opts, trigger: 'scheduled' });
-    expect(readFileSync(path.join(dir, 'seen'), 'utf-8')).toBe('typed-secret\nnone\n');
+    const seen = readFileSync(path.join(dir, 'seen'), 'utf-8').split('\n');
+    expect(seen.map((l) => l.split(' ').slice(0, 2).join(' '))).toEqual(['typed-secret nokey', `none ${NVD_KEY}`, '']);
+    expect(seen[1].split(' ').slice(2).join(' ')).not.toContain(NVD_KEY);
   });
 
   it('reads the fallback devices from the graph', () => {

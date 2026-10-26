@@ -8,6 +8,7 @@ import { ActiveChecks, ScanState, ScanTrigger } from '../common';
 import { attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 import { archiveScan } from './history';
 import { writeFileAtomic } from './fsutil';
+import { withNvdKey } from './nvdKey';
 
 // One module-level state object: the server process runs one scan at a time.
 let scan: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
@@ -261,7 +262,7 @@ export function startScan({
   // The community goes to the scanner through the environment, never argv (argv
   // is visible to every user via ps). It is never logged. With no community the
   // scanner falls back to the SNMP_* variables already in the environment.
-  const env = { ...process.env };
+  const env = withNvdKey(graphPath);
   if (community) env.VULNMAPPER_SNMP_COMMUNITY = community; // passed unsplit
 
   const vulnsPath = vulnerabilitiesFilePath(graphPath);
@@ -280,8 +281,8 @@ export function startScan({
     if (status === 'failed') logger.warn(`scan failed: ${message}`);
   };
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
-  // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
-  // environment like the other credentials. graphPath is replaced only after the
+  // i.e. beside graphPath; NVD_API_KEY (the key saved in Scan settings, else the
+  // server's) reaches the scanner through the environment like the other credentials. graphPath is replaced only after the
   // scanner exits, so it still holds the previous graph.
   const args = scanArgs(
     { vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath), previous: graphPath },

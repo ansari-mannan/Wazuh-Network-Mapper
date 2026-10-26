@@ -18,12 +18,12 @@ export function withFileLock<T>(file: string, fn: () => Promise<T>): Promise<T> 
 
 let counter = 0;
 
-/** Write data to file through a unique temp file in the same folder, then rename. */
-export async function writeFileAtomic(file: string, data: string | Buffer): Promise<void> {
+/** Write data to file through a unique temp file in the same folder, then rename; mode for a new temp file. */
+export async function writeFileAtomic(file: string, data: string | Buffer, mode?: number): Promise<void> {
   counter += 1;
   const tmp = `${file}.tmp-${process.pid}-${counter}`;
   try {
-    await fs.writeFile(tmp, data);
+    await fs.writeFile(tmp, data, { mode });
     await fs.rename(tmp, file);
   } catch (e) {
     await fs.unlink(tmp).catch(() => undefined);

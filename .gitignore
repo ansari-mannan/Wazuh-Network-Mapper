@@ -33,6 +33,8 @@ Thumbs.db
 data/targets.json
 # NVD answers kept between scans (devicecves)
 data/nvd-cache.json
+# the NVD API key saved from Scan settings (plugin, mode 600)
+data/nvd-key
 # OSV.dev answers for the Wazuh server's own packages (endpoints.osv)
 data/osv-cache.json
 # what nmap found per host, reused for 24 h (servicescan)

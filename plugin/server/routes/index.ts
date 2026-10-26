@@ -13,12 +13,14 @@ import { historyDir, historyParams, readChanges, readIndex } from '../history';
 import { attackPathsFilePath, fileTimes, recomputeAttackPaths, targetsFilePath, updateTarget, vulnerabilitiesFilePath } from '../targets';
 import { applyRecommendationStatus, readRecommendations, recommendationsFilePath } from '../recommendations';
 import { withFileLock, writeFileAtomic } from '../fsutil';
+import { NVD_KEY_SHAPE, NVD_TEST_URL, nvdKeyStatus, removeNvdKey, saveNvdKey, testNvdKey, withNvdKey } from '../nvdKey';
 
 export function defineRoutes(
   router: IRouter,
   config: VulnmapperConfig,
   logger: Logger,
-  scheduler: Scheduler | null = null
+  scheduler: Scheduler | null = null,
+  nvdTestUrl = NVD_TEST_URL // tests: a fake NVD
 ) {
   const notConfigured = (key: string) => ({
     statusCode: 500,
@@ -399,6 +401,46 @@ export function defineRoutes(
         // no pass yet
       }
       return response.ok({ body });
+    }
+  );
+
+  // The NVD API key saved beside the graph (nvd-key, mode 600). No route ever
+  // returns the key: GET says only where the key in use comes from.
+  const nvdKeyBody = schema.object({ key: schema.string({ maxLength: 64 }) });
+  const badKey = 'An NVD API key is a UUID: 36 characters, e.g. 01234567-89ab-cdef-0123-456789abcdef.';
+
+  router.get({ path: '/api/vulnmapper/settings/nvd-key', validate: false }, async (context, request, response) => {
+    if (!config.graphPath) return response.customError(notConfigured('graphPath'));
+    return response.ok({ body: nvdKeyStatus(config.graphPath) });
+  });
+
+  router.post(
+    { path: '/api/vulnmapper/settings/nvd-key', validate: { body: nvdKeyBody } },
+    async (context, request, response) => {
+      if (!config.graphPath) return response.customError(notConfigured('graphPath'));
+      if (!(await saveNvdKey(config.graphPath, request.body.key))) return response.badRequest({ body: { message: badKey } });
+      logger.info('NVD API key saved');
+      return response.ok({ body: nvdKeyStatus(config.graphPath) });
+    }
+  );
+
+  router.delete({ path: '/api/vulnmapper/settings/nvd-key', validate: false }, async (context, request, response) => {
+    if (!config.graphPath) return response.customError(notConfigured('graphPath'));
+    await removeNvdKey(config.graphPath);
+    logger.info('NVD API key removed');
+    return response.ok({ body: nvdKeyStatus(config.graphPath) });
+  });
+
+  // One real NVD request with the given key, else the one a scan would use.
+  router.post(
+    { path: '/api/vulnmapper/settings/nvd-key/test', validate: { body: schema.nullable(schema.object({ key: schema.maybe(schema.string({ maxLength: 64 })) })) } },
+    async (context, request, response) => {
+      if (!config.graphPath) return response.customError(notConfigured('graphPath'));
+      const given = request.body?.key?.trim();
+      if (given && !NVD_KEY_SHAPE.test(given)) return response.badRequest({ body: { message: badKey } });
+      const key = given || withNvdKey(config.graphPath).NVD_API_KEY?.trim();
+      if (!key) return response.badRequest({ body: { message: 'No NVD API key to test.' } });
+      return response.ok({ body: { result: await testNvdKey(key, nvdTestUrl) } });
     }
   );
 }

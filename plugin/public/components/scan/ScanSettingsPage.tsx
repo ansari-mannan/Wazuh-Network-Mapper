@@ -22,6 +22,7 @@ import { GraphSource } from './GraphSource';
 import { ScanStatus } from './ScanStatus';
 import { ScheduledScans } from './ScheduledScans';
 import { ScanHistory } from './ScanHistory';
+import { NvdKey } from './NvdKey';
 
 // The optional active checks, in the order shown; what each sends, in one sentence.
 const ACTIVE_CHECKS: Array<{ key: keyof ActiveChecks; label: string; help: string; testSubj: string }> = [
@@ -199,6 +200,8 @@ export function ScanSettingsPage() {
         <ScheduledScans />
         <EuiSpacer size="m" />
         <ScanHistory />
+        <EuiSpacer size="m" />
+        <NvdKey />
       </EuiFlexItem>
       <EuiFlexItem grow={2}>
         <GraphSource />
