@@ -1,0 +1,18 @@
+// Scan settings: two columns. Where EuiFlexGroup stacks them (below 768 px),
+// the columns dissolve into one list so the NVD key panel (top of the right
+// column) comes directly after Run a scan.
+@media (max-width: 767px) {
+  .vmScanSettings.euiFlexGroup {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: $euiSize;
+    margin: 0;
+
+    > .euiFlexItem { display: contents; }
+    > .euiFlexItem > .euiSpacer { display: none; }
+    > .euiFlexItem > * { order: 3; }
+    > .euiFlexItem > .vmScanSettings__run { order: 1; }
+    > .euiFlexItem > .vmScanSettings__nvd { order: 2; }
+  }
+}

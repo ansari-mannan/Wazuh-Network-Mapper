@@ -10979,9 +10979,9 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 
 exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -11241,8 +11241,9 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -11298,7 +11299,8 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -11592,9 +11594,9 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -11817,8 +11819,9 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -11874,7 +11877,8 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -12168,9 +12172,9 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -12383,8 +12387,9 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -12440,7 +12445,8 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -12734,9 +12740,9 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -12944,8 +12950,9 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -13001,7 +13008,8 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -13295,9 +13303,9 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -13524,8 +13532,9 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
 </div>
-<div class=\\"euiSpacer euiSpacer--m\\">
 </div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
 <div class=\\"euiSpacer euiSpacer--s\\">
@@ -13581,7 +13590,8 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 </div>
 </div>
 </div>
-<div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">

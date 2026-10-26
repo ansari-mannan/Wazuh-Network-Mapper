@@ -85,9 +85,10 @@ export function ScanSettingsPage() {
   };
 
   return (
-    <EuiFlexGroup gutterSize="m" alignItems="flexStart">
+    // scan.scss: when the columns stack, the NVD key panel follows Run a scan
+    <EuiFlexGroup gutterSize="m" alignItems="flexStart" className="vmScanSettings">
       <EuiFlexItem grow={3}>
-        <EuiPanel paddingSize="m">
+        <EuiPanel paddingSize="m" className="vmScanSettings__run">
           <EuiTitle size="xs">
             <h2>Run a scan</h2>
           </EuiTitle>
@@ -200,10 +201,12 @@ export function ScanSettingsPage() {
         <ScheduledScans />
         <EuiSpacer size="m" />
         <ScanHistory />
-        <EuiSpacer size="m" />
-        <NvdKey />
       </EuiFlexItem>
       <EuiFlexItem grow={2}>
+        <div className="vmScanSettings__nvd">
+          <NvdKey />
+        </div>
+        <EuiSpacer size="m" />
         <GraphSource />
       </EuiFlexItem>
     </EuiFlexGroup>
