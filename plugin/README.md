@@ -67,9 +67,27 @@ Set these in `opensearch_dashboards.yml` (or the dev config below):
 `backendDir` and `graphPath` have no default; until they are set, the API
 returns an error saying which key is missing.
 
-An NVD API key is optional: set `NVD_API_KEY` in the dashboard server's
-environment (like `WAZUH_PASS`) and scans pass it on to the scanner through the
+An NVD API key is optional. Save one in the "NVD API key" box on Scan settings
+(stored in `nvd-key` beside the graph, mode 600; the browser only ever sees
+"Key set (saved here on <date>)", "Key from the server's environment" or "No
+key (slower lookups)"), or set `NVD_API_KEY` in the dashboard server's
+environment (like `WAZUH_PASS`). A saved key beats the environment's. Either
+reaches the scanner and the rescore as `NVD_API_KEY` in the child's
 environment, never on the command line.
+
+## SNMP credentials
+
+A community typed in the scan form is tried first on each device; a device
+that does not answer it is tried with the server's SNMP settings
+(`SNMP_COMMUNITIES`, `SNMP_COMMUNITY`, `SNMP_V3_*`). The liveness passes reuse
+the last typed community the same way; automatic and scheduled scans use the
+server's settings only. The graph's `metadata.snmp` lists the device node ids
+under `entered` and `server` (never a community). When a typed community fell
+back on any device, the graph carries `{"type": "snmp_fallback", "devices":
+[names]}`, shown in the scan-complete toast, on the Overview and on Scan
+settings ("SNMP: entered community on 3 devices, server settings on 2"). When
+no device answers either, the previous map is kept with "No device answered
+the community you entered or the server's SNMP settings".
 
 ## Device CVEs
 
@@ -290,6 +308,10 @@ dashboard's own jest, from the dashboard folder:
 | `POST /api/vulnmapper/targets` | mark, re-rate or unmark one protected asset; body `{ "id": string, "importance": "high" \| "moderate" \| "low" \| null }` (null unmarks); updates `targets.json` beside the graph and runs `<pythonBin> -m vulnmapper.scoring.rescore --graph <graphPath>`, which rescores `graph.json` and `vulnerabilities.json` (importance is an OVSS input) from the cached threat data, never downloading, and recomputes `attack_paths.json` (with `--liveness <liveness.json>` when liveness is on); 409 while a scan or another update runs, with nothing saved |
 | `GET /api/vulnmapper/schedule` | the scan schedule: `{ frequency, dailyHour, lastRun, nextRun, timeZone }` (`frequency` is `off`, `15m`, `30m`, `1h`, `3h`, `6h`, `12h` or `daily`; times are ISO, shown in the server's `timeZone`) |
 | `POST /api/vulnmapper/schedule` | set the schedule; body `{ "frequency": ..., "dailyHour": 0-23 }`; saved atomically to `schedule.json` beside the graph and the timer re-armed. Scheduled scans run with every active check off and the SNMP credential from the server environment |
+| `GET /api/vulnmapper/settings/nvd-key` | `{ source: "saved" \| "env" \| "none", savedAt }`: where the NVD key in use comes from; never the key |
+| `POST /api/vulnmapper/settings/nvd-key` | save a key; body `{ "key": string }` (a 36-character UUID, else 400); written atomically to `nvd-key` beside the graph, mode 600; returns the status |
+| `DELETE /api/vulnmapper/settings/nvd-key` | remove the saved key (the environment's, if any, is used again); returns the status |
+| `POST /api/vulnmapper/settings/nvd-key/test` | one NVD request with the given key (body `{ "key"?: string }`), else the key a scan would use, in the `apiKey` header: `{ result: "valid" \| "invalid" \| "unreachable" }` |
 | `GET /api/vulnmapper/history` | the scan history index (`history/index.json` beside the graph), newest first, at most 10: `{ id, time, trigger, files, counts, stages }` per scan; `[]` before the first |
 | `GET /api/vulnmapper/history/{id}/changes` | `{ current, previous }`: that archived scan's `graph`, `vulns` and `attackPaths` and the previous scan's (`previous` null for the oldest); 404 for an id not in the index, 400 for one not in the id format |
 | `GET /api/vulnmapper/recommendations` | the shared recommendations tracker (`recommendations.json`) read from beside the graph; a missing file is returned as `{ "statuses": {} }` rather than an error |
@@ -327,7 +349,7 @@ vulnmapper.liveness.minRescanIntervalSeconds: 120  # default 120, at least 60
 Every interval the server runs `<pythonBin> -m vulnmapper.liveness` (skipped
 while a scan runs) and saves the result to `liveness.json`; it never writes the
 graph. The SNMP community of the last scan is passed through the environment
-only. Endpoints with a Wazuh agent are checked by agent check-in when
+only, and tried before the server's SNMP settings. Endpoints with a Wazuh agent are checked by agent check-in when
 `WAZUH_PASS` is in the dashboard server's environment (the same variable a
 scan uses): a check-in older than `agentMaxAgeSeconds` is a miss, and a
 disconnected agent is inactive at once. When the host's switch port goes down,

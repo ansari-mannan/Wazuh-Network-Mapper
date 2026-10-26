@@ -87,6 +87,19 @@ none is set. Times are the server's local time. The history is kept in
 serial numbers, so keep it out of version control (`.gitignore` covers
 `data/history/` and `data/schedule.json`).
 
+A community typed in the scan form is tried first on every device, then the
+server's SNMP settings. A device that answered only the server's is named in a
+warning (the scan toast, the Overview and Scan settings), so a mistyped
+community does not pass unnoticed; the graph records only which of the two
+each device answered (`metadata.snmp`), never the strings. Automatic and
+scheduled scans use the server's settings only.
+
+The NVD API key can be set on Scan settings instead of in the environment
+file: it is saved in `nvd-key` beside the graph (mode 600, gitignored as
+`data/nvd-key`), never shown again, and beats `NVD_API_KEY` from the
+environment while it is there. The installer keeps it; `uninstall --purge`
+removes it with the data folder.
+
 ## Install into Wazuh
 
 For the lab's Wazuh dashboard 4.14.8 (OpenSearch Dashboards 2.19.6, HTTPS on
