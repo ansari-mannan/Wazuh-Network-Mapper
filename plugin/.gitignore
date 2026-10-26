@@ -1,3 +1,4 @@
 /node_modules
+/test/standalone/node_modules
 /build
 /target

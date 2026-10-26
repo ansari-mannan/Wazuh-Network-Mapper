@@ -272,9 +272,23 @@ vulnmapper.pythonBin: /home/ans/dev/venv/bin/python
 Type-check from the dashboard folder with
 `node_modules/.bin/tsc -p plugins/vulnmapper/tsconfig.json --noEmit`.
 
-Unit tests for the plugin's pure helpers (`*.test.ts`) run with the
-dashboard's own jest, from the dashboard folder:
+The plugin's tests (`*.test.ts`, `*.test.tsx`) run with the dashboard's own
+jest, from the dashboard folder:
 `node_modules/.bin/jest --config plugins/vulnmapper/test/jest.config.js`.
+
+They also run from this repository alone, with no dashboard checkout, from
+`plugin/test/standalone/`:
+
+```
+npm install --ignore-scripts
+npm test
+```
+
+That folder pins the packages to the versions OpenSearch Dashboards 2.19.3
+locks, so the page snapshots match, and holds the dashboard's few unpublished
+packages the code imports (`osd/README.md`). The `scan.test.ts` tests that
+start a `#!/bin/sh` fake scanner, and the path tests that expect `/data/...`,
+pass only on Linux or macOS, where the dashboard server runs.
 
 ## API
 
