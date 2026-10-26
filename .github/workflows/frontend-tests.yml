@@ -1,0 +1,29 @@
+# The plugin's jest tests, from the repository alone (plugin/test/standalone:
+# the packages at the versions OpenSearch Dashboards 2.19.3 locks). They need
+# no secret and no dashboard checkout.
+name: Frontend tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  plugin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugin/test/standalone
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.19.0"   # the dashboard's
+          cache: npm
+          cache-dependency-path: plugin/test/standalone/package-lock.json
+      - name: Install
+        run: npm ci --ignore-scripts --no-fund --no-audit
+      - name: jest
+        run: npm test -- --ci
