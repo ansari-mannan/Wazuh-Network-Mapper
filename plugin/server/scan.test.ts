@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import * as history from './history';
@@ -13,6 +13,7 @@ import {
   runExclusive,
   scanArgs,
   shouldReplaceGraph,
+  snmpFallbackOf,
   startScan,
   STDERR_TAIL,
   stopBackgroundScan,
@@ -198,6 +199,42 @@ describe('scan history', () => {
     expect(await ended).toEqual([true, 'Scan completed; graph updated.']);
     expect(statusWhenArchived).toEqual(['running']);
     spy.mockRestore();
+  });
+});
+
+describe('the community typed in the form', () => {
+  // "-m vulnmapper --vulns-out V ...": note the community it was given, print a graph with no device
+  const fake = (dir: string) => {
+    const scanner = path.join(dir, 'scan.sh');
+    writeFileSync(
+      scanner,
+      '#!/bin/sh\necho "${VULNMAPPER_SNMP_COMMUNITY:-none}" >> "$(dirname "$0")/seen"\necho "{}" > "$4"\n' +
+        'echo \'{"nodes": [], "edges": [], "metadata": {"warnings": [{"type": "crawl_empty", "reason": "no device answered"}]}}\'\n',
+      { mode: 0o755 }
+    );
+    return scanner;
+  };
+  const run = (opts: Parameters<typeof startScan>[0]) =>
+    new Promise<[boolean, string]>((resolve) => startScan({ ...opts, onDone: (ok, m) => resolve([ok, m]) }));
+
+  it('names both credentials when nothing answered, and a scheduled scan gets the server settings only', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-typed-'));
+    const graphPath = path.join(dir, 'graph.json');
+    writeFileSync(graphPath, JSON.stringify({ nodes: [{ kind: 'device' }], edges: [] }));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const opts = { pythonBin: fake(dir), backendDir: dir, graphPath, logger };
+    const [ok, message] = await run({ ...opts, community: 'typed-secret' });
+    expect(ok).toBe(false);
+    expect(message).toMatch(/^No device answered the community you entered or the server's SNMP settings/);
+    expect(message).not.toContain('typed-secret');
+    expect(logger.info.mock.calls.join(' ')).not.toContain('typed-secret');
+    await run({ ...opts, trigger: 'scheduled' });
+    expect(readFileSync(path.join(dir, 'seen'), 'utf-8')).toBe('typed-secret\nnone\n');
+  });
+
+  it('reads the fallback devices from the graph', () => {
+    expect(snmpFallbackOf({ metadata: { warnings: [{ type: 'snmp_fallback', devices: ['sw1'] }] } })).toEqual(['sw1']);
+    expect(snmpFallbackOf({ metadata: { warnings: [] } })).toBeUndefined();
   });
 });
 

@@ -18,6 +18,8 @@ function sentence(w: GraphWarning): string | null {
         `The network crawl found no devices: ${CRAWL_EMPTY[String(w.reason)] ?? String(w.reason ?? 'unknown reason')}. ` +
         'The map shows hosts only.'
       );
+    case 'snmp_fallback':
+      return snmpFallbackText(w.devices);
     case 'stage_failed':
       return `The scan step "${String(w.stage)}" failed (${String(w.error)}), and the scan finished without it.`;
     case 'targets_invalid':
@@ -25,6 +27,21 @@ function sentence(w: GraphWarning): string | null {
     default:
       return null;
   }
+}
+
+/** The snmp_fallback warning's sentence, for the Overview and the scan toast. */
+export function snmpFallbackText(devices: unknown): string {
+  const names = Array.isArray(devices) ? devices.map(String).join(', ') : 'some devices';
+  return `The community you entered didn't work on ${names}; the server's SNMP settings were used for them.`;
+}
+
+/** Scan settings' "SNMP" line, e.g. "entered community on 3 devices, server settings on 2"; null before C1 graphs. */
+export function snmpSources(snmp: { entered?: string[]; server?: string[] } | undefined): string | null {
+  if (!snmp) return null;
+  const entered = snmp.entered?.length ?? 0;
+  const server = snmp.server?.length ?? 0;
+  if (!entered) return `server settings on ${server} ${server === 1 ? 'device' : 'devices'}`;
+  return `entered community on ${entered} ${entered === 1 ? 'device' : 'devices'}, server settings on ${server}`;
 }
 
 export function graphWarnings(warnings: GraphWarning[] | undefined): string[] {

@@ -1,4 +1,4 @@
-import { CONNECTION_UNVERIFIED, connectionSecurity, graphWarnings, tlsNote } from './graphWarnings';
+import { CONNECTION_UNVERIFIED, connectionSecurity, graphWarnings, snmpSources, tlsNote } from './graphWarnings';
 
 describe('graphWarnings', () => {
   it('leaves TLS out of the warnings: it is a note', () => {
@@ -11,6 +11,18 @@ describe('graphWarnings', () => {
     expect(one?.text).toMatch(/^TLS certificates were not verified for the Wazuh Manager API/);
     expect(one?.key).not.toBe(two?.key);
     expect(tlsNote([{ type: 'crawl_empty' }])).toBeNull();
+  });
+
+  it('names the devices where a typed community fell back to the server settings', () => {
+    expect(graphWarnings([{ type: 'snmp_fallback', devices: ['CYFOR-HP-Switch', 'L2-Switch'] }])).toEqual([
+      "The community you entered didn't work on CYFOR-HP-Switch, L2-Switch; the server's SNMP settings were used for them.",
+    ]);
+  });
+
+  it('gives the Scan settings SNMP line', () => {
+    expect(snmpSources({ entered: ['a', 'b', 'c'], server: ['d', 'e'] })).toBe('entered community on 3 devices, server settings on 2');
+    expect(snmpSources({ entered: [], server: ['d'] })).toBe('server settings on 1 device');
+    expect(snmpSources(undefined)).toBeNull();
   });
 
   it('gives the Scan settings connection line', () => {

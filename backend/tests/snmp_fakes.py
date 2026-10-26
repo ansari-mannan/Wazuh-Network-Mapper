@@ -7,6 +7,8 @@ crawler or the liveness pass asked for.
 
 import os
 
+from vulnmapper.network.model import Credential
+
 FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 
 
@@ -34,17 +36,19 @@ class FakeSnmpClient:
     ``v2c`` lists IPs whose credential is SNMPv2c (default: all answering IPs).
     ``default_name`` maps an IP to the factory name its working community is
     ("public" / "private"); ``probe_answers`` maps an IP to the factory names it
-    answers when probed.
+    answers when probed; ``sources`` the credential source ("entered" /
+    "server", default "server") each IP answers.
     """
 
     def __init__(self, devices, vlan_rows=None, v2c=None, default_name=None,
-                 probe_answers=None):
+                 probe_answers=None, sources=None):
         self.devices = {ip: sorted(rows, key=lambda r: _key(r[0])) for ip, rows in devices.items()}
         self.vlan_rows = {k: sorted(v, key=lambda r: _key(r[0]))
                           for k, v in (vlan_rows or {}).items()}
         self.v2c = set(devices) if v2c is None else set(v2c)
         self.default_name = default_name or {}
         self.probe_answers = probe_answers or {}
+        self.sources = sources or {}
         self.calls = []
 
     def credential_summary(self, ip):
@@ -59,7 +63,8 @@ class FakeSnmpClient:
 
     async def resolve_credential(self, ip):
         self.calls.append(("resolve", ip))
-        return object() if self.devices.get(ip) else None
+        return Credential(version="v2c", source=self.sources.get(ip, "server")) \
+            if self.devices.get(ip) else None
 
     def _get(self, rows, oids):
         table = dict(rows)

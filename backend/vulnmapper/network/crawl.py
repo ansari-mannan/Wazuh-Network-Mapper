@@ -44,6 +44,7 @@ from .parse import (
     parse_cdp_cache,
 )
 from .roles import neighbor_is_infrastructure
+from ..schema import device_node_id
 from .seeds import discover_seeds
 from .snmp import SnmpClient
 
@@ -90,6 +91,8 @@ class Crawler:
         # devices whose GETBULK failed (read a row at a time), for the stage note
         self.poll_seconds: dict[str, float] = {}
         self.bulk_fallback: list[str] = []
+        # chassis id -> "entered" / "server": which credential each polled device answered
+        self.snmp_sources: dict[str, str] = {}
 
     # ---- queueing (callers hold the lock) ---------------------------------
 
@@ -212,7 +215,8 @@ class Crawler:
     async def _identify(self, ip: str, expected_cid: Optional[str], via: str):
         """``(chassis_id, identity, own MACs)`` for a device polled here for the
         first time; None when it does not answer or was polled already."""
-        if await self._client.resolve_credential(ip) is None:
+        cred = await self._client.resolve_credential(ip)
+        if cred is None:
             await self._record_unpollable_ip(ip, expected_cid)
             return None
         info = await fetch(self._client, ip)
@@ -238,6 +242,7 @@ class Crawler:
             # advertises the address that faces it)
             log.info("%s is %s, already polled", ip, chassis_id)
             return None
+        self.snmp_sources[chassis_id] = cred.source
         return chassis_id, info, own_macs
 
     async def _check_access_point(self, ip: str, chassis_id: str, info: dict) -> bool:
@@ -530,6 +535,20 @@ def _empty(reason: str, document: Optional[dict] = None) -> dict:
     return doc
 
 
+def _snmp_sources(sources: dict, devices: list, credentials: list) -> dict:
+    """``snmp``: the polled devices' node ids by the credential they answered,
+    and, when a community was entered, an ``snmp_fallback`` warning naming the
+    devices that answered only the server's."""
+    out: dict = {"snmp": {kind: sorted(device_node_id(cid) for cid, src in sources.items()
+                                       if src == kind)
+                          for kind in ("entered", "server")}}
+    names = {d.chassis_id: d.hostname or d.ip or d.chassis_id for d in devices}
+    fell_back = sorted(names.get(cid, cid) for cid, src in sources.items() if src == "server")
+    if fell_back and any(c.source == "entered" for c in credentials):
+        out["warnings"] = [{"type": "snmp_fallback", "devices": fell_back}]
+    return out
+
+
 async def run(cfg: Config) -> dict:
     """Run the crawl ``cfg`` describes and return its document."""
     if not cfg.credentials:
@@ -567,6 +586,7 @@ async def run(cfg: Config) -> dict:
     document = build_document(devices, links, pollable_only=cfg.pollable_only)
     document["poll_seconds"] = crawler.poll_seconds
     document["bulk_fallback"] = sorted(crawler.bulk_fallback)
+    document.update(_snmp_sources(crawler.snmp_sources, devices, cfg.credentials))
     if not any(d.pollable for d in devices):
         _log_runner.error("no device answered SNMP from seeds %s", ", ".join(seeds))
         return _empty("no device answered", document)

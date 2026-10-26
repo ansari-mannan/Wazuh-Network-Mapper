@@ -87,19 +87,21 @@ def load_credentials(cli_communities: Optional[list[str]]) -> list[Credential]:
     """The credentials to try, in order: ``--community`` values, then
     ``$VULNMAPPER_SNMP_COMMUNITY`` (unsplit), ``$SNMP_COMMUNITIES`` and
     ``$SNMP_COMMUNITY`` (one string, trimmed), then one v3 credential if the
-    ``$SNMP_V3_*`` variables are set. Duplicates are dropped."""
+    ``$SNMP_V3_*`` variables are set. Duplicates are dropped, keeping the
+    first. The first two are "entered", the rest the "server"'s."""
     seen: set[tuple] = set()
     creds: list[Credential] = []
 
-    def add_community(community: str) -> None:
+    def add_community(community: str, source: str = "server") -> None:
         key = ("v2c", community)
         if community and key not in seen:
             seen.add(key)
-            creds.append(Credential(version="v2c", index=len(creds) + 1, community=community))
+            creds.append(Credential(version="v2c", index=len(creds) + 1, community=community,
+                                    source=source))
 
     for community in cli_communities or []:
-        add_community(community)
-    add_community(os.environ.get(ENV_FORM_COMMUNITY) or "")
+        add_community(community, "entered")
+    add_community(os.environ.get(ENV_FORM_COMMUNITY) or "", "entered")
     for community in _split(os.environ.get(ENV_COMMUNITIES)):
         add_community(community)
     add_community((os.environ.get(ENV_COMMUNITY) or "").strip())

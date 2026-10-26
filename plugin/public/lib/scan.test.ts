@@ -35,6 +35,16 @@ describe('scanEndToast', () => {
     });
   });
 
+  it('warns when a typed community fell back on some device', () => {
+    expect(scanEndToast({ ...ended('idle', 'manual'), snmpFallback: ['CYFOR-HP-Switch', 'L2-Switch'] }, line)).toEqual({
+      kind: 'warning',
+      title: 'Scan completed; graph updated',
+      text:
+        "The community you entered didn't work on CYFOR-HP-Switch, L2-Switch; the server's SNMP settings were used for them. " +
+        'NVD: key in use',
+    });
+  });
+
   it('asks for the NVD line only when it shows a success toast', () => {
     const nvd = jest.fn(line);
     scanEndToast(ended('idle', 'scheduled'), nvd);

@@ -171,6 +171,13 @@ export function nvdKeyOf(doc: unknown): boolean | null {
   return typeof key === 'boolean' ? key : null;
 }
 
+/** The devices of a graph's snmp_fallback warning (a typed community fell back), or undefined. */
+export function snmpFallbackOf(doc: unknown): string[] | undefined {
+  const warnings = (doc as { metadata?: { warnings?: unknown } })?.metadata?.warnings;
+  const hit = Array.isArray(warnings) ? warnings.find((w) => w?.type === 'snmp_fallback') : undefined;
+  return Array.isArray(hit?.devices) ? hit.devices.map(String) : undefined;
+}
+
 /** The reason a graph's crawl polled no device (its crawl_empty warning), or null. */
 export function emptyCrawl(doc: unknown): string | null {
   const warnings = (doc as { metadata?: { warnings?: unknown } })?.metadata?.warnings;
@@ -373,9 +380,18 @@ export function startScan({
     }
     const current = await fs.readFile(graphPath, 'utf-8').then(JSON.parse).catch(() => null);
     if (!shouldReplaceGraph(doc, current, replaceEmpty)) {
+      const reason = emptyCrawl(doc);
+      if (community && reason === 'no device answered') {
+        return end(
+          'failed',
+          "No device answered the community you entered or the server's SNMP settings, so the previous map was " +
+            'kept. Check the community and vulnmapper.seeds, or turn on "Replace the map even if no device answered".',
+          true
+        );
+      }
       return end(
         'failed',
-        `The network crawl polled no device (${emptyCrawl(doc)}), so the previous map was kept. Check the SNMP ` +
+        `The network crawl polled no device (${reason}), so the previous map was kept. Check the SNMP ` +
           'credential and vulnmapper.seeds, or turn on "Replace the map even if no device answered".',
         true
       );
@@ -406,7 +422,7 @@ export function startScan({
     // still running: fetching CVE records (set before end(), which reports it)
     saved = true;
     if (!exited) refiner = child;
-    scan = { ...scan, nvdKey: nvdKeyOf(doc), refining: !exited };
+    scan = { ...scan, nvdKey: nvdKeyOf(doc), snmpFallback: snmpFallbackOf(doc), refining: !exited };
     await end('idle', 'Scan completed; graph updated.', false);
     logger.info('scan completed; graph updated');
   }

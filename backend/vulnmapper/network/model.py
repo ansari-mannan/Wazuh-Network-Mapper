@@ -28,6 +28,9 @@ class Credential:
 
     version: str  # "v2c" or "v3"
     index: int = 0
+    # "entered" (typed in the scan form or given with --community) or
+    # "server" (the environment); the graph names only this, never the value
+    source: str = "server"
     # v2c
     community: Optional[str] = None
     # v3
