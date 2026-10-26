@@ -6,7 +6,7 @@ import { ActiveChecks, ScanState } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
 import { nvdToastLine } from './nvdText';
-import { snmpFallbackText } from './graphWarnings';
+import { graphWarnings } from './graphWarnings';
 
 const POLL_MS = 1500;
 const IDLE_POLL_MS = 15000; // only while the tab is visible
@@ -44,8 +44,9 @@ const ScanContext = createContext<ScanContextValue | null>(null);
 /**
  * The toast for a scan that just ended, or null. A failure always gets one; a
  * success only when someone pressed Run scan: an automatic or scheduled one is
- * quiet, and the page refreshes by itself. A typed community that fell back to
- * the server's SNMP settings on some device makes it a warning.
+ * quiet, and the page refreshes by itself. A warning in the finished graph
+ * (an SNMP fallback, an empty crawl, a failed stage, invalid targets) makes it
+ * a warning toast that says it.
  */
 export function scanEndToast(
   scan: ScanState,
@@ -56,9 +57,9 @@ export function scanEndToast(
   }
   if (scan.trigger === 'automatic' || scan.trigger === 'scheduled') return null;
   const nvd = nvdLine(scan.nvdKey);
-  if (scan.snmpFallback?.length) {
-    const text = [snmpFallbackText(scan.snmpFallback), nvd].filter(Boolean).join(' ');
-    return { kind: 'warning', title: 'Scan completed; graph updated', text };
+  const warnings = graphWarnings(scan.warnings, scan.snmp);
+  if (warnings.length) {
+    return { kind: 'warning', title: 'Scan completed with a warning', text: [...warnings, nvd].filter(Boolean).join(' ') };
   }
   return { kind: 'success', title: 'Scan completed; graph updated', text: nvd };
 }

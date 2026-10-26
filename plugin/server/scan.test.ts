@@ -16,7 +16,7 @@ import {
   runExclusive,
   scanArgs,
   shouldReplaceGraph,
-  snmpFallbackOf,
+  resultOf,
   startScan,
   STDERR_TAIL,
   stopBackgroundScan,
@@ -238,9 +238,15 @@ describe('the community typed in the form', () => {
     expect(seen[1].split(' ').slice(2).join(' ')).not.toContain(NVD_KEY);
   });
 
-  it('reads the fallback devices from the graph', () => {
-    expect(snmpFallbackOf({ metadata: { warnings: [{ type: 'snmp_fallback', devices: ['sw1'] }] } })).toEqual(['sw1']);
-    expect(snmpFallbackOf({ metadata: { warnings: [] } })).toBeUndefined();
+  it('keeps the warnings and SNMP sources of the finished graph in the scan state', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-warn-'));
+    const scanner = path.join(dir, 'ok.sh');
+    const metadata = { warnings: [{ type: 'snmp_fallback', devices: ['sw1'] }], snmp: { entered: [], server: ['device:a'] } };
+    writeFileSync(scanner, `#!/bin/sh\necho "{}" > "$4"\necho '${JSON.stringify({ nodes: [], edges: [], metadata })}'\n`, { mode: 0o755 });
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    await run({ pythonBin: scanner, backendDir: dir, graphPath: path.join(dir, 'graph.json'), logger });
+    expect(getScan()).toMatchObject({ status: 'idle', ...metadata });
+    expect(resultOf(null)).toEqual({ warnings: [], snmp: undefined });
   });
 });
 

@@ -84,8 +84,11 @@ the last typed community the same way; automatic and scheduled scans use the
 server's settings only. The graph's `metadata.snmp` lists the device node ids
 under `entered` and `server` (never a community). When a typed community fell
 back on any device, the graph carries `{"type": "snmp_fallback", "devices":
-[names]}`, shown in the scan-complete toast, on the Overview and on Scan
-settings ("SNMP: entered community on 3 devices, server settings on 2"). When
+[names]}`, shown in the scan-complete toast and the result box under Run
+scan (both "Scan completed with a warning", as for an empty crawl, a failed
+stage or invalid targets), on the Overview and on Scan settings ("SNMP:
+Community you entered: 3 of 5 devices · server settings: 2"; "Server settings
+on 5 devices" when none was typed). When
 no device answers either, the previous map is kept with "No device answered
 the community you entered or the server's SNMP settings".
 

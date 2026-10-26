@@ -44,7 +44,7 @@ export function ScanStages({ stages, title = 'Last scan, stage by stage' }: { st
 
 export function GraphSource() {
   const { graph, fileTime } = useGraph();
-  const snmp = snmpSources(graph?.metadata?.snmp);
+  const snmp = snmpSources(graph?.metadata?.snmp, graph?.metadata?.warnings);
   return (
     <EuiPanel paddingSize="m">
       <EuiTitle size="xs">

@@ -115,11 +115,11 @@ export function Overview() {
           </>
         )}
         <TlsNote warnings={graph?.metadata.warnings} />
-        {graphWarnings(graph?.metadata.warnings).length > 0 && (
+        {graphWarnings(graph?.metadata.warnings, graph?.metadata.snmp).length > 0 && (
           <>
             <EuiCallOut color="warning" iconType="alert" title="About this scan" data-test-subj="vmScanWarnings">
               <ul>
-                {graphWarnings(graph?.metadata.warnings).map((text) => (
+                {graphWarnings(graph?.metadata.warnings, graph?.metadata.snmp).map((text) => (
                   <li key={text}>{text}</li>
                 ))}
               </ul>

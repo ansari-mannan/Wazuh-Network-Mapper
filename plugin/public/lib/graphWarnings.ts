@@ -2,7 +2,9 @@
 // one plain sentence. Other warning types are shown where they belong, or not
 // at all. TLS verification being off is the lab default, so it is a quiet,
 // dismissible note (tlsNote) rather than a warning.
-import { GraphWarning } from '../../common';
+import { GraphWarning, Metadata } from '../../common';
+
+type Snmp = Metadata['snmp'];
 
 const CRAWL_EMPTY: Record<string, string> = {
   'no credentials': 'no SNMP credential was set',
@@ -11,7 +13,7 @@ const CRAWL_EMPTY: Record<string, string> = {
   'no device answered': 'no device answered SNMP',
 };
 
-function sentence(w: GraphWarning): string | null {
+function sentence(w: GraphWarning, snmp?: Snmp): string | null {
   switch (w.type) {
     case 'crawl_empty':
       return (
@@ -19,7 +21,7 @@ function sentence(w: GraphWarning): string | null {
         'The map shows hosts only.'
       );
     case 'snmp_fallback':
-      return snmpFallbackText(w.devices);
+      return snmpFallbackText(w.devices, snmp);
     case 'stage_failed':
       return `The scan step "${String(w.stage)}" failed (${String(w.error)}), and the scan finished without it.`;
     case 'targets_invalid':
@@ -29,23 +31,46 @@ function sentence(w: GraphWarning): string | null {
   }
 }
 
-/** The snmp_fallback warning's sentence, for the Overview and the scan toast. */
-export function snmpFallbackText(devices: unknown): string {
-  const names = Array.isArray(devices) ? devices.map(String).join(', ') : 'some devices';
-  return `The community you entered didn't work on ${names}; the server's SNMP settings were used for them.`;
+// at most this many names when every device fell back
+const MAX_NAMES = 5;
+
+/**
+ * The snmp_fallback warning's sentence, for the Overview, the scan result box
+ * and the toast. snmp (metadata.snmp) tells whether the typed community worked
+ * on no device at all.
+ */
+export function snmpFallbackText(devices: unknown, snmp?: Snmp): string {
+  const names = Array.isArray(devices) ? devices.map(String) : [];
+  if (snmp && !snmp.entered?.length && names.length) {
+    const shown = names.slice(0, MAX_NAMES).join(', ') + (names.length > MAX_NAMES ? ', …' : '');
+    return (
+      "The community you entered didn't work on any device. The server's SNMP settings were used for " +
+      `${names.length === 1 ? 'it' : `all ${names.length}`} (${shown}).`
+    );
+  }
+  return `The community you entered didn't work on ${names.join(', ') || 'some devices'}; the server's SNMP settings were used for them.`;
 }
 
-/** Scan settings' "SNMP" line, e.g. "entered community on 3 devices, server settings on 2"; null before C1 graphs. */
-export function snmpSources(snmp: { entered?: string[]; server?: string[] } | undefined): string | null {
+const devicesWord = (n: number) => `${n} ${n === 1 ? 'device' : 'devices'}`;
+
+/**
+ * Scan settings' "SNMP" line: "Community you entered: 0 of 5 devices · server
+ * settings: 5" when a community was typed (some device answered it, or the
+ * graph has an snmp_fallback warning), else "Server settings on 5 devices";
+ * null for a graph without metadata.snmp.
+ */
+export function snmpSources(snmp: Snmp, warnings?: GraphWarning[]): string | null {
   if (!snmp) return null;
   const entered = snmp.entered?.length ?? 0;
   const server = snmp.server?.length ?? 0;
-  if (!entered) return `server settings on ${server} ${server === 1 ? 'device' : 'devices'}`;
-  return `entered community on ${entered} ${entered === 1 ? 'device' : 'devices'}, server settings on ${server}`;
+  const typed = entered > 0 || (warnings || []).some((w) => w.type === 'snmp_fallback');
+  if (!typed) return `Server settings on ${devicesWord(server)}`;
+  return `Community you entered: ${entered} of ${devicesWord(entered + server)} · server settings: ${server}`;
 }
 
-export function graphWarnings(warnings: GraphWarning[] | undefined): string[] {
-  return (warnings || []).map(sentence).filter((s): s is string => s !== null);
+/** The warnings as sentences; snmp (metadata.snmp) words an SNMP fallback. */
+export function graphWarnings(warnings: GraphWarning[] | undefined, snmp?: Snmp): string[] {
+  return (warnings || []).map((w) => sentence(w, snmp)).filter((s): s is string => s !== null);
 }
 
 export const CONNECTION_UNVERIFIED =

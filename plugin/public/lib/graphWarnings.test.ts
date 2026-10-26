@@ -19,9 +19,26 @@ describe('graphWarnings', () => {
     ]);
   });
 
-  it('gives the Scan settings SNMP line', () => {
-    expect(snmpSources({ entered: ['a', 'b', 'c'], server: ['d', 'e'] })).toBe('entered community on 3 devices, server settings on 2');
-    expect(snmpSources({ entered: [], server: ['d'] })).toBe('server settings on 1 device');
+  it('says when the typed community worked on no device', () => {
+    const names = ['CYFOR-AP1', 'CYFOR-Firewall.cyfor.lab', 'CYFOR-HP-Switch', 'L2-Switch', 'L3-Switch'];
+    const snmp = { entered: [], server: names.map((n) => `device:${n}`) };
+    expect(graphWarnings([{ type: 'snmp_fallback', devices: names }], snmp)).toEqual([
+      "The community you entered didn't work on any device. The server's SNMP settings were used for all 5 " +
+        '(CYFOR-AP1, CYFOR-Firewall.cyfor.lab, CYFOR-HP-Switch, L2-Switch, L3-Switch).',
+    ]);
+    expect(graphWarnings([{ type: 'snmp_fallback', devices: [...names, 'sw6'] }], snmp)[0]).toMatch(/all 6 \(CYFOR-AP1, .*L3-Switch, …\)\.$/);
+  });
+
+  it('gives the Scan settings SNMP line with and without a typed community', () => {
+    const fallback = [{ type: 'snmp_fallback', devices: ['a'] }];
+    expect(snmpSources({ entered: [], server: ['a', 'b', 'c', 'd', 'e'] }, fallback)).toBe(
+      'Community you entered: 0 of 5 devices · server settings: 5'
+    );
+    expect(snmpSources({ entered: ['a', 'b', 'c'], server: ['d', 'e'] }, fallback)).toBe(
+      'Community you entered: 3 of 5 devices · server settings: 2'
+    );
+    expect(snmpSources({ entered: ['a', 'b'], server: [] }, [])).toBe('Community you entered: 2 of 2 devices · server settings: 0');
+    expect(snmpSources({ entered: [], server: ['a', 'b', 'c', 'd', 'e'] }, [])).toBe('Server settings on 5 devices');
     expect(snmpSources(undefined)).toBeNull();
   });
 

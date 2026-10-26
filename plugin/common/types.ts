@@ -404,9 +404,10 @@ export type ScanState = {
   // After a completed scan: whether its NVD lookups used an API key (null: no
   // device-CVE stage). Only the scanner's boolean; the key itself is never read.
   nvdKey?: boolean | null;
-  // After a completed scan: the devices that did not answer the community typed
-  // in the form and answered the server's SNMP settings (its snmp_fallback warning).
-  snmpFallback?: string[];
+  // After a completed scan: its graph's metadata.warnings and metadata.snmp
+  // (device ids by the credential they answered; labels only).
+  warnings?: GraphWarning[];
+  snmp?: Metadata['snmp'];
   // After a completed scan: CVE records are still arriving, and the scores are
   // rescored with them once they have (the files then change on disk).
   refining?: boolean;

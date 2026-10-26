@@ -172,11 +172,13 @@ export function nvdKeyOf(doc: unknown): boolean | null {
   return typeof key === 'boolean' ? key : null;
 }
 
-/** The devices of a graph's snmp_fallback warning (a typed community fell back), or undefined. */
-export function snmpFallbackOf(doc: unknown): string[] | undefined {
-  const warnings = (doc as { metadata?: { warnings?: unknown } })?.metadata?.warnings;
-  const hit = Array.isArray(warnings) ? warnings.find((w) => w?.type === 'snmp_fallback') : undefined;
-  return Array.isArray(hit?.devices) ? hit.devices.map(String) : undefined;
+/** A finished graph's metadata.warnings and metadata.snmp, for the scan result box and toast. */
+export function resultOf(doc: unknown): Pick<ScanState, 'warnings' | 'snmp'> {
+  const metadata = (doc as { metadata?: { warnings?: unknown; snmp?: unknown } })?.metadata;
+  return {
+    warnings: Array.isArray(metadata?.warnings) ? (metadata!.warnings as ScanState['warnings']) : [],
+    snmp: (metadata?.snmp as ScanState['snmp']) ?? undefined,
+  };
 }
 
 /** The reason a graph's crawl polled no device (its crawl_empty warning), or null. */
@@ -423,7 +425,7 @@ export function startScan({
     // still running: fetching CVE records (set before end(), which reports it)
     saved = true;
     if (!exited) refiner = child;
-    scan = { ...scan, nvdKey: nvdKeyOf(doc), snmpFallback: snmpFallbackOf(doc), refining: !exited };
+    scan = { ...scan, nvdKey: nvdKeyOf(doc), ...resultOf(doc), refining: !exited };
     await end('idle', 'Scan completed; graph updated.', false);
     logger.info('scan completed; graph updated');
   }
