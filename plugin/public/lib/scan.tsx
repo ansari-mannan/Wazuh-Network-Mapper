@@ -6,6 +6,7 @@ import { ActiveChecks, ScanState } from '../../common';
 import { useServices } from './services';
 import { useGraph } from './graph';
 import { nvdToastLine } from './nvdText';
+import { graphWarnings } from './graphWarnings';
 
 const POLL_MS = 1500;
 const IDLE_POLL_MS = 15000; // only while the tab is visible
@@ -43,17 +44,24 @@ const ScanContext = createContext<ScanContextValue | null>(null);
 /**
  * The toast for a scan that just ended, or null. A failure always gets one; a
  * success only when someone pressed Run scan: an automatic or scheduled one is
- * quiet, and the page refreshes by itself.
+ * quiet, and the page refreshes by itself. A warning in the finished graph
+ * (an SNMP fallback, an empty crawl, a failed stage, invalid targets) makes it
+ * a warning toast that says it.
  */
 export function scanEndToast(
   scan: ScanState,
   nvdLine: (apiKey: ScanState['nvdKey']) => string | undefined = nvdToastLine
-): { kind: 'success' | 'danger'; title: string; text?: string } | null {
+): { kind: 'success' | 'warning' | 'danger'; title: string; text?: string } | null {
   if (scan.status === 'failed') {
     return { kind: 'danger', title: 'Scan failed; the previous graph is still shown', text: scan.message || undefined };
   }
   if (scan.trigger === 'automatic' || scan.trigger === 'scheduled') return null;
-  return { kind: 'success', title: 'Scan completed; graph updated', text: nvdLine(scan.nvdKey) };
+  const nvd = nvdLine(scan.nvdKey);
+  const warnings = graphWarnings(scan.warnings, scan.snmp);
+  if (warnings.length) {
+    return { kind: 'warning', title: 'Scan completed with a warning', text: [...warnings, nvd].filter(Boolean).join(' ') };
+  }
+  return { kind: 'success', title: 'Scan completed; graph updated', text: nvd };
 }
 
 export function ScanProvider({ children }: { children: ReactNode }) {
@@ -77,6 +85,7 @@ export function ScanProvider({ children }: { children: ReactNode }) {
     if (!before || before.status !== 'running' || !scan || scan.status === 'running') return;
     const toast = scanEndToast(scan);
     if (toast?.kind === 'danger') notifications.toasts.addDanger({ title: toast.title, text: toast.text });
+    if (toast?.kind === 'warning') notifications.toasts.addWarning({ title: toast.title, text: toast.text });
     if (toast?.kind === 'success') notifications.toasts.addSuccess({ title: toast.title, text: toast.text });
     if (scan.status !== 'failed') reload();
   }, [scan, notifications, reload]);

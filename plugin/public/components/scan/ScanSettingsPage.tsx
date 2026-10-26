@@ -22,6 +22,7 @@ import { GraphSource } from './GraphSource';
 import { ScanStatus } from './ScanStatus';
 import { ScheduledScans } from './ScheduledScans';
 import { ScanHistory } from './ScanHistory';
+import { NvdKey } from './NvdKey';
 
 // The optional active checks, in the order shown; what each sends, in one sentence.
 const ACTIVE_CHECKS: Array<{ key: keyof ActiveChecks; label: string; help: string; testSubj: string }> = [
@@ -84,9 +85,10 @@ export function ScanSettingsPage() {
   };
 
   return (
-    <EuiFlexGroup gutterSize="m" alignItems="flexStart">
+    // scan.scss: when the columns stack, the NVD key panel follows Run a scan
+    <EuiFlexGroup gutterSize="m" alignItems="flexStart" className="vmScanSettings">
       <EuiFlexItem grow={3}>
-        <EuiPanel paddingSize="m">
+        <EuiPanel paddingSize="m" className="vmScanSettings__run">
           <EuiTitle size="xs">
             <h2>Run a scan</h2>
           </EuiTitle>
@@ -201,6 +203,10 @@ export function ScanSettingsPage() {
         <ScanHistory />
       </EuiFlexItem>
       <EuiFlexItem grow={2}>
+        <div className="vmScanSettings__nvd">
+          <NvdKey />
+        </div>
+        <EuiSpacer size="m" />
         <GraphSource />
       </EuiFlexItem>
     </EuiFlexGroup>

@@ -114,9 +114,10 @@ export function startLiveness(config: VulnmapperConfig, logger: Logger) {
     enabled: liveness.autoRescan,
     minIntervalSeconds: liveness.minRescanIntervalSeconds,
     getScan,
-    // The manual-scan path, with the last community given to a scan (if any).
+    // The manual-scan path with the server's SNMP settings only, like a
+    // scheduled scan (the liveness passes still try a typed community first).
     startScan: () =>
-      startScan({ pythonBin, backendDir, graphPath, community: getLastCommunity(),
+      startScan({ pythonBin, backendDir, graphPath,
         deviceCves: config.deviceCves,
         seeds: config.seeds,
         timeoutSeconds: config.scanTimeoutSeconds,

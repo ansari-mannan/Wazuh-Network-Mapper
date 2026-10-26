@@ -4,7 +4,7 @@ import React from 'react';
 import { EuiBasicTable, EuiDescriptionList, EuiPanel, EuiSpacer, EuiText, EuiTextColor, EuiTitle } from '@elastic/eui';
 import { ScanStageOutcome } from '../../../common';
 import { useGraph } from '../../lib/graph';
-import { connectionSecurity } from '../../lib/graphWarnings';
+import { connectionSecurity, snmpSources } from '../../lib/graphWarnings';
 import { nvdKeyStatus } from '../../lib/nvdText';
 import { formatTime } from './ScanStatus';
 
@@ -44,6 +44,7 @@ export function ScanStages({ stages, title = 'Last scan, stage by stage' }: { st
 
 export function GraphSource() {
   const { graph, fileTime } = useGraph();
+  const snmp = snmpSources(graph?.metadata?.snmp, graph?.metadata?.warnings);
   return (
     <EuiPanel paddingSize="m">
       <EuiTitle size="xs">
@@ -62,6 +63,7 @@ export function GraphSource() {
             { title: 'Links', description: String(graph.edges.length) },
             { title: 'Connection security', description: connectionSecurity(graph.metadata?.warnings) },
             { title: 'NVD API key', description: nvdKeyStatus(graph.metadata?.device_cves?.api_key) },
+            ...(snmp ? [{ title: 'SNMP', description: snmp }] : []),
           ]}
         />
       ) : (

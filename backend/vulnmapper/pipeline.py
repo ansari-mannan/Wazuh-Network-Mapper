@@ -485,6 +485,8 @@ class Pipeline:
         scan.document = assemble(scan.endpoints, scan.network_doc,
                                  _previous_graph(args.previous_graph))
         scan.document["metadata"]["warnings"].extend(scan.network_doc.get("warnings") or [])
+        if "snmp" in scan.network_doc:      # live crawls: which credential each device answered
+            scan.document["metadata"]["snmp"] = scan.network_doc["snmp"]
         scan.timing["assemble_s"] = time.monotonic() - t0
 
         _run_stage(scan, "SNMP question to unmanaged hosts", hosts.run_snmp_question,

@@ -71,6 +71,13 @@ class TestPipelineCarriesIt(unittest.TestCase):
         stage = next(s for s in metadata["stages"] if s["name"] == "Network crawl")
         self.assertIn("(no seed)", stage["note"])
 
+    def test_snmp_sources_and_fallback_warning_reach_the_graph(self):
+        fallback = {"type": "snmp_fallback", "devices": ["sw2"]}
+        metadata = self.run_network({"nodes": [], "edges": [], "warnings": [fallback],
+                                     "snmp": {"entered": ["device:a"], "server": ["device:b"]}})
+        self.assertEqual(metadata["snmp"], {"entered": ["device:a"], "server": ["device:b"]})
+        self.assertIn(fallback, metadata["warnings"])
+
     def test_every_poll_in_the_note_with_its_fallback(self):
         polls = {f"sw{i}": float(i) for i in range(1, 8)}
         metadata = self.run_network({"nodes": [], "edges": [], "poll_seconds": polls,

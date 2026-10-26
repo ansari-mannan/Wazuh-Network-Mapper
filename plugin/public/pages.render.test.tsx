@@ -116,6 +116,21 @@ describe('page rendering on the golden lab outputs', () => {
       expect(html(<ScanSettingsPage />)).toMatchSnapshot();
     });
   }
+
+  it('scan settings: the NVD key panel opens the right column, above the current graph', () => {
+    data.scan = { scan: null, start: async () => {} };
+    const root = document.createElement('div');
+    act(() => {
+      ReactDOM.render(<ScanSettingsPage />, root);
+    });
+    const right = root.querySelector('.vmScanSettings')!.children[1];
+    expect(right.firstElementChild!.querySelector('[data-test-subj="vmNvdKey"]')).not.toBeNull();
+    expect(right.lastElementChild!.querySelector('h2')!.textContent).toBe('Current graph');
+    expect(root.querySelector('.vmScanSettings')!.children[0].querySelector('[data-test-subj="vmNvdKey"]')).toBeNull();
+    act(() => {
+      ReactDOM.unmountComponentAtNode(root);
+    });
+  });
 });
 
 describe('device drawer width', () => {

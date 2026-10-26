@@ -10979,9 +10979,9 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 
 exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -11243,6 +11243,64 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmNvdKeyStatus\\">
+<p>—</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">NVD API key</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"password\\" id=\\"X\\" class=\\"euiFieldPassword\\" autocomplete=\\"off\\" data-test-subj=\\"vmNvdKeyField\\" aria-describedby=\\"X\\" spellcheck=\\"false\\" value=\\"\\">
+<div class=\\"euiFormControlLayoutIcons\\">
+<span class=\\"euiFormControlLayoutCustomIcon\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiFormControlLayoutCustomIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M4 5v-.8C4 1.88 5.79 0 8 0s4 1.88 4 4.2V5h1.143c.473 0 .857.448.857 1v9c0 .552-.384 1-.857 1H2.857C2.384 16 2 15.552 2 15V6c0-.552.384-1 .857-1H4ZM3 15h10V6H3v9Zm5.998-3.706L9.5 12.5h-3l.502-1.206A1.644 1.644 0 0 1 6.5 10.1c0-.883.672-1.6 1.5-1.6s1.5.717 1.5 1.6c0 .475-.194.901-.502 1.194ZM11 4.36C11 2.504 9.657 1 8 1S5 2.504 5 4.36V5h6v-.64Z\\">
+</path>
+</svg>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Get a free key at nvd.nist.gov/developers/request-an-api-key. Saved on the server, used for NVD lookups.</div>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton--fill euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeySave\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Save</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyRemove\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Remove</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyTest\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Test key</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -11536,9 +11594,9 @@ exports[`page rendering on the golden lab outputs scan settings: done 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -11763,6 +11821,64 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmNvdKeyStatus\\">
+<p>—</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">NVD API key</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"password\\" id=\\"X\\" class=\\"euiFieldPassword\\" autocomplete=\\"off\\" data-test-subj=\\"vmNvdKeyField\\" aria-describedby=\\"X\\" spellcheck=\\"false\\" value=\\"\\">
+<div class=\\"euiFormControlLayoutIcons\\">
+<span class=\\"euiFormControlLayoutCustomIcon\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiFormControlLayoutCustomIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M4 5v-.8C4 1.88 5.79 0 8 0s4 1.88 4 4.2V5h1.143c.473 0 .857.448.857 1v9c0 .552-.384 1-.857 1H2.857C2.384 16 2 15.552 2 15V6c0-.552.384-1 .857-1H4ZM3 15h10V6H3v9Zm5.998-3.706L9.5 12.5h-3l.502-1.206A1.644 1.644 0 0 1 6.5 10.1c0-.883.672-1.6 1.5-1.6s1.5.717 1.5 1.6c0 .475-.194.901-.502 1.194ZM11 4.36C11 2.504 9.657 1 8 1S5 2.504 5 4.36V5h6v-.64Z\\">
+</path>
+</svg>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Get a free key at nvd.nist.gov/developers/request-an-api-key. Saved on the server, used for NVD lookups.</div>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton--fill euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeySave\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Save</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyRemove\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Remove</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyTest\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Test key</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -12056,9 +12172,9 @@ exports[`page rendering on the golden lab outputs scan settings: failed 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -12273,6 +12389,64 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmNvdKeyStatus\\">
+<p>—</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">NVD API key</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"password\\" id=\\"X\\" class=\\"euiFieldPassword\\" autocomplete=\\"off\\" data-test-subj=\\"vmNvdKeyField\\" aria-describedby=\\"X\\" spellcheck=\\"false\\" value=\\"\\">
+<div class=\\"euiFormControlLayoutIcons\\">
+<span class=\\"euiFormControlLayoutCustomIcon\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiFormControlLayoutCustomIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M4 5v-.8C4 1.88 5.79 0 8 0s4 1.88 4 4.2V5h1.143c.473 0 .857.448.857 1v9c0 .552-.384 1-.857 1H2.857C2.384 16 2 15.552 2 15V6c0-.552.384-1 .857-1H4ZM3 15h10V6H3v9Zm5.998-3.706L9.5 12.5h-3l.502-1.206A1.644 1.644 0 0 1 6.5 10.1c0-.883.672-1.6 1.5-1.6s1.5.717 1.5 1.6c0 .475-.194.901-.502 1.194ZM11 4.36C11 2.504 9.657 1 8 1S5 2.504 5 4.36V5h6v-.64Z\\">
+</path>
+</svg>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Get a free key at nvd.nist.gov/developers/request-an-api-key. Saved on the server, used for NVD lookups.</div>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton--fill euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeySave\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Save</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyRemove\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Remove</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyTest\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Test key</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -12566,9 +12740,9 @@ exports[`page rendering on the golden lab outputs scan settings: idle 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -12778,6 +12952,64 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmNvdKeyStatus\\">
+<p>—</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">NVD API key</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"password\\" id=\\"X\\" class=\\"euiFieldPassword\\" autocomplete=\\"off\\" data-test-subj=\\"vmNvdKeyField\\" aria-describedby=\\"X\\" spellcheck=\\"false\\" value=\\"\\">
+<div class=\\"euiFormControlLayoutIcons\\">
+<span class=\\"euiFormControlLayoutCustomIcon\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiIcon-isLoading euiFormControlLayoutCustomIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M5.277 10.088c.02.014.04.03.057.047.582.55 1.134.812 1.666.812.586 0 1.84-.293 3.713-.88L9 6.212V2H7v4.212l-1.723 3.876Zm-.438.987L3.539 14h8.922l-1.32-2.969C9.096 11.677 7.733 12 7 12c-.74 0-1.463-.315-2.161-.925ZM6 2H5V1h6v1h-1v4l3.375 7.594A1 1 0 0 1 12.461 15H3.54a1 1 0 0 1-.914-1.406L6 6V2Z\\">
+</path>
+</svg>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Get a free key at nvd.nist.gov/developers/request-an-api-key. Saved on the server, used for NVD lookups.</div>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton--fill euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeySave\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Save</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyRemove\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Remove</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyTest\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Test key</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
@@ -13071,9 +13303,9 @@ exports[`page rendering on the golden lab outputs scan settings: none 1`] = `
 
 exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 "<div>
-<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive\\">
+<div class=\\"euiFlexGroup euiFlexGroup--gutterMedium euiFlexGroup--alignItemsFlexStart euiFlexGroup--directionRow euiFlexGroup--responsive vmScanSettings\\">
 <div class=\\"euiFlexItem euiFlexItem--flexGrow3\\">
-<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow vmScanSettings__run\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Run a scan</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">
 </div>
@@ -13302,6 +13534,64 @@ exports[`page rendering on the golden lab outputs scan settings: running 1`] = `
 </div>
 </div>
 <div class=\\"euiFlexItem euiFlexItem--flexGrow2\\">
+<div class=\\"vmScanSettings__nvd\\">
+<div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\" data-test-subj=\\"vmNvdKey\\">
+<h2 class=\\"euiTitle euiTitle--xsmall\\">NVD API key</h2>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiText euiText--small\\" data-test-subj=\\"vmNvdKeyStatus\\">
+<p>—</p>
+</div>
+<div class=\\"euiSpacer euiSpacer--s\\">
+</div>
+<div class=\\"euiFormRow\\" id=\\"X\\">
+<div class=\\"euiFormRow__labelWrapper\\">
+<label class=\\"euiFormLabel euiFormRow__label\\" for=\\"X\\">NVD API key</label>
+</div>
+<div class=\\"euiFormRow__fieldWrapper\\">
+<div class=\\"euiFormControlLayout\\">
+<div class=\\"euiFormControlLayout__childrenWrapper\\">
+<input type=\\"password\\" id=\\"X\\" class=\\"euiFieldPassword\\" autocomplete=\\"off\\" data-test-subj=\\"vmNvdKeyField\\" aria-describedby=\\"X\\" spellcheck=\\"false\\" value=\\"\\">
+<div class=\\"euiFormControlLayoutIcons\\">
+<span class=\\"euiFormControlLayoutCustomIcon\\">
+<svg xmlns=\\"http://www.w3.org/2000/svg\\" width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 16 16\\" class=\\"euiIcon euiIcon--medium euiFormControlLayoutCustomIcon__icon\\" focusable=\\"false\\" role=\\"img\\" aria-hidden=\\"true\\">
+<path d=\\"M4 5v-.8C4 1.88 5.79 0 8 0s4 1.88 4 4.2V5h1.143c.473 0 .857.448.857 1v9c0 .552-.384 1-.857 1H2.857C2.384 16 2 15.552 2 15V6c0-.552.384-1 .857-1H4ZM3 15h10V6H3v9Zm5.998-3.706L9.5 12.5h-3l.502-1.206A1.644 1.644 0 0 1 6.5 10.1c0-.883.672-1.6 1.5-1.6s1.5.717 1.5 1.6c0 .475-.194.901-.502 1.194ZM11 4.36C11 2.504 9.657 1 8 1S5 2.504 5 4.36V5h6v-.64Z\\">
+</path>
+</svg>
+</span>
+</div>
+</div>
+</div>
+<div class=\\"euiFormHelpText euiFormRow__text\\" id=\\"X\\">Get a free key at nvd.nist.gov/developers/request-an-api-key. Saved on the server, used for NVD lookups.</div>
+</div>
+</div>
+<div class=\\"euiFlexGroup euiFlexGroup--gutterSmall euiFlexGroup--directionRow euiFlexGroup--wrap\\">
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton--fill euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeySave\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Save</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyRemove\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Remove</span>
+</span>
+</button>
+</div>
+<div class=\\"euiFlexItem euiFlexItem--flexGrowZero\\">
+<button class=\\"euiButton euiButton--primary euiButton--small euiButton-isDisabled\\" disabled=\\"\\" type=\\"button\\" data-test-subj=\\"vmNvdKeyTest\\">
+<span class=\\"euiButtonContent euiButton__content\\">
+<span class=\\"euiButton__text\\">Test key</span>
+</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class=\\"euiSpacer euiSpacer--m\\">
+</div>
 <div class=\\"euiPanel euiPanel--paddingMedium euiPanel--borderRadiusMedium euiPanel--plain euiPanel--hasShadow\\">
 <h2 class=\\"euiTitle euiTitle--xsmall\\">Current graph</h2>
 <div class=\\"euiSpacer euiSpacer--m\\">

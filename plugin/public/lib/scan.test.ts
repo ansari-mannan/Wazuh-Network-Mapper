@@ -35,6 +35,29 @@ describe('scanEndToast', () => {
     });
   });
 
+  it('warns when a typed community fell back on some or all devices, not when it worked everywhere', () => {
+    const fallback = { type: 'snmp_fallback', devices: ['CYFOR-HP-Switch', 'L2-Switch'] };
+    const some = { ...ended('idle', 'manual'), warnings: [fallback], snmp: { entered: ['device:a'], server: ['device:b', 'device:c'] } };
+    expect(scanEndToast(some, line)).toEqual({
+      kind: 'warning',
+      title: 'Scan completed with a warning',
+      text:
+        "The community you entered didn't work on CYFOR-HP-Switch, L2-Switch; the server's SNMP settings were used for them. " +
+        'NVD: key in use',
+    });
+    const all = { ...some, snmp: { entered: [], server: ['device:b', 'device:c'] } };
+    expect(scanEndToast(all, line)?.text).toMatch(/^The community you entered didn't work on any device\. .* all 2 \(CYFOR-HP-Switch, L2-Switch\)\./);
+    const none = { ...some, warnings: [], snmp: { entered: ['device:a'], server: [] } };
+    expect(scanEndToast(none, line)?.kind).toBe('success');
+  });
+
+  it('warns for the other graph warnings too', () => {
+    const failed = { ...ended('idle', 'manual'), warnings: [{ type: 'stage_failed', stage: 'nmap service scan', error: 'OSError' }] };
+    expect(scanEndToast(failed, line)?.kind).toBe('warning');
+    const tls = { ...ended('idle', 'manual'), warnings: [{ type: 'tls_unverified', services: ['Wazuh'] }] };
+    expect(scanEndToast(tls, line)?.kind).toBe('success'); // a note, not a warning
+  });
+
   it('asks for the NVD line only when it shows a success toast', () => {
     const nvd = jest.fn(line);
     scanEndToast(ended('idle', 'scheduled'), nvd);

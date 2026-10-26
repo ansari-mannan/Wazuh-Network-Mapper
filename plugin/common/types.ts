@@ -339,6 +339,9 @@ export type Metadata = {
   // the optional SNMP question to unmanaged hosts, when it ran
   snmp_question?: { asked: number; answered: number; forwarding: number; cap: number; cap_reached: boolean };
   name_lookup?: { asked: number; named: number; budget_reached: boolean };
+  // a live crawl: the device node ids that answered the community typed in the
+  // scan form, and those that answered the server's SNMP settings (labels only)
+  snmp?: { entered: string[]; server: string[] };
   // the device-CVE stage, when it ran; api_key says only whether a key was used
   device_cves?: { api_key?: boolean; [key: string]: unknown };
   counts?: {
@@ -401,6 +404,10 @@ export type ScanState = {
   // After a completed scan: whether its NVD lookups used an API key (null: no
   // device-CVE stage). Only the scanner's boolean; the key itself is never read.
   nvdKey?: boolean | null;
+  // After a completed scan: its graph's metadata.warnings and metadata.snmp
+  // (device ids by the credential they answered; labels only).
+  warnings?: GraphWarning[];
+  snmp?: Metadata['snmp'];
   // After a completed scan: CVE records are still arriving, and the scores are
   // rescored with them once they have (the files then change on disk).
   refining?: boolean;

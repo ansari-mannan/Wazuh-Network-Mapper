@@ -8,6 +8,7 @@ import { ActiveChecks, ScanState, ScanTrigger } from '../common';
 import { attackPathsFilePath, recomputeAttackPaths, targetsFilePath, vulnerabilitiesFilePath } from './targets';
 import { archiveScan } from './history';
 import { writeFileAtomic } from './fsutil';
+import { withNvdKey } from './nvdKey';
 
 // One module-level state object: the server process runs one scan at a time.
 let scan: ScanState = { status: 'idle', message: null, startedAt: null, finishedAt: null };
@@ -171,6 +172,15 @@ export function nvdKeyOf(doc: unknown): boolean | null {
   return typeof key === 'boolean' ? key : null;
 }
 
+/** A finished graph's metadata.warnings and metadata.snmp, for the scan result box and toast. */
+export function resultOf(doc: unknown): Pick<ScanState, 'warnings' | 'snmp'> {
+  const metadata = (doc as { metadata?: { warnings?: unknown; snmp?: unknown } })?.metadata;
+  return {
+    warnings: Array.isArray(metadata?.warnings) ? (metadata!.warnings as ScanState['warnings']) : [],
+    snmp: (metadata?.snmp as ScanState['snmp']) ?? undefined,
+  };
+}
+
 /** The reason a graph's crawl polled no device (its crawl_empty warning), or null. */
 export function emptyCrawl(doc: unknown): string | null {
   const warnings = (doc as { metadata?: { warnings?: unknown } })?.metadata?.warnings;
@@ -254,7 +264,7 @@ export function startScan({
   // The community goes to the scanner through the environment, never argv (argv
   // is visible to every user via ps). It is never logged. With no community the
   // scanner falls back to the SNMP_* variables already in the environment.
-  const env = { ...process.env };
+  const env = withNvdKey(graphPath);
   if (community) env.VULNMAPPER_SNMP_COMMUNITY = community; // passed unsplit
 
   const vulnsPath = vulnerabilitiesFilePath(graphPath);
@@ -273,8 +283,8 @@ export function startScan({
     if (status === 'failed') logger.warn(`scan failed: ${message}`);
   };
   // The NVD answer cache (nvd-cache.json) sits beside the vulnerabilities file,
-  // i.e. beside graphPath; NVD_API_KEY, if set, reaches the scanner through the
-  // environment like the other credentials. graphPath is replaced only after the
+  // i.e. beside graphPath; NVD_API_KEY (the key saved in Scan settings, else the
+  // server's) reaches the scanner through the environment like the other credentials. graphPath is replaced only after the
   // scanner exits, so it still holds the previous graph.
   const args = scanArgs(
     { vulns: vulnsTmp, paths: pathsTmp, targets: targetsFilePath(graphPath), previous: graphPath },
@@ -373,9 +383,18 @@ export function startScan({
     }
     const current = await fs.readFile(graphPath, 'utf-8').then(JSON.parse).catch(() => null);
     if (!shouldReplaceGraph(doc, current, replaceEmpty)) {
+      const reason = emptyCrawl(doc);
+      if (community && reason === 'no device answered') {
+        return end(
+          'failed',
+          "No device answered the community you entered or the server's SNMP settings, so the previous map was " +
+            'kept. Check the community and vulnmapper.seeds, or turn on "Replace the map even if no device answered".',
+          true
+        );
+      }
       return end(
         'failed',
-        `The network crawl polled no device (${emptyCrawl(doc)}), so the previous map was kept. Check the SNMP ` +
+        `The network crawl polled no device (${reason}), so the previous map was kept. Check the SNMP ` +
           'credential and vulnmapper.seeds, or turn on "Replace the map even if no device answered".',
         true
       );
@@ -406,7 +425,7 @@ export function startScan({
     // still running: fetching CVE records (set before end(), which reports it)
     saved = true;
     if (!exited) refiner = child;
-    scan = { ...scan, nvdKey: nvdKeyOf(doc), refining: !exited };
+    scan = { ...scan, nvdKey: nvdKeyOf(doc), ...resultOf(doc), refining: !exited };
     await end('idle', 'Scan completed; graph updated.', false);
     logger.info('scan completed; graph updated');
   }

@@ -1,7 +1,10 @@
-import { existsSync, mkdtempSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import * as history from './history';
+import { saveNvdKey } from './nvdKey';
+
+const NVD_KEY = '01234567-89ab-cdef-0123-456789abcdef';
 import {
   appendTail,
   failureMessage,
@@ -13,6 +16,7 @@ import {
   runExclusive,
   scanArgs,
   shouldReplaceGraph,
+  resultOf,
   startScan,
   STDERR_TAIL,
   stopBackgroundScan,
@@ -198,6 +202,51 @@ describe('scan history', () => {
     expect(await ended).toEqual([true, 'Scan completed; graph updated.']);
     expect(statusWhenArchived).toEqual(['running']);
     spy.mockRestore();
+  });
+});
+
+describe('the community typed in the form', () => {
+  // "-m vulnmapper --vulns-out V ...": note the community it was given, print a graph with no device
+  const fake = (dir: string) => {
+    const scanner = path.join(dir, 'scan.sh');
+    writeFileSync(
+      scanner,
+      '#!/bin/sh\necho "${VULNMAPPER_SNMP_COMMUNITY:-none} ${NVD_API_KEY:-nokey} $*" >> "$(dirname "$0")/seen"\necho "{}" > "$4"\n' +
+        'echo \'{"nodes": [], "edges": [], "metadata": {"warnings": [{"type": "crawl_empty", "reason": "no device answered"}]}}\'\n',
+      { mode: 0o755 }
+    );
+    return scanner;
+  };
+  const run = (opts: Parameters<typeof startScan>[0]) =>
+    new Promise<[boolean, string]>((resolve) => startScan({ ...opts, onDone: (ok, m) => resolve([ok, m]) }));
+
+  it('names both credentials when nothing answered, and a scheduled scan gets the server settings only', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-typed-'));
+    const graphPath = path.join(dir, 'graph.json');
+    writeFileSync(graphPath, JSON.stringify({ nodes: [{ kind: 'device' }], edges: [] }));
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    const opts = { pythonBin: fake(dir), backendDir: dir, graphPath, logger };
+    const [ok, message] = await run({ ...opts, community: 'typed-secret' });
+    expect(ok).toBe(false);
+    expect(message).toMatch(/^No device answered the community you entered or the server's SNMP settings/);
+    expect(message).not.toContain('typed-secret');
+    expect(logger.info.mock.calls.join(' ')).not.toContain('typed-secret');
+    await saveNvdKey(graphPath, NVD_KEY); // the saved NVD key reaches the scanner's environment, not argv
+    await run({ ...opts, trigger: 'scheduled' });
+    const seen = readFileSync(path.join(dir, 'seen'), 'utf-8').split('\n');
+    expect(seen.map((l) => l.split(' ').slice(0, 2).join(' '))).toEqual(['typed-secret nokey', `none ${NVD_KEY}`, '']);
+    expect(seen[1].split(' ').slice(2).join(' ')).not.toContain(NVD_KEY);
+  });
+
+  it('keeps the warnings and SNMP sources of the finished graph in the scan state', async () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'vm-warn-'));
+    const scanner = path.join(dir, 'ok.sh');
+    const metadata = { warnings: [{ type: 'snmp_fallback', devices: ['sw1'] }], snmp: { entered: [], server: ['device:a'] } };
+    writeFileSync(scanner, `#!/bin/sh\necho "{}" > "$4"\necho '${JSON.stringify({ nodes: [], edges: [], metadata })}'\n`, { mode: 0o755 });
+    const logger = { info: jest.fn(), warn: jest.fn() } as any;
+    await run({ pythonBin: scanner, backendDir: dir, graphPath: path.join(dir, 'graph.json'), logger });
+    expect(getScan()).toMatchObject({ status: 'idle', ...metadata });
+    expect(resultOf(null)).toEqual({ warnings: [], snmp: undefined });
   });
 });
 

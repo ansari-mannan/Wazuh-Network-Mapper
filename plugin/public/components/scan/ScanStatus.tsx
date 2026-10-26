@@ -2,6 +2,7 @@
 import React from 'react';
 import { EuiCallOut, EuiFlexGroup, EuiFlexItem, EuiLoadingSpinner, EuiText } from '@elastic/eui';
 import { ScanState } from '../../../common';
+import { graphWarnings } from '../../lib/graphWarnings';
 
 export const formatTime = (iso: string | null | undefined) =>
   iso ? new Date(iso).toLocaleString() : '—';
@@ -40,8 +41,21 @@ export function ScanStatus({ scan }: { scan: ScanState | null }) {
     );
   }
   if (scan.finishedAt) {
+    const warnings = graphWarnings(scan.warnings, scan.snmp);
     return (
-      <EuiCallOut color="success" iconType="check" title="Last scan completed" data-test-subj="vmScanStatus-done">
+      <EuiCallOut
+        color={warnings.length ? 'warning' : 'success'}
+        iconType={warnings.length ? 'alert' : 'check'}
+        title={warnings.length ? 'Scan completed with a warning' : 'Last scan completed'}
+        data-test-subj="vmScanStatus-done"
+      >
+        {warnings.length > 0 && (
+          <ul data-test-subj="vmScanStatusWarnings">
+            {warnings.map((text) => (
+              <li key={text}>{text}</li>
+            ))}
+          </ul>
+        )}
         <p>
           {scan.message} Finished {formatTime(scan.finishedAt)}.
         </p>

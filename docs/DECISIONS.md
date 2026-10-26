@@ -70,3 +70,29 @@ backed up without leaking anything and the uninstall can remove exactly what
 the install added. Nothing is under a home folder, because the dashboard runs
 as a system user.
 
+## D9. A typed SNMP community comes first, and a fallback is shown
+
+The crawl always tried the community typed in the scan form before the
+server's SNMP settings, but nothing said which one a device answered, so a
+mistyped community silently worked through the environment's and looked as if
+the environment file had priority. The order stays (typed, then the server's,
+for the scan and the liveness passes; automatic and scheduled scans use the
+server's only) and each polled device now records the source it answered as a
+label, `entered` or `server`, in `metadata.snmp`. When a community was typed
+and any device answered only the server's, an `snmp_fallback` warning names
+those devices in the scan toast, on the Overview (not dismissible for that
+scan) and on Scan settings. No extra SNMP request is sent: the next credential
+is tried only on a device that did not answer the one before, as before.
+
+## D10. The NVD API key can be saved from Scan settings
+
+Setting `NVD_API_KEY` meant editing `/etc/vulnmapper/vulnmapper.env` and
+restarting the dashboard. The key can now be saved on Scan settings: the
+plugin writes it to `nvd-key` beside the graph (atomic, mode 600, owned by the
+service user) and passes it as `NVD_API_KEY` in the environment of the
+scanner and the rescore it spawns, never in argv. A saved key beats the
+environment's; removing it brings the environment's back. The key never goes
+back to the browser, into a log or an API response: the page shows only where
+the key comes from, and "Test key" makes one NVD request and reports valid,
+invalid or unreachable. The file lives with the data, so the installer keeps
+it and `uninstall --purge` removes it.
