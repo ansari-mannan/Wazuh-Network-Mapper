@@ -100,7 +100,62 @@ file: it is saved in `nvd-key` beside the graph (mode 600, gitignored as
 environment while it is there. The installer keeps it; `uninstall --purge`
 removes it with the data folder.
 
-## Install into Wazuh
+## Install on an existing Wazuh server
+
+For a Wazuh server that is already running (Wazuh 4.14.x, OpenSearch Dashboards
+2.19.6 for now). Download one script and run it:
+
+```
+curl -sO https://raw.githubusercontent.com/ansari-mannan/Wazuh-Network-Mapper/main/scripts/ntm-install.sh
+sudo bash ntm-install.sh -i
+```
+
+It finds the latest release and the plugin zip for this dashboard's version (and
+stops, listing the versions it has, if there is none), checks the download against
+`SHA256SUMS`, asks for the Wazuh API and Indexer passwords and an optional SNMP
+community, tests the two logins, installs `python3-venv` and `nmap` if they are
+missing, then runs the installer described below. Progress is also written to
+`/var/log/ntm-install.log`.
+
+| Option | |
+| --- | --- |
+| `--version TAG` | a given release instead of the latest |
+| `--env-from FILE` | use this env file instead of asking for credentials |
+| `--wazuh-host`, `--wazuh-port`, `--wazuh-user`, `--wazuh-pass` | the Wazuh API, if not on this server with the default login |
+| `--indexer-host`, `--indexer-port`, `--indexer-user`, `--indexer-pass` | the same for the Indexer |
+| `--snmp-community S`, `--verify-tls` | the SNMP community; verify TLS certificates |
+| `--import-data DIR`, `--section NAME` | copy a data folder in; the Overview section for the card |
+| `-y` | no prompts; stops if a required value is missing |
+| `--dry-run` | print what would be done, change nothing |
+
+`-h` lists them all. Passwords given as flags show up in the process list, so
+leave them out to be asked instead.
+
+**Upgrade:** run `sudo bash ntm-install.sh -i` again. The data in
+`/var/lib/vulnmapper` and a filled-in `/etc/vulnmapper/vulnmapper.env` are kept,
+and nothing is asked. If that file's `WAZUH_PASS` or `INDEXER_PASS` is empty, the
+script asks for what is missing, tests the logins and rewrites the file, keeping
+its other settings.
+
+**Uninstall:** `sudo bash ntm-install.sh -u` keeps the data and credentials;
+`-u --purge` removes them too.
+
+**Offline:** copy the release's `ntm-<tag>.tar.gz`, `vulnmapper-<version>.zip`
+and `SHA256SUMS` into a folder on the server, then:
+
+```
+sudo bash ntm-install.sh -i --offline /path/to/folder
+```
+
+The bundle carries the scanner's Python packages. `--offline` installs no system
+packages, so `python3-venv` must already be there (`nmap` is optional). The
+checksums come from the same folder, so they catch a damaged copy, not a changed
+one: get the files from the Releases page yourself.
+
+`scripts/test-ntm-install.sh` checks the script against a fake release and server,
+without root.
+
+## Install from a clone
 
 For the lab's Wazuh dashboard 4.14.8 (OpenSearch Dashboards 2.19.6, HTTPS on
 443, security plugin on). On the development machine, build and send the zip:

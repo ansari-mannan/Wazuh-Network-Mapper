@@ -52,6 +52,17 @@ command -v nmap >/dev/null || warn "nmap is not installed; the optional service 
 
 DASH_VERSION="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$OSD/package.json" 2>/dev/null)" \
   || die "no Wazuh dashboard found ($OSD/package.json)"
+# run by ntm-install.sh, this script and the zip are in a temp folder that goes
+# away afterwards, so what it prints and writes names the bootstrap instead
+if [ -n "${NTM_BOOTSTRAP:-}" ]; then
+  MANAGED_BY="ntm-install.sh"
+  ZIP_FIX="this release is packed wrongly; try another with --version"
+  MOVE_CMD="sudo $NTM_BOOTSTRAP -i --section \"ENDPOINT SECURITY\""
+else
+  MANAGED_BY="scripts/install-wazuh.sh"
+  ZIP_FIX="build it with OSD_VERSION=$DASH_VERSION ./scripts/send-plugin.sh"
+  MOVE_CMD="sudo $0 --section \"ENDPOINT SECURITY\" <zip>"
+fi
 ZIP_VERSION="$(python3 - "$ZIP" <<'EOF'
 import json, sys, zipfile
 with zipfile.ZipFile(sys.argv[1]) as z:
@@ -60,7 +71,7 @@ with zipfile.ZipFile(sys.argv[1]) as z:
 EOF
 )" || die "$ZIP is not a vulnmapper plugin zip"
 [ "$ZIP_VERSION" = "$DASH_VERSION" ] \
-  || die "the zip is built for dashboard $ZIP_VERSION but this one is $DASH_VERSION; build it with OSD_VERSION=$DASH_VERSION ./scripts/send-plugin.sh"
+  || die "the zip is built for dashboard $ZIP_VERSION but this one is $DASH_VERSION; $ZIP_FIX"
 
 # under --dry-run (e.g. against a test prefix) these only warn
 dry_or_die() { if [ "$DRY_RUN" = 1 ]; then warn "$*"; else die "$*"; fi; }
@@ -122,7 +133,7 @@ TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
 {
   yml_without_block "$YML"
-  printf '\n%s (managed by scripts/install-wazuh.sh; nothing secret here)\n' "$BEGIN_MARK"
+  printf '\n%s (managed by %s; nothing secret here)\n' "$BEGIN_MARK" "$MANAGED_BY"
   printf 'vulnmapper.backendDir: %s/backend\n' "$OPT_REAL"
   printf 'vulnmapper.pythonBin: %s/venv/bin/python\n' "$OPT_REAL"
   printf 'vulnmapper.graphPath: %s/graph.json\n' "$DATA_REAL"
@@ -207,7 +218,7 @@ cat <<EOF
 
 Open it from the "Network Topology Mapper" card in the $SECTION section of
 Wazuh's Overview page, from the menu (Security), or at https://<server>/app/vulnmapper.
-To move the card: sudo $0 --section "ENDPOINT SECURITY" <zip>
+To move the card: $MOVE_CMD
 (or edit vulnmapper.wazuhCard.section in the block and restart $SVC).
 Refresh the threat feeds by hand with:
   sudo -u $SVC $OPT_REAL/venv/bin/python -m vulnmapper.scoring.feeds --refresh --cache-dir $DATA_REAL

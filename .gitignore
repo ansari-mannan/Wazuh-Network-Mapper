@@ -58,3 +58,6 @@ data/.*.tmp
 
 # Serena (editor agent) project files
 .serena/
+
+# release files (scripts/build-release.sh)
+dist/
