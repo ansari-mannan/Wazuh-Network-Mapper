@@ -1,4 +1,4 @@
-import { pointOnLink, portLabels } from './edgeLabels';
+import { clipLabel, pointOnLink, portLabels } from './edgeLabels';
 
 // The 7 Oct lab scan records this link from L2-Switch (Fa0/1) to L3-Switch
 // (Fa1/0/2); the map draws it top-down from L3-Switch, i.e. flipped.
@@ -45,5 +45,12 @@ describe('pointOnLink', () => {
     expect(near.y).toBeGreaterThan(100);
     expect(near.y).toBeLessThan(190);
     expect(Math.abs(near.x - 100)).toBeLessThan(Math.abs(near.x - 400));
+  });
+});
+
+describe('clipLabel', () => {
+  it('shortens a long interface alias and keeps a short port as is', () => {
+    expect(clipLabel('Alias of interface (xe-0/0/1) - Link to core-sw-01')!.length).toBe(22);
+    expect(clipLabel('Gi1/0/1')).toBe('Gi1/0/1');
   });
 });

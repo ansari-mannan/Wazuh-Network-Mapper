@@ -12,7 +12,7 @@ All Python paths are under `backend/vulnmapper/`, plugin paths under `plugin/`.
 | Discovery | Crawls the network over SNMP from a seed, following LLDP and CDP neighbour tables; reads each device's identity, forwarding table, ARP table and port states | `network/crawl.py` (the crawler), `network/seeds.py`, `network/identity.py`, `network/vendors/`, `network/entity.py`, `network/roles.py`, `network/parse/` (table parsers), `network/snmp.py` (the only pysnmp user), `network/model.py`, `network/config.py`, `network/document.py` |
 | Wazuh endpoints | Lists the agents and their inventory from the Manager API, and each agent's CVEs from the Indexer | `endpoints/wazuh.py`, `endpoints/inventory.py`, `endpoints/findings.py` |
 | Assembler | Joins both sides into one graph and hangs each host off the switch port it sits on | `assemble/graph.py`, `assemble/mactable.py`, `assemble/nodes.py`, `hosts.py` (managed/unmanaged labels), `schema.py` |
-| CVE lookup | Finds CVEs for network devices in NVD by software version, then the CVSS vector fields of every CVE found | `devicecves/stage.py`, `devicecves/families.py`, `devicecves/lookup.py`, `devicecves/nvd.py`, `devicecves/cache.py`, `devicecves/vectors.py`, `vulnfile.py` |
+| CVE lookup | Finds CVEs for network devices in NVD by software version (Junos devices in Juniper's own CVE records plus NVD), then the CVSS vector fields of every CVE found | `devicecves/stage.py`, `devicecves/families.py`, `devicecves/lookup.py`, `devicecves/juniper.py`, `devicecves/junos.py`, `devicecves/nvd.py`, `devicecves/cache.py`, `devicecves/vectors.py`, `vulnfile.py` |
 | Checklist | Checks each switch's configuration against DISA STIG / SRG rules | `checklist/collect.py`, `checklist/tables.py` (read during the crawl), `checklist/catalogue.py`, `checklist/evaluate.py`, `checklist/stage.py` |
 | Service scan | Optional: nmap service detection on hosts without an agent, then the same NVD lookup | `servicescan/nmap.py`, `servicescan/stage.py` |
 | OVSS | Scores every finding and node: CVSS (CNA, then ADP, then the scanner's) weighted by exposure, dependency and threat (CISA KEV, FIRST EPSS), and a P0-P3 tier | `scoring/ovss.py` (formula, tiers, records; every constant in one block), `scoring/cvss_select.py` (CVE records from cve.org, cached), `scoring/feeds.py` (KEV and EPSS, daily), `scoring/stage.py` |
@@ -132,6 +132,7 @@ this order through `_run_stage`, which times each one, stores its block in
 | `assemble.mactable.HostFact` | Where one MAC sits: switch, port, VLAN, IP |
 | `assemble.mactable.MacTable` | The lookup host placement reads, built from every switch |
 | `devicecves.lookup.Lookup` | The result of one NVD lookup: status, rows, product, CPE |
+| `devicecves.junos.Release` | One regular Junos release, ordered by train, release, service release and build |
 | `common.StageResult` | What one optional stage produced: its block, warnings, entries, rows and note |
 | `pipeline.ScanContext` | One scan as the stages see it: options, graph, CVE catalogue, shared NVD client |
 | `network.config.Config` | A crawl's limits and credentials |
@@ -149,6 +150,7 @@ this order through `_run_stage`, which times each one, stores its block in
 | `devicecves.nvd.NvdClient` | Rate-limited, time-boxed NVD queries |
 | `devicecves.nvd.SystemClock` | The real clock, replaced by a fake in tests |
 | `devicecves.cache.Cache` | NVD answers kept between scans; also the CVE record cache |
+| `devicecves.juniper.JuniperRecords` | Juniper's CVE records for one scan: the index from NVD and the records from cve.org, cached in `juniper-cna.json`, brought up to date once |
 | `scoring.cvss_select.CveRecords` | One scan's CVE records: from the cache, else cve.org, a few at a time within a time budget |
 | `scoring.feeds.Threat` | The KEV set and EPSS scores a scan scores with, and `metadata.threat_feeds` |
 | `checklist.evaluate.DeviceChecker` | The configuration checks for one device |

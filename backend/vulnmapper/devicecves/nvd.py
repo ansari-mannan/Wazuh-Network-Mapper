@@ -180,7 +180,8 @@ class NvdClient:
         return items
 
     def cpe_listed(self, cpe: str) -> bool:
-        """Whether NVD's CPE dictionary lists this exact name (a non-deprecated entry)."""
+        """Whether NVD's CPE dictionary lists this name (a non-deprecated entry);
+        for a name with ``*`` components, any name it matches."""
         products = self._paged(CPES_URL, [("cpeMatchString", cpe)], "products")
         return any(not (p.get("cpe") or {}).get("deprecated") for p in products)
 
@@ -193,6 +194,26 @@ class NvdClient:
         """One CVE record by its id (``cveId``), or None when NVD has no such CVE."""
         found = self._get(CVES_URL, [("cveId", cve_id)]).get("vulnerabilities") or []
         return (found[0].get("cve") or None) if found else None
+
+    def cve_ids_for_source(self, source: str, mod_start: Optional[datetime] = None,
+                           mod_end: Optional[datetime] = None) -> list:
+        """Ids of the CVEs a CNA (``sourceIdentifier``, e.g. ``sirt@juniper.net``) assigned.
+
+        With ``mod_start``/``mod_end`` (UTC) only the CVEs NVD modified in that window;
+        NVD rejects a window longer than 120 days. Rejected CVEs are kept: a CNA record
+        that became REJECTED must replace the stored one.
+        """
+        params = [("sourceIdentifier", source)]
+        if mod_start is not None and mod_end is not None:
+            fmt = "%Y-%m-%dT%H:%M:%S.000Z"
+            params += [("lastModStartDate", mod_start.strftime(fmt)),
+                       ("lastModEndDate", mod_end.strftime(fmt))]
+        ids = []
+        for v in self._paged(CVES_URL, params, "vulnerabilities"):
+            cve_id = (v.get("cve") or {}).get("id")
+            if isinstance(cve_id, str) and cve_id not in ids:
+                ids.append(cve_id)
+        return ids
 
     def cves_for_keyword(self, query: str) -> list:
         return [v.get("cve") or {} for v in self._paged(

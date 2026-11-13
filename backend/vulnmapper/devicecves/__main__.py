@@ -15,6 +15,8 @@ from typing import Optional
 from ..common import setup_logging, write_json_atomic
 from .. import vulnfile
 from .cache import Cache, default_path
+from .juniper import INDEX_BUDGET_S, RECORD_BUDGET_S, JuniperRecords
+from .juniper import default_path as juniper_path, records_cache
 from .nvd import NvdClient, SystemClock
 from ..endpoints import merge_catalogue
 from .stage import DEFAULT_BUDGET_S, run_stage
@@ -25,7 +27,7 @@ log = logging.getLogger("vulnmapper.devicecves")
 
 # Warnings this stage writes; a refresh replaces the previous ones.
 STAGE_WARNINGS = {"nvd_unreachable", "nvd_stale_cache", "nvd_budget_exceeded",
-                  "device_unidentified"}
+                  "device_unidentified", "juniper_records_unavailable"}
 
 
 def _load(path: str) -> Optional[dict]:
@@ -65,7 +67,8 @@ def update_vulns(path: str, entries: dict, rows: dict, scan_time: Optional[str])
     }
 
 
-def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
+def main(argv: Optional[list] = None, transport=None, clock=None,
+         records_transport=None) -> int:
     """Refresh the device CVEs of an existing graph::
 
         python -m vulnmapper.devicecves --graph data/graph.json [--nvd-cache PATH]
@@ -77,7 +80,10 @@ def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
     they were), then scores every finding and node again with OVSS
     (vulnmapper.scoring) and rewrites both files atomically. Nothing else in
     the graph changes. No SNMP, no Wazuh; only NVD (``NVD_API_KEY`` optional,
-    from the environment) and the OVSS threat feeds and CVE records, cached.
+    from the environment), Juniper's CVE records for Junos devices
+    (juniper-cna.json, fetched within the larger of ``--budget`` and 120 s, so
+    ``--budget 600`` fills an empty cache in one run) and the OVSS threat feeds
+    and CVE records, cached.
     """
     setup_logging()
     parser = argparse.ArgumentParser(
@@ -100,7 +106,11 @@ def main(argv: Optional[list] = None, transport=None, clock=None) -> int:
     clock = clock or SystemClock()
     client = NvdClient(transport=transport, clock=clock, budget_s=args.budget)
     cache = Cache(args.nvd_cache or default_path(args.graph), clock)
-    result = run_stage(graph, client, cache)
+    juniper = JuniperRecords(
+        records_cache(juniper_path(cache.path), clock), clock,
+        lambda: NvdClient(transport=transport, clock=clock, budget_s=INDEX_BUDGET_S),
+        records_transport, record_budget_s=max(RECORD_BUDGET_S, args.budget))
+    result = run_stage(graph, client, cache, juniper)
 
     meta = graph.setdefault("metadata", {})
     meta["warnings"] = [w for w in meta.get("warnings") or []

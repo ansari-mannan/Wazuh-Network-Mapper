@@ -16,14 +16,14 @@ import {
 } from '@elastic/eui';
 import { CveLookup, CveSummary, CVE, DeviceNode, GraphEdge, GraphNode, NodeLiveness } from '../../../common';
 import { formatSeen, livenessMethod } from '../../lib/livenessText';
-import { osvText, potentialText, staleText } from '../../lib/deviceCveText';
+import { osvText, potentialText, staleText, undecidedText } from '../../lib/deviceCveText';
 import { conflictText, cvssSourceText, epssText, exposureText, ovssLine } from '../../lib/ovssText';
 import { RISK_META, riskLevel, RiskLevel, TIER_META, TIERS } from '../../lib/risk';
 import { portsText } from '../../lib/portText';
 import { Faceplate } from '../device/Faceplate';
 import { RouteEntry } from './highlight';
 
-const EMPTY = '—';
+const EMPTY = '-';
 
 export function Section({ title, count, children }: { title: string; count?: number; children: ReactNode }) {
   return (
@@ -256,6 +256,7 @@ export function Vulnerabilities({ node, cves, total, unscored, lookup }: Vulnera
           <EuiText size="xs" color="subdued" data-test-subj="vmCvePotential">
             <p>{potentialText(lookup)}</p>
             {lookup.stale && <p>{staleText(lookup)}</p>}
+            {undecidedText(lookup) && <p data-test-subj="vmCveUndecided">{undecidedText(lookup)}</p>}
           </EuiText>
           <EuiSpacer size="s" />
         </>

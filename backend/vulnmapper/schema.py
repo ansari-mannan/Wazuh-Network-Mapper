@@ -313,6 +313,8 @@ class Node:
                 out["wifi"] = self.wifi
             if self.vlan is not None:
                 out["vlan"] = self.vlan
+            if self.software_family is not None:
+                out["software_family"] = self.software_family
         else:
             out["chassis_id"] = self.chassis_id
             out["pollable"] = self.pollable

@@ -33,7 +33,8 @@ def build_document(endpoints: list[dict], cves: Optional[dict], scan_time: str,
                                   findings: [{cve, package, version, detected_at}]},
                     "<node_id>": {kind: "device", hostname, agent_id: null,
                                   cve_lookup: {status, match, product, cpe, source,
-                                               fetched_at, stale, total},
+                                               fetched_at, stale, total,
+                                               reason?, undecided?},
                                   findings: [...]}}
         }
 

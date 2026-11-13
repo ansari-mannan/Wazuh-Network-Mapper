@@ -93,20 +93,29 @@ type GraphNodeBase = OvssNode & {
 //                "keyword" (product name in NVD's descriptions)
 //   unidentified vendor, software family or version missing, or never polled
 //   unavailable  NVD could not be reached and nothing was cached
-//   unverified   NVD could not confirm the query (version not in its dictionary)
+//   unverified   NVD could not confirm the query (version not in its dictionary),
+//                or match "none": the software is identified but NVD has no
+//                product name that fits it (reason "no_cpe_rule"), or an
+//                ArubaOS-Switch model is not known (reason "model_not_mapped")
+// Junos devices are decided from Juniper's own CVE records (cve.org) plus
+// NVD's hits for the CVEs Juniper did not assign: source "juniper-cna+nvd",
+// unavailable while those records are not all fetched, unverified for a
+// release outside the regular trains (reason "version_not_comparable").
 // Absent in graphs written before devices were looked up.
 export type CveLookupStatus = "ok" | "unidentified" | "unavailable" | "unverified";
 
 export type CveLookup = {
   status: CveLookupStatus;
-  match: "cpe" | "keyword" | null;
+  match: "cpe" | "keyword" | "none" | null;
   product: string | null;   // "Cisco IOS 12.2(55)SE12"
   cpe: string | null;
-  source: string;           // "nvd", or "nmap" from the service scan
+  source: string;           // "nvd", "juniper-cna+nvd", or "nmap" from the service scan
   fetched_at: string | null;
   stale: boolean;           // an expired cached answer, NVD unreachable
   total: number | null;     // distinct CVEs, when status is ok
   potential?: boolean;      // service-scan match: a version match, not proof
+  reason?: string;          // why not ok, e.g. "juniper_records_incomplete"
+  undecided?: string[];     // Junos: CVE ids whose records make no claim for this release
 };
 
 // An open port the service scan found; service fields null where undetected.

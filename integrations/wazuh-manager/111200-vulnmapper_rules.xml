@@ -1,0 +1,132 @@
+<group name="vulnmapper,vulnerability,network-device,">
+
+  <rule id="111200" level="0">
+    <decoded_as>json</decoded_as>
+    <field name="integration">^vulnmapper$</field>
+    <description>Vulnmapper: Network-device scan event received</description>
+    <group>vulnmapper_event,</group>
+    <options>no_full_log</options>
+  </rule>
+
+  <rule id="111201" level="3">
+    <if_sid>111200</if_sid>
+    <field name="event">^scan_result$</field>
+    <field name="result">^OK$</field>
+    <description>Vulnmapper: Scan published successfully - $(devices) network devices, $(lldp_edges) confirmed links</description>
+    <group>vulnmapper_scan,</group>
+  </rule>
+
+  <rule id="111202" level="7">
+    <if_sid>111200</if_sid>
+    <field name="event">^scan_result$</field>
+    <field name="result">^DEGRADED$</field>
+    <description>Vulnmapper: Scan published in degraded state - $(detail)</description>
+    <group>vulnmapper_scan,</group>
+  </rule>
+
+  <rule id="111203" level="10">
+    <if_sid>111200</if_sid>
+    <field name="event">^scan_result$</field>
+    <field name="result">^FAIL$|^UNKNOWN$</field>
+    <description>Vulnmapper: Scan failed the publish gate and the previous graph was kept - $(detail)</description>
+    <group>vulnmapper_scan,vulnmapper_failure,</group>
+  </rule>
+
+  <rule id="111204" level="5">
+    <if_sid>111200</if_sid>
+    <field name="event">^device_new$</field>
+    <description>Vulnmapper: New network device in the topology - $(device_name) at $(device_ip), $(vendor) $(model), seen by $(sources)</description>
+    <group>vulnmapper_topology,</group>
+  </rule>
+
+  <rule id="111205" level="7">
+    <if_sid>111200</if_sid>
+    <field name="event">^device_removed$</field>
+    <description>Vulnmapper: Network device disappeared from the topology - $(device_name) at $(device_ip)</description>
+    <group>vulnmapper_topology,</group>
+  </rule>
+
+  <rule id="111206" level="7">
+    <if_sid>111200</if_sid>
+    <field name="event">^firmware_change$</field>
+    <description>Vulnmapper: Device firmware changed - $(device_name) from $(firmware_old) to $(firmware_new)</description>
+    <group>vulnmapper_topology,vulnmapper_firmware,</group>
+  </rule>
+
+  <rule id="111207" level="3">
+    <if_sid>111200</if_sid>
+    <field name="event">^link_change$</field>
+    <description>Vulnmapper: Topology links changed - $(links_new) new, $(links_lost) lost, $(links_total) total</description>
+    <group>vulnmapper_topology,</group>
+  </rule>
+
+  <rule id="111208" level="12">
+    <if_sid>111200</if_sid>
+    <field name="event">^finding_new$</field>
+    <field name="severity_class">^critical$</field>
+    <description>Vulnmapper: Critical device vulnerability - $(cve) in $(package) on $(device_name), tier $(tier), KEV $(kev), EPSS $(epss)</description>
+    <group>vulnmapper_finding,kev,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <rule id="111209" level="10">
+    <if_sid>111200</if_sid>
+    <field name="event">^finding_new$</field>
+    <field name="severity_class">^high$</field>
+    <description>Vulnmapper: High-priority device vulnerability - $(cve) in $(package) on $(device_name), tier $(tier), score $(score)</description>
+    <group>vulnmapper_finding,</group>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+  </rule>
+
+  <rule id="111210" level="5">
+    <if_sid>111200</if_sid>
+    <field name="event">^finding_new$</field>
+    <field name="severity_class">^normal$</field>
+    <description>Vulnmapper: Device vulnerability recorded - $(cve) in $(package) on $(device_name), tier $(tier), confidence $(confidence)</description>
+    <group>vulnmapper_finding,</group>
+  </rule>
+
+  <rule id="111211" level="12">
+    <if_sid>111200</if_sid>
+    <field name="event">^attack_path_new$</field>
+    <field name="severity_class">^critical$</field>
+    <description>Vulnmapper: New attack path to a high-importance asset - $(target_label) reachable from $(start) in $(hops) hop(s) via $(first_check), likelihood $(likelihood)</description>
+    <group>vulnmapper_attack_path,</group>
+    <mitre>
+      <id>T1046</id>
+      <id>T1210</id>
+    </mitre>
+  </rule>
+
+  <rule id="111212" level="10">
+    <if_sid>111200</if_sid>
+    <field name="event">^attack_path_new$</field>
+    <field name="severity_class">^high$</field>
+    <description>Vulnmapper: New attack path to a protected asset - $(target_label) reachable from $(start) in $(hops) hop(s) via $(first_check), likelihood $(likelihood)</description>
+    <group>vulnmapper_attack_path,</group>
+    <mitre>
+      <id>T1046</id>
+      <id>T1210</id>
+    </mitre>
+  </rule>
+
+  <rule id="111213" level="3">
+    <if_sid>111200</if_sid>
+    <field name="event">^ovss_tier_change$</field>
+    <description>Vulnmapper: OVSS finding tiers shifted - now P0 $(p0), P1 $(p1), was $(tiers_old)</description>
+    <group>vulnmapper_finding,</group>
+  </rule>
+
+
+  <rule id="111215" level="7">
+    <if_sid>111200</if_sid>
+    <field name="event">truncated$</field>
+    <description>Vulnmapper: Event output capped for this scan - $(emitted) of $(total) reported, check the scan for a mass change</description>
+    <group>vulnmapper_scan,</group>
+  </rule>
+
+</group>

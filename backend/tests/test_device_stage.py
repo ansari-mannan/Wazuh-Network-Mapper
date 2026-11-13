@@ -114,12 +114,18 @@ class TestStatusTable(unittest.TestCase):
         self.assertEqual(node["cve_lookup"]["status"], "unverified")
         self.assertIsNone(node["cve_summary"])
 
-    def test_device_not_polled(self):
+    def test_device_not_polled_but_with_a_recorded_family_is_looked_up(self):
         (node,), result = self.stage(device(pollable=False, status="discovered"))
+        self.assertEqual(node["cve_lookup"]["status"], "ok")
+        self.assertIsNotNone(node["cve_summary"])
+        self.assertEqual(result.warnings, [])
+
+    def test_device_not_polled_and_never_identified(self):
+        (node,), result = self.stage(device(pollable=False, status="discovered",
+                                            software_family=None, firmware=None))
         self.assertEqual(node["cve_lookup"]["status"], "unidentified")
         self.assertIsNone(node["cve_summary"])
         self.assertEqual(self.client.requests, 0)
-        self.assertEqual(result.warnings, [])          # expected, so no warning
 
     def test_stale_cache_is_used_and_flagged(self):
         cache = Cache(None, self.clock)
@@ -142,8 +148,8 @@ class TestStatusTable(unittest.TestCase):
     def test_metadata_block(self):
         _, result = self.stage(device("device:a"), device("device:b"),
                                device("device:c", pollable=False))
-        self.assertEqual(result.block, {"looked_up": 3, "by_status": {"ok": 2, "unidentified": 1},
-                                        "from_cache": 1, "nvd_requests": 2, "stale": 0,
+        self.assertEqual(result.block, {"looked_up": 3, "by_status": {"ok": 3},
+                                        "from_cache": 2, "nvd_requests": 2, "stale": 0,
                                         "api_key": False, "budget_s": 180.0})
 
 

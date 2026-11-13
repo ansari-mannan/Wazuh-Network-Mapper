@@ -20,8 +20,10 @@ from typing import Optional
 #     before families were recorded, by a narrow inference (:func:`family_of`);
 #   * the product label ("Cisco IOS 12.2(55)SE12"), the CPE (or none) and the
 #     match kind (:func:`identify`): ``cpe`` when a rule builds a full CPE,
-#     ``keyword`` when only the fallback applies, ``unidentified`` when vendor,
-#     family or version is missing;
+#     ``keyword`` when only the fallback applies, ``none`` when the family and
+#     version are known but NVD has no product name that can be trusted for it
+#     (the device is identified, its CVEs are not looked up), ``unidentified``
+#     when vendor, family or version is missing;
 #   * for the keyword fallback, whether one CVE really concerns the device
 #     (:func:`keyword_accepts`).
 #
@@ -45,6 +47,8 @@ _FORTIGATE_OID = "1.3.6.1.4.1.12356.101."
 _COMWARE_DESCR = re.compile(r"Software Version \d+\.\d+\.\d+, Release \d+")
 _COMWARE_FIRMWARE = re.compile(r"^\d+\.\d+\.\d+ Release \d+$")
 _HP_ENTERPRISE_OID = "1.3.6.1.4.1.25506."
+# The HP c-Class GbE2c blade switch's system description.
+_GBE2C_DESCR = re.compile(r"\bGbE2c\b.*Blade Switch", re.I)
 
 # CPE vendor names under which NVD files HP / HPE / H3C networking products.
 HP_VENDORS = frozenset({"hp", "hpe", "h3c", "hewlett_packard", "hewlett_packard_enterprise"})
@@ -52,6 +56,9 @@ HP_VENDORS = frozenset({"hp", "hpe", "h3c", "hewlett_packard", "hewlett_packard_
 # One entry per family. ``cpe`` is (part, vendor, product) or None. A family
 # without a CPE rule may carry a ``keyword`` rule: which CPE vendors count as
 # the same vendor, and how to find the product line in the device's model.
+# ``listed`` says how the CPE dictionary is checked before the CVE query:
+# "release" (the default: the exact name must be listed), "product" (the
+# product must be listed, any release) or "skip".
 FAMILIES: dict = {
     # cpe:2.3:o:cisco:ios (6487 dictionary entries; 12.2(55)SE12 listed)
     "cisco_ios": {"label": "Cisco IOS", "cpe": ("o", "cisco", "ios")},
@@ -65,7 +72,40 @@ FAMILIES: dict = {
     "cisco_asa": {"label": "Cisco ASA",
                   "cpe": ("a", "cisco", "adaptive_security_appliance_software")},
     # cpe:2.3:o:fortinet:fortios (271 entries)
-    "fortinet_fortios": {"label": "Fortinet FortiOS", "cpe": ("o", "fortinet", "fortios")},
+    # NVD evaluates versionStart/End ranges for a well-formed FortiOS name even
+    # when that exact release is not in the CPE dictionary: no dictionary check.
+    "fortinet_fortios": {"label": "Fortinet FortiOS", "cpe": ("o", "fortinet", "fortios"),
+                         "listed": "skip"},
+    "juniper_junos": {"label": "Juniper Junos", "cpe": ("o", "juniper", "junos")},
+    # cpe:2.3:o:juniper:junos_os_evolved (22.2:r3 answered with 103 CVEs,
+    # November 2026); decided from Juniper's records like Junos
+    "juniper_junos_evolved": {"label": "Juniper Junos OS Evolved",
+                              "cpe": ("o", "juniper", "junos_os_evolved")},
+    # ArubaOS-Switch (AOS-S) 16.x, shown by the switch as "<train>.16.04.0024"
+    # (HPE Aruba advisories write "KA/RA.16.04.0024"). NVD files its CVEs under
+    # two names: cpe:2.3:o:hpe:arubaos-switch (71 entries, 15.16 to 16.11) and
+    # one per model, cpe:2.3:o:arubanetworks:<line>_firmware, each listing some
+    # CVEs the other does not; both are asked (lookup). Neither dictionary
+    # lists every release, but NVD evaluates the version ranges for any
+    # well-formed name, so the dictionary is checked per product, not per
+    # release. Major 15 and older are left to hp_procurve.
+    "hp_arubaos_switch": {"label": "ArubaOS-Switch", "cpe": ("o", "hpe", "arubaos-switch"),
+                          "listed": "product"},
+    # ProCurve software before ArubaOS-Switch 16 (a train letter before the
+    # release: "K.15.xx.xxxx").
+    # cpe:2.3:o:hp:procurve_switch_software lists releases with the train
+    # letters ("h.10.74", "pb.02.07") and NVD compares them as strings, so a
+    # release on one train can match ranges stated for another train. No CPE
+    # rule.
+    "hp_procurve": {"label": "HP ProCurve switch software", "cpe": None},
+    # The families below have no product in NVD's CPE dictionary that fits
+    # (checked November 2026): Brocade Network OS (VDX; brocade:fabric_os is
+    # the Fibre Channel product), DCN switches, IBM Networking OS (only
+    # single per-model firmware entries), HP GbE2c.
+    "brocade_nos": {"label": "Brocade Network OS", "cpe": None},
+    "dcn_switch": {"label": "DCN switch software", "cpe": None},
+    "ibm_networking_os": {"label": "IBM Networking OS", "cpe": None},
+    "hp_gbe2c": {"label": "HP GbE2c switch software", "cpe": None},
     # No faithful CPE: the dictionary has no h3c:comware or hpe:comware product,
     # only per-part-number entries for some Comware 7 products, and "1920"
     # finds only the HPE OfficeConnect 1920S, a different product. So keyword
@@ -89,6 +129,8 @@ def detect_family(vendor: Optional[str], sys_descr: Optional[str],
     if vendor == "HP":
         if (sys_object_id or "").startswith(_HP_ENTERPRISE_OID) and _COMWARE_DESCR.search(descr):
             return "hp_comware"
+        if _GBE2C_DESCR.search(descr):
+            return "hp_gbe2c"
     return None
 
 
@@ -98,11 +140,39 @@ def detect_family(vendor: Optional[str], sys_descr: Optional[str],
 _CLASSIC_IOS = re.compile(r"^\d+\.\d+\(\d+[a-z]?\)[A-Z]+[A-Z0-9]*[a-z]?$")
 
 
+# Junos "JUNOS 19.4R3-S1.3": train 19.4, update r3-s1, build 3. NVD's CPE
+# is juniper:junos:19.4:r3-s1, without the build: the CPE dictionary lists
+# Junos releases without one, and NVD returns fewer CVEs for a name with
+# the build (175 against 295 for 20.2R2-S3, November 2026). The name has 13
+# components; NVD answers HTTP 404 ("Invalid cpeName parameter") for 14.
+_JUNOS = re.compile(r"^JUNOS\s+(\d+\.\d+)(R\d+(?:-S\d+)?)(?:\.\d+)?(-EVO)?\s*$", re.I)
+
+# ArubaOS-Switch: "KA.16.04.0024" -> "16.04.0024" (CPE version)
+_AOS_S = re.compile(r"^(?:[A-Z]{1,3}\.)?(16\.\d{2}\.\d{4})$")
+
+# A product line word in an ArubaOS-Switch model name: "2620-48" -> "2620",
+# "2930F-24G" -> "2930f". Part numbers ("J0000A") are not mapped: a model given
+# only as a part number has no line, and the device is not looked up.
+_AOS_S_LINE = re.compile(r"^(\d{4}[A-Z]?)(?:-|$)", re.I)
+
+
+def aos_s_line(model: Optional[str]) -> Optional[str]:
+    """The ArubaOS-Switch product line of a model, lower case: "Aruba 2620-48"
+    -> "2620"; None when the model names no line."""
+    for word in (model or "").replace("(", " ").replace(")", " ").split():
+        m = _AOS_S_LINE.match(word)
+        if m:
+            return m.group(1).lower()
+    return None
+
+
 def family_of(node: dict) -> Optional[str]:
     """The recorded family, else a narrow inference for an older graph.
 
     Only unambiguous cases are inferred: a classic IOS version string on a
-    Cisco device, a FortiGate, and the Comware version format on an HP device.
+    Cisco device, a FortiGate, a Junos release (``-EVO`` for
+    Evolved) on a Juniper device, and the Comware version format on an HP
+    device.
     """
     if node.get("software_family"):
         return node["software_family"]
@@ -111,6 +181,10 @@ def family_of(node: dict) -> Optional[str]:
         return "cisco_ios"
     if vendor == "Fortinet" and model.startswith("FortiGate"):
         return "fortinet_fortios"
+    if vendor == "Juniper":
+        jm = _JUNOS.match(firmware)
+        if jm:
+            return "juniper_junos_evolved" if jm.group(3) else "juniper_junos"
     if vendor == "HP" and _COMWARE_FIRMWARE.match(firmware):
         return "hp_comware"
     return None
@@ -149,11 +223,19 @@ def identify(node: dict) -> dict:
     a host that answered SNMP (vulnmapper.hosts)."""
     out = {"family": None, "product": None, "cpe": None, "match": "unidentified",
            "keyword": None, "version": None}
-    if not (node.get("kind") == "device" and node.get("pollable")) and not node.get("snmp"):
+    if not (node.get("kind") == "device" and node.get("pollable")) and not node.get("snmp") \
+            and not node.get("software_family"):
         return out                        # seen only in a neighbour's table
     family = family_of(node)
     entry = FAMILIES.get(family)
     firmware = (node.get("firmware") or "").strip()
+    if family == "fortinet_fortios":
+        # inventory strings look like "v7.4.12,build2902,260505 (GA.M)"; the CPE version is "7.4.12"
+        fm = re.match(r"^v?(\d+\.\d+\.\d+)(?:[,\s]|$)", firmware)
+        firmware = fm.group(1) if fm else firmware
+    if family == "hp_arubaos_switch":
+        am = _AOS_S.match(firmware)
+        firmware = am.group(1) if am else ""
     if entry is None:
         return out
     out["family"] = family
@@ -163,14 +245,28 @@ def identify(node: dict) -> dict:
     out["version"] = firmware
     if entry.get("cpe"):
         part, vendor, product = entry["cpe"]
+        jm = _JUNOS.match(firmware) if family in ("juniper_junos", "juniper_junos_evolved") else None
+        if jm and bool(jm.group(3)) != (family == "juniper_junos_evolved"):
+            out["product"] = out["version"] = None
+            return out                    # release of the other Junos branch: no claim
+        if jm:
+            out["cpe"] = f"cpe:2.3:{part}:{vendor}:{product}:{jm.group(1)}:{jm.group(2).lower()}:*:*:*:*:*:*"
+            out["match"] = "cpe"
+            return out
         out["cpe"] = f"cpe:2.3:{part}:{vendor}:{product}:{cpe_value(firmware)}:*:*:*:*:*:*:*"
         out["match"] = "cpe"
+        if family == "hp_arubaos_switch":
+            line = aos_s_line(node.get("model"))
+            out["extra_cpes"] = [f"cpe:2.3:o:arubanetworks:{line}_firmware:{firmware}:*:*:*:*:*:*:*"] \
+                if line else []
     elif entry.get("keyword"):
         line = product_line(node.get("model"))
         if line:
             out["match"] = "keyword"
             out["keyword"] = {"query": line, "vendors": sorted(entry["keyword"]["vendors"]),
                               "line": line, "version": firmware}
+    else:
+        out["match"] = "none"
     return out
 
 

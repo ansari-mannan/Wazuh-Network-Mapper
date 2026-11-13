@@ -1,5 +1,14 @@
 import { CveLookup } from '../../common';
-import { hasDeviceFindings, lookupDate, osvText, plural, potentialText, staleText, unscoredReason } from './deviceCveText';
+import {
+  hasDeviceFindings,
+  lookupDate,
+  osvText,
+  plural,
+  potentialText,
+  staleText,
+  undecidedText,
+  unscoredReason,
+} from './deviceCveText';
 
 const base: CveLookup = {
   status: 'ok',
@@ -12,6 +21,13 @@ const base: CveLookup = {
   total: 90,
 };
 const at = (l: Partial<CveLookup>) => ({ ...base, ...l });
+const junos = (l: Partial<CveLookup> = {}) =>
+  at({
+    product: 'Juniper Junos JUNOS 20.2R2-S3.4',
+    cpe: 'cpe:2.3:o:juniper:junos:20.2:r2-s3:*:*:*:*:*:*',
+    source: 'juniper-cna+nvd',
+    ...l,
+  });
 
 describe('potentialText', () => {
   it('says what the match rests on', () => {
@@ -32,6 +48,13 @@ describe('potentialText', () => {
     expect(potentialText(at({ source: 'nmap', potential: true, product: 'OpenSSH 8.2p1' }))).toBe(
       'Potential, from service detection: nmap detected OpenSSH 8.2p1, looked up against NVD on 9 Oct 2026. ' +
         'A version match does not confirm the affected feature is in use.'
+    );
+  });
+
+  it("says when a Junos device was matched against Juniper's own records", () => {
+    expect(potentialText(junos())).toBe(
+      "Potential: matched by software version (Juniper Junos JUNOS 20.2R2-S3.4) against Juniper's own CVE " +
+        'records and NVD on 9 Oct 2026. A version match does not confirm the affected feature is in use.'
     );
   });
 
@@ -75,6 +98,33 @@ describe('unscoredReason', () => {
     );
   });
 
+  it("says why a Junos device has no answer", () => {
+    for (const reason of ['juniper_index_unavailable', 'juniper_records_incomplete']) {
+      expect(unscoredReason(dev(junos({ status: 'unavailable', reason })))).toBe(
+        "Juniper's CVE records are not all fetched yet; it will be looked up again on the next scan."
+      );
+    }
+    expect(unscoredReason(dev(junos({ status: 'unavailable', reason: 'unreachable' })))).toBe(
+      'NVD could not be reached and nothing was cached; it will be looked up again on the next scan.'
+    );
+    expect(
+      unscoredReason(dev(junos({ status: 'unverified', reason: 'version_not_comparable', product: 'Juniper Junos JUNOS 15.1X49-D200.5' })))
+    ).toBe(
+      "Juniper Junos JUNOS 15.1X49-D200.5 is not a regular Junos release, so it cannot be compared with Juniper's CVE records."
+    );
+  });
+
+  it('says why an identified device was not looked up', () => {
+    expect(
+      unscoredReason(dev(at({ status: 'unverified', reason: 'no_cpe_rule', match: 'none', cpe: null, product: 'Brocade Network OS 7.2.0a' })))
+    ).toBe('Brocade Network OS 7.2.0a is identified, but NVD has no product name that fits it, so its CVEs are not looked up.');
+    expect(
+      unscoredReason(dev(at({ status: 'unverified', reason: 'model_not_mapped', product: 'ArubaOS-Switch 16.04.0024' })))
+    ).toBe(
+      'NVD files part of the CVEs for ArubaOS-Switch 16.04.0024 under the switch model, and this model is not known, so the lookup would be incomplete.'
+    );
+  });
+
   it('explains an older graph', () => {
     expect(unscoredReason(dev(undefined))).toBe(
       'This graph has no CVE lookup for devices; the next scan adds one.'
@@ -93,6 +143,12 @@ describe('staleText and lookupDate', () => {
       'NVD could not be reached; this is its answer from 9 Oct 2026.'
     );
     expect(staleText(base)).toBe('');
+  });
+
+  it("names Juniper's records for a stale Junos result", () => {
+    expect(staleText(junos({ stale: true }))).toBe(
+      "Juniper's CVE records or NVD could not all be refreshed; some answers are older (NVD's from 9 Oct 2026)."
+    );
   });
 
   it('writes dates the same way everywhere', () => {
@@ -127,5 +183,20 @@ describe('osvText', () => {
     );
     expect(osvText({ osv: { status: 'unavailable', reason: 'OSV unavailable' } })).toBe('');
     expect(osvText({})).toBe('');
+  });
+});
+
+describe('undecidedText', () => {
+  it("lists the CVEs Juniper's records make no claim on", () => {
+    expect(undecidedText(junos({ undecided: ['CVE-2023-28985'] }))).toBe(
+      "Juniper's records do not say whether this release is affected by 1 CVE: CVE-2023-28985. Check them by hand."
+    );
+    expect(undecidedText(junos({ undecided: ['CVE-2023-28985', 'CVE-2024-0001'] }))).toContain('by 2 CVEs: ');
+  });
+
+  it('is empty without undecided CVEs or an answer', () => {
+    expect(undecidedText(junos({ undecided: [] }))).toBe('');
+    expect(undecidedText(base)).toBe('');
+    expect(undecidedText(junos({ status: 'unavailable', undecided: ['CVE-2023-28985'] }))).toBe('');
   });
 });

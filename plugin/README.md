@@ -106,6 +106,14 @@ could not be reached, NVD does not list its version, or (for a product with no
 exact identifier) no NVD entry names it. A result served from an old cached
 answer because NVD could not be reached is marked stale.
 
+Junos devices are matched against Juniper's own CVE records and NVD
+("Potential: matched by software version (...) against Juniper's own CVE
+records and NVD on ..."). Such a device is Unscored until all of Juniper's
+records have been fetched (looked up again on the next scan) or when its
+release is not a regular Junos release. CVEs whose records do not say whether
+the device's release is affected are listed by id under the Software row, to
+be checked by hand.
+
 ## OVSS on the pages
 
 Every node carries its OVSS (`risk_score`) and tier (`node_tier`, P0 to P3; see
@@ -117,7 +125,7 @@ colour, medium in P2's), so a calm tier never hides a high finding. A node
 with no tier but with configuration findings takes the colour of its worst
 finding, so it never falls back to grey; anything else is grey. The flyout's Risk
 panel shows the OVSS line ("P1 · OVSS 6.125", or "Unassessed: cpe match
-returned 0 CVEs" — Unassessed is not clean), the tier histogram, exposure,
+returned 0 CVEs": Unassessed is not clean), the tier histogram, exposure,
 dependency, importance and KEV count. Each CVE keeps its CVSS severity and
 adds its tier and score, a KEV badge, EPSS, where its CVSS score came from
 (CNA, ADP or the scanner, with the version) and a ≠ mark when the CNA/ADP
@@ -208,7 +216,7 @@ scan.
 ## Vulnerability report
 
 The **Vulnerability report** page turns the three files a scan produces
-(`graph.json`, `vulnerabilities.json`, `attack_paths.json`) into one report —
+(`graph.json`, `vulnerabilities.json`, `attack_paths.json`) into one report:
 on screen and as an A4 PDF. It only displays data the scan produced; it changes
 no scanner or engine.
 
@@ -220,13 +228,14 @@ Two modes, chosen by a switch at the top:
   potential, its CVEs in OVSS order (tier, KEV/EPSS and CVSS source on each)
   and its configuration findings. A configurable top N (default 10) shows;
   the rest are collapsed.
-- **Single asset**: one asset's full detail — identity, open ports and detected
+- **Single asset**: one asset's full detail: identity, open ports and detected
   services, every CVE, every configuration finding with its remediation, and
   whether it lies on an attack path.
 
 A finding is **confirmed** when a Wazuh agent reports from the host, and
 **potential** when it is matched against the NVD by software version (network
-devices, hosts without an agent, and services detected by nmap). Three filters
+devices, hosts without an agent, and services detected by nmap; Junos devices
+against Juniper's own CVE records and the NVD). Three filters
 apply on screen and carry into the PDF: severity (critical/high/medium/low/
 unknown), confidence (all / confirmed only / potential only) and on-path (only
 assets a route passes through). Because a host can carry thousands of CVEs, each
@@ -257,8 +266,8 @@ verbatim, and CVE guidance stays generic and never names an invented fixed
 version. There is no PDF export; it is on screen only.
 
 A header shows progress ("5 of 14 addressed") and filters by status and
-severity. Each item carries a status — Open, In progress, Done or Accepted risk
-— set from the page. Statuses are a **shared tracker** kept in
+severity. Each item carries a status (Open, In progress, Done or Accepted risk),
+set from the page. Statuses are a **shared tracker** kept in
 `recommendations.json` beside the graph (the same place as `targets.json`),
 written through a server route, so every viewer sees the same statuses and they
 survive rescans. `open` is the default and is not stored, so the file holds only
@@ -332,7 +341,7 @@ pass only on Linux or macOS, where the dashboard server runs.
 | `GET /api/vulnmapper/history` | the scan history index (`history/index.json` beside the graph), newest first, at most 10: `{ id, time, trigger, files, counts, stages }` per scan; `[]` before the first |
 | `GET /api/vulnmapper/history/{id}/changes` | `{ current, previous }`: that archived scan's `graph`, `vulns` and `attackPaths` and the previous scan's (`previous` null for the oldest); 404 for an id not in the index, 400 for one not in the id format |
 | `GET /api/vulnmapper/recommendations` | the shared recommendations tracker (`recommendations.json`) read from beside the graph; a missing file is returned as `{ "statuses": {} }` rather than an error |
-| `POST /api/vulnmapper/recommendations/status` | set one item's status; body `{ "key": string, "status": "open" \| "in_progress" \| "done" \| "accepted_risk", "affected"?: string[], "findings"?: number }`; updates `recommendations.json` beside the graph (`open` deletes the entry) and returns the updated file. `affected` (asset ids) and `findings` record what the item covered: a done or accepted-risk item is shown as "Reopened: N new" when a newer scan affects more assets or has more findings. Writes a local file only — it runs no scanner or process |
+| `POST /api/vulnmapper/recommendations/status` | set one item's status; body `{ "key": string, "status": "open" \| "in_progress" \| "done" \| "accepted_risk", "affected"?: string[], "findings"?: number }`; updates `recommendations.json` beside the graph (`open` deletes the entry) and returns the updated file. `affected` (asset ids) and `findings` record what the item covered: a done or accepted-risk item is shown as "Reopened: N new" when a newer scan affects more assets or has more findings. Writes a local file only; it runs no scanner or process |
 
 A scan runs `<pythonBin> -m vulnmapper` in `backendDir`, one at a time. The
 graph file is replaced only when the scanner exits cleanly with valid JSON, so

@@ -384,7 +384,8 @@ class GraphAssembler:
                 ip=dev.ip or (fact.ip if fact else None), mac=mac,
                 role=dev.role,            # from its capabilities, else "host"
                 hostname=dev.hostname, vendor=dev.vendor, model=dev.model,
-                firmware=dev.firmware, serial=dev.serial)
+                firmware=dev.firmware, serial=dev.serial,
+                software_family=dev.software_family)
             switch_chassis, switch_port = _lldp_switch_and_port(chassis, self.raw_edges)
             if switch_chassis in self.device_by_chassis and switch_chassis not in end_hosts:
                 self.parent_of[node.node_id] = (device_node_id(switch_chassis), switch_port,

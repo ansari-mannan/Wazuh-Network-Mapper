@@ -59,6 +59,7 @@ class ScanContext:
         # built by the OVSS stage, used again by the attack path stage
         self.engine = None
         self._records = None
+        self._juniper = None
 
         self.endpoints: list[dict] = []
         self.network_doc: dict = {"nodes": [], "edges": []}
@@ -121,6 +122,24 @@ class ScanContext:
                                    budget_s=self.args.nvd_budget or DEFAULT_BUDGET_S),
                          Cache(self.nvd_cache_path(), self.clock))
         return self._nvd
+
+    def juniper(self):
+        """The scan's Juniper CNA records (juniper-cna.json beside nvd-cache.json),
+        made on first use; nothing is fetched until a Junos device is looked up.
+        The index has its own NVD client (same transport and clock, its own
+        budget), so it never spends the device lookups' budget."""
+        if self._juniper is None:
+            from .devicecves.juniper import JuniperRecords, default_path, records_cache
+            from .devicecves.juniper import INDEX_BUDGET_S
+            from .devicecves.nvd import NvdClient
+
+            path = self.nvd_cache_path()
+            self._juniper = JuniperRecords(
+                records_cache(default_path(path) if path else None, self.clock), self.clock,
+                lambda: NvdClient(transport=self._nvd_transport, clock=self.clock,
+                                  budget_s=INDEX_BUDGET_S),
+                self.threat_transport)
+        return self._juniper
 
     def records(self):
         """The scan's CVE records (cve-records.json), made on first use."""
@@ -603,20 +622,23 @@ class Pipeline:
         )
 
     def emit(self, document: dict, output_path: Optional[str]) -> None:
-        text = json.dumps(document, indent=2)
         if output_path:
+            # streamed: json.dumps(indent=2) built the whole text in memory as
+            # well, which ran a large scan (~30k findings) out of memory
             with open(output_path, "w", encoding="utf-8", newline="\n") as f:
-                f.write(text + "\n")
+                json.dump(document, f, indent=2)
+                f.write("\n")
             log.info("wrote graph to %s", output_path)
         else:
-            sys.stdout.write(text + "\n")
+            json.dump(document, sys.stdout, indent=2)
+            sys.stdout.write("\n")
             sys.stdout.flush()
 
     @staticmethod
     def _write_vulnerabilities(scan: ScanContext) -> None:
         if scan.vulns_path:
             write_json_atomic(scan.vulns_path,
-                                  scan.vulnerabilities(scan.document["metadata"]["scan_time"]))
+                              scan.vulnerabilities(scan.document["metadata"]["scan_time"]))
             log.info("wrote vulnerabilities to %s", scan.vulns_path)
         else:
             log.info("graph went to stdout and --vulns-out was not given; "

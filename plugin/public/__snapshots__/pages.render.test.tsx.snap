@@ -1761,7 +1761,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:1
 <dt class=\\"euiDescriptionList__title\\">Software</dt>
 <dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(58)SE2</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -3244,7 +3244,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:00:2
 <dt class=\\"euiDescriptionList__title\\">Software</dt>
 <dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(55)SE12</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -3958,7 +3958,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">172.20.99.4</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
 <dd class=\\"euiDescriptionList__description\\">HP</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
@@ -3968,7 +3968,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <dt class=\\"euiDescriptionList__title\\">Software</dt>
 <dd class=\\"euiDescriptionList__description\\">HP Comware 5.20.99 Release 1107</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -4020,7 +4020,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:5c:8
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -4565,7 +4565,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:54:7
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -4906,19 +4906,19 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">172.20.100.1</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Router / firewall</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -4970,7 +4970,7 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -5040,9 +5040,9 @@ exports[`page rendering on the golden lab outputs device detail: lab device:90:6
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Neighbor ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 </div>
 </div>
@@ -5177,7 +5177,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:00
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
 <dd class=\\"euiDescriptionList__description\\">22.04.4 LTS</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -5551,7 +5551,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
 <dd class=\\"euiDescriptionList__description\\">22.04</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -6276,7 +6276,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
 <dd class=\\"euiDescriptionList__description\\">22.04</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -6722,7 +6722,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
 <dd class=\\"euiDescriptionList__description\\">10.0.22631</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -6774,7 +6774,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -6999,7 +6999,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
 <dd class=\\"euiDescriptionList__description\\">10.0.19045</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -7051,7 +7051,7 @@ exports[`page rendering on the golden lab outputs device detail: lab endpoint:10
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -7233,7 +7233,7 @@ exports[`page rendering on the golden lab outputs device detail: lab host:7a:bd:
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">172.20.80.1</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
@@ -7241,13 +7241,13 @@ exports[`page rendering on the golden lab outputs device detail: lab host:7a:bd:
 <dt class=\\"euiDescriptionList__title\\">Manufacturer</dt>
 <dd class=\\"euiDescriptionList__description\\">Randomised or virtual address (names no manufacturer)</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -7301,7 +7301,7 @@ exports[`page rendering on the golden lab outputs device detail: lab host:7a:bd:
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -7483,7 +7483,7 @@ exports[`page rendering on the golden lab outputs device detail: lab host:e4:a7:
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">172.20.80.3</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
@@ -7491,13 +7491,13 @@ exports[`page rendering on the golden lab outputs device detail: lab host:e4:a7:
 <dt class=\\"euiDescriptionList__title\\">Manufacturer</dt>
 <dd class=\\"euiDescriptionList__description\\">Intel Corporate</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -7551,7 +7551,7 @@ exports[`page rendering on the golden lab outputs device detail: lab host:e4:a7:
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -7755,15 +7755,15 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">10.0.0.1</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -7808,7 +7808,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -7891,9 +7891,9 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Neighbor ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 </div>
 </div>
@@ -9674,7 +9674,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">Software</dt>
 <dd class=\\"euiDescriptionList__description\\">Cisco IOS 12.2(58)SE2</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Layer 2 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -10156,19 +10156,19 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">172.20.10.254</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">Layer 3 switch</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -10220,7 +10220,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -10290,9 +10290,9 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged devic
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Neighbor ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Uplink ports</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 </div>
 </div>
@@ -10416,7 +10416,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 </div>
 <dl class=\\"euiDescriptionList euiDescriptionList--column euiDescriptionList--compressed vmFields\\">
 <dt class=\\"euiDescriptionList__title\\">Hostname</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">IP</dt>
 <dd class=\\"euiDescriptionList__description\\">10.0.0.60</dd>
 <dt class=\\"euiDescriptionList__title\\">MAC</dt>
@@ -10424,13 +10424,13 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 <dt class=\\"euiDescriptionList__title\\">Manufacturer</dt>
 <dd class=\\"euiDescriptionList__description\\">VMware, Inc.</dd>
 <dt class=\\"euiDescriptionList__title\\">Vendor</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Model</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Firmware</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -10475,7 +10475,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 <dt class=\\"euiDescriptionList__title\\">KEV CVEs</dt>
 <dd class=\\"euiDescriptionList__description\\">0</dd>
 <dt class=\\"euiDescriptionList__title\\">Worst CVE (CVSS)</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 </dl>
 <div class=\\"euiSpacer euiSpacer--s\\">
 </div>
@@ -10711,7 +10711,7 @@ exports[`page rendering on the golden lab outputs device detail: unmanaged host:
 <dt class=\\"euiDescriptionList__title\\">Software</dt>
 <dd class=\\"euiDescriptionList__description\\">OpenSSH 8.2p1</dd>
 <dt class=\\"euiDescriptionList__title\\">Serial</dt>
-<dd class=\\"euiDescriptionList__description\\">—</dd>
+<dd class=\\"euiDescriptionList__description\\">-</dd>
 <dt class=\\"euiDescriptionList__title\\">Role</dt>
 <dd class=\\"euiDescriptionList__description\\">host</dd>
 <dt class=\\"euiDescriptionList__title\\">Discovery method</dt>
@@ -14418,7 +14418,7 @@ exports[`page rendering on the golden lab outputs vulnerability report 1`] = `
 <h2 class=\\"euiTitle euiTitle--medium\\">Methodology and sources</h2>
 <hr class=\\"euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginSmall\\">
 <div class=\\"euiText euiText--small\\">
-<p>Findings reported by a Wazuh agent on the host are <strong>confirmed</strong>. Findings matched against the NVD by software version — network devices, hosts without an agent, and services detected by nmap — are <strong>potential</strong>: a version match does not prove the affected feature is in use. Device configuration is checked against DISA STIG and CCSS rules; attack-path likelihood follows NIST IR 7788.</p>
+<p>Findings reported by a Wazuh agent on the host are <strong>confirmed</strong>. Findings matched against the NVD by software version (network devices, hosts without an agent, and services detected by nmap; Junos devices against Juniper's own CVE records and the NVD) are <strong>potential</strong>: a version match does not prove the affected feature is in use. Device configuration is checked against DISA STIG and CCSS rules; attack-path likelihood follows NIST IR 7788.</p>
 <p>
 <strong>OVSS: how findings are scored and ranked</strong>
 </p>
@@ -16240,7 +16240,7 @@ exports[`page rendering on the golden lab outputs vulnerability report with live
 <h2 class=\\"euiTitle euiTitle--medium\\">Methodology and sources</h2>
 <hr class=\\"euiHorizontalRule euiHorizontalRule--full euiHorizontalRule--marginSmall\\">
 <div class=\\"euiText euiText--small\\">
-<p>Findings reported by a Wazuh agent on the host are <strong>confirmed</strong>. Findings matched against the NVD by software version — network devices, hosts without an agent, and services detected by nmap — are <strong>potential</strong>: a version match does not prove the affected feature is in use. Device configuration is checked against DISA STIG and CCSS rules; attack-path likelihood follows NIST IR 7788.</p>
+<p>Findings reported by a Wazuh agent on the host are <strong>confirmed</strong>. Findings matched against the NVD by software version (network devices, hosts without an agent, and services detected by nmap; Junos devices against Juniper's own CVE records and the NVD) are <strong>potential</strong>: a version match does not prove the affected feature is in use. Device configuration is checked against DISA STIG and CCSS rules; attack-path likelihood follows NIST IR 7788.</p>
 <p>
 <strong>OVSS: how findings are scored and ranked</strong>
 </p>

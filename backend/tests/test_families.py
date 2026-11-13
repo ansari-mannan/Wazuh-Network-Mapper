@@ -48,6 +48,10 @@ class TestFamilyDetection(unittest.TestCase):
     def test_comware(self):
         self.assertEqual(detect("HP", COMWARE, "1.3.6.1.4.1.25506.11.1.169"), "hp_comware")
 
+    def test_gbe2c(self):
+        self.assertEqual(detect("HP", "GbE2c L2/L3 Ethernet Blade Switch for HP c-Class BladeSystem"),
+                         "hp_gbe2c")
+
     def test_unknown(self):
         self.assertIsNone(detect("Cisco", "Generic Software, Version 1"))
         self.assertIsNone(detect("unknown vendor", IOS))
@@ -115,6 +119,20 @@ class TestCpe(unittest.TestCase):
         self.assertEqual(r["cpe"], "cpe:2.3:o:fortinet:fortios:6.0.16:*:*:*:*:*:*:*")
         self.assertEqual(r["product"], "Fortinet FortiOS 6.0.16")
 
+    def test_junos_cpe_has_thirteen_components_and_no_build(self):
+        # NVD answers HTTP 404 for a cpeName with a build component added
+        for firmware, cpe in (
+                ("JUNOS 22.4R3-S1.6", "cpe:2.3:o:juniper:junos:22.4:r3-s1:*:*:*:*:*:*"),
+                ("JUNOS 15.1R6-S4", "cpe:2.3:o:juniper:junos:15.1:r6-s4:*:*:*:*:*:*"),
+                ("JUNOS 21.4R3.5", "cpe:2.3:o:juniper:junos:21.4:r3:*:*:*:*:*:*")):
+            with self.subTest(firmware=firmware):
+                r = self.ident(vendor="Juniper", firmware=firmware)
+                self.assertEqual(r["family"], "juniper_junos")
+                self.assertEqual(r["cpe"], cpe)
+                self.assertEqual(len(r["cpe"].split(":")), 13)
+                self.assertEqual((r["product"], r["version"], r["match"]),
+                                 (f"Juniper Junos {firmware}", firmware, "cpe"))
+
     def test_comware_has_no_cpe_rule_only_the_keyword_fallback(self):
         r = self.ident(vendor="HP", model="HP 1920-48G", firmware="5.20.99 Release 1107",
                        software_family="hp_comware")
@@ -132,20 +150,77 @@ class TestCpe(unittest.TestCase):
     def test_unidentified(self):
         for node in ({"vendor": "Cisco", "firmware": None, "software_family": "cisco_ios"},
                      {"vendor": "Cisco", "firmware": "16.9.4"},   # no family, none inferable
-                     {"vendor": None, "firmware": None},
-                     {"vendor": "Cisco", "firmware": "6.1.4", "software_family": "cisco_ios_xr"}):
+                     {"vendor": None, "firmware": None}):
             with self.subTest(node=node):
                 r = self.ident(**node)
                 self.assertEqual((r["match"], r["cpe"]), ("unidentified", None))
+
+    def test_family_without_a_cpe_rule_is_identified_with_match_none(self):
+        r = self.ident(vendor="Cisco", firmware="6.1.4", software_family="cisco_ios_xr")
+        self.assertEqual((r["family"], r["match"], r["cpe"], r["product"]),
+                         ("cisco_ios_xr", "none", None, "Cisco IOS XR 6.1.4"))
+
+    def test_families_without_an_nvd_product_are_match_none(self):
+        for family, firmware in (("hp_procurve", "K.15.18.0013"), ("brocade_nos", "7.2.0a"),
+                                 ("dcn_switch", "7.0.3.1"), ("ibm_networking_os", "7.9.11.0"),
+                                 ("hp_gbe2c", "5.1.0")):
+            with self.subTest(family=family):
+                r = self.ident(vendor="X", firmware=firmware, software_family=family)
+                self.assertEqual((r["family"], r["match"], r["cpe"], r["version"]),
+                                 (family, "none", None, firmware))
+
+    def test_junos_evolved(self):
+        r = self.ident(vendor="Juniper", firmware="JUNOS 22.2R3-S1.2-EVO")
+        self.assertEqual((r["family"], r["match"], r["cpe"]),
+                         ("juniper_junos_evolved", "cpe",
+                          "cpe:2.3:o:juniper:junos_os_evolved:22.2:r3-s1:*:*:*:*:*:*"))
+        self.assertEqual(r["product"], "Juniper Junos OS Evolved JUNOS 22.2R3-S1.2-EVO")
+
+    def test_junos_release_of_the_other_branch_is_no_claim(self):
+        for firmware, family in (("JUNOS 22.2R3-S1.2-EVO", "juniper_junos"),
+                                 ("JUNOS 22.2R3-S1.2", "juniper_junos_evolved")):
+            with self.subTest(firmware=firmware, family=family):
+                r = self.ident(vendor="Juniper", firmware=firmware, software_family=family)
+                self.assertEqual((r["family"], r["match"], r["cpe"], r["product"]),
+                                 (family, "unidentified", None, None))
+
+    def test_arubaos_switch_asks_both_nvd_names(self):
+        r = self.ident(vendor="HP", model="Aruba 2620-48", firmware="KA.16.04.0024",
+                       software_family="hp_arubaos_switch")
+        self.assertEqual((r["match"], r["version"], r["cpe"]),
+                         ("cpe", "16.04.0024", "cpe:2.3:o:hpe:arubaos-switch:16.04.0024:*:*:*:*:*:*:*"))
+        self.assertEqual(r["extra_cpes"],
+                         ["cpe:2.3:o:arubanetworks:2620_firmware:16.04.0024:*:*:*:*:*:*:*"])
+
+    def test_arubaos_switch_without_a_product_line(self):
+        r = self.ident(vendor="HP", model="J0000A", firmware="16.04.0024",
+                       software_family="hp_arubaos_switch")
+        self.assertEqual((r["match"], r["extra_cpes"]), ("cpe", []))
+
+    def test_arubaos_switch_before_16_is_unidentified(self):
+        r = self.ident(vendor="HP", model="Aruba 2620-48", firmware="RA.15.16.0021",
+                       software_family="hp_arubaos_switch")
+        self.assertEqual((r["family"], r["match"], r["cpe"]),
+                         ("hp_arubaos_switch", "unidentified", None))
+
+    def test_arubaos_switch_line(self):
+        for model, line in (("Aruba 2620-48", "2620"), ("HP 2930F-24G Switch (JL259A)", "2930f"),
+                            ("J0000A", None), (None, None), ("Switch 26200", None)):
+            with self.subTest(model=model):
+                self.assertEqual(fam.aos_s_line(model), line)
 
     def test_comware_without_a_product_line_is_unidentified(self):
         r = self.ident(vendor="HP", model=None, firmware="5.20.99 Release 1107",
                        software_family="hp_comware")
         self.assertEqual(r["match"], "unidentified")
 
-    def test_device_never_polled_is_unidentified(self):
+    def test_device_never_polled_keeps_its_recorded_family(self):
         r = fam.identify({"kind": "device", "pollable": False, "vendor": "Cisco",
                           "firmware": "12.2(55)SE12", "software_family": "cisco_ios"})
+        self.assertEqual((r["match"], r["family"]), ("cpe", "cisco_ios"))
+
+    def test_device_seen_only_in_a_neighbour_table_is_unidentified(self):
+        r = fam.identify({"kind": "device", "pollable": False, "vendor": "Cisco"})
         self.assertEqual(r["match"], "unidentified")
 
 

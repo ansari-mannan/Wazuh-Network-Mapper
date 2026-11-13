@@ -24,6 +24,9 @@ export function plural(n: number, word: string): string {
   return `${n} ${word}${n === 1 ? '' : 's'}`;
 }
 
+// a Junos device: Juniper's CVE records (cve.org) plus NVD (backend lookup.py)
+const JUNIPER = 'juniper-cna+nvd';
+
 const NOT_CONFIRMED = 'A version match does not confirm the affected feature is in use.';
 
 /** What a device's findings rest on; empty when nothing was matched. */
@@ -32,6 +35,9 @@ export function potentialText(l: CveLookup): string {
   const when = lookupDate(l.fetched_at);
   if (l.source === 'nmap') {
     return `Potential, from service detection: nmap detected ${l.product}, looked up against NVD on ${when}. ${NOT_CONFIRMED}`;
+  }
+  if (l.source === JUNIPER) {
+    return `Potential: matched by software version (${l.product}) against Juniper's own CVE records and NVD on ${when}. ${NOT_CONFIRMED}`;
   }
   if (l.match === 'keyword') {
     return `Potential: matched by product name and version (${l.product}) in NVD descriptions on ${when}. ${NOT_CONFIRMED}`;
@@ -68,8 +74,20 @@ export function unscoredReason(node: {
         ? 'It was only seen in a neighbour’s table, never polled, so its software is unknown.'
         : 'Its software could not be identified: the vendor, software family or version is missing.';
     case 'unavailable':
+      if (l.reason === 'juniper_index_unavailable' || l.reason === 'juniper_records_incomplete') {
+        return "Juniper's CVE records are not all fetched yet; it will be looked up again on the next scan.";
+      }
       return 'NVD could not be reached and nothing was cached; it will be looked up again on the next scan.';
     case 'unverified':
+      if (l.reason === 'version_not_comparable') {
+        return `${l.product || 'This release'} is not a regular Junos release, so it cannot be compared with Juniper's CVE records.`;
+      }
+      if (l.reason === 'no_cpe_rule') {
+        return `${l.product || 'This software'} is identified, but NVD has no product name that fits it, so its CVEs are not looked up.`;
+      }
+      if (l.reason === 'model_not_mapped') {
+        return `NVD files part of the CVEs for ${l.product || 'this software'} under the switch model, and this model is not known, so the lookup would be incomplete.`;
+      }
       return `NVD does not list ${l.product || 'this software version'}, so the lookup could not be confirmed.`;
     case 'ok':
       if (l.match === 'keyword' && !l.total) {
@@ -83,5 +101,17 @@ export function unscoredReason(node: {
 
 /** A stale result: NVD could not be reached, so an older answer is shown. */
 export function staleText(l: CveLookup): string {
-  return l.stale ? `NVD could not be reached; this is its answer from ${lookupDate(l.fetched_at)}.` : '';
+  if (!l.stale) return '';
+  if (l.source === JUNIPER) {
+    return `Juniper's CVE records or NVD could not all be refreshed; some answers are older (NVD's from ${lookupDate(l.fetched_at)}).`;
+  }
+  return `NVD could not be reached; this is its answer from ${lookupDate(l.fetched_at)}.`;
+}
+
+/** Junos: the CVEs whose Juniper records make no claim for this release
+ * (e.g. only signature-pack versions); empty when there are none. */
+export function undecidedText(l: CveLookup): string {
+  const ids = l.status === 'ok' ? l.undecided || [] : [];
+  if (!ids.length) return '';
+  return `Juniper's records do not say whether this release is affected by ${plural(ids.length, 'CVE')}: ${ids.join(', ')}. Check them by hand.`;
 }

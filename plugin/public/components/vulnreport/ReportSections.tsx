@@ -99,7 +99,8 @@ export function Methodology({ attackPaths }: { attackPaths: AttackPathsDoc | nul
       <EuiText size="s">
         <p>
           Findings reported by a Wazuh agent on the host are <strong>confirmed</strong>. Findings matched against the
-          NVD by software version — network devices, hosts without an agent, and services detected by nmap — are{' '}
+          NVD by software version (network devices, hosts without an agent, and services detected by nmap; Junos
+          devices against Juniper's own CVE records and the NVD) are{' '}
           <strong>potential</strong>: a version match does not prove the affected feature is in use. Device
           configuration is checked against DISA STIG and CCSS rules; attack-path likelihood follows NIST IR 7788.
         </p>

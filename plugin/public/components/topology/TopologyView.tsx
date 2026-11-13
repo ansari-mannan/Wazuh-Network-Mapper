@@ -19,7 +19,7 @@ import { GraphResponse } from '../../../common';
 import { layoutGraph, LayoutEdge } from './layout';
 import { highlightClass, RouteEntry, routeArrows, routeMarks } from './highlight';
 import { CustomNode, TopologyFlowNode } from './CustomNode';
-import { pointOnLink, portLabels, PortLabels } from './edgeLabels';
+import { clipLabel, pointOnLink, portLabels, PortLabels } from './edgeLabels';
 import { graphColors, themeVars } from '../../lib/theme';
 import { isWireless, wirelessText } from '../../lib/wireless';
 import { useHoverTip } from '../layout/HoverTip';
@@ -322,7 +322,7 @@ export const TopologyView = forwardRef<TopologyViewHandle, TopologyViewProps>(
           ...drawn,
           ...(ports ? { type: 'ports', data: ports } : {}),
           ...(wifi ? { type: 'wifi', data: { tooltip: wirelessText(ssidOf.get(e.source), e.label) } } : {}),
-          label: e.inferred ? 'inferred' : ports || wifi ? undefined : e.label,
+          label: e.inferred ? undefined : ports || wifi ? undefined : clipLabel(e.label),
           style,
           labelStyle: {
             fontSize: 10,

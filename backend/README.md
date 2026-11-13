@@ -228,13 +228,82 @@ family and firmware into a CPE, NVD's standard product name, e.g.
 | Cisco IOS, IOS XE, NX-OS | `o:cisco:ios`, `o:cisco:ios_xe`, `o:cisco:nx-os` |
 | Cisco ASA | `a:cisco:adaptive_security_appliance_software` |
 | Fortinet FortiOS | `o:fortinet:fortios` |
+| Juniper Junos | `o:juniper:junos:<train>:<update>`, e.g. `o:juniper:junos:20.2:r2-s3` (decided from Juniper's own records, see below) |
+| Juniper Junos OS Evolved (`-EVO` releases) | `o:juniper:junos_os_evolved:<train>:<update>` (decided from the Evolved blocks of Juniper's records) |
+| ArubaOS-Switch 16.x | `o:hpe:arubaos-switch:<version>` and `o:arubanetworks:<line>_firmware:<version>`, both asked, answers merged |
 | HP Comware | none: NVD has no Comware product, only some Comware 7 part numbers |
+| HP ProCurve (before ArubaOS-Switch 16) | none: the dictionary writes releases with train letters and NVD compares them as strings |
+| Brocade Network OS, DCN, IBM Networking OS, HP GbE2c | none: no product in the CPE dictionary fits |
 | Cisco IOS XR | none yet (recognised, so never taken for IOS) |
+
+A family with no CPE and no keyword rule is still identified: the device gets
+`match: none` and is `unverified` with `reason: no_cpe_rule`, so the map says
+which software it runs and that its CVEs are not looked up.
 
 The CPE is first looked up in NVD's CPE dictionary: NVD answers a version it
 has never listed with every CVE whose range happens to include it, so a CPE the
 dictionary lacks is "unverified" and not asked. A listed CPE is asked for the
 CVEs where that software is the vulnerable component (`isVulnerable`).
+How the dictionary is checked is set per family (`listed` in the rule table):
+the exact release by default; for ArubaOS-Switch only the product, since its
+dictionary lists some releases while NVD evaluates the version ranges of any
+well-formed name; FortiOS skips the check for the same reason. ArubaOS-Switch
+is asked under both its names because each lists CVEs the other does not; a
+model that names no product line (only a part number) cannot be asked under
+the per-model name, so the device is `unverified` (`reason: model_not_mapped`)
+rather than reported with part of its CVEs.
+
+**Junos.** NVD does not answer Junos well: its applicability data for Junos
+lags Juniper's advisories and lists only some releases. The CPE name is built
+without the build number (`20.2:r2-s3`, as the CPE dictionary lists Junos
+releases; NVD returns fewer CVEs for a name with the build) and with 13
+components (NVD rejects 14 with HTTP 404). Juniper is the CVE Numbering
+Authority (CNA) for its own products, and each of its CVE records (CVE JSON
+5) states which Junos OS releases are affected, in Juniper's release
+notation. A Junos device is therefore decided from those records:
+
+- the index, the ids of every CVE Juniper assigned, comes from NVD
+  (`sourceIdentifier=sirt@juniper.net`): a full pull when there is none or the
+  last one is 119 days old (NVD accepts a modification window of at most 120
+  days), otherwise every 6 hours only the CVEs NVD modified since the last
+  sync, with one hour of overlap, and those are fetched again;
+- each record comes from the CVE Services API
+  (`https://cveawg.mitre.org/api/cve/<id>`), 8 at a time, with a 120 second
+  budget per scan (the refresh command uses the larger of `--budget` and 120
+  seconds); a record with no answer or a rate limit stops fetching for that
+  scan, never-fetched records go first;
+- the device's release (`<major>.<minor>R<n>[-S<n>][.<build>]`, e.g.
+  `22.4R3-S1.6`) is compared with each record's `affected` entries: ranges,
+  lists of fixed releases per release branch ("before 19.2R1-S7, 19.2R3-S3"
+  leaves 19.2R2 affected), timelines over one train, and the free-text forms
+  older records use. Inside one affected block an explicit unaffected entry
+  wins; across blocks affected wins, then undecided, then unaffected. A block
+  for other platforms is skipped; a model that cannot be placed matches every
+  platform. Special trains (`15.1X49-D200`), feature releases and Junos OS
+  Evolved are never compared with a regular release;
+- NVD's own cpeName answer adds the CVEs Juniper did not assign (mostly from
+  before Juniper became a CNA), but only those whose Junos criterion names a
+  version or a range: a bare `junos:*` claims every release ever and is not
+  counted. Rejected records count from neither source. A record without a CNA
+  score takes NVD's score from the same answer.
+
+A CVE whose record makes no claim for the device's release is never guessed:
+a version form not parsed, or a record whose affected entries name trains
+below and above the device's train but never that train (Juniper does not
+assess releases past their end of engineering). It is listed in
+`cve_lookup.undecided` for a manual check. Platform limits stated only in a
+record's description text are not read, so such a CVE is reported for every
+model. Devices are decided only
+from a complete set (an index and an entry for every id in it); anything less
+leaves them `unavailable` with a `juniper_records_unavailable` warning, never
+a partial `ok`, and the next scan fills the gaps. A firmware string that is
+not a regular release is `unverified` (`reason: version_not_comparable`).
+A Junos OS Evolved device (`22.2R3-S1-EVO`) is decided the same way from
+the records' Junos OS Evolved blocks only. Records cached before those blocks
+were kept are fetched again, and Evolved devices stay `unavailable` until
+every record carries them (`juniper.evo_complete`).
+`cve_lookup.source` is `juniper-cna+nvd` for these devices and `nvd` for every
+other.
 
 A family without a CPE uses a keyword search, under a strict rule because a
 wrong match puts a false critical on the map: a CVE counts only when its
@@ -249,7 +318,9 @@ is in CISA KEV.
 
 **On each device node:** `cve_summary`, `top_cves` and `max_cvss`, built
 exactly as for hosts, and `cve_lookup` (`status`, `match`, `product`, `cpe`,
-`source`, `fetched_at`, `stale`, `total`). The OVSS stage then scores them.
+`source`, `fetched_at`, `stale`, `total`, plus `reason` when the status is not
+`ok` and the lookup said why, and `undecided` for Junos). The OVSS stage then
+scores them.
 
 | Situation | `status` | findings |
 |---|---|---|
@@ -261,13 +332,19 @@ exactly as for hosts, and `cve_lookup` (`status`, `match`, `product`, `cpe`,
 | NVD unreachable and nothing cached | `unavailable` | null |
 | NVD could not confirm the query | `unverified` | null |
 | device not polled | `unidentified` | null |
+| Junos, Juniper records not all fetched yet | `unavailable` | null |
+| Junos, firmware not a regular release | `unverified` | null |
+| family known, no NVD product fits it | `unverified`, `match: none` | null |
+| ArubaOS-Switch, model line not known | `unverified` | null |
 
 An empty list means "asked precisely, and NVD has nothing"; a failed, guessed
 or skipped lookup never gives it. Either way OVSS calls the device Unassessed,
 since nothing scored is not the same as clean. Problems go to `metadata.warnings`
 (`nvd_unreachable`, `nvd_stale_cache`, `nvd_budget_exceeded`,
-`device_unidentified`, each with node ids); `metadata.device_cves` counts the
-devices looked up, by status, served from the cache, and the NVD requests made.
+`device_unidentified`, `juniper_records_unavailable`, each with node ids);
+`metadata.device_cves` counts the devices looked up, by status, served from the
+cache, and the NVD requests made, and, when a Junos device was looked up,
+`juniper` says how the index was synced and how many records were fetched.
 
 **Cache.** NVD answers are kept in `nvd-cache.json` beside the vulnerabilities
 file (`data/nvd-cache.json` in practice; `--nvd-cache PATH` to move it), keyed
@@ -276,7 +353,10 @@ is fresh for 7 days, an empty one for 1 day, as is a query NVD calls
 malformed. When NVD cannot be reached an expired entry is used and marked
 `stale`. A corrupt cache is rebuilt. With a warm cache a scan makes no NVD
 request. Each NVD stage logs its cache hits and misses (`NVD cache, device
-CVEs: ...`), and its `metadata.stages` note carries them.
+CVEs: ...`), and its `metadata.stages` note carries them. Juniper's index and
+records are kept in `juniper-cna.json` beside `nvd-cache.json`: a record is
+fresh for 30 days (one the API does not know, 1 day), and an expired record or
+an index not synced for a day still serves, marked `stale`.
 
 **Rate and time.** Without a key requests are 6 seconds apart (NVD allows 5 per
 30 seconds); with `NVD_API_KEY` set in the environment, 0.8 seconds. A
@@ -641,7 +721,7 @@ is no stepping stone.
 scale. A target id not in the graph is reported missing; no targets gives zero
 routes and the state `no_targets`. For each target+start pair the single
 highest-likelihood route is found with NetworkX (Dijkstra on the negative log of
-the step values). A target's routes are ordered — never blended — by importance,
+the step values). A target's routes are ordered (never blended) by importance,
 then likelihood, then the highest node OVSS on the route, then fewer steps,
 then the start id and the ids along the route; up to ten are kept per target
 (configurable).
@@ -749,7 +829,7 @@ succeeds).
 
 **What it probes, and what it never touches.** Only nodes that are
 `unmanaged: true` and have a known IP, taken from the graph the pipeline just
-built — never a managed host, never a network device, never an address the
+built: never a managed host, never a network device, never an address the
 scan did not already see. `nmap -sV` runs (service/version detection,
 nmap's default port set) over a host-list file of up to 16 hosts each, two
 such runs at a time, plus the benign
@@ -773,14 +853,14 @@ counts them). A host that did not answer is always asked again.
 cache and scans every eligible host.
 
 **What a host that answered gets.** Its `open_ports` (port, protocol and, where
-nmap detected them, service, product and version) — recorded even when no CVE
+nmap detected them, service, product and version), recorded even when no CVE
 is found, because the ports are useful on their own and are the honest
 evidence. Each product nmap detected with a version (through the CPE it
 emits) is turned into a CPE lookup and run through the same
 device-CVE NVD path (same client, cache and time budget), so the host gains
 `cve_summary`, `top_cves`, `max_cvss` and a `cve_lookup` like a
 device's (several products are merged: `product` and `cpe` list them, separated
-by `; ` and `, `, and a CVE found for two of them counts once) — with `source: "nmap"` and `potential: true`. **Potential** means a
+by `; ` and `, `, and a CVE found for two of them counts once), with `source: "nmap"` and `potential: true`. **Potential** means a
 detected service version is not proof the vulnerable build is running, the same
 caution as a device's version match. A host that answered with no identifiable
 service, or no CVE, keeps its `open_ports` and is otherwise unchanged. The host

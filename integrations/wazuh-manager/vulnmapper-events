@@ -1,0 +1,308 @@
+#!/usr/bin/env python3
+"""Emit a scan's outcome and its changes as newline-delimited JSON for
+wazuh-logcollector (<log_format>json</log_format>), one object per line.
+
+The scanner writes full-state snapshots (graph.json, vulnerabilities.json,
+attack_paths.json) that are rewritten on every scan, so logcollector has
+nothing to follow and a rule has no stable contract to match. This turns one
+scan into an append-only event stream with named fields, so the Wazuh ruleset
+matches on fields and never on a regex over free text.
+
+Run it right after a scan published its output. `scan_result` is emitted
+always; the change events only when a graph was published, because on a failed
+scan the data directory still holds the previous graph and a diff against it
+would be noise.
+
+Diff inputs: DATA holds what was just published, PREV holds the previous
+publication. Copy the three JSON files to PREV before a new scan overwrites
+them (see README.md). Nothing is kept between runs, so the same finding is
+reported once.
+
+Each event carries a `severity_class` the ruleset keys on. Rules must stay
+mutually exclusive: Wazuh fires only one sibling per `if_sid` parent, so the
+class is decided here rather than by rule ordering.
+
+Environment:
+  VM_DATA    published scan output      (default /var/lib/vulnmapper)
+  VM_PREV    previous publication       (default $VM_DATA/last-good)
+  VM_EVENTS  event log to append to     (default $VM_DATA/events.json)
+  VM_SCANNER value of the `scanner` field (default this host's FQDN)
+
+Usage: vulnmapper-events
+"""
+import json
+import os
+import socket
+
+DATA = os.environ.get("VM_DATA") or "/var/lib/vulnmapper"
+PREV = os.environ.get("VM_PREV") or DATA + "/last-good"
+OUT = os.environ.get("VM_EVENTS") or DATA + "/events.json"
+
+# Keep one bad scan from flooding the manager. Each cap emits a single
+# <kind>_truncated event carrying the real total.
+MAX_FINDINGS = 40
+MAX_DEVICES = 40
+MAX_ROUTES = 20
+# Rotate rather than truncate in place: logcollector follows the inode and
+# would silently stop reading a file truncated under it.
+MAX_BYTES = 5 * 1024 * 1024
+
+HOST = os.environ.get("VM_SCANNER") or socket.getfqdn()
+
+
+def load(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return None
+
+
+def devices(graph):
+    return {
+        n["node_id"]: n
+        for n in (graph or {}).get("nodes", [])
+        if n.get("kind") == "device"
+    }
+
+
+def findings(vulns):
+    """Flat map of (node_id, cve, package) -> finding, with the host label
+    attached. The package is part of the key: one host can carry the same CVE
+    for two packages, and keying on the CVE alone would drop one of them."""
+    out = {}
+    for node_id, host in ((vulns or {}).get("hosts") or {}).items():
+        for f in host.get("findings") or []:
+            cve = f.get("cve")
+            if cve:
+                key = (node_id, cve, f.get("package"))
+                out[key] = (host.get("hostname") or node_id, f)
+    return out
+
+
+def routes(paths):
+    """Flat map of a route's identity -> route, flattened over every target."""
+    out = {}
+    for target in (paths or {}).get("targets") or []:
+        for r in target.get("routes") or []:
+            key = (
+                r.get("target"),
+                r.get("start"),
+                tuple((s.get("kind"), s.get("check")) for s in r.get("steps") or []),
+            )
+            out[key] = (target.get("label") or target.get("id"), r)
+    return out
+
+
+def finding_class(f):
+    if f.get("tier") == "P0" or f.get("kev"):
+        return "critical"
+    if f.get("tier") == "P1":
+        return "high"
+    return "normal"
+
+
+class Sink:
+    def __init__(self, path):
+        self.path = path
+        self.lines = []
+        self.scan_time = None
+
+    def add(self, event, **fields):
+        rec = {"integration": "vulnmapper", "event": event, "scanner": HOST}
+        if self.scan_time:
+            rec["scan_time"] = self.scan_time
+        rec.update({k: v for k, v in fields.items() if v is not None})
+        self.lines.append(json.dumps(rec, ensure_ascii=False, sort_keys=True))
+
+    def flush(self):
+        if not self.lines:
+            return
+        try:
+            if os.path.getsize(self.path) > MAX_BYTES:
+                os.replace(self.path, self.path + ".1")
+        except OSError:
+            pass
+        new = not os.path.exists(self.path)
+        with open(self.path, "a", encoding="utf-8") as fh:
+            fh.write("\n".join(self.lines) + "\n")
+        if new:
+            try:
+                os.chmod(self.path, 0o644)
+            except OSError:
+                pass
+
+
+def read_status(graph):
+    """A wrapper that gates publication can drop a scan-status.json next to the
+    graph ({"result": "OK|DEGRADED|FAIL", "detail": "..."}); without one, a
+    readable graph is taken as a successful scan."""
+    status = load(DATA + "/scan-status.json") or {}
+    result = status.get("result") or ("OK" if graph else "UNKNOWN")
+    return result, status.get("detail") or ""
+
+
+def main():
+    sink = Sink(OUT)
+    graph = load(DATA + "/graph.json")
+    result, detail = read_status(graph)
+    if result not in ("OK", "DEGRADED"):
+        graph = None
+    metadata = (graph or {}).get("metadata") or {}
+    counts = metadata.get("counts") or {}
+    if graph:
+        sink.scan_time = metadata.get("scan_time")
+
+    sink.add(
+        "scan_result",
+        result=result,
+        detail=detail,
+        severity_class={"OK": "normal", "DEGRADED": "high"}.get(result, "critical"),
+        devices=counts.get("devices"),
+        lldp_edges=counts.get("lldp_edges"),
+        endpoints=counts.get("endpoints"),
+    )
+
+    if graph is None:
+        sink.flush()
+        return
+
+    old_graph = load(PREV + "/graph.json")
+    if old_graph:
+        old, new = devices(old_graph), devices(graph)
+        added = sorted(set(new) - set(old))
+        removed = sorted(set(old) - set(new))
+        for node_id in added[:MAX_DEVICES]:
+            n = new[node_id]
+            sink.add(
+                "device_new",
+                node_id=node_id,
+                device_name=n.get("hostname"),
+                device_ip=n.get("ip"),
+                vendor=n.get("vendor"),
+                model=n.get("model"),
+                role=n.get("role"),
+                sources=",".join(n.get("sources") or []) or None,
+                severity_class="normal",
+            )
+        for node_id in removed[:MAX_DEVICES]:
+            n = old[node_id]
+            sink.add(
+                "device_removed",
+                node_id=node_id,
+                device_name=n.get("hostname"),
+                device_ip=n.get("ip"),
+                severity_class="high",
+            )
+        if len(added) > MAX_DEVICES or len(removed) > MAX_DEVICES:
+            sink.add(
+                "device_truncated",
+                added_total=len(added),
+                removed_total=len(removed),
+                emitted=MAX_DEVICES,
+                severity_class="high",
+            )
+        for node_id in sorted(set(old) & set(new)):
+            fa, fb = old[node_id].get("firmware"), new[node_id].get("firmware")
+            if fa and fb and fa != fb:
+                sink.add(
+                    "firmware_change",
+                    node_id=node_id,
+                    device_name=new[node_id].get("hostname"),
+                    device_ip=new[node_id].get("ip"),
+                    firmware_old=fa,
+                    firmware_new=fb,
+                    severity_class="high",
+                )
+        link = lambda g: {
+            tuple(sorted((e.get("source"), e.get("target"))))
+            for e in (g or {}).get("edges", [])
+        }
+        la, lb = link(old_graph), link(graph)
+        if la != lb:
+            sink.add(
+                "link_change",
+                links_new=len(lb - la),
+                links_lost=len(la - lb),
+                links_total=len(lb),
+                severity_class="normal",
+            )
+        ovss = lambda g: (
+            ((g or {}).get("metadata") or {}).get("ovss") or {}
+        ).get("findings_by_tier") or {}
+        oa, ob = ovss(old_graph), ovss(graph)
+        if oa and ob and oa != ob:
+            sink.add(
+                "ovss_tier_change",
+                tiers_old=json.dumps(oa, sort_keys=True),
+                tiers_new=json.dumps(ob, sort_keys=True),
+                p0=ob.get("P0"),
+                p1=ob.get("P1"),
+                severity_class="normal",
+            )
+
+    old_vulns = load(PREV + "/vulnerabilities.json")
+    old_f = findings(old_vulns)
+    new_f = findings(load(DATA + "/vulnerabilities.json"))
+    if old_vulns is not None:
+        fresh = sorted(set(new_f) - set(old_f))
+        for key in fresh[:MAX_FINDINGS]:
+            hostname, f = new_f[key]
+            sink.add(
+                "finding_new",
+                node_id=key[0],
+                device_name=hostname,
+                cve=f.get("cve"),
+                package=f.get("package"),
+                pkg_version=f.get("version"),
+                tier=f.get("tier"),
+                score=f.get("score"),
+                cvss=f.get("cvss_used"),
+                epss=f.get("epss"),
+                kev="true" if f.get("kev") else "false",
+                confidence=f.get("confidence"),
+                severity_class=finding_class(f),
+            )
+        if len(fresh) > MAX_FINDINGS:
+            sink.add(
+                "finding_truncated",
+                total=len(fresh),
+                emitted=MAX_FINDINGS,
+                severity_class="high",
+            )
+
+    old_paths = load(PREV + "/attack_paths.json")
+    old_r = routes(old_paths)
+    new_r = routes(load(DATA + "/attack_paths.json"))
+    if old_paths is not None:
+        fresh = [k for k in new_r if k not in old_r]
+        for key in fresh[:MAX_ROUTES]:
+            label, r = new_r[key]
+            steps = r.get("steps") or []
+            sink.add(
+                "attack_path_new",
+                target_label=label,
+                target_id=r.get("target"),
+                start=r.get("start"),
+                start_kind=r.get("start_kind"),
+                importance=r.get("importance"),
+                likelihood=r.get("likelihood"),
+                hops=len(steps),
+                first_check=(steps[0].get("check") if steps else None),
+                crosses_router="true" if r.get("crosses_router") else "false",
+                narrative=(r.get("narrative") or "")[:300] or None,
+                severity_class="critical" if r.get("importance") == "high" else "high",
+            )
+        if len(fresh) > MAX_ROUTES:
+            sink.add(
+                "route_truncated",
+                total=len(fresh),
+                emitted=MAX_ROUTES,
+                severity_class="high",
+            )
+
+    sink.flush()
+
+
+if __name__ == "__main__":
+    main()

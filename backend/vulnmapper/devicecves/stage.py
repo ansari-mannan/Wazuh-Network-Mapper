@@ -34,6 +34,10 @@ log = logging.getLogger("vulnmapper.devicecves")
 #
 #   ``cve_summary``, ``top_cves``, ``max_cvss``, and
 #   ``cve_lookup``: {status, match, product, cpe, source, fetched_at, stale, total}
+#   (``reason`` when the status is not ok and the lookup said why, e.g.
+#   "not_in_dictionary", "juniper_records_incomplete", "version_not_comparable",
+#   "no_cpe_rule", "model_not_mapped";
+#   Junos also ``undecided``: CVE ids whose records make no claim for its release)
 #
 # How the lookup's status maps to the findings:
 #
@@ -45,6 +49,14 @@ log = logging.getLogger("vulnmapper.devicecves")
 #   NVD unreachable and nothing cached    unavailable           null
 #   NVD could not confirm the query       unverified            null
 #   device not polled                     unidentified          null
+#   Junos, Juniper records incomplete     unavailable           null
+#   Junos, firmware not a regular release unverified            null
+#   family known, no fitting NVD name     unverified, match none null
+#   ArubaOS-Switch, model line not known  unverified            null
+#
+# Junos devices are decided from Juniper's own CVE records plus NVD's hits for
+# the CVEs Juniper did not assign (source "juniper-cna+nvd", see lookup.py);
+# every other device from NVD alone (source "nvd").
 #
 # An empty list means "asked precisely, and NVD has nothing"; a failed, guessed
 # or skipped lookup never produces it. Every device finding is potential: the
@@ -52,20 +64,24 @@ log = logging.getLogger("vulnmapper.devicecves")
 # ``cve_lookup`` marks that; the rows carry no flag of their own.
 
 DEFAULT_BUDGET_S = 180.0
-SOURCE = "nvd"
 
 
 def _lookup_object(result: Lookup, rows: Optional[list]) -> dict:
-    return {
+    out = {
         "status": result.status,
         "match": result.match,
         "product": result.product,
         "cpe": result.cpe,
-        "source": SOURCE,
+        "source": result.source,
         "fetched_at": result.fetched_at,
         "stale": result.stale,
         "total": len(distinct_cves(rows)) if rows is not None else None,
     }
+    if result.reason and result.status != STATUS_OK:
+        out["reason"] = result.reason
+    if result.undecided is not None:
+        out["undecided"] = result.undecided
+    return out
 
 
 def apply_result(node: dict, result: Lookup) -> Optional[list]:
@@ -94,22 +110,26 @@ def device_entry(node: dict, rows: Optional[list]) -> dict:
     }
 
 
-def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
-    """Look up every device node of ``graph`` and update it in place."""
+def run_stage(graph: dict, client: NvdClient, cache: Cache, juniper=None) -> StageResult:
+    """Look up every device node of ``graph`` and update it in place; ``juniper``
+    (a JuniperRecords) decides the Junos devices."""
     out = StageResult()
     by_status: Counter = Counter()
-    unreachable, stale, budget, unidentified = [], [], [], []
+    unreachable, stale, budget, unidentified, no_juniper = [], [], [], [], []
     from_cache = 0
     # A host that answered SNMP with a software family is looked up the same way.
     devices = [n for n in graph.get("nodes") or [] if n.get("kind") == KIND_DEVICE
-               or (n.get("snmp") and n.get("software_family"))]
+               or n.get("software_family")]
     for node in devices:
-        result = lookup(families.identify(node), client, cache)
+        result = lookup(families.identify(node), client, cache, juniper, node.get("model"))
         rows = apply_result(node, result)
         nid = node["node_id"]
         by_status[result.status] += 1
         if result.status == STATUS_UNAVAILABLE:
-            (budget if result.reason == "budget" else unreachable).append(nid)
+            if result.reason and result.reason.startswith("juniper_"):
+                no_juniper.append(nid)
+            else:
+                (budget if result.reason == "budget" else unreachable).append(nid)
         if result.stale:
             stale.append(nid)
         if result.status == STATUS_UNIDENTIFIED and node.get("pollable"):
@@ -122,7 +142,8 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
     cache.save()
 
     for kind, ids in (("nvd_unreachable", unreachable), ("nvd_stale_cache", stale),
-                      ("nvd_budget_exceeded", budget), ("device_unidentified", unidentified)):
+                      ("nvd_budget_exceeded", budget), ("device_unidentified", unidentified),
+                      ("juniper_records_unavailable", no_juniper)):
         if ids:
             out.warnings.append({"type": kind, "node_ids": ids})
     if budget:
@@ -137,6 +158,8 @@ def run_stage(graph: dict, client: NvdClient, cache: Cache) -> StageResult:
         "api_key": client.has_key,
         "budget_s": client.budget_s,
     }
+    if juniper is not None and juniper.prepared:
+        out.block["juniper"] = juniper.block()
     log.info("device CVEs: %d device(s) %s, %d NVD request(s)", len(devices),
              dict(by_status), client.requests)
     return out
@@ -147,7 +170,7 @@ def run_device_cves(scan: "ScanContext") -> StageResult:
     found added to the scan's CVE catalogue and vulnerabilities.json entries."""
     client, cache = scan.nvd()
     before = cache.tally()
-    result = run_stage(scan.document, client, cache)
+    result = run_stage(scan.document, client, cache, scan.juniper())
     result.note = nvd_note(result.block, f"{plural(result.block['looked_up'], 'device')} looked up",
                            scan.nvd_tally("device CVEs", before), cache.retry_after)
     scan.add_findings(result)

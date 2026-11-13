@@ -14,13 +14,17 @@ export type PortLabels = {
   center?: string;
 };
 
+// Interface aliases can be whole sentences; a port label stays short on the map.
+export function clipLabel(s: string | undefined, max = 22): string | undefined {
+  return s && s.length > max ? s.slice(0, max - 1) + '\u2026' : s;
+}
 export function portLabels(
   e: Pick<GraphEdge, 'type' | 'local_port' | 'remote_port'>,
   flipped: boolean
 ): PortLabels {
-  if (e.type !== 'lldp') return { center: e.local_port || undefined };
-  const recordedSource = e.local_port || undefined;
-  const recordedTarget = e.remote_port || undefined;
+  if (e.type !== 'lldp') return { center: clipLabel(e.local_port || undefined) };
+  const recordedSource = clipLabel(e.local_port || undefined);
+  const recordedTarget = clipLabel(e.remote_port || undefined);
   return flipped
     ? { sourcePort: recordedTarget, targetPort: recordedSource }
     : { sourcePort: recordedSource, targetPort: recordedTarget };
